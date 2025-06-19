@@ -49,22 +49,6 @@ const Menubar = () => {
 		actions: []
     });
 
-	const routes = useRoutes([
-		{ path: '/', element: <Home setHeader={setHeader} staff={staff} /> },
-		{ path: '/home', element: <Home setHeader={setHeader} staff={staff} /> },
-		{ path: '/notifications', element: <p>Notifications</p> },
-		{ path: '/students/profiles', element: <p>Student Profiles</p> },
-		{ path: '/students/disciplinary', element: <p>Disciplinary Records</p> },
-		{ path: '/students/organization', element: <p>Organizations</p> },
-		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
-		{ path: '/utilities/faqs', element: <p>FAQs</p> },
-		{ path: '/utilities/announcements', element: <p>Announcements</p> },
-		{ path: '/utilities/repository', element: <p>Repository</p> },
-		{ path: '/helpbot', element: <p>Helpbot</p> },
-	]);
-
-    const [minimized, setMinimized] = React.useState(true);
-
     // Fetch staff data on component mount
     React.useEffect(() => {
         fetch('https://randomuser.me/api/?results=1&inc=name,%20picture')
@@ -85,6 +69,22 @@ const Menubar = () => {
                 console.error('Error fetching staff data:', error);
             });
     }, []);
+
+	const routes = useRoutes([
+		{ path: '/', element: <Home setHeader={setHeader} staff={staff} /> },
+		{ path: '/home', element: <Home setHeader={setHeader} staff={staff} /> },
+		{ path: '/notifications', element: <p>Notifications</p> },
+		{ path: '/students/profiles', element: <p>Student Profiles</p> },
+		{ path: '/students/disciplinary', element: <p>Disciplinary Records</p> },
+		{ path: '/students/organization', element: <p>Organizations</p> },
+		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
+		{ path: '/utilities/faqs', element: <p>FAQs</p> },
+		{ path: '/utilities/announcements', element: <p>Announcements</p> },
+		{ path: '/utilities/repository', element: <p>Repository</p> },
+		{ path: '/helpbot', element: <p>Helpbot</p> },
+	]);
+
+    const [minimized, setMinimized] = React.useState(true);
 
     const menuItems = [
         {
