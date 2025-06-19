@@ -22,7 +22,7 @@ import remToPx from '../../utils/remToPx';
 
 const { Text, Title, Link } = Typography;
 
-import '../../styles/pages/authentication/SignIn.css';
+import '../../styles/pages/Authentication.css';
 
 const SignIn = () => {
 	const [signingIn, setSigningIn] = React.useState(false);
@@ -60,7 +60,7 @@ const SignIn = () => {
 				align='center'
 				className={`page-container ${mobile ? 'mobile' : ''}`}
 			>
-				<Card className='auth-card'>
+				<Card className='authentication-card'>
 					<Flex vertical justify='space-between' align='center' gap='large' style={{ height: '100%' }}>
 						<Flex vertical justify='center' align='center' gap='large' style={{ height: '100%' }}>
 							<Image
