@@ -8,13 +8,14 @@ import SignIn from './pages/authentication/SignIn';
 import SignUp from './pages/authentication/SignUp';
 import ForgotPassword from './pages/authentication/ForgotPassword';
 
-import Menubar from './Components/Menubar';
+import Home from './pages/dashboard/Home';
 
 import remToPx from './utils/remToPx';
 import rootToHex from './utils/rootToHex';
 
 import 'antd/dist/reset.css';
 import './styles/index.css';
+import Menubar from './Components/Menubar';
 
 const OSAS = () => {
 	const [mobile, setMobile] = React.useState(false);

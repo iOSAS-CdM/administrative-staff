@@ -14,7 +14,7 @@ const { Title, Text } = Typography;
 
 import Menubar from '../../Components/Menubar';
 
-const Home = ({ setHeader }) => {
+const Home = ({ setHeader, staff }) => {
 	React.useEffect(() => {
 		if (setHeader)
 			setHeader({

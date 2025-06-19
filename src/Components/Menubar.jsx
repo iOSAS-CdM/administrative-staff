@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate, Routes, Route } from 'react-router';
+import { useNavigate, Routes, Route, useLocation, useRoutes } from 'react-router';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import {
     Card,
@@ -30,15 +31,8 @@ const { Text, Title } = Typography;
 
 const Menubar = () => {
     const navigate = useNavigate();
-    const { mobile, setMobile } = React.useContext(MobileContext); // Using MobileContext
-
-    // State for the Header title and actions
-    const [Header, setHeader] = React.useState({
-        title: 'Dashboard', // Default title
-        actions: [] // Default actions
-    });
-
-    const [minimized, setMinimized] = React.useState(true);
+	const location = useLocation();
+	const { mobile, setMobile } = React.useContext(MobileContext);
 
     const [staff, setStaff] = React.useState({
         name: {
@@ -49,6 +43,27 @@ const Menubar = () => {
         role: '',
         profilePicture: ''
     });
+
+    const [Header, setHeader] = React.useState({
+		title: 'Dashboard',
+		actions: []
+    });
+
+	const routes = useRoutes([
+		{ path: '/', element: <Home setHeader={setHeader} staff={staff} /> },
+		{ path: '/home', element: <Home setHeader={setHeader} staff={staff} /> },
+		{ path: '/notifications', element: <p>Notifications</p> },
+		{ path: '/students/profiles', element: <p>Student Profiles</p> },
+		{ path: '/students/disciplinary', element: <p>Disciplinary Records</p> },
+		{ path: '/students/organization', element: <p>Organizations</p> },
+		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
+		{ path: '/utilities/faqs', element: <p>FAQs</p> },
+		{ path: '/utilities/announcements', element: <p>Announcements</p> },
+		{ path: '/utilities/repository', element: <p>Repository</p> },
+		{ path: '/helpbot', element: <p>Helpbot</p> },
+	]);
+
+    const [minimized, setMinimized] = React.useState(true);
 
     // Fetch staff data on component mount
     React.useEffect(() => {
@@ -287,20 +302,16 @@ const Menubar = () => {
                         backgroundColor: 'var(--ant-color-bg-layout)'
                     }}
                 >
-                    <Routes>
-                        {['/', '/home'].map((path) => (
-                            <Route key={path} path={path} element={<Home setHeader={setHeader} />} />
-                        ))}
-						<Route path='/notifications' element={<p>Notifications</p>} />
-						<Route path='/students/profiles' element={<p>Student Profiles</p>} />
-                        <Route path='/students/disciplinary' element={<p>Disciplinary Records</p>} />
-                        <Route path='/students/organization' element={<p>Organizations</p>} />
-                        <Route path='/utilities/calendar' element={<p>Event Calendar</p>} />
-                        <Route path='/utilities/faqs' element={<p>FAQs</p>} />
-                        <Route path='/utilities/announcements' element={<p>Announcements</p>} />
-                        <Route path='/utilities/repository' element={<p>Repository</p>} />
-                        <Route path='/helpbot' element={<p>Helpbot</p>} />
-                    </Routes>
+                    <AnimatePresence mode='wait'>
+						<motion.div
+							key={location.pathname}
+							initial={{ opacity: 0, x: 20 }}
+							animate={{ opacity: 1, x: 0 }}
+							exit={{ opacity: 0, x: -20 }}
+						>
+							{routes}
+						</motion.div>
+					</AnimatePresence>
                 </Card>
             </Flex>
         </Flex>
@@ -308,16 +319,3 @@ const Menubar = () => {
 };
 
 export default Menubar;
-
-export const StaffContext = React.createContext({
-    staff: {
-        name: {
-            first: '',
-            middle: '',
-            last: ''
-        },
-        role: '',
-        profilePicture: ''
-    },
-    setStaff: () => { }
-});
