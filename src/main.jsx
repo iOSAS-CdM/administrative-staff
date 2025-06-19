@@ -51,12 +51,7 @@ const OSAS = () => {
 				<App>
 					<BrowserRouter>
 						<Routes>
-							<Route path='/' element={
-								<MobileContext.Provider value={{ mobile, setMobile }}>
-									<SignIn />
-								</MobileContext.Provider>
-							} />
-							<Route path='/sign-in' element={
+							<Route path={['/', '/sign-in']} element={
 								<MobileContext.Provider value={{ mobile, setMobile }}>
 									<SignIn />
 								</MobileContext.Provider>
