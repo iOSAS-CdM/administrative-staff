@@ -70,10 +70,10 @@ const ForgotPassword = () => {
 		}, remToPx(20));
 	};
 	const verify = (otp) => {
-		setSending(true);
+		setVerifying(true);
 
 		setTimeout(() => {
-			setSending(false);
+			setVerifying(false);
 			setStep(2); // Simulate successful verification
 		}, remToPx(20));
 	};
@@ -200,19 +200,32 @@ const ForgotPassword = () => {
 							{step === 2 && (
 								<Form
 									layout='vertical'
-									onFinish={(values) => {
-										resetPassword(values.password);
-									}}
+									ref={ResetPasswordForm}
+									onFinish={(values) => { }}
 								>
 									<Form.Item
 										name='password'
-										rules={[{ required: true, message: 'Please input your new password!' }]}
+										rules={[
+											{ required: true, message: 'Please input your new password!' },
+											{ min: 8, message: 'Password must be at least 8 characters long!' },
+											{ pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,15}$/, message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number, and one special character!' }
+										]}
 									>
 										<Input.Password placeholder='New Password' />
 									</Form.Item>
 									<Form.Item
 										name='confirmPassword'
-										rules={[{ required: true, message: 'Please confirm your new password!' }]}
+										rules={[
+											{ required: true, message: 'Please confirm your new password!' },
+											({ getFieldValue }) => ({
+												validator(_, value) {
+													if (!value || getFieldValue('password') === value) {
+														return Promise.resolve();
+													};
+													return Promise.reject(new Error('The two passwords that you entered do not match!'));
+												}
+											})
+										]}
 									>
 										<Input.Password placeholder='Confirm New Password' />
 									</Form.Item>
@@ -221,6 +234,22 @@ const ForgotPassword = () => {
 											type='primary'
 											icon={sending ? <LoadingOutlined /> : <KeyOutlined />}
 											disabled={sending}
+
+											onClick={() => {
+												ResetPasswordForm.current
+													.validateFields()
+													.then((values) => {
+														// Simulate password reset
+														setResetting(true);
+														setTimeout(() => {
+															setResetting(false);
+															navigate('/sign-in'); // Redirect to sign-in page after reset
+														}, remToPx(20));
+													})
+													.catch((errorInfo) => {
+														console.error('Validation Failed:', errorInfo);
+													});
+											}}
 										>
 											Reset Password
 										</Button>
