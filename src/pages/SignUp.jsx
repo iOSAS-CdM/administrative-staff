@@ -11,7 +11,8 @@ import {
 	Divider,
 	Input,
 	Image,
-	Typography
+	Typography,
+	Checkbox
 } from 'antd';
 
 import { LoginOutlined, GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
@@ -22,11 +23,13 @@ import remToPx from '../utils/remToPx';
 
 const { Text, Title, Link } = Typography;
 
-import '../styles/pages/SignIn.css';
+import '../styles/pages/SignUp.css';
 
-const SignIn = () => {
-	const [signingIn, setSigningIn] = React.useState(false);
+const SignUp = () => {
+	const [signingUp, setSigningUp] = React.useState(false);
 	const [version, setVersion] = React.useState('');
+
+	const [showPassword, setShowPassword] = React.useState(false);
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 
@@ -41,11 +44,11 @@ const SignIn = () => {
 		fetchVersion();
 	}, []);
 
-	const signIn = () => {
-		setSigningIn(true);
+	const signUp = () => {
+		setSigningUp(true);
 
 		setTimeout(() => {
-			setSigningIn(false);
+			setSigningUp(false);
 			navigate('/dashboard');
 		}, remToPx(20));
 	};
@@ -77,9 +80,15 @@ const SignIn = () => {
 							<Form
 								layout='vertical'
 								onFinish={(values) => {
-									signIn();
+									signUp();
 								}}
 							>
+								<Form.Item
+									name='employeeId'
+									rules={[{ required: true, message: 'Please input your employee ID!' }]}
+								>
+									<Input placeholder='Employee ID' type='text' />
+								</Form.Item>
 								<Form.Item
 									name='email'
 									rules={[{ required: true, message: 'Please input your email!' }]}
@@ -90,25 +99,34 @@ const SignIn = () => {
 									name='password'
 									rules={[{ required: true, message: 'Please input your password!' }]}
 								>
-									<Input.Password placeholder='Password' type='password' />
+									<Input.Password placeholder='Password' type='password' visibilityToggle={{ visible: showPassword, onVisibleChange: (visible) => setShowPassword(visible) }} />
+								</Form.Item>
+								<Form.Item
+									name='confirmPassword'
+									rules={[{ required: true, message: 'Please confirm your password!' }]}
+								>
+									<Input.Password placeholder='Confirm Password' type='password' visibilityToggle={{ visible: showPassword, onVisibleChange: (visible) => setShowPassword(visible) }} />
 								</Form.Item>
 								<Flex justify='space-between' align='center' gap='small'>
-									<Link href='/forgot-password'>
-										Forgot Password?
-									</Link>
+									<Checkbox
+										checked={showPassword}
+										onChange={(e) => setShowPassword(e.target.checked)}
+									>
+										Show Password
+									</Checkbox>
 									<Button
 										type='primary'
 										htmlType='submit'
-										icon={signingIn ? <LoadingOutlined /> : <LoginOutlined />}
-										disabled={signingIn}
+										icon={signingUp ? <LoadingOutlined /> : <LoginOutlined />}
+										disabled={signingUp}
 									>
-										Sign In
+										Sign Up
 									</Button>
 								</Flex>
 							</Form>
 
 							<Text>
-								Don't have an account? <Link href='/sign-up'>Sign Up</Link>
+								Already have an account? <Link href='/'>Sign In</Link>
 							</Text>
 
 							<Divider>or</Divider>
@@ -116,7 +134,7 @@ const SignIn = () => {
 							<Button
 								icon={<GoogleOutlined />}
 							>
-								Sign In with Google
+								Sign Up with Google
 							</Button>
 						</Flex>
 						<Text style={{ display: 'block', textAlign: 'center' }}>Copyright © Colegio de Montalban 2025.</Text>
@@ -136,4 +154,4 @@ const SignIn = () => {
 	);
 };
 
-export default SignIn;
+export default SignUp;

@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router';
 import { ConfigProvider, App, theme } from 'antd';
 
 import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
 
 import remToPx from './utils/remToPx';
 import rootToHex from './utils/rootToHex';
@@ -52,6 +53,11 @@ const OSAS = () => {
 							<Route path='/' element={
 								<MobileContext.Provider value={{ mobile, setMobile }}>
 									<SignIn />
+								</MobileContext.Provider>
+							} />
+							<Route path='/sign-up' element={
+								<MobileContext.Provider value={{ mobile, setMobile }}>
+									<SignUp />
 								</MobileContext.Provider>
 							} />
 						</Routes>
