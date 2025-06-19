@@ -8,7 +8,7 @@ import SignIn from './pages/authentication/SignIn';
 import SignUp from './pages/authentication/SignUp';
 import ForgotPassword from './pages/authentication/ForgotPassword';
 
-import Home from './pages/dashboard/Home';
+import Menubar from './Components/Menubar';
 
 import remToPx from './utils/remToPx';
 import rootToHex from './utils/rootToHex';
@@ -72,9 +72,9 @@ const OSAS = () => {
 								</MobileContext.Provider>
 							} />
 
-							<Route path='/dashboard' element={
+							<Route path='/dashboard/*' element={
 								<MobileContext.Provider value={{ mobile, setMobile }}>
-									<Home />
+									<Menubar />
 								</MobileContext.Provider>
 							} />
 						</Routes>
