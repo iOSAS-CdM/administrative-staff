@@ -55,14 +55,12 @@ const Menubar = () => {
 		{
 			key: 'home',
 			label: 'Home',
-			icon: <HomeOutlined />,
-			onClick: () => navigate('/dashboard')
+			icon: <HomeOutlined />
 		},
 		{
 			key: 'notifications',
 			label: 'Notifications',
-			icon: <NotificationOutlined />,
-			onClick: () => navigate('/dashboard/notifications')
+			icon: <NotificationOutlined />
 		},
 		{
 			key: 'students',
