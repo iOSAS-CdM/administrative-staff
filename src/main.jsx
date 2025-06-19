@@ -6,6 +6,7 @@ import { ConfigProvider, App, theme } from 'antd';
 
 import SignIn from './pages/authentication/SignIn';
 import SignUp from './pages/authentication/SignUp';
+import ForgotPassword from './pages/authentication/ForgotPassword';
 
 import remToPx from './utils/remToPx';
 import rootToHex from './utils/rootToHex';
@@ -55,9 +56,19 @@ const OSAS = () => {
 									<SignIn />
 								</MobileContext.Provider>
 							} />
+							<Route path='/sign-in' element={
+								<MobileContext.Provider value={{ mobile, setMobile }}>
+									<SignIn />
+								</MobileContext.Provider>
+							} />
 							<Route path='/sign-up' element={
 								<MobileContext.Provider value={{ mobile, setMobile }}>
 									<SignUp />
+								</MobileContext.Provider>
+							} />
+							<Route path='/forgot-password' element={
+								<MobileContext.Provider value={{ mobile, setMobile }}>
+									<ForgotPassword />
 								</MobileContext.Provider>
 							} />
 						</Routes>
