@@ -46,7 +46,7 @@ const OSAS = () => {
 						colorInfo: rootToHex('var(--primary)'),
 						fontSize: remToPx(1.5),
 						sizeUnit: remToPx(0.5),
-						borderRadius: remToPx(1)
+						borderRadius: remToPx(0.75)
 					}
 				}}
 			>
