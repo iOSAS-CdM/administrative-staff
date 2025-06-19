@@ -38,17 +38,19 @@ const Menubar = () => {
 	});
 
 	React.useEffect(() => {
-		// Simulate fetching staff info
-		const fetchStaffInfo = async () => {
-			// Simulate an API call
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			setStaff({
-				name: 'John Doe',
-				role: 'Head',
-				profilePicture: 'https://avatars.githubusercontent.com/u/583231?v=4' // Example profile picture
+		fetch('https://randomuser.me/api/?results=1&inc=name,%20picture')
+			.then(response => response.json())
+			.then(data => {
+				const user = data.results[0];
+				setStaff({
+					name: `${user.name.first} ${user.name.last}`,
+					role: 'Head',
+					profilePicture: user.picture.large
+				});
+			})
+			.catch(error => {
+				console.error('Error fetching staff data:', error);
 			});
-		};
-		fetchStaffInfo();
 	}, []);
 
 	const menuItems = [
@@ -87,14 +89,22 @@ const Menubar = () => {
 		<Flex
 			className='page-container'
 		>
-			<Flex vertical justify='space-between' align='center'>
+			<Flex
+				vertical
+				justify='space-between'
+				align='center'
+				style={{
+					width: minimized ? '' : 'calc(var(--space-XL) * 12)',
+				}}
+			>
 				<Card
 					size='small'
 					style={{
 						position: 'relative',
+						width: '100%',
 						height: '100%',
 						padding: 0,
-						borderRadius: 0,
+						borderRadius: 0
 					}}
 				>
 					<Flex
@@ -102,7 +112,7 @@ const Menubar = () => {
 						justify='space-between'
 						align='center'
 						gap='large'
-						style={{ height: '100%' }}
+						style={{ width: '100%', height: '100%' }}
 					>
 						<Button
 							type='primary'
@@ -127,7 +137,7 @@ const Menubar = () => {
 							justify='center'
 							align='center'
 							gap='small'
-							style={{ height: '100%' }}
+							style={{ width: '100%', height: '100%' }}
 						>
 							{
 								minimized ? (
