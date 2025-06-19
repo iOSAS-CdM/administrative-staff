@@ -77,6 +77,23 @@ const ForgotPassword = () => {
 			setStep(2); // Simulate successful verification
 		}, remToPx(20));
 	};
+
+	const resetPassword = (password) => {
+		setResetting(true);
+		setTimeout(() => {
+			setResetting(false);
+			navigate('/sign-in'); // Redirect to sign-in page after resetting password
+		}, remToPx(20));
+		setStep(0); // Reset step to initial state
+		setName(''); // Clear name after resetting password
+		setSending(false); // Reset sending state
+		setVerifying(false); // Reset verifying state
+		setResetting(false); // Reset resetting state
+		StaffInfoForm.current.resetFields(); // Reset Staff Info Form
+		OTPForm.current.resetFields(); // Reset OTP Form
+		ResetPasswordForm.current.resetFields(); // Reset Reset Password Form
+		navigate('/sign-in'); // Redirect to sign-in page
+	};
 	return (
 		<>
 			<div id='auth-background'></div>
@@ -242,12 +259,7 @@ const ForgotPassword = () => {
 												ResetPasswordForm.current
 													.validateFields()
 													.then((values) => {
-														// Simulate password reset
-														setResetting(true);
-														setTimeout(() => {
-															setResetting(false);
-															navigate('/sign-in'); // Redirect to sign-in page after reset
-														}, remToPx(20));
+														resetPassword(values.password);
 													})
 													.catch((errorInfo) => {
 														console.error('Validation Failed:', errorInfo);
