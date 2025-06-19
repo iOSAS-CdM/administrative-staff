@@ -7,7 +7,8 @@ import {
 	Avatar,
 	Typography,
 	Button,
-	Menu
+	Menu,
+	Empty
 } from 'antd';
 
 import {
@@ -27,7 +28,7 @@ import remToPx from '../utils/remToPx';
 
 const { Text, Title, Link, Paragraph } = Typography;
 
-const Menubar = () => {
+const Menubar = ({ Title, Actions, children }) => {
 	const navigate = useNavigate();
 	const { mobile, setMobile } = React.useContext(MobileContext);
 
@@ -119,6 +120,7 @@ const Menubar = () => {
 		<Flex
 			className='page-container'
 		>
+			{/*************************** Sidebar ***************************/}
 			<Flex
 				vertical
 				justify='space-between'
@@ -156,7 +158,7 @@ const Menubar = () => {
 									width: '100%'
 								} : {
 									position: 'absolute',
-									right: 'calc(var(--space-XL) * -1)',
+										right: 'calc((var(--space-XL) * -1) / 2)',
 									zIndex: 1
 								}
 							}
@@ -214,6 +216,68 @@ const Menubar = () => {
 							{minimized ? '' : 'Sign Out'}
 						</Button>
 					</Flex>
+				</Card>
+			</Flex>
+
+			<Flex
+				vertical
+				justify='start'
+				align='stretch'
+				style={{
+					width: '100%',
+					height: '100%',
+					backgroundColor: 'var(--ant-color-bg-layout)'
+				}}
+			>
+				{/*************************** Header ***************************/}
+				<Card
+					size='small'
+					style={{
+						width: '100%',
+						borderRadius: 0,
+						backgroundColor: 'var(--ant-color-bg-base)'
+					}}
+				>
+					<Flex
+						justify='space-between'
+						align='stretch'
+						gap='large'
+						style={{ width: '100%', height: '100%' }}
+					>
+						{Title}
+
+						{Actions}
+					</Flex>
+				</Card>
+
+				<Card
+					size='small'
+					style={{
+						width: '100%',
+						height: '100%',
+						borderRadius: 0,
+						backgroundColor: 'var(--ant-color-bg-layout)'
+					}}
+				>
+					{children ? (
+						children
+					) : (
+						<Flex
+							vertical
+							justify='center'
+							align='center'
+							style={{ width: '100%', height: '100%' }}
+						>
+							<Empty
+								image={Empty.PRESENTED_IMAGE_DEFAULT}
+								description={
+									<Text type='secondary'>
+										No content available.
+									</Text>
+								}
+							/>
+						</Flex>
+					)}
 				</Card>
 			</Flex>
 		</Flex>
