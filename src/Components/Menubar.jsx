@@ -126,7 +126,7 @@ const Menubar = ({ Title, Actions, children }) => {
 				justify='space-between'
 				align='center'
 				style={{
-					width: minimized ? '' : 'calc(var(--space-XL) * 20)',
+					width: minimized ? '' : 'calc(var(--space-XL) * 20)'
 				}}
 			>
 				<Card
