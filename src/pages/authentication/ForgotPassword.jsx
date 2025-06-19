@@ -110,6 +110,7 @@ const ForgotPassword = () => {
 
 							{step === 0 && (
 								<Form
+									id='authentication-form'
 									layout='vertical'
 									ref={StaffInfoForm}
 									onFinish={(values) => { }}
@@ -151,6 +152,7 @@ const ForgotPassword = () => {
 
 							{step === 1 && (
 								<Form
+									id='authentication-form'
 									layout='vertical'
 									ref={OTPForm}
 									onFinish={(values) => { }}
@@ -199,6 +201,7 @@ const ForgotPassword = () => {
 
 							{step === 2 && (
 								<Form
+									id='authentication-form'
 									layout='vertical'
 									ref={ResetPasswordForm}
 									onFinish={(values) => { }}

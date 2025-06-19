@@ -78,6 +78,7 @@ const SignUp = () => {
 								<Title level={1} style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Staff</Title>
 							</Flex>
 							<Form
+								id='authentication-form'
 								layout='vertical'
 								onFinish={(values) => {
 									signUp();

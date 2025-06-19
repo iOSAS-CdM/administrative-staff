@@ -6,6 +6,11 @@
 	border-radius: 0;
 }
 
+#authentication-form {
+	width: 100%;
+	max-width: calc(var(--space-XL) * 14);
+}
+
 #version-info-panel {
 	position: fixed;
 	bottom: 0;
