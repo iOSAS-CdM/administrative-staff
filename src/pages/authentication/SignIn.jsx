@@ -16,13 +16,13 @@ import {
 
 import { LoginOutlined, GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
 
-import { MobileContext } from '../main';
+import { MobileContext } from '../../main';
 
-import remToPx from '../utils/remToPx';
+import remToPx from '../../utils/remToPx';
 
 const { Text, Title, Link } = Typography;
 
-import '../styles/pages/SignIn.css';
+import '../../styles/pages/authentication/SignIn.css';
 
 const SignIn = () => {
 	const [signingIn, setSigningIn] = React.useState(false);

@@ -17,13 +17,13 @@ import {
 
 import { LoginOutlined, GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
 
-import { MobileContext } from '../main';
+import { MobileContext } from '../../main';
 
-import remToPx from '../utils/remToPx';
+import remToPx from '../../utils/remToPx';
 
 const { Text, Title, Link } = Typography;
 
-import '../styles/pages/SignUp.css';
+import '../../styles/pages/authentication/SignUp.css';
 
 const SignUp = () => {
 	const [signingUp, setSigningUp] = React.useState(false);
@@ -74,7 +74,7 @@ const SignUp = () => {
 							/>
 							<Divider />
 							<Flex vertical justify='center' align='center'>
-								<Text>Welcome back,</Text>
+								<Text>Welcome,</Text>
 								<Title level={1} style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Staff</Title>
 							</Flex>
 							<Form

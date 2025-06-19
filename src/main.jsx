@@ -4,8 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router';
 
 import { ConfigProvider, App, theme } from 'antd';
 
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
+import SignIn from './pages/authentication/SignIn';
+import SignUp from './pages/authentication/SignUp';
 
 import remToPx from './utils/remToPx';
 import rootToHex from './utils/rootToHex';
