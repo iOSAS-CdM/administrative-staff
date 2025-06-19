@@ -16,7 +16,9 @@ import {
 	LeftOutlined,
 	RightOutlined,
 	LogoutOutlined,
-	SmileOutlined
+	SmileOutlined,
+	ToolOutlined,
+	RobotOutlined
 } from '@ant-design/icons';
 
 import { MobileContext } from '../main';
@@ -82,6 +84,34 @@ const Menubar = () => {
 					label: 'Organizations'
 				}
 			]
+		},
+		{
+			key: 'utilities',
+			label: 'Utilities',
+			icon: <ToolOutlined />,
+			children: [
+				{
+					key: 'calendar',
+					label: 'Event Calendar'
+				},
+				{
+					key: 'faqs',
+					label: 'FAQs'
+				},
+				{
+					key: 'announcements',
+					label: 'Announcements'
+				},
+				{
+					key: 'repository',
+					label: 'Repository'
+				}
+			]
+		},
+		{
+			key: 'helpbot',
+			label: 'Helpbot',
+			icon: <RobotOutlined />
 		}
 	];
 
