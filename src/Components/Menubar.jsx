@@ -7,10 +7,7 @@ import {
 	Avatar,
 	Typography,
 	Button,
-	Menu,
-	Dropdown,
-	Layout,
-	Space
+	Menu
 } from 'antd';
 
 import {
@@ -18,7 +15,8 @@ import {
 	NotificationOutlined,
 	LeftOutlined,
 	RightOutlined,
-	LogoutOutlined
+	LogoutOutlined,
+	SmileOutlined
 } from '@ant-design/icons';
 
 import { MobileContext } from '../main';
@@ -65,6 +63,25 @@ const Menubar = () => {
 			label: 'Notifications',
 			icon: <NotificationOutlined />,
 			onClick: () => navigate('/dashboard/notifications')
+		},
+		{
+			key: 'students',
+			label: 'Students',
+			icon: <SmileOutlined />,
+			children: [
+				{
+					key: 'profiles',
+					label: 'Profiles'
+				},
+				{
+					key: 'disciplinary',
+					label: 'Disciplinary Records'
+				},
+				{
+					key: 'organization',
+					label: 'Organizations'
+				}
+			]
 		}
 	];
 
@@ -140,15 +157,12 @@ const Menubar = () => {
 								)
 							}
 							<Menu
+								defaultSelectedKeys={['home']}
 								inlineCollapsed={minimized}
 								style={{ position: 'relative', height: '100%', padding: 0, border: 'none' }}
-							>
-								{menuItems.map(item => (
-									<Menu.Item {...item}>
-										{item.label}
-									</Menu.Item>
-								))}
-							</Menu>
+								items={menuItems}
+								mode='inline'
+							/>
 						</Flex>
 
 						<Button
