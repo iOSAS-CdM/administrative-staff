@@ -25,7 +25,7 @@ const { Text, Title, Link } = Typography;
 import '../../styles/pages/authentication/SignIn.css';
 
 const SignIn = () => {
-	const [sending, setSigningIn] = React.useState(false);
+	const [sending, setSending] = React.useState(false);
 	const [version, setVersion] = React.useState('');
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
@@ -41,12 +41,11 @@ const SignIn = () => {
 		fetchVersion();
 	}, []);
 
-	const signIn = () => {
-		setSigningIn(true);
+	const send = () => {
+		setSending(true);
 
 		setTimeout(() => {
-			setSigningIn(false);
-			navigate('/dashboard');
+			setSending(false);
 		}, remToPx(20));
 	};
 
@@ -77,7 +76,7 @@ const SignIn = () => {
 							<Form
 								layout='vertical'
 								onFinish={(values) => {
-									signIn();
+									send();
 								}}
 							>
 								<Form.Item
