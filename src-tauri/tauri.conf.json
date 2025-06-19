@@ -1,18 +1,18 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "osas-staff",
-  "version": "0.1.0",
+  "version": "../package.json",
   "identifier": "com.danieljohnbyns.osas-staff",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:1420",
+	"devUrl": "http://localhost:1421",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {
     "windows": [
       {
-        "title": "osas-staff",
+		"title": "Office of Student Affairs and Services - Staff",
         "width": 800,
         "height": 600
       }

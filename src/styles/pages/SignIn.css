@@ -1,0 +1,18 @@
+#sign-in {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	background-color: transparent;
+}
+
+#version-info-panel {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: var(--space-XXL);
+}
+#version-info-panel > * {
+	color: var(--ant-color-bg-base);
+}

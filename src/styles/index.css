@@ -1,0 +1,118 @@
+:root {
+	--space-2XS: 0.125rem;
+	--space-XS: 0.25rem;
+	--space-S: 0.5rem;
+	--space-M: 1rem;
+	--space-L: 1.5rem;
+	--space-XL: 2rem;
+	--space-2XL: 3rem;
+	--space-3XL: 4rem;
+
+	--primary: #106A2E;
+
+	--transition: 0.5s ease;
+}
+
+html {
+	font-size: calc(62.5%);
+	scrollbar-width: thin;
+
+	overflow-x: hidden;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+h1.ant-typography,
+h2.ant-typography,
+h3.ant-typography,
+h4.ant-typography,
+h5.ant-typography,
+h6.ant-typography,
+p.ant-typography,
+span.ant-typography {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.ant-card-body {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.ant-divider {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+::-webkit-scrollbar {
+	width: var(--space-S);
+	height: var(--space-S);
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: var(--space-XS);
+}
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+.scrollable-content {
+	overflow: auto;
+	scrollbar-gutter: stable;
+	position: relative;
+	
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color var(--transition);
+}
+.scrollable-content::-webkit-scrollbar-thumb {
+	background: transparent;
+	border-radius: var(--space-S);
+	transition: background var(--transition);
+}
+.scrollable-content::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: var(--space-XS);
+}
+.scrollable-content:hover {
+	scrollbar-color: var(--primary) transparent;
+}
+
+#root {
+	position: relative;
+	top: 0;
+	left: 0;
+
+	width: 100vw;
+	min-height: 100vh;
+	margin: 0;
+	padding: 0;
+
+	background-color: var(--ant-color-bg-base);
+}
+
+.page-container {
+	width: 100vw;
+	height: 100vh;
+	
+	border: none;
+	border-radius: 0;
+}
+
+#auth-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+
+	width: 100vw;
+	height: 100vh;
+
+	background-image: url('/Authentication Background.jpg');
+	background-position: center center;
+	background-size: cover;
+
+	z-index: 0;
+}
