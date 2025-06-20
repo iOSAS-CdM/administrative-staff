@@ -2,8 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router';
 
-import { ConfigProvider as DesignConfig, App, theme as DesignTheme } from 'antd';
-import { ConfigProvider as ChartConfig, G2 } from '@ant-design/charts';
+import { ConfigProvider, App, theme as DesignTheme } from 'antd';
 
 import SignIn from './pages/authentication/SignIn';
 import SignUp from './pages/authentication/SignUp';
@@ -21,12 +20,6 @@ import Menubar from './Components/Menubar';
 const OSAS = () => {
 	const [mobile, setMobile] = React.useState(false);
 
-	G2.register('theme.custom', () => {
-		return {
-			...G2.Light()
-		};
-	});
-
 	React.useEffect(() => {
 		const handleResize = () => {
 			setMobile(window.innerWidth < remToPx(80));
@@ -43,14 +36,7 @@ const OSAS = () => {
 
 	return (
 		<React.StrictMode>
-			<ChartConfig
-				common={{
-					theme: {
-						type: 'custom'
-					}
-				}}
-			>
-				<DesignConfig
+			<ConfigProvider
 					theme={{
 						algorithm: [
 							DesignTheme.defaultAlgorithm
@@ -93,8 +79,7 @@ const OSAS = () => {
 							</Routes>
 						</BrowserRouter>
 					</App>
-				</DesignConfig>
-			</ChartConfig>
+			</ConfigProvider>
 		</React.StrictMode>
 	);
 };
