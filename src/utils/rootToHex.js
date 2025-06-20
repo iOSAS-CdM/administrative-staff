@@ -9,9 +9,12 @@ const rootToHex = (root) => {
 
 	if (root.startsWith('var(--')) {
 		const rootVar = root.slice(4, -1);
-		const rootElement = document.documentElement;
+		const rootElement = document.querySelector('.ant-card-body');
+		if (!rootElement) return root;
+
 		const computedStyle = getComputedStyle(rootElement);
 		const colorValue = computedStyle.getPropertyValue(rootVar).trim();
+
 		if (colorValue.startsWith('#'))
 			return colorValue;
 		else if (colorValue.startsWith('rgb')) {
