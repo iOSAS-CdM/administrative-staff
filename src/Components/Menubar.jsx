@@ -187,7 +187,7 @@ const Menubar = () => {
                         style={{ width: '100%', height: '100%' }}
                     >
                         <Button
-                            type='primary'
+                            type={minimized ? 'default' : 'primary'}
                             icon={minimized ? <RightOutlined /> : <LeftOutlined />}
                             onClick={() => setMinimized(!minimized)}
                             size={minimized ? 'default' : 'large'}
@@ -295,6 +295,7 @@ const Menubar = () => {
                 {/*************************** Page Content ***************************/}
                 <Card
                     size='small'
+					className='scrollable-content'
                     style={{
                         width: '100%',
                         height: '100%',
