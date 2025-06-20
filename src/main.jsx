@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router';
 
-import { ConfigProvider, App, theme as DesignTheme } from 'antd';
+import { ConfigProvider as DesignConfig, App, theme as DesignTheme } from 'antd';
 
 import SignIn from './pages/authentication/SignIn';
 import SignUp from './pages/authentication/SignUp';
@@ -36,7 +36,7 @@ const OSAS = () => {
 
 	return (
 		<React.StrictMode>
-			<ConfigProvider
+			<DesignConfig
 					theme={{
 						algorithm: [
 							DesignTheme.defaultAlgorithm
@@ -79,7 +79,7 @@ const OSAS = () => {
 							</Routes>
 						</BrowserRouter>
 					</App>
-			</ConfigProvider>
+			</DesignConfig>
 		</React.StrictMode>
 	);
 };

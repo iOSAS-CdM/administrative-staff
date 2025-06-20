@@ -1,19 +1,20 @@
 import React from 'react';
-import { Pie, Line } from '@ant-design/charts';
+import moment from 'moment';
+import { Pie, Line, ConfigProvider as ChartConfig } from '@ant-design/charts';
 
 import {
-	Button,
+	Calendar,
 	Typography,
 	Card,
 	Flex,
 	Row,
-	Col
+	Col,
+	Tag
 } from 'antd';
 
 const { Title, Text } = Typography;
 
 import rootToHex from '../../utils/rootToHex';
-import { m } from 'framer-motion';
 
 const Home = ({ setHeader, staff }) => {
 	React.useEffect(() => {
@@ -119,7 +120,6 @@ const Home = ({ setHeader, staff }) => {
 	}, []);
 
 	const [monthlyCasesTrend, setMonthlyCasesTrend] = React.useState([]);
-
 	React.useEffect(() => {
 		const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 		const currentMonth = new Date().getMonth();
@@ -162,6 +162,60 @@ const Home = ({ setHeader, staff }) => {
 		return () => clearInterval(interval);
 	}, [monthlyCasesTrend]);
 
+	const [events, setEvents] = React.useState([]);
+	React.useEffect(() => {
+		const fetchedEvents = [
+			{
+				title: 'Disobedience to the proper dress code.',
+				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+				type: 'disciplinary',
+				tag: 'ongoing'
+			},
+			{
+				title: 'Loitering in the school premises.',
+				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+				type: 'disciplinary',
+				tag: 'ongoing'
+			},
+			{
+				title: 'Bullying and harassment of fellow students.',
+				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+				type: 'disciplinary',
+				tag: 'ongoing'
+			},
+			{
+				title: 'Vandalism of school property.',
+				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+				type: 'disciplinary',
+				tag: 'ongoing'
+			},
+			{
+				title: 'Unauthorized use of school facilities.',
+				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+				type: 'disciplinary',
+				tag: 'ongoing'
+			},
+			{
+				title: 'Excessive absences without valid reasons.',
+				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+				type: 'disciplinary',
+				tag: 'ongoing'
+			}
+		].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+		// Group by day
+		const groupedEvents = fetchedEvents.reduce((acc, event) => {
+			const eventDate = moment(event.date).clone().startOf('day').fromNow();
+			if (!acc[eventDate])
+				acc[eventDate] = [];
+			acc[eventDate].push(event);
+			return acc;
+		}, {});
+
+
+		setEvents(groupedEvents);
+	}, []);
+
 	return (
 		<Flex
 			vertical
@@ -191,8 +245,8 @@ const Home = ({ setHeader, staff }) => {
 					</Card>
 				</Col>
 
-				<Col span={14}>
-					<Card size='small' title='Monthly Cases Ratio'>
+				<Col span={8}>
+					<Card size='small' style={{ height: '100%' }} title='Monthly Cases Ratio'>
 						<Pie
 							data={[
 								{
@@ -211,9 +265,8 @@ const Home = ({ setHeader, staff }) => {
 						/>
 					</Card>
 				</Col>
-
-				<Col span={10}>
-					<Card size='small' title='Monthly Cases Trend'>
+				<Col span={16}>
+					<Card size='small' style={{ height: '100%' }} title='Monthly Cases Trend'>
 						<Line
 							data={monthlyCasesTrend}
 							xField='month'
@@ -222,6 +275,34 @@ const Home = ({ setHeader, staff }) => {
 							seriesField='type'
 							{...chartConfig}
 						/>
+					</Card>
+				</Col>
+
+				<Col span={16}>
+					<Card size='small' style={{ height: '100%' }} title='Calendar'>
+						<Calendar fullscreen={false} />
+					</Card>
+				</Col>
+
+				<Col span={8}>
+					<Card size='small' title='Disciplinary Events'>
+						<Flex vertical gap='small' className='scrollable-content' style={{ maxHeight: 'calc(var(--space-XL) * 20)' }}>
+							{Object.keys(events).length > 0 ? (
+								Object.entries(events).map(([date, events]) => (
+									<Flex key={date} vertical gap='small'>
+										<Text strong>{date}</Text>
+										{events.map((event, index) => (
+											<Flex key={index} justify='flex-start' align='flex-start'>
+												<Tag color={event.tag === 'ongoing' ? 'yellow' : 'green'}>{event.tag}</Tag>
+												<Text>{event.title}</Text>
+											</Flex>
+										))}
+									</Flex>
+								))
+							) : (
+								<Text>No disciplinary events found.</Text>
+							)}
+						</Flex>
 					</Card>
 				</Col>
 			</Row>
