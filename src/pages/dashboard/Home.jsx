@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { Pie, Line, ConfigProvider as ChartConfig } from '@ant-design/charts';
+import { Pie, Line } from '@ant-design/charts';
 
 import {
 	Calendar,
