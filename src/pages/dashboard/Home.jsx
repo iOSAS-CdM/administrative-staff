@@ -88,15 +88,15 @@ const Home = ({ setHeader, staff }) => {
 		},
 		theme: {
 			category10: [
-				rootToHex('var(--ant-color-primary-text-active)'),
-				rootToHex('var(--ant-color-primary-text)'),
-				rootToHex('var(--ant-color-primary-text-hover)'),
-				rootToHex('var(--ant-color-primary-active)'),
-				rootToHex('var(--ant-color-primary-hover)'),
-				rootToHex('var(--ant-color-primary-border-hover)'),
-				rootToHex('var(--ant-color-primary-border)'),
-				rootToHex('var(--ant-color-primary-bg-hover)'),
-				rootToHex('var(--ant-color-primary-bg)')
+				rootToHex('var(--ant-color-primary-text-active)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-text)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-text-hover)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-active)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-hover)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-border-hover)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-border)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-bg-hover)', document.querySelector('.ant-card-body')),
+				rootToHex('var(--ant-color-primary-bg)', document.querySelector('.ant-card-body'))
 			]
 		}
 	};

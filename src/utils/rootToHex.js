@@ -1,15 +1,16 @@
 /**
  * Converts a root-relative URL to a hex color code.
  * @param {string} root - The root-relative URL or CSS variable.
+ * @param {HTMLElement || null} element - The HTML element to get the computed style from (default is document.documentElement). 
  * @returns {string} The hex color code.
  */
-const rootToHex = (root) => {
+const rootToHex = (root, element) => {
 	if (root.startsWith('#'))
 		return root;
 
 	if (root.startsWith('var(--')) {
 		const rootVar = root.slice(4, -1);
-		const rootElement = document.querySelector('.ant-card-body');
+		const rootElement = element || document.documentElement;
 		if (!rootElement) return root;
 
 		const computedStyle = getComputedStyle(rootElement);
