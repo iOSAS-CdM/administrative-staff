@@ -34,23 +34,6 @@ const OSAS = () => {
 		};
 	}, []);
 
-	const [htmlLoaded, setHtmlLoaded] = React.useState(false);
-	React.useEffect(() => {
-		const handleLoad = () => {
-			setHtmlLoaded(true);
-		};
-
-		if (document.readyState === 'complete') {
-			handleLoad();
-		} else {
-			window.addEventListener('load', handleLoad);
-		};
-
-		return () => {
-			window.removeEventListener('load', handleLoad);
-		};
-	}, []);
-
 	return (
 		<React.StrictMode>
 			<DesignConfig
@@ -59,7 +42,7 @@ const OSAS = () => {
 						DesignTheme.defaultAlgorithm
 					],
 					cssVar: true,
-					token: htmlLoaded && {
+					token: {
 						colorPrimary: rootToHex('var(--primary)'),
 						colorInfo: rootToHex('var(--primary)'),
 						fontSize: remToPx(1.5),
