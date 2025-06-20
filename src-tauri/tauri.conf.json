@@ -14,7 +14,8 @@
       {
 		"title": "Office of Student Affairs and Services - Staff",
         "width": 800,
-        "height": 600
+        "height": 600,
+		"zoomHotkeysEnabled": true
       }
     ],
     "security": {
