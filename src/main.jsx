@@ -1,21 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 
 import { ConfigProvider as DesignConfig, App, theme as DesignTheme } from 'antd';
 
-import SignIn from './pages/authentication/SignIn';
-import SignUp from './pages/authentication/SignUp';
-import ForgotPassword from './pages/authentication/ForgotPassword';
-
-import Home from './pages/dashboard/Home';
+import Authentication from './pages/Authentication';
+import Menubar from './components/Menubar';
 
 import remToPx from './utils/remToPx';
 import rootToHex from './utils/rootToHex';
 
 import 'antd/dist/reset.css';
 import './styles/index.css';
-import Menubar from './Components/Menubar';
 
 const OSAS = () => {
 	const [mobile, setMobile] = React.useState(false);
@@ -54,23 +50,16 @@ const OSAS = () => {
 				<App>
 					<BrowserRouter>
 						<Routes>
-							{['/', '/sign-in'].map((path) => (
-								<Route key={path} path={path} element={
-									<MobileContext.Provider value={{ mobile, setMobile }}>
-										<SignIn />
-									</MobileContext.Provider>
-								} />
-							))}
-							<Route path='/sign-up' element={
+							<Route path='/' element={
+								<Navigate to='/authentication' replace />
+							} />
+
+							<Route path='/authentication/*' element={
 								<MobileContext.Provider value={{ mobile, setMobile }}>
-									<SignUp />
+									<Authentication />
 								</MobileContext.Provider>
 							} />
-							<Route path='/forgot-password' element={
-								<MobileContext.Provider value={{ mobile, setMobile }}>
-									<ForgotPassword />
-								</MobileContext.Provider>
-							} />
+
 							<Route path='/dashboard/*' element={
 								<MobileContext.Provider value={{ mobile, setMobile }}>
 									<Menubar />
