@@ -101,12 +101,17 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 			})
 			.catch(error => console.error('Error fetching student data:', error));
 	}, []);
+	
+	React.useEffect(() => {
+		setDisplayedStudents(students);
+		categorizeFilter('all');
+	}, [students]);
 
 	const categorizeFilter = (value) => {
 		let filteredStudents = students;
 
 		if (value !== 'all')
-			filteredStudents = students.filter(student => student.position === value);
+			filteredStudents = students.filter(student => student.institute === value);
 
 		setDisplayedStudents([]);
 		setTimeout(() => {
@@ -217,9 +222,9 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 			</Form>
 
 			{/************************** Profiles **************************/}
-			{students.length > 0 ? (
+			{displayedStudents.length > 0 ? (
 				<Row gutter={[16, 16]}>
-					{students.map((student, index) => (
+					{displayedStudents.map((student, index) => (
 						<Col key={student.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 							<StudentCard
 								student={student}
