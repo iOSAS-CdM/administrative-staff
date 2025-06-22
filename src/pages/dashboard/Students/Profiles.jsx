@@ -116,7 +116,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 		setDisplayedStudents([]);
 		setTimeout(() => {
 			setDisplayedStudents(filteredStudents);
-		}, 200); // replaced remToPx(2) with a fixed value
+		}, remToPx(2));
 	};
 
 	const searchCategorizedStudent = (searchTerm) => {
@@ -274,7 +274,7 @@ const StudentCard = ({ student, animationDelay, loading }) => {
 			size='small'
 			hoverable
 			loading={loading}
-			className={mounted ? 'staff-card-mounted' : 'staff-card-unmounted'}
+			className={mounted ? 'student-card-mounted' : 'student-card-unmounted'}
 			style={{ height: '100%' }}
 			actions={[
 				<EditOutlined onClick={() => { }} key='edit' />,
