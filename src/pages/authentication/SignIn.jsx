@@ -22,6 +22,15 @@ const { Text, Title, Link } = Typography;
 const SignIn = ({ navigate }) => {
 	const [signingIn, setSigningIn] = React.useState(false);
 
+	const signIn = () => {
+		setSigningIn(true);
+
+		setTimeout(() => {
+			setSigningIn(false);
+			navigate('/dashboard');
+		}, remToPx(20));
+	};
+
 	return (
 		<>
 			<Flex vertical justify='center' align='center'>
@@ -32,6 +41,7 @@ const SignIn = ({ navigate }) => {
 				id='authentication-form'
 				layout='vertical'
 				onFinish={(values) => {
+					signIn();
 				}}
 			>
 				<Form.Item
