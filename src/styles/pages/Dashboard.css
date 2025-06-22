@@ -1,0 +1,11 @@
+.student-card-unmounted {
+	opacity: 0;
+	transform: translateY(var(--space-XL));
+	transition: opacity var(--transition), transform var(--transition);
+}
+
+.student-card-mounted {
+	opacity: 1;
+	transform: translateY(0);
+	transition: opacity var(--transition), transform var(--transition);
+}
