@@ -82,6 +82,7 @@ span.ant-typography {
 }
 .scrollable-content > .ant-card-body {
 	height: unset;
+	min-height: 100%;
 }
 
 #root {

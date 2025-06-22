@@ -29,6 +29,8 @@ import remToPx from '../../../utils/remToPx';
 
 const { Title, Text } = Typography;
 
+import '../../../styles/pages/Dashboard.css';
+
 const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 	React.useEffect(() => {
 		setHeader({
@@ -143,7 +145,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 	};
 
 	return (
-		<Flex vertical gap='small'>
+		<Flex vertical gap='small' style={{ width: '100%', height: '100%' }}>
 			{/************************** Filter **************************/}
 			<Form
 				id='filter'
@@ -178,7 +180,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 										{ label: 'ICS', value: 'ics' },
 										{ label: 'ITE', value: 'ite' },
 										{ label: 'IBE', value: 'ibe' },
-										{ label: 'Archive', value: 'archive' }
+										{ label: 'Archived', value: 'archived' }
 									]}
 									value={category}
 									onChange={(value) => {
@@ -292,7 +294,7 @@ const StudentCard = ({ student, animationDelay, loading }) => {
 					size='large'
 				/>
 				<Flex vertical justify='flex-start' align='flex-start'>
-					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary'>{thisStudent.studentId}</Text></Title>
+					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override' }}>{thisStudent.studentId}</Text></Title>
 					<Text>{
 						thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
 							thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
