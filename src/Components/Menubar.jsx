@@ -26,12 +26,15 @@ import {
 import { MobileContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
+import Profiles from '../pages/dashboard/Students/Profiles';
 
 const { Text, Title } = Typography;
 
 const Menubar = () => {
     const navigate = useNavigate();
 	const location = useLocation();
+	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
+
 	const { mobile, setMobile } = React.useContext(MobileContext);
 
     const [staff, setStaff] = React.useState({
@@ -70,11 +73,18 @@ const Menubar = () => {
             });
     }, []);
 
+	const props = {
+		setHeader,
+		setSelectedKeys,
+		mobile,
+		staff
+	};
+
 	const routes = useRoutes([
-		{ path: '/', element: <Home setHeader={setHeader} staff={staff} /> },
-		{ path: '/home', element: <Home setHeader={setHeader} staff={staff} /> },
+		{ path: '/', element: <Home {...props} /> },
+		{ path: '/home', element: <Home {...props} /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
-		{ path: '/students/profiles', element: <p>Student Profiles</p> },
+		{ path: '/students/profiles', element: <Profiles {...props} /> },
 		{ path: '/students/disciplinary', element: <p>Disciplinary Records</p> },
 		{ path: '/students/organization', element: <p>Organizations</p> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
@@ -84,7 +94,7 @@ const Menubar = () => {
 		{ path: '/helpbot', element: <p>Helpbot</p> },
 	]);
 
-    const [minimized, setMinimized] = React.useState(true);
+    const [minimized, setMinimized] = React.useState(false);
 
     const menuItems = [
         {
@@ -237,7 +247,7 @@ const Menubar = () => {
                                 )
                             }
                             <Menu
-                                defaultSelectedKeys={['home']}
+                                selectedKeys={selectedKeys}
                                 inlineCollapsed={minimized}
                                 style={{ position: 'relative', height: '100%', padding: 0, border: 'none' }}
                                 items={menuItems}

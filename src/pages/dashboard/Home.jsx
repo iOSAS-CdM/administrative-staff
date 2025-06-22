@@ -16,7 +16,7 @@ const { Title, Text } = Typography;
 
 import rootToHex from '../../utils/rootToHex';
 
-const Home = ({ setHeader, staff }) => {
+const Home = ({ setHeader, setSelectedKeys, staff }) => {
 	React.useEffect(() => {
 		if (setHeader)
 			setHeader({
@@ -24,6 +24,9 @@ const Home = ({ setHeader, staff }) => {
 				actions: null
 			});
 	}, [setHeader]);
+	React.useEffect(() => {
+		setSelectedKeys(['home']);
+	}, [setSelectedKeys]);
 
 	const [time, setTime] = React.useState({
 		hours: new Date().getHours() % 12 || 12,
