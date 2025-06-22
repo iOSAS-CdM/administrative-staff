@@ -116,3 +116,5 @@ span.ant-typography {
 
 	z-index: 0;
 }
+
+.ant-card-body { height: unset; }

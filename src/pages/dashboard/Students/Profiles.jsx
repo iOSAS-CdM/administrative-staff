@@ -27,7 +27,7 @@ import {
 
 import remToPx from '../../../utils/remToPx';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 	React.useEffect(() => {
@@ -48,8 +48,8 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 	React.useEffect(() => {
 		const placeholderStudent = [];
 		for (let i = 0; i < 20; i++) {
-			const id = `placeholder-025-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}-${i + 1}`;
-			if (students.some(student => student.employeeId === id)) {
+			const id = `placeholder-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
+			if (students.some(student => student.studentId === id)) {
 				continue;
 			};
 			placeholderStudent.push({
@@ -60,7 +60,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 					last: `Last ${i + 1}`
 				},
 				email: `student${i + 1}@example.com`,
-				employeeId: id,
+				studentId: id,
 				institute: ['ics', 'ite', 'ibe'][i % 3],
 				profilePicture: null,
 				placeholder: true,
@@ -84,11 +84,11 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 						},
 						email: user.email,
 						phone: user.phone,
-						employeeId: (() => {
+						studentId: (() => {
 							let id;
 							do {
-								id = `025-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
-							} while (fetchedStudents.some(student => student.employeeId === id));
+								id = `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`;
+							} while (fetchedStudents.some(student => student.studentId === id));
 							return id;
 						})(),
 						institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
@@ -128,14 +128,18 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 		};
 
 		const filteredStudents = students.filter(student => {
-			const fullName = `${student.name.first} ${student.name.last}`.toLowerCase();
-			return fullName.includes(searchTerm.toLowerCase());
+			const fullName = `${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase();
+			const studentId = student.studentId.toLowerCase();
+			const email = student.email.toLowerCase();
+			return fullName.includes(searchTerm.toLowerCase()) ||
+				studentId.includes(searchTerm.toLowerCase()) ||
+				email.includes(searchTerm.toLowerCase());
 		});
 
 		setDisplayedStudents([]);
 		setTimeout(() => {
 			setDisplayedStudents(filteredStudents);
-		}, remToPx(2)); // replaced remToPx(2) with a fixed value
+		}, remToPx(2));
 	};
 
 	return (
@@ -288,12 +292,12 @@ const StudentCard = ({ student, animationDelay, loading }) => {
 					size='large'
 				/>
 				<Flex vertical justify='flex-start' align='flex-start'>
-					<Title level={4}>{`${thisStudent.name.first} ${thisStudent.name.last}`}</Title>
-					<p>{
+					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary'>{thisStudent.studentId}</Text></Title>
+					<Text>{
 						thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
 							thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
 								thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
-					}</p>
+					}</Text>
 				</Flex>
 			</Flex>
 		</Card>
