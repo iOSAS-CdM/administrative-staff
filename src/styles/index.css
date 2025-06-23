@@ -63,7 +63,7 @@ span.ant-typography {
 	overflow: auto;
 	scrollbar-gutter: stable;
 	position: relative;
-	
+
 	scrollbar-width: thin;
 	scrollbar-color: transparent transparent;
 	transition: scrollbar-color var(--transition);

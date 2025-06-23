@@ -303,7 +303,7 @@ const Home = ({ setHeader, setSelectedKeys, staff }) => {
 									</Flex>
 								))
 							) : (
-								<Text>No disciplinary events found.</Text>
+								<Text type='secondary'>No disciplinary events found.</Text>
 							)}
 						</Flex>
 					</Card>
