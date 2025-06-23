@@ -20,7 +20,8 @@ import {
     LogoutOutlined,
     SmileOutlined,
     ToolOutlined,
-    RobotOutlined
+	RobotOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 import { MobileContext } from '../main';
@@ -100,7 +101,30 @@ const Menubar = () => {
     const [minimized, setMinimized] = React.useState(false);
 
     const menuItems = [
-        {
+		{
+			key: 'staff',
+			label: (
+				<Flex vertical>
+					<Title level={5} style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
+					<Text type='secondary' style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.role}</Text>
+				</Flex>
+			),
+			icon: (
+				minimized ?
+					<UserOutlined /> :
+					<Avatar
+						src={staff.profilePicture}
+						shape='square'
+						size='large'
+					/>
+			),
+			onClick: () => { }
+		},
+		{
+			key: 'divider',
+			type: 'divider'
+		},
+		{
             key: 'home',
             label: 'Home',
             icon: <HomeOutlined />,
@@ -177,10 +201,7 @@ const Menubar = () => {
             <Flex
                 vertical
                 justify='space-between'
-                align='center'
-                style={{
-                    width: minimized ? '' : 'calc(var(--space-XL) * 24)'
-                }}
+				align='center'
             >
                 <Card
 					size='small'
@@ -197,62 +218,24 @@ const Menubar = () => {
                         justify='space-between'
                         align='center'
                         gap='large'
-                        style={{ width: '100%', height: '100%' }}
-                    >
-                        <Button
-                            type={minimized ? 'default' : 'primary'}
-                            icon={minimized ? <RightOutlined /> : <LeftOutlined />}
-                            onClick={() => setMinimized(!minimized)}
-                            size={minimized ? 'default' : 'large'}
-                            style=
-                            {
-                                minimized ? {
-                                    position: 'unset',
-                                    width: '100%'
-                                } : {
-                                    position: 'absolute',
-                                        right: 'calc((var(--space-XL) * -1) / 2)',
-                                    zIndex: 1
-                                }
-                            }
-                        />
-
+						style={{ width: '100%', height: '100%' }}
+					>
                         <Flex
                             vertical
                             justify='center'
                             align='center'
 							gap={16}
                             style={{ width: '100%', height: '100%' }}
-                        >
-                            {
-                                minimized ? (
-                                    <Avatar
-                                        src={staff.profilePicture}
-                                        shape='square'
-                                        size='large'
-                                    />
-                                ) : (
-                                    <Flex
-                                        align='center'
-											gap={16}
-                                        style={{ width: '100%' }}
-                                    >
-                                        <Avatar
-                                            src={staff.profilePicture}
-                                            shape='square'
-                                            size='large'
-                                        />
-                                        <Flex vertical>
-                                            <Title level={5}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
-                                            <Text type='secondary'>{staff.role}</Text>
-                                        </Flex>
-                                    </Flex>
-                                )
-                            }
+						>
                             <Menu
                                 selectedKeys={selectedKeys}
                                 inlineCollapsed={minimized}
-                                style={{ position: 'relative', height: '100%', padding: 0, border: 'none' }}
+								style={{
+									position: 'relative',
+									height: '100%',
+									padding: 0,
+									border: 'none'
+								}}
                                 items={menuItems}
                                 mode='inline'
                             />
@@ -260,11 +243,11 @@ const Menubar = () => {
 
                         <Button
                             type='primary'
-                            icon={<LogoutOutlined />}
-                            style={{ width: '100%' }}
+							icon={<LogoutOutlined />}
                             onClick={() => {
                                 navigate('/');
                             }}
+							style={{ width: '100%' }}
                         >
                             {minimized ? '' : 'Sign Out'}
                         </Button>
@@ -294,11 +277,19 @@ const Menubar = () => {
                 >
                     <Flex
                         justify='space-between'
-                        align='stretch'
-                        gap='large'
+						align='center'
+						gap='small'
                         style={{ width: '100%', height: '100%' }}
                     >
-                        <Title level={4} >{Header.title}</Title>
+
+						<Button
+							type={minimized ? 'default' : 'primary'}
+							icon={minimized ? <RightOutlined /> : <LeftOutlined />}
+							onClick={() => setMinimized(!minimized)}
+							size={minimized ? 'default' : 'large'}
+						/>
+
+						<Title level={4} style={{ width: '100%' }}>{Header.title}</Title>
 						<Flex justify='flex-end' gap={16}>
 							{Header.actions}
 						</Flex>
