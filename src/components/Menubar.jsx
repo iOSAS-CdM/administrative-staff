@@ -8,8 +8,7 @@ import {
     Avatar,
     Typography,
     Button,
-    Menu,
-    Empty
+    Menu
 } from 'antd';
 
 import {
@@ -29,6 +28,7 @@ import { MobileContext } from '../main';
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
 import Student from '../pages/dashboard/Students/Student';
+import remToPx from '../utils/remToPx';
 
 const { Text, Title } = Typography;
 
@@ -100,6 +100,35 @@ const Menubar = () => {
 
     const [minimized, setMinimized] = React.useState(false);
 
+	// Reference to store timeout ID
+	const timeoutRef = React.useRef(null);
+
+	// Handle mouse enter - start the timer to maximize after 5 seconds
+	const handleMouseEnter = () => {
+		if (minimized) {
+			timeoutRef.current = setTimeout(() => {
+				setMinimized(false);
+			}, remToPx(20)); // 5 seconds
+		}
+	};
+
+	// Handle mouse leave - clear the timeout
+	const handleMouseLeave = () => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+	};
+
+	// Clean up timeout on component unmount
+	React.useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
+
     const menuItems = [
 		{
 			key: 'staff',
@@ -115,7 +144,8 @@ const Menubar = () => {
 					<Avatar
 						src={staff.profilePicture}
 						shape='square'
-						size='large'
+						size={minimized ? 'small' : 'large'}
+						className='anticon ant-menu-item-icon'
 					/>
 			),
 			onClick: () => { }
@@ -201,7 +231,7 @@ const Menubar = () => {
             <Flex
                 vertical
                 justify='space-between'
-				align='center'
+				align='flex-start'
             >
                 <Card
 					size='small'
@@ -212,6 +242,8 @@ const Menubar = () => {
                         padding: 0,
                         borderRadius: 0
                     }}
+					onMouseEnter={handleMouseEnter}
+					onMouseLeave={handleMouseLeave}
                 >
                     <Flex
                         vertical
