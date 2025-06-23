@@ -72,9 +72,9 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	return (
 		<Flex
 			vertical
-			gap='small'
+			gap={16}
 		>
-			<Flex justify='flex-start' align='stretch' gap='small'>
+			<Flex justify='flex-start' align='stretch' gap={16}>
 				{!mobile && <Avatar
 					src={thisStudent.profilePicture || 'https://via.placeholder.com/150'}
 					alt='Profile Picture'
@@ -88,7 +88,7 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 				<Card style={{ flex: 1 }}>
 					<Flex
 						vertical
-						gap='small'
+						gap={16}
 						justify='center'
 						align={!mobile ? 'stretch' : 'center'}
 						style={{ height: '100%', ...mobile ? { textAlign: 'center' } : {} }}
@@ -111,7 +111,7 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
 						}</Text>
 
-						<Flex gap='small' >
+						<Flex gap={16} >
 							<Button
 								type='link'
 								icon={<MailOutlined />}
@@ -133,7 +133,7 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 						<Divider />
 
-						<Flex justify='flex-start' align='stretch' gap='small'>
+						<Flex justify='flex-start' align='stretch' gap={16}>
 							<Button
 								type='primary'
 								icon={<EditOutlined />}

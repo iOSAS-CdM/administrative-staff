@@ -183,7 +183,7 @@ const Menubar = () => {
                 }}
             >
                 <Card
-                    size='small'
+					size='small'
                     style={{
                         position: 'relative',
                         width: '100%',
@@ -221,7 +221,7 @@ const Menubar = () => {
                             vertical
                             justify='center'
                             align='center'
-                            gap='small'
+							gap={16}
                             style={{ width: '100%', height: '100%' }}
                         >
                             {
@@ -234,7 +234,7 @@ const Menubar = () => {
                                 ) : (
                                     <Flex
                                         align='center'
-                                        gap='small'
+											gap={16}
                                         style={{ width: '100%' }}
                                     >
                                         <Avatar
@@ -285,7 +285,7 @@ const Menubar = () => {
             >
                 {/*************************** Header ***************************/}
                 <Card
-                    size='small'
+					size='small'
                     style={{
                         width: '100%',
                         borderRadius: 0,
@@ -299,7 +299,7 @@ const Menubar = () => {
                         style={{ width: '100%', height: '100%' }}
                     >
                         <Title level={4} >{Header.title}</Title>
-						<Flex justify='flex-end' gap='small'>
+						<Flex justify='flex-end' gap={16}>
 							{Header.actions}
 						</Flex>
                     </Flex>
@@ -307,7 +307,7 @@ const Menubar = () => {
 
                 {/*************************** Page Content ***************************/}
                 <Card
-                    size='small'
+					size='small'
 					className='scrollable-content'
                     style={{
                         width: '100%',

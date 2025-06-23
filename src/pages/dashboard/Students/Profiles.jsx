@@ -145,7 +145,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	};
 
 	return (
-		<Flex vertical gap='small' style={{ width: '100%', height: '100%' }}>
+		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
 			{/************************** Filter **************************/}
 			<Form
 				id='filter'
@@ -154,7 +154,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 				style={{ width: '100%' }}
 				initialValues={{ search: '', category: 'all' }}
 			>
-				<Flex justify='space-between' align='center' gap='small'>
+				<Flex justify='space-between' align='center' gap={16}>
 					<Card size='small' {...mobile ? { style: { width: '100%' } } : {}}>
 						<Form.Item
 							name='search'
@@ -299,7 +299,7 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 				}} key='view' />
 			]}
 		>
-			<Flex justify='flex-start' align='flex-start' gap='small' style={{ width: '100%' }}>
+			<Flex justify='flex-start' align='flex-start' gap={16} style={{ width: '100%' }}>
 				<Avatar
 					src={thisStudent.profilePicture}
 					size='large'

@@ -78,7 +78,7 @@ const SignUp = () => {
 				>
 					<Input.Password placeholder='Confirm Password' type='password' visibilityToggle={{ visible: showPassword, onVisibleChange: (visible) => setShowPassword(visible) }} />
 				</Form.Item>
-				<Flex justify='space-between' align='center' gap='small'>
+				<Flex justify='space-between' align='center' gap={16}>
 					<Checkbox
 						checked={showPassword}
 						onChange={(e) => setShowPassword(e.target.checked)}

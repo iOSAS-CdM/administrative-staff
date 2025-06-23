@@ -56,7 +56,7 @@ const SignIn = ({ navigate }) => {
 				>
 					<Input.Password placeholder='Password' type='password' />
 				</Form.Item>
-				<Flex justify='space-between' align='center' gap='small'>
+				<Flex justify='space-between' align='center' gap={16}>
 					<Link onClick={() => navigate('/authentication/forgot-password')}>
 						Forgot Password?
 					</Link>

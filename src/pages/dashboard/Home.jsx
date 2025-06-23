@@ -222,11 +222,11 @@ const Home = ({ setHeader, setSelectedKeys, staff }) => {
 	return (
 		<Flex
 			vertical
-			gap='small'
+			gap={16}
 		>
 			<Row gutter={[16, 16]}>
 				<Col span={16}>
-					<Card size='small' style={{height: '100%'}}>
+					<Card size='small' style={{ height: '100%' }}>
 						<Flex vertical justify='center' style={{height: '100%'}}>
 							<Text>Good {time.period},</Text>
 							<Title level={1} style={{ color: 'var(--primary)' }}>
@@ -237,9 +237,9 @@ const Home = ({ setHeader, setSelectedKeys, staff }) => {
 					</Card>
 				</Col>
 				<Col span={8}>
-					<Card size='small' style={{height: '100%'}}>
-						<Flex vertical justify='center' gap='small' style={{height: '100%'}}>
-							<Flex gap='small' align='flex-end'>
+					<Card size='small' style={{ height: '100%' }}>
+						<Flex vertical justify='center' gap={16} style={{ height: '100%' }}>
+							<Flex gap={16} align='flex-end'>
 								<Title level={1} style={{ color: 'var(--primary)' }}>{time.hours}:{time.minutes}</Title>
 								<Title level={3} style={{ color: 'var(--primary)' }}>{time.meridian}</Title>
 							</Flex>
@@ -289,10 +289,10 @@ const Home = ({ setHeader, setSelectedKeys, staff }) => {
 
 				<Col span={8}>
 					<Card size='small' title='Disciplinary Events'>
-						<Flex vertical gap='small' className='scrollable-content' style={{ maxHeight: 'calc(var(--space-XL) * 20)' }}>
+						<Flex vertical gap={16} className='scrollable-content' style={{ maxHeight: 'calc(var(--space-XL) * 20)' }}>
 							{Object.keys(events).length > 0 ? (
 								Object.entries(events).map(([date, events]) => (
-									<Flex key={date} vertical gap='small'>
+									<Flex key={date} vertical gap={16}>
 										<Text strong>{date}</Text>
 										{events.map((event, index) => (
 											<Flex key={index} justify='flex-start' align='flex-start'>
