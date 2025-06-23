@@ -62,7 +62,7 @@ const Authentication = () => {
 				style={{
 					minHeight: '100vh',
 					height: '100%',
-					padding: 'calc(var(--space-XL) * 2'
+					padding: mobile && 'calc(var(--space-XL) * 2'
 				}}
 			>
 				<Card className='authentication-card'>
