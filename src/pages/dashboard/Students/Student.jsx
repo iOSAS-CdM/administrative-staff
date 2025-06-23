@@ -173,10 +173,7 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							style={{ height: '100%' }}
 						>
 							<Title level={4}>
-								{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last}
-								<Text type='secondary' style={{ unicodeBidi: 'bidi-override' }}>
-									{thisStudent.studentId}
-								</Text>
+								{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override' }}> {thisStudent.studentId} </Text>
 							</Title>
 							<Text>
 								{
