@@ -31,10 +31,10 @@ const { Title, Text } = Typography;
 
 import '../../../styles/pages/Dashboard.css';
 
-const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
+const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	React.useEffect(() => {
 		setHeader({
-			title: 'Profiles',
+			title: 'Student Profiles',
 			actions: null
 		});
 	}, [setHeader]);
@@ -236,6 +236,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 								student={student}
 								animationDelay={index * 0.1}
 								loading={student.placeholder}
+								navigate={navigate}
 							/>
 						</Col>
 					))}
@@ -251,12 +252,10 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, staff }) => {
 
 export default Profiles;
 
-const StudentCard = ({ student, animationDelay, loading }) => {
+const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 	const [mounted, setMounted] = React.useState(false);
 
 	const [thisStudent, setThisStudent] = React.useState(student);
-
-	const navigate = useNavigate();
 
 	React.useEffect(() => {
 		const timer = setTimeout(() => {
@@ -285,7 +284,19 @@ const StudentCard = ({ student, animationDelay, loading }) => {
 			actions={[
 				<EditOutlined onClick={() => { }} key='edit' />,
 				<LockOutlined onClick={() => { }} key='restrict' />,
-				<RightOutlined onClick={() => { }} key='view' />
+				<RightOutlined onClick={() => {
+					if (thisStudent.placeholder) {
+						Modal.error({
+							title: 'Error',
+							content: 'This is a placeholder student profile. Please try again later.',
+							centered: true
+						});
+					} else {
+						navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
+							state: { student: thisStudent }
+						});
+					};
+				}} key='view' />
 			]}
 		>
 			<Flex justify='flex-start' align='flex-start' gap='small' style={{ width: '100%' }}>

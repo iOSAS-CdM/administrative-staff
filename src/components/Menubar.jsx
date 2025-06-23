@@ -27,6 +27,7 @@ import { MobileContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
+import Student from '../pages/dashboard/Students/Student';
 
 const { Text, Title } = Typography;
 
@@ -77,14 +78,16 @@ const Menubar = () => {
 		setHeader,
 		setSelectedKeys,
 		mobile,
-		staff
+		staff,
+		navigate
 	};
 
 	const routes = useRoutes([
 		{ path: '/', element: <Home {...props} /> },
 		{ path: '/home', element: <Home {...props} /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
-		{ path: '/students/profiles', element: <Profiles {...props} /> },
+		{ path: '/students/profiles/', element: <Profiles {...props} /> },
+		{ path: '/students/profiles/*', element: <Student {...props} /> },
 		{ path: '/students/disciplinary', element: <p>Disciplinary Records</p> },
 		{ path: '/students/organization', element: <p>Organizations</p> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
