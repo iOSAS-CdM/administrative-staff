@@ -34,7 +34,7 @@ const { Title, Text } = Typography;
 
 import '../../../styles/pages/Dashboard.css';
 
-const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
 
 	React.useEffect(() => {
@@ -320,5 +320,5 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	);
 };
 
-export default StudentProfile;
+export default Profile;
 

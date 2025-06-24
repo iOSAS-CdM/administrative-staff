@@ -27,7 +27,7 @@ import { MobileContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
-import Student from '../pages/dashboard/Students/Student';
+import Profile from '../pages/dashboard/Students/Profile';
 import StudentRecords from '../pages/dashboard/Students/Records';
 
 import remToPx from '../utils/remToPx';
@@ -90,14 +90,14 @@ const Menubar = () => {
 		{ path: '/home', element: <Home {...props} /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
 		{ path: '/students/profiles/', element: <Profiles {...props} /> },
-		{ path: '/students/profiles/*', element: <Student {...props} /> },
+		{ path: '/students/profiles/*', element: <Profile {...props} /> },
 		{ path: '/students/records', element: <StudentRecords {...props} /> },
 		{ path: '/students/organization', element: <p>Organizations</p> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
 		{ path: '/utilities/faqs', element: <p>FAQs</p> },
 		{ path: '/utilities/announcements', element: <p>Announcements</p> },
 		{ path: '/utilities/repository', element: <p>Repository</p> },
-		{ path: '/helpbot', element: <p>Helpbot</p> },
+		{ path: '/helpbot', element: <p>Helpbot</p> }
 	]);
 
     const [minimized, setMinimized] = React.useState(false);
