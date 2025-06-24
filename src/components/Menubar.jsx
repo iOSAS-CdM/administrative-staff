@@ -91,7 +91,7 @@ const Menubar = () => {
 		{ path: '/notifications', element: <p>Notifications</p> },
 		{ path: '/students/profiles/', element: <Profiles {...props} /> },
 		{ path: '/students/profiles/*', element: <Student {...props} /> },
-		{ path: '/students/disciplinary', element: <StudentRecords {...props} /> },
+		{ path: '/students/records', element: <StudentRecords {...props} /> },
 		{ path: '/students/organization', element: <p>Organizations</p> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
 		{ path: '/utilities/faqs', element: <p>FAQs</p> },
@@ -175,9 +175,9 @@ const Menubar = () => {
                     onClick: () => navigate('/dashboard/students/profiles')
                 },
                 {
-                    key: 'disciplinary',
+                    key: 'records',
                     label: 'Disciplinary Records',
-                    onClick: () => navigate('/dashboard/students/disciplinary')
+                    onClick: () => navigate('/dashboard/students/records')
                 },
                 {
                     key: 'organization',
