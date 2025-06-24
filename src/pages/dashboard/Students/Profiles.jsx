@@ -29,6 +29,9 @@ import remToPx from '../../../utils/remToPx';
 
 const { Title, Text } = Typography;
 
+import EditStudent from '../../../modals/EditStudent';
+import RestrictStudent from '../../../modals/RestrictStudent';
+
 import '../../../styles/pages/Dashboard.css';
 
 const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
@@ -282,8 +285,28 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 			className={mounted ? 'student-card-mounted' : 'student-card-unmounted'}
 			style={{ height: '100%' }}
 			actions={[
-				<EditOutlined onClick={() => { }} key='edit' />,
-				<LockOutlined onClick={() => { }} key='restrict' />,
+				<EditOutlined onClick={() => {
+					if (thisStudent.placeholder) {
+						Modal.error({
+							title: 'Error',
+							content: 'This is a placeholder student profile. Please try again later.',
+							centered: true
+						});
+					} else {
+						EditStudent(Modal, thisStudent, setThisStudent);
+					};
+				}} key='edit' />,
+				<LockOutlined onClick={() => {
+					if (thisStudent.placeholder) {
+						Modal.error({
+							title: 'Error',
+							content: 'This is a placeholder student profile. Please try again later.',
+							centered: true
+						});
+					} else {
+						RestrictStudent(Modal, thisStudent, setThisStudent);
+					};
+				}} key='restrict' />,
 				<RightOutlined onClick={() => {
 					if (thisStudent.placeholder) {
 						Modal.error({

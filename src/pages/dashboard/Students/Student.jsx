@@ -12,7 +12,8 @@ import {
 	Avatar,
 	Typography,
 	Calendar,
-	Tag
+	Tag,
+	App
 } from 'antd';
 
 import {
@@ -25,6 +26,9 @@ import {
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
+
+import EditStudent from '../../../modals/EditStudent';
+import RestrictStudent from '../../../modals/RestrictStudent';
 
 const { Title, Text } = Typography;
 
@@ -142,6 +146,9 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setEvents(groupedEvents);
 	}, []);
 
+	const app = App.useApp();
+	const Modal = app.modal;
+
 	return (
 		<Flex
 			vertical
@@ -209,7 +216,17 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 								<Button
 									type='primary'
 									icon={<EditOutlined />}
-									onClick={() => { }}
+									onClick={() => {
+										if (thisStudent.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content: 'This is a placeholder student profile. Please try again later.',
+												centered: true
+											});
+										} else {
+											EditStudent(Modal, thisStudent, setThisStudent);
+										}
+									}}
 								>
 									Edit
 								</Button>
@@ -224,6 +241,17 @@ const StudentProfile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									type='primary'
 									danger
 									icon={<LockOutlined />}
+									onClick={() => {
+										if (thisStudent.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content: 'This is a placeholder student profile. Please try again later.',
+												centered: true
+											});
+										} else {
+											RestrictStudent(Modal, thisStudent);
+										}
+									}}
 								>
 									Restrict
 								</Button>
