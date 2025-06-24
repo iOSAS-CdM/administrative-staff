@@ -18,40 +18,338 @@ import {
 } from 'antd';
 
 import {
-	LeftOutlined
+	RightOutlined,
+	SearchOutlined,
+	FilterOutlined
 } from '@ant-design/icons';
 
-const StudentRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+import remToPx from '../../../utils/remToPx';
+
+const { Title, Text } = Typography;
+
+const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
 
 	React.useEffect(() => {
 		setHeader({
-			title: `Student ${location.state?.student?.studentId || 'Records'}`,
-			actions: (
-				<Button
-					type='primary'
-					icon={<LeftOutlined />}
-					onClick={() => navigate(-1)}
-				>
-					Back
-				</Button>
-			)
+			title: 'Disciplinary Records',
+			actions: null
 		});
 	}, [setHeader]);
 
-	React.useEffect(() => {
+	React.useEffect(() => { 
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
 
-	const [thisStudent, setThisStudent] = React.useState(location.state?.student || {});
+	const [category, setCategory] = React.useState('all');
+	const FilterForm = React.useRef(null);
+	const [records, setRecords] = React.useState([]);
+	const [displayedRecords, setDisplayedRecords] = React.useState([]);
+
+	React.useEffect(() => {
+		const placeholderRecord = [];
+		for (let i = 0; i < 20; i++) {
+			const id = `placeholder-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
+			if (records.some(record => record.recordId === id))
+				continue;
+			placeholderRecord.push({
+				id: id,
+				recordId: id,
+				title: `Placeholder Record ${i + 1}`,
+				description: `This is a placeholder record for testing purposes. Record number ${i + 1}.`,
+				tags: {
+					status: 'ongoing',
+					offense: 'Minor',
+					occurances: 1
+				},
+				complainants: [
+					'22-00250'
+				],
+				complainees: [
+					'22-00251'
+				],
+				placeholder: true,
+				date: new Date()
+			});
+		};
+		setRecords(placeholderRecord);
+
+		setTimeout(() => {
+			const fetchedRecords = [];
+
+			for (let i = 0; i < 20; i++) {
+				const id = `record-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
+				if (records.some(record => record.recordId === id))
+					continue;
+				fetchedRecords.push({
+					id: id,
+					recordId: id,
+					title: `Record ${i + 1}`,
+					description: `This is a record for testing purposes. Record number ${i + 1}.`,
+					tags: {
+						status: ['ongoing', 'resolved', 'archived'][i % 3],
+						offense: ['Minor', 'Major', 'Severe'][i % 3],
+						occurances: Math.floor(Math.random() * 5) + 1
+					},
+					complainants: [
+						`25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`
+					],
+					complainees: [
+						`25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`
+					],
+					placeholder: false,
+					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
+						Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1)
+				});
+			};
+			setRecords(fetchedRecords);
+		}, remToPx(2));
+	}, []);
+
+	React.useEffect(() => {
+		setDisplayedRecords(records);
+		categorizeFilter('all');
+	}, [records]);
+
+	const categorizeFilter = (value) => {
+		let filteredRecords = records;
+
+		if (value !== 'all')
+			filteredRecords = records.filter(record => record.tags.status === value);
+
+		setDisplayedRecords([]);
+		setTimeout(() => {
+			setDisplayedRecords(filteredRecords);
+		}, remToPx(2));
+	};
+
+	const searchCategorizedRecord = (searchTerm) => {
+		setCategory('all');
+
+		if (searchTerm.trim() === '') {
+			setDisplayedRecords(records);
+			return;
+		};
+
+		const filteredRecords = records.filter(record => {
+			const fullName = `${record.name.first} ${record.name.middle} ${record.name.last}`.toLowerCase();
+			const recordId = record.recordId.toLowerCase();
+			const email = record.email.toLowerCase();
+			return fullName.includes(searchTerm.toLowerCase()) ||
+				recordId.includes(searchTerm.toLowerCase()) ||
+				email.includes(searchTerm.toLowerCase());
+		});
+
+		setDisplayedRecords([]);
+		setTimeout(() => {
+			setDisplayedRecords(filteredRecords);
+		}, remToPx(2));
+	};
 
 	return (
-		<div>
-			{/* Render student records here */}
-			<h1>Student Records for {thisStudent.name?.first} {thisStudent.name?.last}</h1>
-			{/* Additional content can be added here */}
-		</div>
+		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
+			{/************************** Filter **************************/}
+			<Form
+				id='filter'
+				layout='vertical'
+				ref={FilterForm}
+				style={{ width: '100%' }}
+				initialValues={{ search: '', category: 'all' }}
+			>
+				<Flex justify='space-between' align='center' gap={16}>
+					<Card size='small' {...mobile ? { style: { width: '100%' } } : {}}>
+						<Form.Item
+							name='search'
+							style={{ margin: 0 }}
+						>
+							<Input
+								placeholder='Search'
+								allowClear
+								prefix={<SearchOutlined />}
+								onChange={(e) => searchCategorizedRecord(e.target.value)}
+							/>
+						</Form.Item>
+					</Card>
+					<Card size='small'>
+						<Form.Item
+							name='category'
+							style={{ margin: 0 }}
+						>
+							{!mobile ?
+								<Segmented
+									options={[
+										{ label: 'All', value: 'all' },
+										{ label: 'Ongoing', value: 'ongoing' },
+										{ label: 'Resolved', value: 'resolved' },
+										{ label: 'Archived', value: 'archived' }
+									]}
+									value={category}
+									onChange={(value) => {
+										setCategory(value);
+										categorizeFilter(value);
+										FilterForm.current.setFieldsValue({ search: '' });
+									}}
+									style={{ width: '100%' }}
+								/>
+								:
+								<Dropdown
+									trigger={['click']}
+									placement='bottomRight'
+									arrow
+									popupRender={(menu) => (
+										<Card size='small'>
+											<Segmented
+												options={[
+													{ label: 'All', value: 'all' },
+													{ label: 'Ongoing', value: 'ongoing' },
+													{ label: 'Resolved', value: 'resolved' },
+													{ label: 'Archived', value: 'archived' }
+												]}
+												vertical
+												value={category}
+												onChange={(value) => {
+													setCategory(value);
+													categorizeFilter(value);
+													FilterForm.current.setFieldsValue({ search: '' });
+												}}
+												style={{ width: '100%' }}
+											/>
+										</Card>
+									)}
+								>
+									<Button
+										icon={<FilterOutlined />}
+										onClick={(e) => e.stopPropagation()}
+									/>
+								</Dropdown>
+							}
+						</Form.Item>
+					</Card>
+				</Flex>
+			</Form>
+
+			{/************************** Records **************************/}
+			{displayedRecords.length > 0 ? (
+				<Row gutter={[16, 16]}>
+					{displayedRecords.map((record, index) => (
+						<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<RecordCard
+								record={record}
+								animationDelay={index * 0.1}
+								loading={record.placeholder}
+								navigate={navigate}
+							/>
+						</Col>
+					))}
+				</Row>
+			) : (
+				<Flex justify='center' align='center' style={{ height: '100%' }}>
+					<Empty description='No profiles found' />
+				</Flex>
+			)}
+		</Flex>
 	);
 };
 
-export default StudentRecords;
+export default DisciplinaryRecords;
+
+const RecordCard = ({ record, animationDelay, loading, navigate }) => {
+	const [mounted, setMounted] = React.useState(false);
+
+	const [thisRecord, setThisRecord] = React.useState(record);
+
+	React.useEffect(() => {
+		const timer = setTimeout(() => {
+			setMounted(true);
+		}, animationDelay * 1000 || 0);
+
+		return () => clearTimeout(timer);
+	}, [animationDelay]);
+
+	React.useEffect(() => {
+		if (record) {
+			setThisRecord(record);
+		};
+	}, [record]);
+
+	const app = App.useApp();
+	const Modal = app.modal;
+
+	return (
+		<Card
+			size='small'
+			hoverable
+			loading={loading}
+			className={mounted ? 'record-card-mounted' : 'record-card-unmounted'}
+			style={{ height: '100%' }}
+
+			actions={[
+				<Avatar.Group>
+					{thisRecord.complainants.map((complainant, index) => (
+						<Avatar
+							key={index}
+							src={`https://avatars.dicebear.com/api/initials/${complainant}.svg`}
+							style={{ cursor: 'pointer' }}
+							onClick={() => {
+								Modal.info({
+									title: `Complainant: ${complainant}`,
+									content: <Text>Details about the complainant {complainant}.</Text>
+								});
+							}}
+						/>
+					))}
+					{thisRecord.complainees.map((complainee, index) => (
+						<Avatar
+							key={index}
+							src={`https://avatars.dicebear.com/api/initials/${complainee}.svg`}
+							style={{ cursor: 'pointer' }}
+							onClick={() => {
+								Modal.info({
+									title: `Complainee: ${complainee}`,
+									content: <Text>Details about the complainee {complainee}.</Text>
+								});
+							}}
+						/>
+					))}
+				</Avatar.Group>,
+
+				<Text>
+					{thisRecord.date.toLocaleDateString('en-US', {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					})}
+				</Text>,
+
+				<RightOutlined onClick={() => {
+					if (thisStudent.placeholder) {
+						Modal.error({
+							title: 'Error',
+							content: 'This is a placeholder student profile. Please try again later.',
+							centered: true
+						});
+					} else {
+						navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
+							state: { student: thisStudent }
+						});
+					};
+				}} key='view' />
+			]}
+		>
+			<Flex vertical justify='flex-start' align='flex-start' gap={16}>
+				<Card.Meta
+					title={
+						<Title level={3} style={{ margin: 0 }}>
+							{thisRecord.title}
+						</Title>
+					}
+					description={
+						<Text>
+							{thisRecord.description}
+						</Text>
+					}
+				/>
+			</Flex>
+		</Card>
+	);
+};

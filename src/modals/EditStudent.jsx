@@ -142,19 +142,14 @@ const StudentForm = ({ student }) => {
 						rules={[{ required: true, message: 'Please select the institute!' }]}
 					>
 						<Select
-							placeholder='Select Position *'
+							placeholder='Select Institute *'
 							options={[
-								{ label: 'Institute of Computing Studies', key:'ics' },
-								{ label: 'Institute of Teacher Education', key:'ite' },
-								{ label: 'Institute of Business Entrepreneurship', key:'ibe' },
+								{ label: 'Institute of Computing Studies', value: 'ics' },
+								{ label: 'Institute of Teacher Education', value: 'ite' },
+								{ label: 'Institute of Business Entrepreneurship', value: 'ibe' }
 							]}
 							style={{ width: '100%' }}
-						>
-							<Select.Option value='head'>Head</Select.Option>
-							<Select.Option value='guidance'>Guidance Officer</Select.Option>
-							<Select.Option value='prefect'>Prefect of Discipline Officer</Select.Option>
-							<Select.Option value='student-affairs'>Student Affairs Officer</Select.Option>
-						</Select>
+						/>
 					</Form.Item>
 				</Flex>
 			</Flex>

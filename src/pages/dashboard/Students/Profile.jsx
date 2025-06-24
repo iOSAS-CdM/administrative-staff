@@ -63,8 +63,8 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 			last: 'Doe'
 		},
 		email: 'email@mail.com',
-		employeeId: '22-00250',
-		position: 'head',
+		studentId: '22-00250',
+		institute: 'head',
 		profilePicture: 'https://via.placeholder.com/150'
 	});
 
