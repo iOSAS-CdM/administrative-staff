@@ -105,24 +105,20 @@ const Menubar = () => {
 	// Reference to store timeout ID
 	const timeoutRef = React.useRef(null);
 
-	// Handle mouse enter - start the timer to maximize after 5 seconds
 	const handleMouseEnter = () => {
 		if (minimized) {
 			timeoutRef.current = setTimeout(() => {
 				setMinimized(false);
-			}, remToPx(20)); // 5 seconds
-		}
+			}, remToPx(100));
+		};
 	};
-
-	// Handle mouse leave - clear the timeout
 	const handleMouseLeave = () => {
 		if (timeoutRef.current) {
 			clearTimeout(timeoutRef.current);
 			timeoutRef.current = null;
-		}
+		};
 	};
 
-	// Clean up timeout on component unmount
 	React.useEffect(() => {
 		return () => {
 			if (timeoutRef.current) {
@@ -250,10 +246,35 @@ const Menubar = () => {
                     <Flex
                         vertical
                         justify='space-between'
-                        align='center'
-                        gap='large'
+						align='center'
 						style={{ width: '100%', height: '100%' }}
 					>
+						<div
+							id='sidebar-toggle'
+							style={{
+								position: 'relative',
+								width: '100%',
+								height: minimized ? (() => {
+									const button = document.querySelector('.ant-btn');
+									if (button)
+										return button.offsetHeight + 'px';
+								})() : '0px'
+							}}
+						>
+							<Button
+								type={minimized ? 'default' : 'primary'}
+								icon={minimized ? <RightOutlined /> : <LeftOutlined />}
+								onClick={() => setMinimized(!minimized)}
+								size={minimized ? 'default' : 'large'}
+								style={{
+									position: 'absolute',
+									top: 0,
+									left: minimized ? '50%' : 'calc(100% - var(--space-XL))',
+									transform: minimized ? 'translateX(-50%)' : 'none',
+									zIndex: 1000
+								}}
+							/>
+						</div>
                         <Flex
                             vertical
                             justify='center'
@@ -314,14 +335,7 @@ const Menubar = () => {
 						align='center'
 						gap='small'
                         style={{ width: '100%', height: '100%' }}
-                    >
-						<Button
-							type={minimized ? 'default' : 'primary'}
-							icon={minimized ? <RightOutlined /> : <LeftOutlined />}
-							onClick={() => setMinimized(!minimized)}
-							size={minimized ? 'default' : 'large'}
-						/>
-
+					>
 						<Title level={4} style={{ width: '100%' }}>{Header.title}</Title>
 						<Flex justify='flex-end' gap={16}>
 							{Header.actions}
