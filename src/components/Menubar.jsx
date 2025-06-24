@@ -258,7 +258,8 @@ const Menubar = () => {
 									const button = document.querySelector('.ant-btn');
 									if (button)
 										return button.offsetHeight + 'px';
-								})() : '0px'
+								})() : '0px',
+								transition: 'height var(--transition)',
 							}}
 						>
 							<Button
@@ -271,6 +272,7 @@ const Menubar = () => {
 									top: 0,
 									left: minimized ? '50%' : 'calc(100% - var(--space-XL))',
 									transform: minimized ? 'translateX(-50%)' : 'none',
+									transition: 'left var(--transition), transform var(--transition)',
 									zIndex: 1000
 								}}
 							/>
