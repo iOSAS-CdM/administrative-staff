@@ -28,6 +28,8 @@ import { MobileContext } from '../main';
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
 import Student from '../pages/dashboard/Students/Student';
+import StudentRecords from '../pages/dashboard/Students/Records';
+
 import remToPx from '../utils/remToPx';
 
 const { Text, Title } = Typography;
@@ -89,7 +91,7 @@ const Menubar = () => {
 		{ path: '/notifications', element: <p>Notifications</p> },
 		{ path: '/students/profiles/', element: <Profiles {...props} /> },
 		{ path: '/students/profiles/*', element: <Student {...props} /> },
-		{ path: '/students/disciplinary', element: <p>Disciplinary Records</p> },
+		{ path: '/students/disciplinary', element: <StudentRecords {...props} /> },
 		{ path: '/students/organization', element: <p>Organizations</p> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
 		{ path: '/utilities/faqs', element: <p>FAQs</p> },
@@ -313,7 +315,6 @@ const Menubar = () => {
 						gap='small'
                         style={{ width: '100%', height: '100%' }}
                     >
-
 						<Button
 							type={minimized ? 'default' : 'primary'}
 							icon={minimized ? <RightOutlined /> : <LeftOutlined />}
