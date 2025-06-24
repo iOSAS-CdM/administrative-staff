@@ -203,9 +203,10 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 											<Segmented
 												options={[
 													{ label: 'All', value: 'all' },
-													{ label: 'Guidance Officer', value: 'guidance' },
-													{ label: 'Prefect of Discipline Officer', value: 'prefect' },
-													{ label: 'Student Affairs Officer', value: 'student-affairs' }
+													{ label: 'ICS', value: 'ics' },
+													{ label: 'ITE', value: 'ite' },
+													{ label: 'IBE', value: 'ibe' },
+													{ label: 'Archived', value: 'archived' }
 												]}
 												vertical
 												value={category}
