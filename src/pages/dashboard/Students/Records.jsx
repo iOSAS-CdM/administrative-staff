@@ -192,30 +192,51 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 										popupRender={(menu) => (
 											<Card size='small'>
 												<Flex vertical gap={8}>
-													<Text strong>Filter by Category</Text>
-													<Checkbox.Group
-														options={[
-															{ label: 'Minor', value: 'minor' },
-															{ label: 'Major', value: 'major' },
-															{ label: 'Severe', value: 'severe' }
-														]}
+													<Flex vertical>
+														<Text strong>Severity</Text>
+														<Checkbox.Group
 														onChange={(value) => {
 														}}
-														style={{ width: '100%' }}
-													/>
+														>
+															<Row gutter={[0, 0]}>
+																<Col span={24}>
+																	<Checkbox value='minor'>Minor</Checkbox>
+																</Col>
+																<Col span={24}>
+																	<Checkbox value='major'>Major</Checkbox>
+																</Col>
+																<Col span={24}>
+																	<Checkbox value='severe'>Severe</Checkbox>
+																</Col>
+															</Row>
+														</Checkbox.Group>
+													</Flex>
 
-													<Checkbox.Group
-														options={[
-															{ label: 'First Offense', value: '1st' },
-															{ label: 'Second Offense', value: '2nd' },
-															{ label: 'Third Offense', value: '3rd' },
-															{ label: 'Fourth Offense', value: '4th' },
-															{ label: 'Succeeding Offenses', value: 'succeeding' }
-														]}
+													<Flex vertical>
+														<Text strong>Occurance</Text>
+														<Checkbox.Group
 														onChange={(value) => {
 														}}
-														style={{ width: '100%' }}
-													/>
+														>
+															<Row gutter={[0, 0]}>
+																<Col span={24}>
+																	<Checkbox value='1st'>1st Offense</Checkbox>
+																</Col>
+																<Col span={24}>
+																	<Checkbox value='2nd'>2nd Offense</Checkbox>
+																</Col>
+																<Col span={24}>
+																	<Checkbox value='3rd'>3rd Offense</Checkbox>
+																</Col>
+																<Col span={24}>
+																	<Checkbox value='4th'>4th Offense</Checkbox>
+																</Col>
+																<Col span={24}>
+																	<Checkbox value='succeeding'>Succeeding Offenses</Checkbox>
+																</Col>
+															</Row>
+														</Checkbox.Group>
+													</Flex>
 												</Flex>
 											</Card>
 										)}
