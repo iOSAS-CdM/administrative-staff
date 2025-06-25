@@ -311,15 +311,15 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 							}}
 						/>
 					))}
-					{thisRecord.complainees.map((complainant, index) => (
+					{thisRecord.complainees.map((complainee, index) => (
 						<Avatar
 							key={index}
 							src={`https://randomuser.me/api/portraits/${['men', 'women'][Math.floor(Math.random() * 2)]}/${Math.floor(Math.random() * 100)}.jpg`}
 							style={{ cursor: 'pointer' }}
 							onClick={() => {
 								Modal.info({
-									title: `Complainant: ${complainant}`,
-									content: <Text>Details about the complainant {complainant}.</Text>
+									title: `Complainanee: ${complainee}`,
+									content: <Text>Details about the complainanee {complainee}.</Text>
 								});
 							}}
 						/>
