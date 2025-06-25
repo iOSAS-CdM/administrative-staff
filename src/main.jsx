@@ -27,8 +27,8 @@ const OSAS = () => {
 
 	React.useEffect(() => {
 		const handleResize = () => {
-			setMobile(window.innerWidth < remToPx(80));
-			console.log(`Mobile mode: ${window.innerWidth < remToPx(80)}`);
+			setMobile(window.innerWidth < remToPx(120));
+			console.log(`Mobile mode: ${window.innerWidth < remToPx(120)}`);
 		};
 
 		handleResize();
