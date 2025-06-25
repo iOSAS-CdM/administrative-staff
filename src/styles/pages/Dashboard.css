@@ -1,3 +1,9 @@
+#filter {
+	position: sticky;
+	top: var(--space-L);
+	z-index: 1;
+}
+
 .card-unmounted {
 	opacity: 0;
 	transform: translateY(var(--space-XL));
