@@ -15,6 +15,7 @@ import {
 	Col,
 	Avatar,
 	Typography,
+	Checkbox,
 	Tag
 } from 'antd';
 
@@ -60,7 +61,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 				description: `This is a placeholder record for testing purposes. Record number ${i + 1}.`,
 				tags: {
 					status: 'ongoing',
-					offense: 'Minor',
+					severity: 'Minor',
 					occurances: 1
 				},
 				complainants: [],
@@ -74,7 +75,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		setTimeout(() => {
 			const fetchedRecords = [];
 
-			for (let i = 0; i < 20; i++) {
+			for (let i = 0; i < 40; i++) {
 				const id = `record-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
 				if (records.some(record => record.recordId === id))
 					continue;
@@ -85,7 +86,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 					description: `This is a record for testing purposes. Record number ${i + 1}.`,
 					tags: {
 						status: ['ongoing', 'resolved', 'archived'][Math.floor(Math.random() * 3)],
-						offense: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)],
+						severity: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)],
 						occurances: Math.floor(Math.random() * 5) + 1
 					},
 					complainants: [
@@ -100,13 +101,16 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 					}),
 					placeholder: false,
 					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
-						Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1)
+						Date().getDate() - (Math.floor(Math.random() * 10) + 1))
 				});
 			};
 
-			console.log(fetchedRecords);
+			const sortedRecords = fetchedRecords.sort((a, b) => b.date - a.date);
+			sortedRecords.forEach(record => {
+				record.date = new Date(record.date);
+			});
 
-			setRecords(fetchedRecords);
+			setRecords(sortedRecords);
 		}, remToPx(2));
 	}, []);
 
@@ -180,21 +184,66 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							style={{ margin: 0 }}
 						>
 							{!mobile ?
-								<Segmented
-									options={[
-										{ label: 'All', value: 'all' },
-										{ label: 'Ongoing', value: 'ongoing' },
-										{ label: 'Resolved', value: 'resolved' },
-										{ label: 'Archived', value: 'archived' }
-									]}
-									value={category}
-									onChange={(value) => {
-										setCategory(value);
-										categorizeFilter(value);
-										FilterForm.current.setFieldsValue({ search: '' });
-									}}
-									style={{ width: '100%' }}
-								/>
+								<Flex gap={16}>
+									<Dropdown
+										trigger={['click']}
+										placement='bottomRight'
+										arrow
+										popupRender={(menu) => (
+											<Card size='small'>
+												<Flex vertical gap={8}>
+													<Text strong>Filter by Category</Text>
+													<Checkbox.Group
+														options={[
+															{ label: 'Minor', value: 'minor' },
+															{ label: 'Major', value: 'major' },
+															{ label: 'Severe', value: 'severe' }
+														]}
+														onChange={(value) => {
+														}}
+														style={{ width: '100%' }}
+													/>
+
+													<Checkbox.Group
+														options={[
+															{ label: 'First Offense', value: '1st' },
+															{ label: 'Second Offense', value: '2nd' },
+															{ label: 'Third Offense', value: '3rd' },
+															{ label: 'Fourth Offense', value: '4th' },
+															{ label: 'Succeeding Offenses', value: 'succeeding' }
+														]}
+														onChange={(value) => {
+														}}
+														style={{ width: '100%' }}
+													/>
+												</Flex>
+											</Card>
+										)}
+									>
+										<Button
+											icon={<FilterOutlined />}
+											onClick={(e) => e.stopPropagation()}
+										>
+											Filter
+										</Button>
+									</Dropdown>
+
+									<Segmented
+										options={[
+											{ label: 'All', value: 'all' },
+											{ label: 'Ongoing', value: 'ongoing' },
+											{ label: 'Resolved', value: 'resolved' },
+											{ label: 'Archived', value: 'archived' }
+										]}
+										value={category}
+										onChange={(value) => {
+											setCategory(value);
+											categorizeFilter(value);
+											FilterForm.current.setFieldsValue({ search: '' });
+										}}
+										style={{ width: '100%' }}
+									/>
+								</Flex>
 								:
 								<Dropdown
 									trigger={['click']}
@@ -351,6 +400,29 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 		>
 			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
 				<Flex justify='flex-end' align='center' style={{ position: 'absolute', top: 0, width: '100%' }}>
+					<Tag color={
+						{
+							1: 'green',
+							2: 'orange',
+							3: 'red'
+						}[thisRecord.tags.occurances] || 'red'
+					}>
+						{
+							thisRecord.tags.occurances === 1 ? '1st' :
+								thisRecord.tags.occurances === 2 ? '2nd' :
+									thisRecord.tags.occurances === 3 ? '3rd' :
+										`${thisRecord.tags.occurances}th`
+						} Offense
+					</Tag>
+					<Tag color={
+						{
+							minor: 'blue',
+							major: 'orange',
+							severe: 'red'
+						}[thisRecord.tags.severity.toLowerCase()] || 'default'
+					}>
+						{thisRecord.tags.severity.charAt(0).toUpperCase() + thisRecord.tags.severity.slice(1)}
+					</Tag>
 					<Tag color={
 						{
 							ongoing: 'blue',
