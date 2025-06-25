@@ -280,7 +280,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 			size='small'
 			hoverable
 			loading={loading}
-			className={mounted ? 'record-card-mounted' : 'record-card-unmounted'}
+			className={mounted ? 'card-mounted' : 'card-unmounted'}
 			style={{ height: '100%' }}
 
 			actions={[

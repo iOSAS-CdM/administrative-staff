@@ -34,6 +34,8 @@ import remToPx from '../utils/remToPx';
 
 const { Text, Title } = Typography;
 
+import '../styles/pages/Dashboard.css';
+
 const Menubar = () => {
     const navigate = useNavigate();
 	const location = useLocation();

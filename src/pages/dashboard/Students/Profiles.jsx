@@ -32,8 +32,6 @@ const { Title, Text } = Typography;
 import EditStudent from '../../../modals/EditStudent';
 import RestrictStudent from '../../../modals/RestrictStudent';
 
-import '../../../styles/pages/Dashboard.css';
-
 const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	React.useEffect(() => {
 		setHeader({
@@ -283,7 +281,7 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 			size='small'
 			hoverable
 			loading={loading}
-			className={mounted ? 'student-card-mounted' : 'student-card-unmounted'}
+			className={mounted ? 'card-mounted' : 'card-unmounted'}
 			style={{ height: '100%' }}
 			actions={[
 				<EditOutlined onClick={() => {
