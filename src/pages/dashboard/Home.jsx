@@ -16,7 +16,7 @@ const { Title, Text } = Typography;
 
 import rootToHex from '../../utils/rootToHex';
 
-const Home = ({ setHeader, setSelectedKeys, staff }) => {
+const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff }) => {
 	React.useEffect(() => {
 		if (setHeader)
 			setHeader({
@@ -100,7 +100,8 @@ const Home = ({ setHeader, setSelectedKeys, staff }) => {
 				rootToHex('var(--ant-color-primary-border)', document.querySelector('.ant-card-body')),
 				rootToHex('var(--ant-color-primary-bg-hover)', document.querySelector('.ant-card-body')),
 				rootToHex('var(--ant-color-primary-bg)', document.querySelector('.ant-card-body'))
-			]
+			],
+			type: displayTheme
 		}
 	};
 

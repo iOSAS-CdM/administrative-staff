@@ -23,7 +23,7 @@ import {
 	UserOutlined
 } from '@ant-design/icons';
 
-import { MobileContext } from '../main';
+import { MobileContext, DisplayThemeContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
@@ -42,6 +42,7 @@ const Menubar = () => {
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
+	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
 
     const [staff, setStaff] = React.useState({
         name: {
@@ -84,6 +85,9 @@ const Menubar = () => {
 		setSelectedKeys,
 		mobile,
 		staff,
+		setMobile,
+		displayTheme,
+		setDisplayTheme,
 		navigate
 	};
 
