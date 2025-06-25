@@ -132,12 +132,12 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		};
 
 		const filteredRecords = records.filter(record => {
-			const fullName = `${record.name.first} ${record.name.middle} ${record.name.last}`.toLowerCase();
+			const fullTitle = record.title.toLowerCase();
+			const description = record.description.toLowerCase();
 			const recordId = record.recordId.toLowerCase();
-			const email = record.email.toLowerCase();
-			return fullName.includes(searchTerm.toLowerCase()) ||
-				recordId.includes(searchTerm.toLowerCase()) ||
-				email.includes(searchTerm.toLowerCase());
+			return fullTitle.includes(searchTerm.toLowerCase()) ||
+				description.includes(searchTerm.toLowerCase()) ||
+				recordId.includes(searchTerm.toLowerCase());
 		});
 
 		setDisplayedRecords([]);
@@ -288,7 +288,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 					{thisRecord.complainants.map((complainant, index) => (
 						<Avatar
 							key={index}
-							src={`https://avatars.dicebear.com/api/initials/${complainant}.svg`}
+							src={`https://randomuser.me/api/portraits/${['men', 'women'][Math.floor(Math.random() * 2)]}/${Math.floor(Math.random() * 100)}.jpg`}
 							style={{ cursor: 'pointer' }}
 							onClick={() => {
 								Modal.info({
@@ -301,7 +301,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 					{thisRecord.complainees.map((complainee, index) => (
 						<Avatar
 							key={index}
-							src={`https://avatars.dicebear.com/api/initials/${complainee}.svg`}
+							src={`https://randomuser.me/api/portraits/${['men', 'women'][Math.floor(Math.random() * 2)]}/${Math.floor(Math.random() * 100)}.jpg`}
 							style={{ cursor: 'pointer' }}
 							onClick={() => {
 								Modal.info({
