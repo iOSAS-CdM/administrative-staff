@@ -43,7 +43,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
 
-	const [category, setCategory] = React.useState('all');
+	const [category, setCategory] = React.useState('ongoing');
 	const FilterForm = React.useRef(null);
 	const [records, setRecords] = React.useState([]);
 	const [displayedRecords, setDisplayedRecords] = React.useState([]);
@@ -116,14 +116,14 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 
 	React.useEffect(() => {
 		setDisplayedRecords(records);
-		categorizeFilter('all');
+		categorizeFilter('ongoing');
 	}, [records]);
 
-	const categorizeFilter = (value) => {
+	const categorizeFilter = (category) => {
 		let filteredRecords = records;
 
-		if (value !== 'all')
-			filteredRecords = records.filter(record => record.tags.status === value);
+		if (category !== 'all')
+			filteredRecords = records.filter(record => record.tags.status === category);
 
 		setDisplayedRecords([]);
 		setTimeout(() => {
