@@ -14,7 +14,8 @@ import {
 	Row,
 	Col,
 	Avatar,
-	Typography
+	Typography,
+	Tag
 } from 'antd';
 
 import {
@@ -62,12 +63,8 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 					offense: 'Minor',
 					occurances: 1
 				},
-				complainants: [
-					'22-00250'
-				],
-				complainees: [
-					'22-00251'
-				],
+				complainants: [],
+				complainees: [],
 				placeholder: true,
 				date: new Date()
 			});
@@ -87,21 +84,28 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 					title: `Record ${i + 1}`,
 					description: `This is a record for testing purposes. Record number ${i + 1}.`,
 					tags: {
-						status: ['ongoing', 'resolved', 'archived'][i % 3],
-						offense: ['Minor', 'Major', 'Severe'][i % 3],
+						status: ['ongoing', 'resolved', 'archived'][Math.floor(Math.random() * 3)],
+						offense: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)],
 						occurances: Math.floor(Math.random() * 5) + 1
 					},
 					complainants: [
-						`25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`
-					],
+						...Array(Math.floor(Math.random() * 5 + 1)).keys()
+					].map(i => {
+						return `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`;
+					}),
 					complainees: [
-						`25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`
-					],
+						...Array(Math.floor(Math.random() * 5 + 1)).keys()
+					].map(i => {
+						return `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`;
+					}),
 					placeholder: false,
 					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
 						Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1)
 				});
 			};
+
+			console.log(fetchedRecords);
+
 			setRecords(fetchedRecords);
 		}, remToPx(2));
 	}, []);
@@ -281,10 +285,19 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 			hoverable
 			loading={loading}
 			className={mounted ? 'card-mounted' : 'card-unmounted'}
-			style={{ height: '100%' }}
+			style={{
+				height: '100%',
+				filter: {
+					ongoing: false,
+					resolved: false,
+					archived: true
+				}[thisRecord.tags.status] ? 'grayscale(100%)' : 'none'
+			}}
 
 			actions={[
-				<Avatar.Group>
+				<Avatar.Group max={{
+					count: 4
+				}}>
 					{thisRecord.complainants.map((complainant, index) => (
 						<Avatar
 							key={index}
@@ -298,15 +311,15 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 							}}
 						/>
 					))}
-					{thisRecord.complainees.map((complainee, index) => (
+					{thisRecord.complainees.map((complainant, index) => (
 						<Avatar
 							key={index}
 							src={`https://randomuser.me/api/portraits/${['men', 'women'][Math.floor(Math.random() * 2)]}/${Math.floor(Math.random() * 100)}.jpg`}
 							style={{ cursor: 'pointer' }}
 							onClick={() => {
 								Modal.info({
-									title: `Complainee: ${complainee}`,
-									content: <Text>Details about the complainee {complainee}.</Text>
+									title: `Complainant: ${complainant}`,
+									content: <Text>Details about the complainant {complainant}.</Text>
 								});
 							}}
 						/>
@@ -336,7 +349,18 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 				}} key='view' />
 			]}
 		>
-			<Flex vertical justify='flex-start' align='flex-start' gap={16}>
+			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
+				<Flex justify='flex-end' align='center' style={{ position: 'absolute', top: 0, width: '100%' }}>
+					<Tag color={
+						{
+							ongoing: 'blue',
+							resolved: 'green',
+							archived: 'grey'
+						}[thisRecord.tags.status] || 'default'
+					}>
+						{thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
+					</Tag>
+				</Flex>
 				<Card.Meta
 					title={
 						<Title level={3} style={{ margin: 0 }}>
