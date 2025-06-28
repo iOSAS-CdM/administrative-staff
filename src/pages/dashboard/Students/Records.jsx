@@ -39,7 +39,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		});
 	}, [setHeader]);
 
-	React.useEffect(() => { 
+	React.useEffect(() => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
 
@@ -195,8 +195,8 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 													<Flex vertical>
 														<Text strong>Severity</Text>
 														<Checkbox.Group
-														onChange={(value) => {
-														}}
+															onChange={(value) => {
+															}}
 														>
 															<Row gutter={[0, 0]}>
 																<Col span={24}>
@@ -215,8 +215,8 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 													<Flex vertical>
 														<Text strong>Occurance</Text>
 														<Checkbox.Group
-														onChange={(value) => {
-														}}
+															onChange={(value) => {
+															}}
 														>
 															<Row gutter={[0, 0]}>
 																<Col span={24}>
