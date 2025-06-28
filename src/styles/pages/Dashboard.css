@@ -6,12 +6,12 @@
 
 .card-unmounted {
 	opacity: 0;
-	transform: translateY(var(--space-XL));
+	transform: translateY(var(--space-XL)) scale(0.95);
 	transition: var(--transition);
 }
 
 .card-mounted {
 	opacity: 1;
-	transform: translateY(0);
+	transform: translateY(0) scale(1);
 	transition: var(--transition);
 }
