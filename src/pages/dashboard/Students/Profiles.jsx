@@ -281,7 +281,7 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 			size='small'
 			hoverable
 			loading={loading}
-			className={mounted ? 'card-mounted' : 'card-unmounted'}
+			className={`card ${mounted && 'mounted'}`}
 			style={{ height: '100%' }}
 			actions={[
 				<EditOutlined onClick={() => {
