@@ -99,21 +99,47 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 						severity: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)],
 						occurances: Math.floor(Math.random() * 10) + 1
 					},
-					complainants: [
-						...Array(Math.floor(Math.random() * 5 + 1)).keys()
-					].map(i => {
-						return `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`;
-					}),
-					complainees: [
-						...Array(Math.floor(Math.random() * 5 + 1)).keys()
-					].map(i => {
-						return `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${Math.floor(Math.random() * 100) + 1}`;
-					}),
+					complainants: [...Array(5).keys().map(e => {
+						return {
+							id: i + 1,
+							name: {
+								first: 'user.name.first',
+								middle: 'user.name.middle',
+								last: 'user.name.last'
+							},
+							email: 'user.email',
+							phone: 'user.phone',
+							studentId: id,
+							institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
+							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 200)}.jpg`,
+							placeholder: false,
+							status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
+						}
+					})],
+					complainees: [...Array(5).keys().map(e => {
+						return {
+							id: i + 1,
+							name: {
+								first: 'user.name.first',
+								middle: 'user.name.middle',
+								last: 'user.name.last'
+							},
+							email: 'user.email',
+							phone: 'user.phone',
+							studentId: id,
+							institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
+							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 200)}.jpg`,
+							placeholder: false,
+							status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
+						}
+					})],
 					placeholder: false,
 					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
 						Date().getDate() - (Math.floor(Math.random() * 10) + 1))
 				});
 			};
+			console.log(fetchedRecords);
+
 
 			const sortedRecords = fetchedRecords.sort((a, b) => b.date - a.date);
 			sortedRecords.forEach(record => {
@@ -143,12 +169,27 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 			filtered.push(record);
 	};
 
-		setFilteredRecords([]);
-		setTimeout(() => {
-			setFilteredRecords(filtered);
-		}, remToPx(0.5));
+		setFilteredRecords(filtered);
 	}, [categorizedRecords, filter]);
 
+	React.useEffect(() => {
+		if (search.trim() === '') {
+			setDisplayedRecords(filteredRecords);
+			return;
+		};
+
+		const searchTerm = search.toLowerCase();
+		const searchedRecords = filteredRecords.filter(record => {
+			const fullTitle = record.title.toLowerCase();
+			const fullDescription = record.description.toLowerCase();
+			return fullTitle.includes(searchTerm) || fullDescription.includes(searchTerm);
+		});
+
+		setDisplayedRecords([]);
+		setTimeout(() => {
+			setDisplayedRecords(searchedRecords);
+		}, remToPx(0.5));
+	}, [search, filteredRecords]);
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
@@ -170,7 +211,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 								placeholder='Search'
 								allowClear
 								prefix={<SearchOutlined />}
-								onChange={(e) => { }}
+								onChange={(e) => {
+									setSearch(e.target.value);
+								}}
 							/>
 						</Form.Item>
 					</Card>
@@ -286,9 +329,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 			</Form>
 
 			{/************************** Records **************************/}
-			{filteredRecords.length > 0 ? (
+			{displayedRecords.length > 0 ? (
 				<Row gutter={[16, 16]}>
-					{filteredRecords.map((record, index) => (
+					{displayedRecords.map((record, index) => (
 						<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 							<RecordCard
 								record={record}
@@ -354,12 +397,11 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 					{thisRecord.complainants.map((complainant, index) => (
 						<Avatar
 							key={index}
-							src={`https://randomuser.me/api/portraits/${['men', 'women'][Math.floor(Math.random() * 2)]}/${Math.floor(Math.random() * 100)}.jpg`}
+							src={complainant.profilePicture}
 							style={{ cursor: 'pointer' }}
 							onClick={() => {
-								Modal.info({
-									title: `Complainant: ${complainant}`,
-									content: <Text>Details about the complainant {complainant}.</Text>
+								navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+									state: { student: complainant }
 								});
 							}}
 						/>
@@ -367,12 +409,11 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 					{thisRecord.complainees.map((complainee, index) => (
 						<Avatar
 							key={index}
-							src={`https://randomuser.me/api/portraits/${['men', 'women'][Math.floor(Math.random() * 2)]}/${Math.floor(Math.random() * 100)}.jpg`}
+							src={complainee.profilePicture}
 							style={{ cursor: 'pointer' }}
 							onClick={() => {
-								Modal.info({
-									title: `Complainanee: ${complainee}`,
-									content: <Text>Details about the complainanee {complainee}.</Text>
+								navigate(`/dashboard/students/profiles/${complainee.studentId}`, {
+									state: { student: complainee }
 								});
 							}}
 						/>
