@@ -4,14 +4,12 @@
 	z-index: 1;
 }
 
-.card-unmounted {
+.card {
 	opacity: 0;
-	transform: translateY(var(--space-XL)) scale(0.95);
+	transform: translateY(2rem) scale(0.95);
 	transition: var(--transition);
 }
-
-.card-mounted {
+.card.mounted {
 	opacity: 1;
 	transform: translateY(0) scale(1);
-	transition: var(--transition);
 }
