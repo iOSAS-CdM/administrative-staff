@@ -16,7 +16,8 @@ import {
 	Avatar,
 	Typography,
 	Checkbox,
-	Tag
+	Tag,
+	Divider
 } from 'antd';
 
 import {
@@ -174,102 +175,104 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 						</Form.Item>
 					</Card>
 					<Card size='small'>
-						<Form.Item
-							name='category'
-							style={{ margin: 0 }}
-						>
-							<Flex gap={16}>
-								<Dropdown
-									trigger={['click']}
-									placement='bottomRight'
-									arrow
-									popupRender={(menu) => (
-										<Card size='small'>
-											<Flex vertical gap={8}>
-												{mobile &&
-													<Segmented
-														options={[
-															{ label: 'All', value: 'all' },
-															{ label: 'Ongoing', value: 'ongoing' },
-															{ label: 'Resolved', value: 'resolved' },
-															{ label: 'Archived', value: 'archived' }
-														]}
-														vertical
-														value={category}
-														onChange={(value) => {
-															setCategory(value);
-														}}
-														style={{ width: '100%' }}
-													/>
-												}
-												<Flex vertical>
-													<Text strong>Severity</Text>
-													<Checkbox.Group
-														onChange={(value) => {
-															if (value.includes('minor') && value.includes('major') && value.includes('severe')) value = [];
-															setFilter(prev => ({
-																...prev,
-																severity: value
-															}));
-														}}
-													>
-														<Flex vertical>
-															<Checkbox value='minor'>Minor</Checkbox>
-															<Checkbox value='major'>Major</Checkbox>
-															<Checkbox value='severe'>Severe</Checkbox>
-														</Flex>
-													</Checkbox.Group>
-												</Flex>
-
-												<Flex vertical>
-													<Text strong>Occurance</Text>
-													<Checkbox.Group
-														onChange={(value) => {
-															if (value.includes(1) && value.includes(2) && value.includes(3) && value.includes(4) && value.includes('succeeding')) value = [];
-															setFilter(prev => ({
-																...prev,
-																occurances: value
-															}));
-														}}
-													>
-														<Flex vertical>
-															<Checkbox value={1}>1st Offense</Checkbox>
-															<Checkbox value={2}>2nd Offense</Checkbox>
-															<Checkbox value={3}>3rd Offense</Checkbox>
-															<Checkbox value={4}>4th Offense</Checkbox>
-															<Checkbox value='succeeding'>Succeeding Offenses</Checkbox>
-														</Flex>
-													</Checkbox.Group>
-												</Flex>
+						<Flex gap={16}>
+							<Dropdown
+								trigger={['click']}
+								placement='bottomRight'
+								arrow
+								popupRender={(menu) => (
+									<Card size='small'>
+										<Flex vertical gap={8}>
+											{mobile &&
+												<Segmented
+													options={[
+														{ label: 'All', value: 'all' },
+														{ label: 'Ongoing', value: 'ongoing' },
+														{ label: 'Resolved', value: 'resolved' },
+														{ label: 'Archived', value: 'archived' }
+													]}
+													vertical
+													value={category}
+													onChange={(value) => {
+														setCategory(value);
+													}}
+													style={{ width: '100%' }}
+												/>
+											}
+											<Divider>
+												<Text strong>Filters</Text>
+											</Divider>
+											<Flex vertical>
+												<Text strong>Severity</Text>
+												<Checkbox.Group
+													onChange={(value) => {
+														if (value.includes('minor') && value.includes('major') && value.includes('severe')) value = [];
+														setFilter(prev => ({
+															...prev,
+															severity: value
+														}));
+													}}
+													value={filter.severity}
+												>
+													<Flex vertical>
+														<Checkbox value='minor'>Minor</Checkbox>
+														<Checkbox value='major'>Major</Checkbox>
+														<Checkbox value='severe'>Severe</Checkbox>
+													</Flex>
+												</Checkbox.Group>
 											</Flex>
-										</Card>
-									)}
-								>
-									<Button
-										icon={<FilterOutlined />}
-										onClick={(e) => e.stopPropagation()}
-									/>
-								</Dropdown>
 
+											<Flex vertical>
+												<Text strong>Occurance</Text>
+												<Checkbox.Group
+													onChange={(value) => {
+														if (value.includes(1) && value.includes(2) && value.includes(3) && value.includes(4) && value.includes('succeeding')) value = [];
+														setFilter(prev => ({
+															...prev,
+															occurances: value
+														}));
+													}}
+													value={filter.occurances}
+												>
+													<Flex vertical>
+														<Checkbox value={1}>1st Offense</Checkbox>
+														<Checkbox value={2}>2nd Offense</Checkbox>
+														<Checkbox value={3}>3rd Offense</Checkbox>
+														<Checkbox value={4}>4th Offense</Checkbox>
+														<Checkbox value='succeeding'>Succeeding Offenses</Checkbox>
+													</Flex>
+												</Checkbox.Group>
+											</Flex>
+
+											<Button
+												type='primary'
+												size='small'
+												onClick={() => {
+													setCategory('all');
+													setFilter({ severity: [], occurances: [] });
+													setSearch('');
+												}}
+											>
+												Reset
+											</Button>
+										</Flex>
+									</Card>
+								)}
+							>
 								<Button
-									type='primary'
-									onClick={() => {
-										setCategory('all');
-										setFilter({ severity: [], occurances: [] });
-										setSearch('');
-									}}
-								>
-									Reset
-								</Button>
+									icon={<FilterOutlined />}
+									onClick={(e) => e.stopPropagation()}
+								/>
+							</Dropdown>
 
-								{!mobile &&
-									<Segmented
-										options={[
-											{ label: 'All', value: 'all' },
-											{ label: 'Ongoing', value: 'ongoing' },
-											{ label: 'Resolved', value: 'resolved' },
-											{ label: 'Archived', value: 'archived' }
-										]}
+							{!mobile &&
+								<Segmented
+									options={[
+										{ label: 'All', value: 'all' },
+										{ label: 'Ongoing', value: 'ongoing' },
+										{ label: 'Resolved', value: 'resolved' },
+										{ label: 'Archived', value: 'archived' }
+									]}
 									value={category}
 									onChange={(value) => {
 										setCategory(value);
@@ -277,8 +280,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 									style={{ width: '100%' }}
 								/>
 							}
-							</Flex>
-						</Form.Item>
+						</Flex>
 					</Card>
 				</Flex>
 			</Form>
