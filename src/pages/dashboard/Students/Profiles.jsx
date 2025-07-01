@@ -47,7 +47,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 
-	const [institute, setInstitute] = React.useState('all');
+	const [institute, setInstitute] = React.useState('active');
 	const [filter, setFilter] = React.useState({
 		years: [],
 		programs: []
@@ -137,8 +137,8 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		if (students.length > 0)
 			setInstitutionizedStudents(students.filter(student =>
-				(student.institute === institute && (institute !== 'restricted' && student.status !== 'restricted' &&  institute !== 'archived' && student.status !== 'archived'))
-				|| institute === 'all'
+				(student.institute === institute && student.status === 'active')
+				|| (institute === 'active' && student.status === 'active')
 				|| (institute === 'restricted' && student.status === 'restricted')
 				|| (institute === 'archived' && student.status === 'archived'))
 			);
@@ -209,7 +209,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 					{!mobile && (
 						<Segmented
 							options={[
-								{ label: 'All', value: 'all' },
+								{ label: 'Active', value: 'active' },
 								{ label: 'ICS', value: 'ics' },
 								{ label: 'ITE', value: 'ite' },
 								{ label: 'IBE', value: 'ibe' },
@@ -233,7 +233,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 									{mobile &&
 										<Segmented
 											options={[
-												{ label: 'All', value: 'all' },
+												{ label: 'Active', value: 'active' },
 												{ label: 'ICS', value: 'ics' },
 												{ label: 'ITE', value: 'ite' },
 												{ label: 'IBE', value: 'ibe' },
@@ -281,14 +281,14 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 											}}
 										>
 											<Flex vertical>
-												{(institute === 'ics' || institute === 'all' || institute === 'restricted' || institute === 'archived') && (
+												{(institute === 'ics' || institute === 'active' || institute === 'restricted' || institute === 'archived') && (
 													<>
 														<Text type='secondary'>Institute of Computing Studies</Text>
 														<Checkbox value='BSCpE'>Bachelor of Science in Computer Engineering (BSCpE)</Checkbox>
 														<Checkbox value='BSIT'>Bachelor of Science in Information Technology (BSIT)</Checkbox>
 													</>
 												)}
-												{(institute === 'ite' || institute === 'all' || institute === 'restricted' || institute === 'archived') && (
+												{(institute === 'ite' || institute === 'active' || institute === 'restricted' || institute === 'archived') && (
 													<>
 														<Text type='secondary'>Institute of Teacher Education</Text>
 														<Checkbox value='BSEd-SCI'>Bachelor of Secondary Education major in Science (BSEd-SCI)</Checkbox>
@@ -298,7 +298,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 														<Checkbox value='TCP'>Teacher Certificate Program (18 Units-TCP)</Checkbox>
 													</>
 												)}
-												{(institute === 'ibe' || institute === 'all' || institute === 'restricted' || institute === 'archived') && (
+												{(institute === 'ibe' || institute === 'active' || institute === 'restricted' || institute === 'archived') && (
 													<>
 														<Text type='secondary'>Institute of Business Entrepreneurship</Text>
 														<Checkbox value='BSBA-HRM'>Bachelor of Science in Business Administration Major in Human Resource Management (BSBA-HRM)</Checkbox>
@@ -340,7 +340,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Flex>
 			]
 		});
-	}, [setHeader, institute, view, mobile]);
+	}, [setHeader, setSelectedKeys, institute, filter, search, view, mobile]);
 
 	const app = App.useApp();
 	const Modal = app.modal;

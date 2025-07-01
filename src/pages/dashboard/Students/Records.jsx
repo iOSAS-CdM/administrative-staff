@@ -166,7 +166,11 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	React.useEffect(() => {
 		if (records.length > 0)
-			setCategorizedRecords(records.filter(record => record.tags.status === category || category === 'all'));
+			setCategorizedRecords(records.filter(record => (
+				(category === 'active' && record.tags.status !== 'archived')
+				|| (category === record.tags.status)
+				|| (category === 'archived' && record.tags.status === 'archived')
+			)));
 	}, [records, category]);
 
 	React.useEffect(() => {
@@ -231,7 +235,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 					{!mobile && (
 						<Segmented
 							options={[
-								{ label: 'All', value: 'all' },
+								{ label: 'Active', value: 'active' },
 								{ label: 'Ongoing', value: 'ongoing' },
 								{ label: 'Resolved', value: 'resolved' },
 								{ label: 'Archived', value: 'archived' }
@@ -253,7 +257,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 									{mobile &&
 										<Segmented
 											options={[
-												{ label: 'All', value: 'all' },
+											{ label: 'Active', value: 'active' },
 												{ label: 'Ongoing', value: 'ongoing' },
 												{ label: 'Resolved', value: 'resolved' },
 												{ label: 'Archived', value: 'archived' }
@@ -315,7 +319,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 										type='primary'
 										size='small'
 										onClick={() => {
-											setCategory('all');
+											setCategory('active');
 											setFilter({ severity: [], occurances: [] });
 											setSearch('');
 										}}
@@ -348,7 +352,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Button>
 			]
 		});
-	}, [setHeader, category, view, mobile]);
+	}, [setHeader, setSelectedKeys, category, filter, search, view, mobile]);
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
