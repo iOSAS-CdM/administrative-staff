@@ -33,15 +33,6 @@ const { Title, Text } = Typography;
 import ItemCard from '../../../components/ItemCard';
 
 const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
-	const location = useLocation();
-
-	React.useEffect(() => {
-		setHeader({
-			title: 'Disciplinary Records',
-			actions: null
-		});
-	}, [setHeader]);
-
 	React.useEffect(() => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
@@ -209,143 +200,131 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		}, remToPx(0.5));
 	}, [search, filteredRecords]);
 
+	React.useEffect(() => {
+		setHeader({
+			title: 'Disciplinary Records',
+			actions: [
+				<Flex>
+					<Input
+						placeholder='Search'
+						allowClear
+						prefix={<SearchOutlined />}
+						onChange={(e) => setSearch(e.target.value)}
+						style={{ minWidth: remToPx(20) }}
+					/>
+				</Flex>,
+				<Flex gap={16}>
+					<Dropdown
+						trigger={['click']}
+						placement='bottomRight'
+						arrow
+						popupRender={(menu) => (
+							<Card size='small'>
+								<Flex vertical gap={8}>
+									{mobile &&
+										<Segmented
+											options={[
+												{ label: 'All', value: 'all' },
+												{ label: 'Ongoing', value: 'ongoing' },
+												{ label: 'Resolved', value: 'resolved' },
+												{ label: 'Archived', value: 'archived' }
+											]}
+											vertical
+											value={category}
+											onChange={(value) => {
+												setCategory(value);
+											}}
+											style={{ width: '100%' }}
+										/>
+									}
+									<Divider>
+										<Text strong>Filters</Text>
+									</Divider>
+									<Flex vertical>
+										<Text strong>Severity</Text>
+										<Checkbox.Group
+											onChange={(value) => {
+												if (value.includes('minor') && value.includes('major') && value.includes('severe')) value = [];
+												setFilter(prev => ({
+													...prev,
+													severity: value
+												}));
+											}}
+											value={filter.severity}
+										>
+											<Flex vertical>
+												<Checkbox value='minor'>Minor</Checkbox>
+												<Checkbox value='major'>Major</Checkbox>
+												<Checkbox value='severe'>Severe</Checkbox>
+											</Flex>
+										</Checkbox.Group>
+									</Flex>
+
+									<Flex vertical>
+										<Text strong>Occurance</Text>
+										<Checkbox.Group
+											onChange={(value) => {
+												if (value.includes(1) && value.includes(2) && value.includes(3) && value.includes(4) && value.includes('succeeding')) value = [];
+												setFilter(prev => ({
+													...prev,
+													occurances: value
+												}));
+											}}
+											value={filter.occurances}
+										>
+											<Flex vertical>
+												<Checkbox value={1}>1st Offense</Checkbox>
+												<Checkbox value={2}>2nd Offense</Checkbox>
+												<Checkbox value={3}>3rd Offense</Checkbox>
+												<Checkbox value={4}>4th Offense</Checkbox>
+												<Checkbox value='succeeding'>Succeeding Offenses</Checkbox>
+											</Flex>
+										</Checkbox.Group>
+									</Flex>
+
+									<Button
+										type='primary'
+										size='small'
+										onClick={() => {
+											setCategory('all');
+											setFilter({ severity: [], occurances: [] });
+											setSearch('');
+										}}
+									>
+										Reset
+									</Button>
+								</Flex>
+							</Card>
+						)}
+					>
+						<Button
+							icon={<FilterOutlined />}
+							onClick={(e) => e.stopPropagation()}
+						/>
+					</Dropdown>
+
+					{!mobile &&
+						<Segmented
+							options={[
+								{ label: 'All', value: 'all' },
+								{ label: 'Ongoing', value: 'ongoing' },
+								{ label: 'Resolved', value: 'resolved' },
+								{ label: 'Archived', value: 'archived' }
+							]}
+							value={category}
+							onChange={(value) => {
+								setCategory(value);
+							}}
+							style={{ width: '100%' }}
+						/>
+					}
+				</Flex>
+			]
+		});
+	}, [setHeader, category]);
+
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
-			{/************************** Filter **************************/}
-			<Form
-				id='filter'
-				layout='vertical'
-				ref={FilterForm}
-				style={{ width: '100%' }}
-				initialValues={{ search: '', category: 'all' }}
-			>
-				<Flex justify='space-between' align='center' gap={16}>
-					<Card size='small' {...mobile ? { style: { width: '100%' } } : {}}>
-						<Form.Item
-							name='search'
-							style={{ margin: 0 }}
-						>
-							<Input
-								placeholder='Search'
-								allowClear
-								prefix={<SearchOutlined />}
-								onChange={(e) => {
-									setSearch(e.target.value);
-								}}
-							/>
-						</Form.Item>
-					</Card>
-					<Card size='small'>
-						<Flex gap={16}>
-							<Dropdown
-								trigger={['click']}
-								placement='bottomRight'
-								arrow
-								popupRender={(menu) => (
-									<Card size='small'>
-										<Flex vertical gap={8}>
-											{mobile &&
-												<Segmented
-													options={[
-														{ label: 'All', value: 'all' },
-														{ label: 'Ongoing', value: 'ongoing' },
-														{ label: 'Resolved', value: 'resolved' },
-														{ label: 'Archived', value: 'archived' }
-													]}
-													vertical
-													value={category}
-													onChange={(value) => {
-														setCategory(value);
-													}}
-													style={{ width: '100%' }}
-												/>
-											}
-											<Divider>
-												<Text strong>Filters</Text>
-											</Divider>
-											<Flex vertical>
-												<Text strong>Severity</Text>
-												<Checkbox.Group
-													onChange={(value) => {
-														if (value.includes('minor') && value.includes('major') && value.includes('severe')) value = [];
-														setFilter(prev => ({
-															...prev,
-															severity: value
-														}));
-													}}
-													value={filter.severity}
-												>
-													<Flex vertical>
-														<Checkbox value='minor'>Minor</Checkbox>
-														<Checkbox value='major'>Major</Checkbox>
-														<Checkbox value='severe'>Severe</Checkbox>
-													</Flex>
-												</Checkbox.Group>
-											</Flex>
-
-											<Flex vertical>
-												<Text strong>Occurance</Text>
-												<Checkbox.Group
-													onChange={(value) => {
-														if (value.includes(1) && value.includes(2) && value.includes(3) && value.includes(4) && value.includes('succeeding')) value = [];
-														setFilter(prev => ({
-															...prev,
-															occurances: value
-														}));
-													}}
-													value={filter.occurances}
-												>
-													<Flex vertical>
-														<Checkbox value={1}>1st Offense</Checkbox>
-														<Checkbox value={2}>2nd Offense</Checkbox>
-														<Checkbox value={3}>3rd Offense</Checkbox>
-														<Checkbox value={4}>4th Offense</Checkbox>
-														<Checkbox value='succeeding'>Succeeding Offenses</Checkbox>
-													</Flex>
-												</Checkbox.Group>
-											</Flex>
-
-											<Button
-												type='primary'
-												size='small'
-												onClick={() => {
-													setCategory('all');
-													setFilter({ severity: [], occurances: [] });
-													setSearch('');
-												}}
-											>
-												Reset
-											</Button>
-										</Flex>
-									</Card>
-								)}
-							>
-								<Button
-									icon={<FilterOutlined />}
-									onClick={(e) => e.stopPropagation()}
-								/>
-							</Dropdown>
-
-							{!mobile &&
-								<Segmented
-									options={[
-										{ label: 'All', value: 'all' },
-										{ label: 'Ongoing', value: 'ongoing' },
-										{ label: 'Resolved', value: 'resolved' },
-										{ label: 'Archived', value: 'archived' }
-									]}
-									value={category}
-									onChange={(value) => {
-										setCategory(value);
-									}}
-									style={{ width: '100%' }}
-								/>
-							}
-						</Flex>
-					</Card>
-				</Flex>
-			</Form>
-
 			{/************************** Records **************************/}
 			{displayedRecords.length > 0 ? (
 				<Row gutter={[16, 16]}>
@@ -397,13 +376,8 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 		<ItemCard
 			loading={loading}
 			mounted={mounted}
-			style={{
-				filter: {
-					ongoing: false,
-					resolved: false,
-					archived: true
-				}[thisRecord.tags.status] ? 'grayscale(100%)' : 'none'
-			}}
+
+			status={thisRecord.tags.status === 'archived' && 'archived'}
 
 			actions={[
 				{

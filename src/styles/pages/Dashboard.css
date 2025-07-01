@@ -13,3 +13,11 @@
 	opacity: 1;
 	transform: translateY(0) scale(1);
 }
+.card.archived {
+	opacity: 0.5;
+	filter: grayscale(100%);
+}
+.card.restricted {
+	opacity: 0.5;
+	filter: grayscale(100%);
+}

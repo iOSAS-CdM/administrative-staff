@@ -26,13 +26,13 @@ import {
 
 const { Text, Title } = Typography;
 
-const ItemCard = ({ mounted, ...props }) => {
+const ItemCard = ({ mounted, status, ...props }) => {
 	return (
 		<Card
 			{...props}
 			size='small'
 			hoverable
-			className={`card ${mounted && 'mounted'}`}
+			className={`card ${mounted && 'mounted'} ${(status && mounted) && status} ${props.className || ''}`}
 			actions={null}
 			style={{
 				...props.style,

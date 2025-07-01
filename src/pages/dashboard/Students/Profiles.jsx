@@ -38,12 +38,6 @@ import ItemCard from '../../../components/ItemCard';
 
 const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	React.useEffect(() => {
-		setHeader({
-			title: 'Student Profiles',
-			actions: null
-		});
-	}, [setHeader]);
-	React.useEffect(() => {
 		setSelectedKeys(['profiles']);
 	}, [setSelectedKeys]);
 
@@ -138,7 +132,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	React.useEffect(() => {
 		if (students.length > 0)
-			setInstitutionizedStudents(students.filter(student => student.institute === institute || institute === 'all' || (institute === 'archived' && student.status === 'archived')));
+			setInstitutionizedStudents(students.filter(student => student.institute === institute || institute === 'all' || (institute === 'restricted' && student.status === 'restricted')|| (institute === 'archived' && student.status === 'archived')));
 	}, [students, institute]);
 
 	React.useEffect(() => {
@@ -156,159 +150,175 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setFilteredStudents(filtered);
 	}, [institutionizedStudents, filter]);
 
+	React.useEffect(() => {
+		if (search.trim() === '') {
+			setDisplayedStudents(filteredStudents);
+			return;
+		};
+
+		const searchTerm = search.toLowerCase();
+		const searchedStudents = filteredStudents.filter(student => {
+			return (
+				student.name.first.toLowerCase().includes(searchTerm) ||
+				student.name.middle.toLowerCase().includes(searchTerm) ||
+				student.name.last.toLowerCase().includes(searchTerm) ||
+				`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
+				student.studentId.toLowerCase().includes(searchTerm) ||
+				student.email.toLowerCase().includes(searchTerm)
+			);
+		});
+
+		setDisplayedStudents([]);
+		setTimeout(() => {
+			setDisplayedStudents(searchedStudents);
+		}, remToPx(0.5));
+	}, [search, filteredStudents]);
+
+	React.useEffect(() => {
+		setHeader({
+			title: 'Student Profiles',
+			actions: [
+				<Flex>
+					<Input
+						placeholder='Search'
+						allowClear
+						prefix={<SearchOutlined />}
+						onChange={(e) => setSearch(e.target.value)}
+						style={{ minWidth: remToPx(20) }}
+					/>
+				</Flex>,
+				<Flex gap={16}>
+					<Dropdown
+						trigger={['click']}
+						placement='bottomRight'
+						arrow
+						popupRender={(menu) => (
+							<Card size='small'>
+								<Flex vertical gap={8}>
+									{mobile &&
+										<Segmented
+											options={[
+												{ label: 'All', value: 'all' },
+												{ label: 'ICS', value: 'ics' },
+												{ label: 'ITE', value: 'ite' },
+												{ label: 'IBE', value: 'ibe' },
+												{ label: 'Restricted', value: 'restricted' },
+												{ label: 'Archived', value: 'archived' }
+											]}
+											vertical
+											value={institute}
+											onChange={(value) => {
+												setInstitute(value);
+											}}
+											style={{ width: '100%' }}
+										/>
+									}
+									<Divider>
+										<Text strong>Filters</Text>
+									</Divider>
+									<Flex vertical>
+										<Text strong>Year</Text>
+										<Checkbox.Group
+											onChange={(value) => {
+												setFilter((prev) => ({
+													...prev,
+													years: value
+												}));
+											}}
+										>
+											<Flex vertical>
+												<Checkbox value={1}>1st Year</Checkbox>
+												<Checkbox value={2}>2nd Year</Checkbox>
+												<Checkbox value={3}>3rd Year</Checkbox>
+												<Checkbox value={4}>4th Year</Checkbox>
+											</Flex>
+										</Checkbox.Group>
+									</Flex>
+
+									<Flex vertical>
+										<Text strong>Program</Text>
+										<Checkbox.Group
+											onChange={(value) => {
+												setFilter((prev) => ({
+													...prev,
+													programs: value
+												}));
+											}}
+										>
+											<Flex vertical>
+												{(institute === 'ics' || institute === 'all' || institute === 'restricted' || institute === 'archived') && (
+													<>
+														<Text type='secondary'>Institute of Computing Studies</Text>
+														<Checkbox value='BSCpE'>Bachelor of Science in Computer Engineering (BSCpE)</Checkbox>
+														<Checkbox value='BSIT'>Bachelor of Science in Information Technology (BSIT)</Checkbox>
+													</>
+												)}
+												{(institute === 'ite' || institute === 'all' || institute === 'restricted' || institute === 'archived') && (
+													<>
+														<Text type='secondary'>Institute of Teacher Education</Text>
+														<Checkbox value='BSEd-SCI'>Bachelor of Secondary Education major in Science (BSEd-SCI)</Checkbox>
+														<Checkbox value='BEEd-GEN'>Bachelor of Elementary Education - Generalist (BEEd-GEN)</Checkbox>
+														<Checkbox value='BEEd-ECED'>Bachelor of Early Childhood Education (BEEd-ECED)</Checkbox>
+														<Checkbox value='BTLEd-ICT'>Bachelor of Technology and Livelihood Education major in Information and Communication Technology (BTLEd-ICT)</Checkbox>
+														<Checkbox value='TCP'>Teacher Certificate Program (18 Units-TCP)</Checkbox>
+													</>
+												)}
+												{(institute === 'ibe' || institute === 'all' || institute === 'restricted' || institute === 'archived') && (
+													<>
+														<Text type='secondary'>Institute of Business Entrepreneurship</Text>
+														<Checkbox value='BSBA-HRM'>Bachelor of Science in Business Administration Major in Human Resource Management (BSBA-HRM)</Checkbox>
+														<Checkbox value='BSE'>Bachelor of Science in Entrepreneurship (BSE)</Checkbox>
+													</>
+												)}
+											</Flex>
+										</Checkbox.Group>
+									</Flex>
+
+									<Button
+										type='primary'
+										size='small'
+										onClick={() => { }}
+									>
+										Reset
+									</Button>
+								</Flex>
+							</Card>
+						)}
+					>
+						<Button
+							icon={<FilterOutlined />}
+							onClick={(e) => e.stopPropagation()}
+						/>
+					</Dropdown>
+
+					{!mobile &&
+						<Segmented
+							options={[
+								{ label: 'All', value: 'all' },
+								{ label: 'ICS', value: 'ics' },
+								{ label: 'ITE', value: 'ite' },
+								{ label: 'IBE', value: 'ibe' },
+								{ label: 'Restricted', value: 'restricted' },
+								{ label: 'Archived', value: 'archived' }
+							]}
+							value={institute}
+							onChange={(value) => {
+								setInstitute(value);
+							}}
+							style={{ width: '100%' }}
+						/>
+					}
+				</Flex>
+			]
+		});
+	}, [setHeader, institute]);
+
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
-			{/************************** Filter **************************/}
-			<Form
-				id='filter'
-				layout='vertical'
-				ref={FilterForm}
-				style={{ width: '100%' }}
-				initialValues={{ search: '', category: 'all' }}
-			>
-				<Flex justify='space-between' align='center' gap={16}>
-					<Card size='small' {...mobile ? { style: { width: '100%' } } : {}}>
-						<Form.Item
-							name='search'
-							style={{ margin: 0 }}
-						>
-							<Input
-								placeholder='Search'
-								allowClear
-								prefix={<SearchOutlined />}
-								onChange={(e) => searchCategorizedStudent(e.target.value)}
-							/>
-						</Form.Item>
-					</Card>
-					<Card size='small'>
-						<Flex gap={16}>
-							<Dropdown
-								trigger={['click']}
-								placement='bottomRight'
-								arrow
-								popupRender={(menu) => (
-									<Card size='small'>
-										<Flex vertical gap={8}>
-											{mobile &&
-												<Segmented
-													options={[
-														{ label: 'All', value: 'all' },
-														{ label: 'ICS', value: 'ics' },
-														{ label: 'ITE', value: 'ite' },
-														{ label: 'IBE', value: 'ibe' },
-														{ label: 'Archived', value: 'archived' }
-													]}
-													vertical
-													value={institute}
-													onChange={(value) => {
-														setInstitute(value);
-													}}
-													style={{ width: '100%' }}
-												/>
-											}
-											<Divider>
-												<Text strong>Filters</Text>
-											</Divider>
-											<Flex vertical>
-												<Text strong>Year</Text>
-												<Checkbox.Group
-													onChange={(value) => {
-														setFilter((prev) => ({
-															...prev,
-															years: value
-														}));
-													}}
-												>
-													<Flex vertical>
-														<Checkbox value={1}>1st Year</Checkbox>
-														<Checkbox value={2}>2nd Year</Checkbox>
-														<Checkbox value={3}>3rd Year</Checkbox>
-														<Checkbox value={4}>4th Year</Checkbox>
-													</Flex>
-												</Checkbox.Group>
-											</Flex>
-
-											<Flex vertical>
-												<Text strong>Program</Text>
-												<Checkbox.Group
-													onChange={(value) => {
-														setFilter((prev) => ({
-															...prev,
-															programs: value
-														}));
-													}}
-												>
-													<Flex vertical>
-														{(institute === 'ics' || institute === 'all' || institute === 'archived') && (
-															<>
-																<Text type='secondary'>Institute of Computing Studies</Text>
-																<Checkbox value='BSCpE'>Bachelor of Science in Computer Engineering (BSCpE)</Checkbox>
-																<Checkbox value='BSIT'>Bachelor of Science in Information Technology (BSIT)</Checkbox>
-															</>
-														)}
-														{(institute === 'ite' || institute === 'all' || institute === 'archived') && (
-															<>
-																<Text type='secondary'>Institute of Teacher Education</Text>
-																<Checkbox value='BSEd-SCI'>Bachelor of Secondary Education major in Science (BSEd-SCI)</Checkbox>
-																<Checkbox value='BEEd-GEN'>Bachelor of Elementary Education - Generalist (BEEd-GEN)</Checkbox>
-																<Checkbox value='BEEd-ECED'>Bachelor of Early Childhood Education (BEEd-ECED)</Checkbox>
-																<Checkbox value='BTLEd-ICT'>Bachelor of Technology and Livelihood Education major in Information and Communication Technology (BTLEd-ICT)</Checkbox>
-																<Checkbox value='TCP'>Teacher Certificate Program (18 Units-TCP)</Checkbox>
-															</>
-														)}
-														{(institute === 'ibe' || institute === 'all' || institute === 'archived') && (
-															<>
-																<Text type='secondary'>Institute of Business Entrepreneurship</Text>
-																<Checkbox value='BSBA-HRM'>Bachelor of Science in Business Administration Major in Human Resource Management (BSBA-HRM)</Checkbox>
-																<Checkbox value='BSE'>Bachelor of Science in Entrepreneurship (BSE)</Checkbox>
-															</>
-														)}
-													</Flex>
-												</Checkbox.Group>
-											</Flex>
-
-											<Button
-												type='primary'
-												size='small'
-												onClick={() => { }}
-											>
-												Reset
-											</Button>
-										</Flex>
-									</Card>
-								)}
-							>
-								<Button
-									icon={<FilterOutlined />}
-									onClick={(e) => e.stopPropagation()}
-								/>
-							</Dropdown>
-
-							{!mobile &&
-								<Segmented
-									options={[
-										{ label: 'All', value: 'all' },
-										{ label: 'ICS', value: 'ics' },
-										{ label: 'ITE', value: 'ite' },
-										{ label: 'IBE', value: 'ibe' },
-										{ label: 'Archived', value: 'archived' }
-									]}
-									value={institute}
-									onChange={(value) => {
-										setInstitute(value);
-									}}
-									style={{ width: '100%' }}
-								/>
-							}
-						</Flex>
-					</Card>
-				</Flex>
-			</Form>
-
 			{/************************** Profiles **************************/}
-			{filteredStudents.length > 0 ? (
+			{displayedStudents.length > 0 ? (
 				<Row gutter={[16, 16]}>
-					{filteredStudents.map((student, index) => (
+					{displayedStudents.map((student, index) => (
 						<Col key={student.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 							<StudentCard
 								student={student}
@@ -356,13 +366,11 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 		<ItemCard
 			loading={loading}
 			mounted={mounted}
-			style={{
-				filter: {
-					ongoing: false,
-					resolved: false,
-					archived: true
-				}[student.status] ? 'grayscale(100%)' : 'none'
-			}}
+
+			status={
+				student.status === 'archived' ? 'archived' :
+				student.status === 'restricted' && 'restricted'
+			}
 
 			actions={[
 				{

@@ -344,9 +344,13 @@ const Menubar = () => {
 						gap='small'
                         style={{ width: '100%', height: '100%' }}
 					>
-						<Title level={4} style={{ width: '100%' }}>{Header.title}</Title>
-						<Flex justify='flex-end' gap={16}>
-							{Header.actions}
+						<Title level={4}>{Header.title}</Title>
+						<Flex justify='flex-end' gap={32} style={{ flexGrow: 1 }}>
+							{Header.actions && Header.actions.map((action, index) => (
+								{...action,
+									key: index,
+								}
+							))}
 						</Flex>
                     </Flex>
                 </Card>
