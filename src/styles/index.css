@@ -105,18 +105,3 @@ span.ant-typography {
 	border: none;
 	border-radius: 0;
 }
-
-#auth-background {
-	position: fixed;
-	top: 0;
-	left: 0;
-
-	width: 100vw;
-	height: 100vh;
-
-	background-image: url('/Authentication Background.jpg');
-	background-position: center center;
-	background-size: cover;
-
-	z-index: 0;
-}

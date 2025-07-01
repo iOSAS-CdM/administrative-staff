@@ -8,6 +8,29 @@
 	border-radius: 0;
 }
 
+#auth-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+
+	width: 100vw;
+	height: 100vh;
+
+	background-color: var(--primary);
+
+	z-index: 0;
+}
+#auth-background.dark {
+	background-color: var(--ant-color-bg-base);
+}
+#auth-background svg {
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	height: 100%;
+}
+
 #authentication-form {
 	width: 100%;
 	max-width: calc(var(--space-XL) * 14);
@@ -20,10 +43,8 @@
 	width: 100%;
 	height: var(--space-XXL);
 
-	filter: drop-shadow(0 0 var(--space-XS));
-
 	z-index: 1000;
 }
-#version-info-panel > * {
-	color: var(--ant-color-bg-base);
+#version-info-panel:not(.mobile) * {
+	color: #fff;
 }
