@@ -32,6 +32,8 @@ const { Title, Text } = Typography;
 import EditStudent from '../../../modals/EditStudent';
 import RestrictStudent from '../../../modals/RestrictStudent';
 
+import ItemCard from '../../../components/ItemCard';
+
 const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	React.useEffect(() => {
 		setHeader({
@@ -76,8 +78,16 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 			.then(response => response.json())
 			.then(data => {
 				const fetchedStudents = [];
+
 				for (let i = 0; i < data.results.length; i++) {
 					const user = data.results[i];
+					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
+					const programs = {
+						'ics': ['BSCpE', 'BSIT'],
+						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
+						'ibe': ['BSBA-HRM', 'BSE']
+					};
+
 					fetchedStudents.push({
 						id: i + 1,
 						name: {
@@ -94,7 +104,9 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							} while (fetchedStudents.some(student => student.studentId === id));
 							return id;
 						})(),
-						institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
+						institute: institute,
+						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
+						year: Math.floor(Math.random() * 4) + 1,
 						profilePicture: user.picture.large,
 						placeholder: false,
 						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
@@ -277,48 +289,58 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 	const Modal = app.modal;
 
 	return (
-		<Card
-			size='small'
-			hoverable
+		<ItemCard
 			loading={loading}
-			className={`card ${mounted && 'mounted'}`}
-			style={{ height: '100%' }}
+			mounted={mounted}
+
 			actions={[
-				<EditOutlined onClick={() => {
-					if (thisStudent.placeholder) {
-						Modal.error({
-							title: 'Error',
-							content: 'This is a placeholder student profile. Please try again later.',
-							centered: true
-						});
-					} else {
-						EditStudent(Modal, thisStudent, setThisStudent);
-					};
-				}} key='edit' />,
-				<LockOutlined onClick={() => {
-					if (thisStudent.placeholder) {
-						Modal.error({
-							title: 'Error',
-							content: 'This is a placeholder student profile. Please try again later.',
-							centered: true
-						});
-					} else {
-						RestrictStudent(Modal, thisStudent, setThisStudent);
-					};
-				}} key='restrict' />,
-				<RightOutlined onClick={() => {
-					if (thisStudent.placeholder) {
-						Modal.error({
-							title: 'Error',
-							content: 'This is a placeholder student profile. Please try again later.',
-							centered: true
-						});
-					} else {
-						navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
-							state: { student: thisStudent }
-						});
-					};
-				}} key='view' />
+				{
+					content: (
+						<EditOutlined key='edit' />
+					),
+					onClick: () => {
+						if (thisStudent.placeholder)
+							Modal.error({
+								title: 'Error',
+								content: 'This is a placeholder student profile. Please try again later.',
+								centered: true
+							});
+						else
+							EditStudent(Modal, thisStudent, setThisStudent);
+					}
+				},
+				{
+					content: (
+						<LockOutlined key='restrict' />
+					),
+					onClick: () => {
+						if (thisStudent.placeholder)
+							Modal.error({
+								title: 'Error',
+								content: 'This is a placeholder student profile. Please try again later.',
+								centered: true
+							});
+						else
+							RestrictStudent(Modal, thisStudent, setThisStudent);
+					}
+				},
+				{
+					content: (
+						<RightOutlined key='view' />
+					),
+					onClick: () => {
+						if (thisStudent.placeholder)
+							Modal.error({
+								title: 'Error',
+								content: 'This is a placeholder student profile. Please try again later.',
+								centered: true
+							});
+						else
+							navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
+								state: { student: thisStudent }
+							});
+					}
+				}
 			]}
 		>
 			<Flex justify='flex-start' align='flex-start' gap={16} style={{ width: '100%' }}>
@@ -335,6 +357,6 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 					}</Text>
 				</Flex>
 			</Flex>
-		</Card>
+		</ItemCard >
 	);
 };

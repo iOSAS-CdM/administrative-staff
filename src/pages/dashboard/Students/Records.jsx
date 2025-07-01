@@ -30,6 +30,8 @@ import remToPx from '../../../utils/remToPx';
 
 const { Title, Text } = Typography;
 
+import ItemCard from '../../../components/ItemCard';
+
 const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
 
@@ -100,6 +102,12 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 						occurances: Math.floor(Math.random() * 10) + 1
 					},
 					complainants: [...Array(5).keys().map(e => {
+						const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
+						const programs = {
+							'ics': ['BSCpE', 'BSIT'],
+							'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
+							'ibe': ['BSBA-HRM', 'BSE']
+						};
 						return {
 							id: i + 1,
 							name: {
@@ -110,13 +118,21 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							email: 'user.email',
 							phone: 'user.phone',
 							studentId: id,
-							institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
-							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 200)}.jpg`,
+							institute: institute,
+							program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
+							year: Math.floor(Math.random() * 4) + 1,
+							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
 							placeholder: false,
 							status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
 						}
 					})],
 					complainees: [...Array(5).keys().map(e => {
+						const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
+						const programs = {
+							'ics': ['BSCpE', 'BSIT'],
+							'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
+							'ibe': ['BSBA-HRM', 'BSE']
+						};
 						return {
 							id: i + 1,
 							name: {
@@ -128,7 +144,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							phone: 'user.phone',
 							studentId: id,
 							institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
-							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 200)}.jpg`,
+							program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
+							year: Math.floor(Math.random() * 4) + 1,
+							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
 							placeholder: false,
 							status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
 						}
@@ -376,11 +394,9 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 	const Modal = app.modal;
 
 	return (
-		<Card
-			size='small'
-			hoverable
+		<ItemCard
 			loading={loading}
-			className={`card ${mounted && 'mounted'}`}
+			mounted={mounted}
 			style={{
 				height: '100%',
 				filter: {
@@ -391,56 +407,117 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 			}}
 
 			actions={[
-				<Avatar.Group max={{
-					count: 4
-				}}>
-					{thisRecord.complainants.map((complainant, index) => (
-						<Avatar
-							key={index}
-							src={complainant.profilePicture}
-							style={{ cursor: 'pointer' }}
-							onClick={() => {
-								navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
-									state: { student: complainant }
-								});
+				{
+					content: (
+						<Avatar.Group
+							max={{
+								count: 4
 							}}
-						/>
-					))}
-					{thisRecord.complainees.map((complainee, index) => (
-						<Avatar
-							key={index}
-							src={complainee.profilePicture}
-							style={{ cursor: 'pointer' }}
-							onClick={() => {
-								navigate(`/dashboard/students/profiles/${complainee.studentId}`, {
-									state: { student: complainee }
-								});
-							}}
-						/>
-					))}
-				</Avatar.Group>,
+						>
+							{thisRecord.complainants.map((complainant, index) => (
+								<Avatar
+									key={index}
+									src={complainant.profilePicture}
+									style={{ cursor: 'pointer' }}
+									onClick={() => {
+										navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+											state: { student: complainant }
+										});
+									}}
+								/>
+							))}
+							{thisRecord.complainees.map((complainee, index) => (
+								<Avatar
+									key={index}
+									src={complainee.profilePicture}
+									style={{ cursor: 'pointer' }}
+									onClick={() => {
+										navigate(`/dashboard/students/profiles/${complainee.studentId}`, {
+											state: { student: complainee }
+										});
+									}}
+								/>
+							))}
+						</Avatar.Group>
+					)
+				},
+				{
+					content: (
+						<Text>
+							{thisRecord.date.toLocaleDateString('en-US', {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric'
+							})}
+						</Text>
+					)
+				},
+				{
+					content: <RightOutlined />,
+					onClick: () => {
+						if (thisRecord.placeholder) {
+							Modal.error({
+								title: 'Error',
+								content: 'This is a placeholder student record. Please try again later.',
+								centered: true
+							});
+						} else {
+							navigate(`/dashboard/students/records/${thisRecord.recordId}`, {
+								state: { student: thisRecord }
+							});
+						};
+					}
+				}
+				// <Avatar.Group max={{
+				// 	count: 4
+				// }}>
+				// 	{thisRecord.complainants.map((complainant, index) => (
+				// 		<Avatar
+				// 			key={index}
+				// 			src={complainant.profilePicture}
+				// 			style={{ cursor: 'pointer' }}
+				// 			onClick={() => {
+				// 				navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+				// 					state: { student: complainant }
+				// 				});
+				// 			}}
+				// 		/>
+				// 	))}
+				// 	{thisRecord.complainees.map((complainee, index) => (
+				// 		<Avatar
+				// 			key={index}
+				// 			src={complainee.profilePicture}
+				// 			style={{ cursor: 'pointer' }}
+				// 			onClick={() => {
+				// 				navigate(`/dashboard/students/profiles/${complainee.studentId}`, {
+				// 					state: { student: complainee }
+				// 				});
+				// 			}}
+				// 		/>
+				// 	))}
+				// </Avatar.Group>,
 
-				<Text>
-					{thisRecord.date.toLocaleDateString('en-US', {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					})}
-				</Text>,
+				// <Text>
+				// 	{thisRecord.date.toLocaleDateString('en-US', {
+				// 		year: 'numeric',
+				// 		month: 'long',
+				// 		day: 'numeric'
+				// 	})}
+				// </Text>,
 
-				<RightOutlined onClick={() => {
-					if (thisRecord.placeholder) {
-						Modal.error({
-							title: 'Error',
-							content: 'This is a placeholder student record. Please try again later.',
-							centered: true
-						});
-					} else {
-						navigate(`/dashboard/students/records/${thisRecord.recordId}`, {
-							state: { student: thisRecord }
-						});
-					};
-				}} key='view' />
+				// <RightOutlined onClick={() => {
+				// 	if (thisRecord.placeholder) {
+				// 		Modal.error({
+				// 			title: 'Error',
+				// 			content: 'This is a placeholder student record. Please try again later.',
+				// 			centered: true
+				// 		});
+				// 	} else {
+				// 		navigate(`/dashboard/students/records/${thisRecord.recordId}`, {
+				// 			state: { student: thisRecord }
+				// 		});
+				// 	};
+				// }} key='view' />
 			]}
 		>
 			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
@@ -491,6 +568,6 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 					}
 				/>
 			</Flex>
-		</Card>
+		</ItemCard>
 	);
 };
