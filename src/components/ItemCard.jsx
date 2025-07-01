@@ -34,6 +34,10 @@ const ItemCard = ({ mounted, ...props }) => {
 			hoverable
 			className={`card ${mounted && 'mounted'}`}
 			actions={null}
+			style={{
+				...props.style,
+				height: '100%'
+			}}
 		>
 			<Flex vertical gap={16}>
 				{props.children}

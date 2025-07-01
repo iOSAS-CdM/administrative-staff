@@ -398,7 +398,6 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 			loading={loading}
 			mounted={mounted}
 			style={{
-				height: '100%',
 				filter: {
 					ongoing: false,
 					resolved: false,
@@ -468,56 +467,6 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 						};
 					}
 				}
-				// <Avatar.Group max={{
-				// 	count: 4
-				// }}>
-				// 	{thisRecord.complainants.map((complainant, index) => (
-				// 		<Avatar
-				// 			key={index}
-				// 			src={complainant.profilePicture}
-				// 			style={{ cursor: 'pointer' }}
-				// 			onClick={() => {
-				// 				navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
-				// 					state: { student: complainant }
-				// 				});
-				// 			}}
-				// 		/>
-				// 	))}
-				// 	{thisRecord.complainees.map((complainee, index) => (
-				// 		<Avatar
-				// 			key={index}
-				// 			src={complainee.profilePicture}
-				// 			style={{ cursor: 'pointer' }}
-				// 			onClick={() => {
-				// 				navigate(`/dashboard/students/profiles/${complainee.studentId}`, {
-				// 					state: { student: complainee }
-				// 				});
-				// 			}}
-				// 		/>
-				// 	))}
-				// </Avatar.Group>,
-
-				// <Text>
-				// 	{thisRecord.date.toLocaleDateString('en-US', {
-				// 		year: 'numeric',
-				// 		month: 'long',
-				// 		day: 'numeric'
-				// 	})}
-				// </Text>,
-
-				// <RightOutlined onClick={() => {
-				// 	if (thisRecord.placeholder) {
-				// 		Modal.error({
-				// 			title: 'Error',
-				// 			content: 'This is a placeholder student record. Please try again later.',
-				// 			centered: true
-				// 		});
-				// 	} else {
-				// 		navigate(`/dashboard/students/records/${thisRecord.recordId}`, {
-				// 			state: { student: thisRecord }
-				// 		});
-				// 	};
-				// }} key='view' />
 			]}
 		>
 			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
