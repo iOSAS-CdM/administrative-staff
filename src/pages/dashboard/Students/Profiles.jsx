@@ -183,11 +183,36 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						placeholder='Search'
 						allowClear
 						prefix={<SearchOutlined />}
-						onChange={(e) => setSearch(e.target.value)}
+						onChange={(e) => {
+							const value = e.target.value;
+							clearTimeout(window.profileDebounceTimer);
+							const debounceTimer = setTimeout(() => {
+								setSearch(value);
+							}, remToPx(0.5));
+							window.profileDebounceTimer = debounceTimer;
+						}}
 						style={{ minWidth: remToPx(20) }}
 					/>
 				</Flex>,
-				<Flex gap={16}>
+				<Flex gap={8}>
+					{!mobile && (
+						<Segmented
+							options={[
+								{ label: 'All', value: 'all' },
+								{ label: 'ICS', value: 'ics' },
+								{ label: 'ITE', value: 'ite' },
+								{ label: 'IBE', value: 'ibe' },
+								{ label: 'Restricted', value: 'restricted' },
+								{ label: 'Archived', value: 'archived' }
+							]}
+							value={institute}
+							onChange={(value) => {
+								setInstitute(value);
+							}}
+							style={{ width: '100%' }}
+						/>
+					)}
+
 					<Dropdown
 						trigger={['click']}
 						placement='bottomRight'
@@ -290,24 +315,6 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							onClick={(e) => e.stopPropagation()}
 						/>
 					</Dropdown>
-
-					{!mobile &&
-						<Segmented
-							options={[
-								{ label: 'All', value: 'all' },
-								{ label: 'ICS', value: 'ics' },
-								{ label: 'ITE', value: 'ite' },
-								{ label: 'IBE', value: 'ibe' },
-								{ label: 'Restricted', value: 'restricted' },
-								{ label: 'Archived', value: 'archived' }
-							]}
-							value={institute}
-							onChange={(value) => {
-								setInstitute(value);
-							}}
-							style={{ width: '100%' }}
-						/>
-					}
 				</Flex>
 			]
 		});

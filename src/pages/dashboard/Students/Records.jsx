@@ -209,11 +209,34 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 						placeholder='Search'
 						allowClear
 						prefix={<SearchOutlined />}
-						onChange={(e) => setSearch(e.target.value)}
+						onChange={(e) => {
+							const value = e.target.value;
+							clearTimeout(window.recordDebounceTimer);
+							const debounceTimer = setTimeout(() => {
+								setSearch(value);
+							}, remToPx(0.5));
+							window.recordDebounceTimer = debounceTimer;
+						}}
 						style={{ minWidth: remToPx(20) }}
 					/>
 				</Flex>,
-				<Flex gap={16}>
+				<Flex gap={8}>
+					{!mobile && (
+						<Segmented
+							options={[
+								{ label: 'All', value: 'all' },
+								{ label: 'Ongoing', value: 'ongoing' },
+								{ label: 'Resolved', value: 'resolved' },
+								{ label: 'Archived', value: 'archived' }
+							]}
+							value={category}
+							onChange={(value) => {
+								setCategory(value);
+							}}
+							style={{ width: '100%' }}
+						/>
+					)}
+
 					<Dropdown
 						trigger={['click']}
 						placement='bottomRight'
@@ -302,22 +325,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							onClick={(e) => e.stopPropagation()}
 						/>
 					</Dropdown>
-
-					{!mobile &&
-						<Segmented
-							options={[
-								{ label: 'All', value: 'all' },
-								{ label: 'Ongoing', value: 'ongoing' },
-								{ label: 'Resolved', value: 'resolved' },
-								{ label: 'Archived', value: 'archived' }
-							]}
-							value={category}
-							onChange={(value) => {
-								setCategory(value);
-							}}
-							style={{ width: '100%' }}
-						/>
-					}
 				</Flex>
 			]
 		});
