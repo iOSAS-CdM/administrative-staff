@@ -134,7 +134,12 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	React.useEffect(() => {
 		if (students.length > 0)
-			setInstitutionizedStudents(students.filter(student => student.institute === institute || institute === 'all' || (institute === 'restricted' && student.status === 'restricted')|| (institute === 'archived' && student.status === 'archived')));
+			setInstitutionizedStudents(students.filter(student =>
+				(student.institute === institute && (institute !== 'restricted' && student.status !== 'restricted' &&  institute !== 'archived' && student.status !== 'archived'))
+				|| institute === 'all'
+				|| (institute === 'restricted' && student.status === 'restricted')
+				|| (institute === 'archived' && student.status === 'archived'))
+			);
 	}, [students, institute]);
 
 	React.useEffect(() => {
@@ -305,7 +310,12 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									<Button
 										type='primary'
 										size='small'
-										onClick={() => { }}
+										onClick={() => {
+											setFilter({
+												years: [],
+												programs: []
+											});
+										}}
 									>
 										Reset
 									</Button>
