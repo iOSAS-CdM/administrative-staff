@@ -29,6 +29,7 @@ import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
 import Profile from '../pages/dashboard/Students/Profile';
 import DisciplinaryRecords from '../pages/dashboard/Students/Records';
+import DisciplinaryRecord from '../pages/dashboard/Students/Record';
 
 import remToPx from '../utils/remToPx';
 
@@ -95,9 +96,10 @@ const Menubar = () => {
 		{ path: '/', element: <Home {...props} /> },
 		{ path: '/home', element: <Home {...props} /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
-		{ path: '/students/profiles/', element: <Profiles {...props} /> },
+		{ path: '/students/profiles', element: <Profiles {...props} /> },
 		{ path: '/students/profiles/*', element: <Profile {...props} /> },
 		{ path: '/students/records', element: <DisciplinaryRecords {...props} /> },
+		{ path: '/students/records/*', element: <DisciplinaryRecord {...props} /> },
 		{ path: '/students/organization', element: <p>Organizations</p> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
 		{ path: '/utilities/faqs', element: <p>FAQs</p> },

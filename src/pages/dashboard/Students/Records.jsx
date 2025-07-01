@@ -503,12 +503,12 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 						if (thisRecord.placeholder) {
 							Modal.error({
 								title: 'Error',
-								content: 'This is a placeholder student record. Please try again later.',
+								content: 'This is a placeholder disciplinary record. Please try again later.',
 								centered: true
 							});
 						} else {
 							navigate(`/dashboard/students/records/${thisRecord.recordId}`, {
-								state: { student: thisRecord }
+								state: { record: thisRecord }
 							});
 						};
 					}
