@@ -40,7 +40,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	React.useEffect(() => {
 		setHeader({
 			title: `Student ${location.state?.student?.studentId || 'Profile'}`,
-			actions: (
+			actions: [
 				<Button
 					type='primary'
 					icon={<LeftOutlined />}
@@ -48,7 +48,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 				>
 					Back
 				</Button>
-			)
+			]
 		});
 	}, [setHeader]);
 	React.useEffect(() => {

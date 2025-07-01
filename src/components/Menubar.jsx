@@ -339,16 +339,17 @@ const Menubar = () => {
                     }}
                 >
                     <Flex
+						vertical={mobile}
                         justify='space-between'
 						align='center'
-						gap='small'
+						gap={mobile ? 16 : 32}
                         style={{ width: '100%', height: '100%' }}
 					>
 						<Title level={4}>{Header.title}</Title>
-						<Flex justify='flex-end' gap={32} style={{ flexGrow: 1 }}>
+						<Flex justify='flex-end' gap={8} align='center'>
 							{Header.actions && Header.actions.map((action, index) => (
 								{...action,
-									key: index,
+									key: index
 								}
 							))}
 						</Flex>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 
 import {
 	App,
-	Form,
+	Table,
 	Input,
 	Card,
 	Button,
@@ -24,7 +24,9 @@ import {
 	FilterOutlined,
 	EditOutlined,
 	LockOutlined,
-	RightOutlined
+	RightOutlined,
+	TableOutlined,
+	UnorderedListOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -174,6 +176,8 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		}, remToPx(0.5));
 	}, [search, filteredStudents]);
 
+	const [view, setView] = React.useState('card');
+
 	React.useEffect(() => {
 		setHeader({
 			title: 'Student Profiles',
@@ -209,7 +213,6 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							onChange={(value) => {
 								setInstitute(value);
 							}}
-							style={{ width: '100%' }}
 						/>
 					)}
 
@@ -315,27 +318,120 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							onClick={(e) => e.stopPropagation()}
 						/>
 					</Dropdown>
+
+					<Button
+						icon={view === 'table' ? <UnorderedListOutlined /> : <TableOutlined />}
+						onClick={() => {
+							setView(view === 'table' ? 'card' : 'table');
+						}}
+					/>
 				</Flex>
 			]
 		});
 	}, [setHeader, institute]);
 
+	const app = App.useApp();
+	const Modal = app.modal;
+
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
 			{/************************** Profiles **************************/}
 			{displayedStudents.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					{displayedStudents.map((student, index) => (
-						<Col key={student.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
-							<StudentCard
-								student={student}
-								animationDelay={index * 0.1}
-								loading={student.placeholder}
-								navigate={navigate}
+				view === 'card' ? (
+					<Row gutter={[16, 16]}>
+						{displayedStudents.map((student, index) => (
+							<Col key={student.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+								<StudentCard
+									student={student}
+									animationDelay={index * 0.1}
+									loading={student.placeholder}
+									navigate={navigate}
+								/>
+							</Col>
+						))}
+					</Row>
+				) : (
+					<Table dataSource={displayedStudents} pagination={false} rowKey='studentId' size='small' style={{ minWidth: '100%' }} scroll={{ x: '100%' }}>
+						<Table.Column align='center' title='Student ID' dataIndex='studentId' key='studentId' />
+						<Table.Column align='center' title='Profile Picture' dataIndex='profilePicture' render={(text, record) => (
+							<Avatar src={text} size='large' />
+						)} />
+						<Table.Column align='center' title='Name'>
+							<Table.Column
+								align='center'
+								title='First'
+								dataIndex={['name', 'first']}
+								key='firstName'
 							/>
-						</Col>
-					))}
-				</Row>
+							<Table.Column
+								align='center'
+								title='Middle'
+								dataIndex={['name', 'middle']}
+								key='middleName'
+							/>
+							<Table.Column
+								align='center'
+								title='Last'
+								dataIndex={['name', 'last']}
+								key='lastName'
+							/>
+						</Table.Column>
+						<Table.Column align='center' title='Email' dataIndex='email' key='email' />
+						<Table.Column
+							title='Actions'
+							align='center'
+							render={(text, record) => (
+								<Flex gap={8} justify='center' align='center'>
+									<Button
+										icon={<EditOutlined />}
+										onClick={() => {
+											if (record.placeholder)
+												Modal.error({
+													title: 'Error',
+													content: 'This is a placeholder student profile. Please try again later.',
+													centered: true
+												});
+											else
+												EditStudent(Modal, record, (updatedStudent) => {
+													setDisplayedStudents((prev) => prev.map((s) => s.studentId === updatedStudent.studentId ? updatedStudent : s));
+												});
+										}}
+									/>
+									<Button
+										icon={<LockOutlined />}
+										onClick={() => {
+											if (record.placeholder)
+												Modal.error({
+													title: 'Error',
+													content: 'This is a placeholder student profile. Please try again later.',
+													centered: true
+												});
+											else
+												RestrictStudent(Modal, thisStudent, (updatedStudent) => {
+													setDisplayedStudents((prev) => prev.map((s) => s.studentId === updatedStudent.studentId ? updatedStudent : s));
+												});
+										}}
+									/>
+									<Button
+										icon={<RightOutlined />}
+										onClick={() => {
+											if (record.placeholder)
+												Modal.error({
+													title: 'Error',
+													content: 'This is a placeholder student profile. Please try again later.',
+													centered: true
+												});
+											else
+												navigate(`/dashboard/students/profiles/${record.studentId}`, {
+													state: { student: record }
+												});
+										}}
+									/>
+								</Flex>
+							)}
+						/>
+					</Table>
+				)
 			) : (
 				<Flex justify='center' align='center' style={{ height: '100%' }}>
 					<Empty description='No profiles found' />

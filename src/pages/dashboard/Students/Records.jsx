@@ -3,7 +3,7 @@ import { useLocation } from 'react-router';
 
 import {
 	App,
-	Form,
+	Table,
 	Input,
 	Card,
 	Button,
@@ -23,7 +23,9 @@ import {
 import {
 	RightOutlined,
 	SearchOutlined,
-	FilterOutlined
+	FilterOutlined,
+	UnorderedListOutlined,
+	TableOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -200,6 +202,8 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		}, remToPx(0.5));
 	}, [search, filteredRecords]);
 
+	const [view, setView] = React.useState('card');
+
 	React.useEffect(() => {
 		setHeader({
 			title: 'Disciplinary Records',
@@ -233,7 +237,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							onChange={(value) => {
 								setCategory(value);
 							}}
-							style={{ width: '100%' }}
 						/>
 					)}
 
@@ -325,27 +328,74 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							onClick={(e) => e.stopPropagation()}
 						/>
 					</Dropdown>
+
+					<Button
+						icon={view === 'table' ? <UnorderedListOutlined /> : <TableOutlined />}
+						onClick={() => {
+							setView(view === 'table' ? 'card' : 'table');
+						}}
+					/>
 				</Flex>
 			]
 		});
-	}, [setHeader, category]);
-
+	}, [setHeader, category, view]);
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
 			{/************************** Records **************************/}
 			{displayedRecords.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					{displayedRecords.map((record, index) => (
-						<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
-							<RecordCard
-								record={record}
-								animationDelay={index * 0.1}
-								loading={record.placeholder}
-								navigate={navigate}
+				view === 'card' ? (
+					<Row gutter={[16, 16]}>
+						{displayedRecords.map((record, index) => (
+							<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+								<RecordCard
+									record={record}
+									animationDelay={index * 0.1}
+									loading={record.placeholder}
+									navigate={navigate}
+								/>
+							</Col>
+						))}
+					</Row>
+				) : (
+					<Table dataSource={displayedRecords} pagination={false} rowKey='recordId' style={{ minWidth: '100%' }}>
+						<Table.Column title='ID' dataIndex='recordId' key='recordId' />
+						<Table.Column title='Title' dataIndex='title' key='title' />
+						<Table.Column title='Description' dataIndex='description' key='description' />
+						<Table.Column title='Complainants' key='complainants' render={(text, record) => (
+							<Avatar.Group>
+								{record.complainants.map((complainant, index) => (
+									<Avatar key={index} src={complainant.profilePicture} />
+								))}
+							</Avatar.Group>
+						)} />
+						<Table.Column title='Complainees' key='complainees' render={(text, record) => (
+							<Avatar.Group>
+								{record.complainees.map((complainee, index) => (
+									<Avatar key={index} src={complainee.profilePicture} />
+								))}
+							</Avatar.Group>
+						)} />
+						<Table.Column title='Date' key='date' render={(text, record) => (
+							<Text>
+								{record.date.toLocaleDateString('en-US', {
+									year: 'numeric',
+									month: 'long',
+									day: 'numeric'
+								})}
+							</Text>
+						)} />
+						<Table.Column title='Actions' key='actions' render={(text, record) => (
+							<Button
+								icon={<RightOutlined />}
+								onClick={() => {
+									navigate(`/dashboard/students/records/${record.recordId}`, {
+										state: { student: record }
+									});
+								}}
 							/>
-						</Col>
-					))}
-				</Row>
+						)} />
+					</Table>
+				)
 			) : (
 				<Flex justify='center' align='center' style={{ height: '100%' }}>
 						<Empty description='No records found' />
