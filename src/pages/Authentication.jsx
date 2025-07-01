@@ -65,7 +65,7 @@ const Authentication = () => {
 					padding: mobile && 'calc(var(--space-XL) * 2'
 				}}
 			>
-				<Card className='authentication-card'>
+				<Card className='authentication-card scrollable-content'>
 					<Flex vertical justify='space-between' align='center' gap='large' style={{ height: '100%' }}>
 						<Flex vertical justify='center' align='center' gap='large' style={{ height: '100%' }}>
 							<Image
