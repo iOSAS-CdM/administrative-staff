@@ -25,7 +25,8 @@ import {
 	SearchOutlined,
 	FilterOutlined,
 	UnorderedListOutlined,
-	TableOutlined
+	TableOutlined,
+	BankOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -34,10 +35,14 @@ const { Title, Text } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+import { MobileContext } from '../../../main';
+
+const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
+
+	const { mobile, setMobile } = React.useContext(MobileContext);
 
 	const [category, setCategory] = React.useState('ongoing');
 	const [filter, setFilter] = React.useState({
@@ -45,8 +50,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		occurances: []
 	});
 	const [search, setSearch] = React.useState('');
-
-	const FilterForm = React.useRef(null);
 
 	const [records, setRecords] = React.useState([]);
 	const [categorizedRecords, setCategorizedRecords] = React.useState([]);
@@ -208,7 +211,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 		setHeader({
 			title: 'Disciplinary Records',
 			actions: [
-				<Flex>
+				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
 					<Input
 						placeholder='Search'
 						allowClear
@@ -221,7 +224,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							}, remToPx(0.5));
 							window.recordDebounceTimer = debounceTimer;
 						}}
-						style={{ minWidth: remToPx(20) }}
+						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
 					/>
 				</Flex>,
 				<Flex gap={8}>
@@ -335,10 +338,18 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, mobile, navigate }) =
 							setView(view === 'table' ? 'card' : 'table');
 						}}
 					/>
-				</Flex>
+				</Flex>,
+
+				<Button
+					type='primary'
+					icon={<BankOutlined />}
+				>
+					Open a Case
+				</Button>
 			]
 		});
-	}, [setHeader, category, view]);
+	}, [setHeader, category, view, mobile]);
+
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
 			{/************************** Records **************************/}

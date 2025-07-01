@@ -38,10 +38,14 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 
 import ItemCard from '../../../components/ItemCard';
 
-const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+import { MobileContext } from '../../../main';
+
+const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		setSelectedKeys(['profiles']);
 	}, [setSelectedKeys]);
+
+	const { mobile, setMobile } = React.useContext(MobileContext);
 
 	const [institute, setInstitute] = React.useState('all');
 	const [filter, setFilter] = React.useState({
@@ -49,8 +53,6 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		programs: []
 	});
 	const [search, setSearch] = React.useState('');
-
-	const FilterForm = React.useRef(null);
 
 	const [students, setStudents] = React.useState([]);
 	const [institutionizedStudents, setInstitutionizedStudents] = React.useState([]);
@@ -179,7 +181,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setTimeout(() => {
 			setDisplayedStudents(searchedStudents);
 		}, remToPx(0.5));
-	}, [search, filteredStudents]);
+	}, [search, filteredStudents, mobile]);
 
 	const [view, setView] = React.useState('card');
 
@@ -187,7 +189,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setHeader({
 			title: 'Student Profiles',
 			actions: [
-				<Flex>
+				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
 					<Input
 						placeholder='Search'
 						allowClear
@@ -200,7 +202,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							}, remToPx(0.5));
 							window.profileDebounceTimer = debounceTimer;
 						}}
-						style={{ minWidth: remToPx(20) }}
+						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
 					/>
 				</Flex>,
 				<Flex gap={8}>
@@ -338,7 +340,7 @@ const Profiles = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 				</Flex>
 			]
 		});
-	}, [setHeader, institute]);
+	}, [setHeader, institute, view, mobile]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
