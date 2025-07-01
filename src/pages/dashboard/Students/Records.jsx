@@ -373,24 +373,24 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 					</Row>
 				) : (
 					<Table dataSource={displayedRecords} pagination={false} rowKey='recordId' style={{ minWidth: '100%' }}>
-						<Table.Column title='ID' dataIndex='recordId' key='recordId' />
-						<Table.Column title='Title' dataIndex='title' key='title' />
-						<Table.Column title='Description' dataIndex='description' key='description' />
-						<Table.Column title='Complainants' key='complainants' render={(text, record) => (
+						<Table.Column align='center' title='ID' dataIndex='recordId' key='recordId' />
+						<Table.Column align='center' title='Title' dataIndex='title' key='title' />
+						<Table.Column align='center' title='Description' dataIndex='description' key='description' />
+						<Table.Column align='center' title='Complainants' key='complainants' render={(text, record) => (
 							<Avatar.Group>
 								{record.complainants.map((complainant, index) => (
 									<Avatar key={index} src={complainant.profilePicture} />
 								))}
 							</Avatar.Group>
 						)} />
-						<Table.Column title='Complainees' key='complainees' render={(text, record) => (
+						<Table.Column align='center' title='Complainees' key='complainees' render={(text, record) => (
 							<Avatar.Group>
 								{record.complainees.map((complainee, index) => (
 									<Avatar key={index} src={complainee.profilePicture} />
 								))}
 							</Avatar.Group>
 						)} />
-						<Table.Column title='Date' key='date' render={(text, record) => (
+						<Table.Column align='center' title='Date' key='date' render={(text, record) => (
 							<Text>
 								{record.date.toLocaleDateString('en-US', {
 									year: 'numeric',
@@ -399,7 +399,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 								})}
 							</Text>
 						)} />
-						<Table.Column title='Actions' key='actions' render={(text, record) => (
+						<Table.Column align='center' title='Actions' key='actions' render={(text, record) => (
 							<Button
 								icon={<RightOutlined />}
 								onClick={() => {
