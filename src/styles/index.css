@@ -37,6 +37,10 @@ span.ant-typography {
 	padding: 0 !important;
 }
 
+.ant-card {
+	display: flex;
+	flex-direction: column;
+}
 .ant-card-body {
 	position: relative;
 	width: 100%;

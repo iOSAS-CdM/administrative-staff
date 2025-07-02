@@ -27,6 +27,8 @@ const { Title, Text } = Typography;
 import '../../../styles/pages/Dashboard.css';
 import remToPx from '../../../utils/remToPx';
 
+import PanelCard from '../../../components/PanelCard';
+
 const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
 
@@ -198,139 +200,126 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 					</Card>
 				</Col>
 
-				<Col span={16}>
+				<Col span={16} >
 					<Flex vertical gap={16}>
 						<Row gutter={[16, 16]}>
 							<Col span={12}>
-								<Card title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`} size='small'>
-									<Flex vertical gap={8}>
-										<Flex vertical gap={8} className='scrollable-content' style={{ maxHeight: remToPx(32) }}>
-											{thisRecord.complainants.map((complainant, i) => (
-												<Card
-													key={complainant.studentId || i}
-													size='small'
-													style={{ width: '100%' }}
-													onClick={() => {
-														if (complainant.placeholder) {
-															Modal.error({
-																title: 'Error',
-																content: 'This is a placeholder complainant profile. Please try again later.',
-																centered: true
-															});
-														} else {
-															navigate(`/dashboard/students/profiles/${complainant.id}`, {
-																state: { student: complainant }
-															});
-														}
-													}}
-												>
-													<Flex align='center' gap={8}>
-														<Avatar src={complainant.profilePicture} size='large' />
-														<Flex vertical>
-															<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
-															<Text type='secondary'>{complainant.studentId}</Text>
-														</Flex>
-													</Flex>
-												</Card>
-											))}
-										</Flex>
-										<Flex justify='flex-end' align='center' gap={8}>
-											<Button
-												type='default'
-												size='small'
-												icon={<BellOutlined />}
-												onClick={() => { }}
-											>
-												Summon
-											</Button>
-											<Button
-												type='primary'
-												size='small'
-												icon={<PlusOutlined />}
-												onClick={() => { }}
-											>
-												Add
-											</Button>
-										</Flex>
-									</Flex>
-								</Card>
-							</Col>
-							<Col span={12}>
-								<Card title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`} size='small'>
-									<Flex vertical gap={8}>
-										<Flex vertical gap={8} className='scrollable-content' style={{ maxHeight: remToPx(32) }}>
-											{thisRecord.complainees.map((complainee, i) => (
-												<Card
-													key={complainee.studentId || i}
-													size='small'
-													style={{ width: '100%' }}
-													onClick={() => {
-														if (complainee.placeholder) {
-															Modal.error({
-																title: 'Error',
-																content: 'This is a placeholder complainee profile. Please try again later.',
-																centered: true
-															});
-														} else {
-															navigate(`/dashboard/students/profiles/${complainee.id}`, {
-																state: { student: complainee }
-															});
-														}
-													}}
-												>
-													<Flex align='center' gap={8}>
-														<Avatar src={complainee.profilePicture} size='large' />
-														<Flex vertical>
-															<Text>{complainee.name.first} {complainee.name.middle} {complainee.name.last}</Text>
-															<Text type='secondary'>{complainee.studentId}</Text>
-														</Flex>
-													</Flex>
-												</Card>
-											))}
-										</Flex>
-										<Flex justify='flex-end' align='center' gap={8}>
-											<Button
-												type='default'
-												size='small'
-												icon={<BellOutlined />}
-												onClick={() => { }}
-											>
-												Summon
-											</Button>
-											<Button
-												type='primary'
-												size='small'
-												icon={<PlusOutlined />}
-												onClick={() => { }}
-											>
-												Add
-											</Button>
-										</Flex>
-									</Flex>
-								</Card>
-							</Col>
-						</Row>
+								<PanelCard
+									title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`}
+									contentMaxHeight={remToPx(32)}
 
-						<Card title='Repository' size='small'>
-							<Flex vertical gap={8}>
-								<Flex vertical gap={8} className='scrollable-content' style={{ maxHeight: remToPx(16) }}>
-									{repository.map((file, i) => (
+									footer={
+										<Flex justify='flex-end' align='center' gap={8}>
+											<Button
+												type='default'
+												size='small'
+												icon={<BellOutlined />}
+												onClick={() => { }}
+											>
+												Summon
+											</Button>
+											<Button
+												type='primary'
+												size='small'
+												icon={<PlusOutlined />}
+												onClick={() => { }}
+											>
+												Add
+											</Button>
+										</Flex>
+									}
+								>
+									{thisRecord.complainants.map((complainant, i) => (
 										<Card
-											key={file.id || i}
+											key={complainant.studentId || i}
 											size='small'
 											style={{ width: '100%' }}
-											onClick={() => { }}
+											onClick={() => {
+												if (complainant.placeholder) {
+													Modal.error({
+														title: 'Error',
+														content: 'This is a placeholder complainant profile. Please try again later.',
+														centered: true
+													});
+												} else {
+													navigate(`/dashboard/students/profiles/${complainant.id}`, {
+														state: { student: complainant }
+													});
+												}
+											}}
 										>
 											<Flex align='center' gap={8}>
-												<Avatar src={file.thumbnail} size='large' shape='square' />
+												<Avatar src={complainant.profilePicture} size='large' />
 												<Flex vertical>
-													<Text>{file.name}</Text>
-													<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+													<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
+													<Text type='secondary'>{complainant.studentId}</Text>
 												</Flex>
 											</Flex>
 										</Card>
 									))}
-								</Flex>
+								</PanelCard>
+							</Col>
+							<Col span={12}>
+								<PanelCard
+									title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`}
+									contentMaxHeight={remToPx(32)}
+									footer={
+										<Flex justify='flex-end' align='center' gap={8}>
+											<Button
+												type='default'
+												size='small'
+												icon={<BellOutlined />}
+												onClick={() => { }}
+											>
+												Summon
+											</Button>
+											<Button
+												type='primary'
+												size='small'
+												icon={<PlusOutlined />}
+												onClick={() => { }}
+											>
+												Add
+											</Button>
+										</Flex>
+									}
+								>
+									{thisRecord.complainees.map((complainee, i) => (
+										<Card
+											key={complainee.studentId || i}
+											size='small'
+											style={{ width: '100%' }}
+											onClick={() => {
+												if (complainee.placeholder) {
+													Modal.error({
+														title: 'Error',
+														content: 'This is a placeholder complainee profile. Please try again later.',
+														centered: true
+													});
+												} else {
+													navigate(`/dashboard/students/profiles/${complainee.id}`, {
+														state: { student: complainee }
+													});
+												}
+											}}
+										>
+											<Flex align='center' gap={8}>
+												<Avatar src={complainee.profilePicture} size='large' />
+												<Flex vertical>
+													<Text>{complainee.name.first} {complainee.name.middle} {complainee.name.last}</Text>
+													<Text type='secondary'>{complainee.studentId}</Text>
+												</Flex>
+											</Flex>
+										</Card>
+									))}
+								</PanelCard>
+							</Col>
+						</Row>
+
+						<PanelCard
+							title='Repository'
+							contentMaxHeight={remToPx(16)}
+							footer={
 								<Flex justify='flex-end' align='center' gap={8}>
 									<Button
 										type='default'
@@ -349,9 +338,55 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 										Add
 									</Button>
 								</Flex>
-							</Flex>
-						</Card>
+							}
+						>
+							{repository.map((file, i) => (
+								<Card
+									key={file.id || i}
+									size='small'
+									style={{ width: '100%' }}
+									onClick={() => { }}
+								>
+									<Flex align='center' gap={8}>
+										<Avatar src={file.thumbnail} size='large' shape='square' />
+										<Flex vertical>
+											<Text>{file.name}</Text>
+											<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+										</Flex>
+									</Flex>
+								</Card>
+							))}
+						</PanelCard>
 					</Flex>
+				</Col>
+
+				<Col span={8}>
+					<PanelCard
+						title='Repository'
+						contentMaxHeight='100%'
+						footer={
+							<Flex justify='flex-end' align='center' gap={8}>
+								<Button
+									type='default'
+									size='small'
+									icon={<BellOutlined />}
+									onClick={() => { }}
+								>
+									Summon
+								</Button>
+								<Button
+									type='primary'
+									size='small'
+									icon={<PlusOutlined />}
+									onClick={() => { }}
+								>
+									Add
+								</Button>
+							</Flex>
+						}
+					>
+						
+					</PanelCard>
 				</Col>
 			</Row>
 		</Flex>
