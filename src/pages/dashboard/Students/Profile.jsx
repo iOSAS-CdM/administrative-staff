@@ -68,7 +68,6 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		profilePicture: 'https://via.placeholder.com/150'
 	});
 
-
 	const [organizations, setOrganizations] = React.useState([]);
 	React.useEffect(() => {
 		const fetchedOrganizations = [

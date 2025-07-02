@@ -63,6 +63,40 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		date: new Date()
 	});
 
+	const [repository, setRepository] = React.useState([]);
+	React.useEffect(() => {
+		if (thisRecord.placeholder) {
+			setRepository([]);
+		} else {
+			setRepository([
+				{
+					name: 'Document 1',
+					extension: 'pdf',
+					id: 'doc-1',
+					thumbnail: 'https://via.placeholder.com/150'
+				},
+				{
+					name: 'Document 2',
+					extension: 'pdf',
+					id: 'doc-2',
+					thumbnail: 'https://via.placeholder.com/150'
+				},
+				{
+					name: 'Image 1',
+					extension: 'jpg',
+					id: 'img-1',
+					thumbnail: 'https://via.placeholder.com/150'
+				},
+				{
+					name: 'Image 2',
+					extension: 'png',
+					id: 'img-2',
+					thumbnail: 'https://via.placeholder.com/150'
+				}
+			]);
+		};
+	}, [thisRecord]);
+
 	const app = App.useApp();
 	const Modal = app.modal;
 
@@ -276,6 +310,47 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 								</Card>
 							</Col>
 						</Row>
+
+						<Card title='Repository' size='small'>
+							<Flex vertical gap={8}>
+								<Flex vertical gap={8} className='scrollable-content' style={{ maxHeight: remToPx(16) }}>
+									{repository.map((file, i) => (
+										<Card
+											key={file.id || i}
+											size='small'
+											style={{ width: '100%' }}
+											onClick={() => { }}
+										>
+											<Flex align='center' gap={8}>
+												<Avatar src={file.thumbnail} size='large' shape='square' />
+												<Flex vertical>
+													<Text>{file.name}</Text>
+													<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+												</Flex>
+											</Flex>
+										</Card>
+									))}
+								</Flex>
+								<Flex justify='flex-end' align='center' gap={8}>
+									<Button
+										type='default'
+										size='small'
+										icon={<BellOutlined />}
+										onClick={() => { }}
+									>
+										Summon
+									</Button>
+									<Button
+										type='primary'
+										size='small'
+										icon={<PlusOutlined />}
+										onClick={() => { }}
+									>
+										Add
+									</Button>
+								</Flex>
+							</Flex>
+						</Card>
 					</Flex>
 				</Col>
 			</Row>
