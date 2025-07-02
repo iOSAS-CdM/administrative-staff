@@ -8,26 +8,24 @@ import {
 	Flex,
 	Row,
 	Col,
-	Divider,
 	Avatar,
 	Typography,
-	Calendar,
 	Tag,
 	App
 } from 'antd';
 
 import {
-	FileOutlined,
 	EditOutlined,
 	InboxOutlined,
-	LeftOutlined
+	LeftOutlined,
+	PlusOutlined,
+	BellOutlined
 } from '@ant-design/icons';
-
-import remToPx from '../../../utils/remToPx';
 
 const { Title, Text } = Typography;
 
 import '../../../styles/pages/Dashboard.css';
+import remToPx from '../../../utils/remToPx';
 
 const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
@@ -164,6 +162,121 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							</Flex>
 						</Flex>
 					</Card>
+				</Col>
+
+				<Col span={16}>
+					<Flex vertical gap={16}>
+						<Row gutter={[16, 16]}>
+							<Col span={12}>
+								<Card title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`} size='small'>
+									<Flex vertical gap={8}>
+										<Flex vertical gap={8} className='scrollable-content' style={{ maxHeight: remToPx(32) }}>
+											{thisRecord.complainants.map((complainant, i) => (
+												<Card
+													key={complainant.studentId || i}
+													size='small'
+													style={{ width: '100%' }}
+													onClick={() => {
+														if (complainant.placeholder) {
+															Modal.error({
+																title: 'Error',
+																content: 'This is a placeholder complainant profile. Please try again later.',
+																centered: true
+															});
+														} else {
+															navigate(`/dashboard/students/profiles/${complainant.id}`, {
+																state: { student: complainant }
+															});
+														}
+													}}
+												>
+													<Flex align='center' gap={8}>
+														<Avatar src={complainant.profilePicture} size='large' />
+														<Flex vertical>
+															<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
+															<Text type='secondary'>{complainant.studentId}</Text>
+														</Flex>
+													</Flex>
+												</Card>
+											))}
+										</Flex>
+										<Flex justify='flex-end' align='center' gap={8}>
+											<Button
+												type='default'
+												size='small'
+												icon={<BellOutlined />}
+												onClick={() => { }}
+											>
+												Summon
+											</Button>
+											<Button
+												type='primary'
+												size='small'
+												icon={<PlusOutlined />}
+												onClick={() => { }}
+											>
+												Add
+											</Button>
+										</Flex>
+									</Flex>
+								</Card>
+							</Col>
+							<Col span={12}>
+								<Card title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`} size='small'>
+									<Flex vertical gap={8}>
+										<Flex vertical gap={8} className='scrollable-content' style={{ maxHeight: remToPx(32) }}>
+											{thisRecord.complainees.map((complainee, i) => (
+												<Card
+													key={complainee.studentId || i}
+													size='small'
+													style={{ width: '100%' }}
+													onClick={() => {
+														if (complainee.placeholder) {
+															Modal.error({
+																title: 'Error',
+																content: 'This is a placeholder complainee profile. Please try again later.',
+																centered: true
+															});
+														} else {
+															navigate(`/dashboard/students/profiles/${complainee.id}`, {
+																state: { student: complainee }
+															});
+														}
+													}}
+												>
+													<Flex align='center' gap={8}>
+														<Avatar src={complainee.profilePicture} size='large' />
+														<Flex vertical>
+															<Text>{complainee.name.first} {complainee.name.middle} {complainee.name.last}</Text>
+															<Text type='secondary'>{complainee.studentId}</Text>
+														</Flex>
+													</Flex>
+												</Card>
+											))}
+										</Flex>
+										<Flex justify='flex-end' align='center' gap={8}>
+											<Button
+												type='default'
+												size='small'
+												icon={<BellOutlined />}
+												onClick={() => { }}
+											>
+												Summon
+											</Button>
+											<Button
+												type='primary'
+												size='small'
+												icon={<PlusOutlined />}
+												onClick={() => { }}
+											>
+												Add
+											</Button>
+										</Flex>
+									</Flex>
+								</Card>
+							</Col>
+						</Row>
+					</Flex>
 				</Col>
 			</Row>
 		</Flex>

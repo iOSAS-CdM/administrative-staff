@@ -97,7 +97,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						severity: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)],
 						occurances: Math.floor(Math.random() * 10) + 1
 					},
-					complainants: [...Array(5).keys().map(e => {
+					complainants: [...Array(10).keys().map((e, i) => {
 						const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
 						const programs = {
 							'ics': ['BSCpE', 'BSIT'],
@@ -105,7 +105,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							'ibe': ['BSBA-HRM', 'BSE']
 						};
 						return {
-							id: i + 1,
+							id: Math.floor(Math.random() * 1000) + 1,
 							name: {
 								first: 'user.name.first',
 								middle: 'user.name.middle',
@@ -113,7 +113,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							},
 							email: 'user.email',
 							phone: 'user.phone',
-							studentId: id,
+							studentId: id + `-${i + 1}`,
 							institute: institute,
 							program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
 							year: Math.floor(Math.random() * 4) + 1,
@@ -122,7 +122,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
 						}
 					})],
-					complainees: [...Array(5).keys().map(e => {
+					complainees: [...Array(10).keys().map((e, i) => {
 						const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
 						const programs = {
 							'ics': ['BSCpE', 'BSIT'],
@@ -130,7 +130,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							'ibe': ['BSBA-HRM', 'BSE']
 						};
 						return {
-							id: i + 1,
+							id: Math.floor(Math.random() * 1000) + 1,
 							name: {
 								first: 'user.name.first',
 								middle: 'user.name.middle',
@@ -138,7 +138,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							},
 							email: 'user.email',
 							phone: 'user.phone',
-							studentId: id,
+							studentId: id + `-${i + 1}`,
 							institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
 							program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
 							year: Math.floor(Math.random() * 4) + 1,
@@ -451,6 +451,12 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 
 			status={thisRecord.tags.status === 'archived' && 'archived'}
 
+			title={(
+				<Title level={3} style={{ margin: 0 }}>
+					{thisRecord.title}
+				</Title>
+			)}
+
 			actions={[
 				{
 					content: (
@@ -514,54 +520,46 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 					}
 				}
 			]}
+
+			extra={[
+				<Tag color={
+					{
+						1: 'green',
+						2: 'orange',
+						3: 'red'
+					}[thisRecord.tags.occurances] || 'red'
+				}>
+					{
+						thisRecord.tags.occurances === 1 ? '1st' :
+							thisRecord.tags.occurances === 2 ? '2nd' :
+								thisRecord.tags.occurances === 3 ? '3rd' :
+									`${thisRecord.tags.occurances}th`
+					} Offense
+				</Tag>,
+				<Tag color={
+					{
+						minor: 'blue',
+						major: 'orange',
+						severe: 'red'
+					}[thisRecord.tags.severity.toLowerCase()] || 'default'
+				}>
+					{thisRecord.tags.severity.charAt(0).toUpperCase() + thisRecord.tags.severity.slice(1)}
+				</Tag>,
+				<Tag color={
+					{
+						ongoing: 'blue',
+						resolved: 'green',
+						archived: 'grey'
+					}[thisRecord.tags.status] || 'default'
+				}>
+					{thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
+				</Tag>
+			]}
 		>
 			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
-				<Flex justify='flex-end' align='center' style={{ position: 'absolute', top: 0, width: '100%' }}>
-					<Tag color={
-						{
-							1: 'green',
-							2: 'orange',
-							3: 'red'
-						}[thisRecord.tags.occurances] || 'red'
-					}>
-						{
-							thisRecord.tags.occurances === 1 ? '1st' :
-								thisRecord.tags.occurances === 2 ? '2nd' :
-									thisRecord.tags.occurances === 3 ? '3rd' :
-										`${thisRecord.tags.occurances}th`
-						} Offense
-					</Tag>
-					<Tag color={
-						{
-							minor: 'blue',
-							major: 'orange',
-							severe: 'red'
-						}[thisRecord.tags.severity.toLowerCase()] || 'default'
-					}>
-						{thisRecord.tags.severity.charAt(0).toUpperCase() + thisRecord.tags.severity.slice(1)}
-					</Tag>
-					<Tag color={
-						{
-							ongoing: 'blue',
-							resolved: 'green',
-							archived: 'grey'
-						}[thisRecord.tags.status] || 'default'
-					}>
-						{thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
-					</Tag>
-				</Flex>
-				<Card.Meta
-					title={
-						<Title level={3} style={{ margin: 0 }}>
-							{thisRecord.title}
-						</Title>
-					}
-					description={
-						<Text>
-							{thisRecord.description}
-						</Text>
-					}
-				/>
+				<Text>
+					{thisRecord.description}
+				</Text>
 			</Flex>
 		</ItemCard>
 	);
