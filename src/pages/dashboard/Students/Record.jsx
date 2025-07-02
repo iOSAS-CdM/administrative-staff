@@ -11,15 +11,17 @@ import {
 	Avatar,
 	Typography,
 	Tag,
-	App
+	App,
+	Steps
 } from 'antd';
 
 import {
 	EditOutlined,
 	InboxOutlined,
 	LeftOutlined,
+	RightOutlined,
 	PlusOutlined,
-	BellOutlined
+	BellOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -100,6 +102,8 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	const app = App.useApp();
 	const Modal = app.modal;
+
+	const [step, setStep] = React.useState(0);
 
 	return (
 		<Flex
@@ -359,30 +363,44 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 				<Col span={8}>
 					<PanelCard
-						title='Repository'
+						title='Progress'
 						contentMaxHeight='100%'
 						footer={
-							<Flex justify='flex-end' align='center' gap={8}>
+							<Flex justify='space-between' align='center' gap={8}>
 								<Button
 									type='default'
-									size='small'
-									icon={<BellOutlined />}
-									onClick={() => { }}
+									icon={<LeftOutlined />}
+									disabled={step === 0}
+									onClick={() => { setStep(step - 1); }}
+									style={{ flexGrow: 1 }}
 								>
-									Summon
+									Return
 								</Button>
 								<Button
 									type='primary'
-									size='small'
-									icon={<PlusOutlined />}
-									onClick={() => { }}
+									icon={<RightOutlined />}
+									disabled={step === 5}
+									onClick={() => { setStep(step + 1); }}
+									style={{ flexGrow: 1 }}
 								>
-									Add
+									Proceed
 								</Button>
 							</Flex>
 						}
 					>
-						
+						<Steps
+							current={step}
+							size='small'
+							direction='vertical'
+							style={{ width: '100%' }}
+						>
+							<Steps.Step title='Case Opened' description={moment(thisRecord.date).format('MMMM Do YYYY')} />
+							<Steps.Step title='Initial Interview' description='Interview with the complaining party opening the case.' />
+							<Steps.Step title='Respondent Interview' description='Interview with the complainant party.' />
+							<Steps.Step title='Resolution' description='Resolution of the case.' />
+							<Steps.Step title='Reconciliation' description='Reconciliation of both parties involved.' />
+							<Steps.Step title='Clearance' description='Submission of clearance of the issue on hand. Finalization of the case.' />
+						</Steps>
 					</PanelCard>
 				</Col>
 			</Row>
