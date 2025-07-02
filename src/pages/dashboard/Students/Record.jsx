@@ -24,7 +24,6 @@ import {
 
 const { Title, Text } = Typography;
 
-import '../../../styles/pages/Dashboard.css';
 import remToPx from '../../../utils/remToPx';
 
 import PanelCard from '../../../components/PanelCard';
@@ -159,7 +158,6 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							<Flex gap={8}>
 								<Button
 									type='primary'
-									size='small'
 									icon={<EditOutlined />}
 									onClick={() => {
 										if (thisRecord.placeholder) {
@@ -179,7 +177,6 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 								</Button>
 								<Button
 									type='default'
-									size='small'
 									danger
 									icon={<InboxOutlined />}
 									onClick={() => {

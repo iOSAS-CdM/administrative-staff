@@ -16,6 +16,8 @@ const { Title, Text } = Typography;
 
 import rootToHex from '../../utils/rootToHex';
 
+import PanelCard from '../../components/PanelCard';
+
 const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff }) => {
 	React.useEffect(() => {
 		if (setHeader)
@@ -250,7 +252,7 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 				</Col>
 
 				<Col span={8}>
-					<Card size='small' style={{ height: '100%' }} title='Monthly Cases Ratio'>
+					<PanelCard title='Monthly Cases Ratio'>
 						<Pie
 							data={[
 								{
@@ -267,10 +269,10 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 							colorField='type'
 							{...chartConfig}
 						/>
-					</Card>
+					</PanelCard>
 				</Col>
 				<Col span={16}>
-					<Card size='small' style={{ height: '100%' }} title='Monthly Cases Trend'>
+					<PanelCard title='Monthly Cases Trend'>
 						<Line
 							data={monthlyCasesTrend}
 							xField='month'
@@ -279,35 +281,31 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 							seriesField='type'
 							{...chartConfig}
 						/>
-					</Card>
+					</PanelCard>
 				</Col>
 
 				<Col span={16}>
-					<Card size='small' style={{ height: '100%' }} title='Calendar'>
+					<PanelCard title='Calendar'>
 						<Calendar fullscreen={false} />
-					</Card>
+					</PanelCard>
 				</Col>
 
 				<Col span={8}>
-					<Card size='small' title='Disciplinary Events'>
-						<Flex vertical gap={16} className='scrollable-content' style={{ maxHeight: 'calc(var(--space-XL) * 20)' }}>
-							{Object.keys(events).length > 0 ? (
-								Object.entries(events).map(([date, events]) => (
-									<Flex key={date} vertical gap={16}>
-										<Text strong>{date}</Text>
-										{events.map((event, index) => (
-											<Flex key={index} justify='flex-start' align='flex-start'>
-												<Tag color={event.tag === 'ongoing' ? 'yellow' : 'green'}>{event.tag}</Tag>
-												<Text>{event.title}</Text>
-											</Flex>
-										))}
-									</Flex>
-								))
-							) : (
-								<Text type='secondary'>No disciplinary events found.</Text>
-							)}
-						</Flex>
-					</Card>
+					<PanelCard title='Disciplinary Events'>
+						{Object.keys(events).length > 0 && (
+							Object.entries(events).map(([date, events]) => (
+								<Flex key={date} vertical gap={8}>
+									<Text strong>{date}</Text>
+									{events.map((event, index) => (
+										<Flex key={index} justify='flex-start' align='flex-start'>
+											<Tag color={event.tag === 'ongoing' ? 'yellow' : 'green'}>{event.tag}</Tag>
+											<Text>{event.title}</Text>
+										</Flex>
+									))}
+								</Flex>
+							))
+						)}
+					</PanelCard>
 				</Col>
 			</Row>
 		</Flex>

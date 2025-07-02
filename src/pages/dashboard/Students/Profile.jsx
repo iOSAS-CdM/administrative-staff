@@ -32,7 +32,7 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 
 const { Title, Text } = Typography;
 
-import '../../../styles/pages/Dashboard.css';
+import PanelCard from '../../../components/PanelCard';
 
 const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
@@ -224,7 +224,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 											});
 										} else {
 											EditStudent(Modal, thisStudent, setThisStudent);
-										}
+										};
 									}}
 								>
 									Edit
@@ -261,19 +261,16 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 				<Col span={6}>
 					<Flex vertical gap={16} style={{ width: '100%' }}>
-						<Card size='small' title='Calendar'>
+						<PanelCard title='Calendar'>
 							<Calendar
 								style={{ width: '100%' }}
 								fullscreen={false}
 							/>
-						</Card>
+						</PanelCard>
 
-						<Card
-							size='small'
-							title='Organizations'
-						>
+						<PanelCard title='Organizations'>
 							<Flex vertical gap={16} className='scrollable-content' style={{ maxHeight: 'calc(var(--space-XL) * 8)' }}>
-								{organizations.length > 0 ? (
+								{organizations.length > 0 && (
 									organizations.map((org, index) => (
 										<Card key={index} size='small' style={{ width: '100%' }}>
 											<Flex justify='flex-start' align='center' gap={16}>
@@ -285,34 +282,29 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 											</Flex>
 										</Card>
 									))
-								) : (
-									<Text type='secondary'>No organizations found.</Text>
 								)}
 							</Flex>
-						</Card>
+						</PanelCard>
 					</Flex>
 				</Col>
 
 				<Col span={18}>
-					<Card size='small' title='Disciplinary Events' style={{ height: '100%' }}>
-						<Flex vertical gap={16} className='scrollable-content'>
-							{Object.keys(events).length > 0 ? (
-								Object.entries(events).map(([date, events]) => (
-									<Flex key={date} vertical gap={16}>
-										<Text strong>{date}</Text>
-										{events.map((event, index) => (
-											<Flex key={index} justify='flex-start' align='flex-start'>
-												<Tag color={event.tag === 'ongoing' ? 'yellow' : 'green'}>{event.tag}</Tag>
-												<Text>{event.title}</Text>
-											</Flex>
-										))}
-									</Flex>
-								))
-							) : (
-								<Text type='secondary'>No disciplinary events found.</Text>
-							)}
-						</Flex>
-					</Card>
+					<PanelCard title='Disciplinary Events'>
+						{Object.keys(events).length > 0 && (
+							Object.entries(events).map(([date, events]) => (
+								<Flex key={date} vertical gap={8}>
+									<Text strong>{date}</Text>
+
+									{events.map((event, index) => (
+										<Flex key={index} justify='flex-start' align='flex-start'>
+											<Tag color={event.tag === 'ongoing' ? 'yellow' : 'green'}>{event.tag}</Tag>
+											<Text>{event.title}</Text>
+										</Flex>
+									))}
+								</Flex>
+							))
+						)}
+					</PanelCard>
 				</Col>
 			</Row>
 		</Flex>
