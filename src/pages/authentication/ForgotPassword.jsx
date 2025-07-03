@@ -77,10 +77,11 @@ const ForgotPassword = ({ navigation }) => {
 		ResetPasswordForm.current.resetFields(); // Reset Reset Password Form
 		navigate('/sign-in'); // Redirect to sign-in page
 	};
+
 	return (
 		<>
 			<Flex vertical justify='center' align='center'>
-				<Text>We're here to help you{name === 0 ? ',' : ''}</Text>
+				<Text>We're here to help you{step > 1 ? ',' : ''}</Text>
 				<Title level={1} style={{ color: 'var(--primary)', fontWeight: 'bold' }}>
 					{step === 0 ? 'Reset Password' : name}
 				</Title>
