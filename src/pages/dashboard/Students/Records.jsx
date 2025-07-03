@@ -37,6 +37,8 @@ import ItemCard from '../../../components/ItemCard';
 
 import { MobileContext } from '../../../main';
 
+import NewCase from '../../../modals/NewCase';
+
 const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		setSelectedKeys(['records']);
@@ -65,7 +67,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 			placeholderRecord.push({
 				id: id,
 				recordId: id,
-				title: `Placeholder Record ${i + 1}`,
+				violation: `Placeholder Record ${i + 1}`,
 				description: `This is a placeholder record for testing purposes. Record number ${i + 1}.`,
 				tags: {
 					status: 'ongoing',
@@ -90,7 +92,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				fetchedRecords.push({
 					id: id,
 					recordId: id,
-					title: `Record ${i + 1}`,
+					violation: `Record ${i + 1}`,
 					description: `This is a record for testing purposes. Record number ${i + 1}.`,
 					tags: {
 						status: ['ongoing', 'resolved', 'archived'][Math.floor(Math.random() * 3)],
@@ -198,7 +200,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 		const searchTerm = search.toLowerCase();
 		const searchedRecords = filteredRecords.filter(record => {
-			const fullTitle = record.title.toLowerCase();
+			const fullTitle = record.violation.toLowerCase();
 			const fullDescription = record.description.toLowerCase();
 			return fullTitle.includes(searchTerm) || fullDescription.includes(searchTerm);
 		});
@@ -210,6 +212,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [search, filteredRecords]);
 
 	const [view, setView] = React.useState('card');
+
+	const app = App.useApp();
+	const Modal = app.modal;
 
 	React.useEffect(() => {
 		setHeader({
@@ -347,8 +352,11 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				<Button
 					type='primary'
 					icon={<BankOutlined />}
+					onClick={() => {
+						NewCase(Modal);
+					}}
 				>
-					Open a Case
+					Open a new Case
 				</Button>
 			]
 		});
@@ -361,8 +369,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				view === 'card' ? (
 					<Row gutter={[16, 16]}>
 						{displayedRecords.map((record, index) => (
-							<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<Col key={index} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 								<RecordCard
+									key={index}
 									record={record}
 									animationDelay={index * 0.1}
 									loading={record.placeholder}
@@ -446,6 +455,8 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 
 	return (
 		<ItemCard
+			key={thisRecord.recordId}
+
 			loading={loading}
 			mounted={mounted}
 
@@ -453,7 +464,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 
 			title={(
 				<Title level={3} style={{ margin: 0 }}>
-					{thisRecord.title}
+					{thisRecord.violation}
 				</Title>
 			)}
 
@@ -521,40 +532,42 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 				}
 			]}
 
-			extra={[
-				<Tag color={
-					{
-						1: 'green',
-						2: 'orange',
-						3: 'red'
-					}[thisRecord.tags.occurances] || 'red'
-				}>
-					{
-						thisRecord.tags.occurances === 1 ? '1st' :
-							thisRecord.tags.occurances === 2 ? '2nd' :
-								thisRecord.tags.occurances === 3 ? '3rd' :
-									`${thisRecord.tags.occurances}th`
-					} Offense
-				</Tag>,
-				<Tag color={
-					{
-						minor: 'blue',
-						major: 'orange',
-						severe: 'red'
-					}[thisRecord.tags.severity.toLowerCase()] || 'default'
-				}>
-					{thisRecord.tags.severity.charAt(0).toUpperCase() + thisRecord.tags.severity.slice(1)}
-				</Tag>,
-				<Tag color={
-					{
-						ongoing: 'blue',
-						resolved: 'green',
-						archived: 'grey'
-					}[thisRecord.tags.status] || 'default'
-				}>
-					{thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
-				</Tag>
-			]}
+			extra={(
+				<Flex style={{ flexWrap: 'wrap' }}>
+					<Tag color={
+						{
+							1: 'green',
+							2: 'orange',
+							3: 'red'
+						}[thisRecord.tags.occurances] || 'red'
+					}>
+						{
+							thisRecord.tags.occurances === 1 ? '1st' :
+								thisRecord.tags.occurances === 2 ? '2nd' :
+									thisRecord.tags.occurances === 3 ? '3rd' :
+										`${thisRecord.tags.occurances}th`
+						} Offense
+					</Tag>
+					<Tag color={
+						{
+							minor: 'blue',
+							major: 'orange',
+							severe: 'red'
+						}[thisRecord.tags.severity.toLowerCase()] || 'default'
+					}>
+						{thisRecord.tags.severity.charAt(0).toUpperCase() + thisRecord.tags.severity.slice(1)}
+					</Tag>
+					<Tag color={
+						{
+							ongoing: 'blue',
+							resolved: 'green',
+							archived: 'grey'
+						}[thisRecord.tags.status] || 'default'
+					}>
+						{thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
+					</Tag>
+				</Flex>
+			)}
 		>
 			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
 				<Text>

@@ -35,7 +35,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	React.useEffect(() => {
 		setHeader({
-			title: `Disciplinary Case ${thisRecord.recordId || ''}`,
+			violation: `Disciplinary Case ${thisRecord.recordId || ''}`,
 			actions: [
 				<Button
 					type='primary'
@@ -114,7 +114,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 				<Col span={24}>
 					<Card>
 						<Flex vertical gap={8}>
-							<Title level={1}>{thisRecord.title}</Title>
+							<Title level={1}>{thisRecord.violation}</Title>
 							<Flex align='center' gap={8}>
 								<Text>
 									{thisRecord.date.toLocaleDateString('en-US', {

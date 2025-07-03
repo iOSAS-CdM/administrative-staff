@@ -5,26 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
 	Card,
 	Flex,
-	Avatar,
-	Typography,
 	Button,
-	Menu,
 	Divider
 } from 'antd';
-
-import {
-	HomeOutlined,
-	NotificationOutlined,
-	LeftOutlined,
-	RightOutlined,
-	LogoutOutlined,
-	SmileOutlined,
-	ToolOutlined,
-	RobotOutlined,
-	UserOutlined
-} from '@ant-design/icons';
-
-const { Text, Title } = Typography;
 
 const ItemCard = ({ mounted, status, ...props }) => {
 	return (
@@ -48,7 +31,7 @@ const ItemCard = ({ mounted, status, ...props }) => {
 
 						<Flex justify='space-between' align='center'>
 							{props.actions.map((action, index) => (
-								<div key={index} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', width: '100%', flexGrow: 1 }}>
+								<div key={Math.random().toString(36).substring(2, 15)} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', width: '100%', flexGrow: 1 }}>
 									{
 										action.onClick ? (
 											<Button
