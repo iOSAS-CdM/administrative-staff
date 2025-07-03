@@ -1,7 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
-
-import { getVersion } from '@tauri-apps/api/app';
 
 import {
 	Form,
@@ -11,14 +8,18 @@ import {
 	Typography
 } from 'antd';
 
-import { LoginOutlined, GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
-
-import { MobileContext } from '../../main';
+import { LoginOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import remToPx from '../../utils/remToPx';
 
 const { Text, Title, Link } = Typography;
 
+/**
+ * @param {{
+ * 		navigate: import('react-router').NavigateFunction
+ * }} param0
+ * @returns {JSX.Element}
+ */
 const SignIn = ({ navigate }) => {
 	const [signingIn, setSigningIn] = React.useState(false);
 

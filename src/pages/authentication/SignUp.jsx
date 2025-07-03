@@ -1,23 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
-
-import { getVersion } from '@tauri-apps/api/app';
 
 import {
 	Form,
-	Card,
 	Flex,
 	Button,
-	Divider,
 	Input,
-	Image,
 	Typography,
 	Checkbox
 } from 'antd';
 
-import { LoginOutlined, GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
-
-import { MobileContext } from '../../main';
+import { LoginOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import remToPx from '../../utils/remToPx';
 
@@ -25,12 +17,16 @@ const { Text, Title, Link } = Typography;
 
 import '../../styles/pages/Authentication.css';
 
-const SignUp = () => {
+/**
+ * @param {{
+ * 		navigate: import('react-router').NavigateFunction
+ * }} param0
+ * @returns {JSX.Element}
+ */
+const SignUp = ({ navigate }) => {
 	const [signingUp, setSigningUp] = React.useState(false);
 
 	const [showPassword, setShowPassword] = React.useState(false);
-
-	const navigate = useNavigate();
 
 	const signUp = () => {
 		setSigningUp(true);

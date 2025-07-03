@@ -1,7 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
-
-import { getVersion } from '@tauri-apps/api/app';
 
 import {
 	Form,
@@ -18,20 +15,22 @@ import {
 	KeyOutlined
 } from '@ant-design/icons';
 
-import { MobileContext } from '../../main';
-
 import remToPx from '../../utils/remToPx';
 
 const { Text, Title, Link, Paragraph } = Typography;
 
 import '../../styles/pages/Authentication.css';
 
-const ForgotPassword = ({ navigation }) => {
+/**
+ * @param {{
+ * 		navigate: import('react-router').NavigateFunction
+ * }} param0
+ * @returns {JSX.Element}
+ */
+const ForgotPassword = ({ navigate }) => {
 	const [sending, setSending] = React.useState(false);
 	const [verifying, setVerifying] = React.useState(false);
 	const [resetting, setResetting] = React.useState(false);
-
-	const navigate = useNavigate();
 
 	const StaffInfoForm = React.createRef();
 	const OTPForm = React.createRef();

@@ -1,16 +1,14 @@
 import React from 'react';
-import { useNavigate, Routes, Route, useLocation, useRoutes } from 'react-router';
+import { useNavigate, useRoutes } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { getVersion } from '@tauri-apps/api/app';
 
 import {
-	Form,
 	Card,
 	Flex,
 	Button,
 	Divider,
-	Input,
 	Image,
 	Typography
 } from 'antd';
