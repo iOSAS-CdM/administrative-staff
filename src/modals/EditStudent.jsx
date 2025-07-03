@@ -26,9 +26,13 @@ import remToPx from '../utils/remToPx';
 
 const EditStudentForm = React.createRef();
 
+/**
+ * @param {{
+ * 	student: import('../classes/Student').StudentProps
+ * }} param0
+ * @returns {JSX.Element}
+ */
 const StudentForm = ({ student }) => {
-	console.log(student);
-
 	const [ProfilePicture, setProfilePicture] = React.useState(student.profilePicture || '');
 
 	return (
@@ -157,13 +161,20 @@ const StudentForm = ({ student }) => {
 	);
 };
 
+/**
+ * @param {import('antd/es/modal/useModal').HookAPI} Modal
+ * @param {import('../classes/Student').StudentProps} student
+ * @param {React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps>>} setThisStudent
+ * 
+ * @returns {Promise<void>}
+ */
 const EditStudent = async (Modal, student, setThisStudent) => {
 	Modal.info({
 		title: 'Edit Student',
 		centered: true,
 		closable: { 'aria-label': 'Close' },
 		content: (
-			<StudentForm student={student} onChange={setThisStudent} />
+			<StudentForm student={student} />
 		),
 		icon: <EditOutlined />,
 		width: {

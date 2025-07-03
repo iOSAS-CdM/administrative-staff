@@ -26,14 +26,21 @@ import remToPx from '../utils/remToPx';
 const NewCaseForm = React.createRef();
 
 const CaseForm = () => {
+	/** @type {import('../classes/Student').StudentProps[]} */
 	const [students, setStudents] = React.useState([]);
+
+	/** @typedef {[(import('../classes/Student').StudentProps & { disabled: Boolean })[], React.Dispatch<React.SetStateAction<(import('../classes/Student').StudentProps & { disabled: Boolean })[]>>]} StudentsState */
+
+	/** @type {StudentsState} */
 	const [complainantOptionStudents, setComplainantOptionStudents] = React.useState([]);
+	/** @type {StudentsState} */
 	const [complaineeOptionStudents, setComplaineeOptionStudents] = React.useState([]);
 
 	React.useEffect(() => {
 		fetch('https://randomuser.me/api/?results=100&inc=name,email,phone,login,picture')
 			.then(response => response.json())
 			.then(data => {
+				/** @type {import('../classes/Student').StudentProps[]} */
 				const fetchedStudents = [];
 
 				for (let i = 0; i < data.results.length; i++) {
