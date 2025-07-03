@@ -129,7 +129,7 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 	React.useEffect(() => {
 		const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 		const currentMonth = new Date().getMonth();
-		const workingMonths = JSON.parse(JSON.Stringify(months));
+		const workingMonths = JSON.parse(JSON.stringify(months));
 		workingMonths.splice(currentMonth + 1, workingMonths.length);
 		months.splice(0, currentMonth + 1);
 		for (const month of months.reverse()) {
