@@ -25,8 +25,6 @@ import {
 	PhoneOutlined
 } from '@ant-design/icons';
 
-import remToPx from '../../../utils/remToPx';
-
 import EditStudent from '../../../modals/EditStudent';
 import RestrictStudent from '../../../modals/RestrictStudent';
 
@@ -154,22 +152,39 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 			gap={16}
 		>
 			<Row gutter={[16, 16]}>
-				<Col span={4}>
-					<Flex
-						justify='center'
-						align='center'
-						style={{ width: '100%', height: '100%' }}
-					>
-						<Avatar
-							src={thisStudent.profilePicture || 'https://via.placeholder.com/150'}
-							alt='Profile Picture'
-							shape='square'
+				<Col span={!mobile ? 4 : 24} style={{ height: '100%' }}>
+					{!mobile ? (
+						<Flex
+							justify='center'
+							align='center'
 							style={{ width: '100%', height: '100%' }}
-						/>
-					</Flex>
+						>
+							<Avatar
+								src={thisStudent.profilePicture || 'https://via.placeholder.com/150'}
+								alt='Profile Picture'
+								shape='square'
+								style={{ width: '100%', height: '100%' }}
+							/>
+						</Flex>
+					) : (
+						<Card size='small'>
+							<Flex
+								justify='center'
+								align='center'
+								style={{ width: '100%', height: '100%' }}
+							>
+								<Avatar
+									src={thisStudent.profilePicture || 'https://via.placeholder.com/150'}
+									alt='Profile Picture'
+									shape='square'
+									style={{ width: 'calc(var(--space-XL) * 12)', height: 'calc(var(--space-XL) * 12)' }}
+								/>
+							</Flex>
+						</Card>
+					)}
 				</Col>
 
-				<Col span={20}>
+				<Col span={!mobile ? 20 : 24}>
 					<Card style={{ height: '100%' }}>
 						<Flex
 							vertical
@@ -259,7 +274,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 					</Card>
 				</Col>
 
-				<Col span={6}>
+				<Col span={!mobile ? 6 : 24}>
 					<Flex vertical gap={16} style={{ width: '100%' }}>
 						<PanelCard title='Calendar'>
 							<Calendar
@@ -288,7 +303,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 					</Flex>
 				</Col>
 
-				<Col span={18}>
+				<Col span={!mobile ? 18 : 24}>
 					<PanelCard title='Disciplinary Events'>
 						{Object.keys(events).length > 0 && (
 							Object.entries(events).map(([date, events]) => (

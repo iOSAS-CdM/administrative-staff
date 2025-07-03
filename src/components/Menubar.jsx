@@ -341,14 +341,14 @@ const Menubar = () => {
                     }}
                 >
                     <Flex
-						vertical={mobile}
                         justify='space-between'
 						align='stretch'
 						gap={mobile ? 16 : 32}
+						wrap={true}
                         style={{ width: '100%', height: '100%' }}
 					>
 						<Title level={4}>{Header.title}</Title>
-						<Flex justify='flex-end' gap={16} wrap={true} align='center'>
+						<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 							{Header.actions && Header.actions.map((action, index) => (
 								{...action,
 									key: index

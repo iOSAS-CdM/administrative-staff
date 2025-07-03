@@ -22,6 +22,7 @@ import {
 	RightOutlined,
 	PlusOutlined,
 	BellOutlined,
+	FileAddOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -32,24 +33,6 @@ import PanelCard from '../../../components/PanelCard';
 
 const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
-
-	React.useEffect(() => {
-		setHeader({
-			violation: `Disciplinary Case ${thisRecord.recordId || ''}`,
-			actions: [
-				<Button
-					type='primary'
-					icon={<LeftOutlined />}
-					onClick={() => navigate(-1)}
-				>
-					Back
-				</Button>
-			]
-		});
-	}, [setHeader]);
-	React.useEffect(() => {
-		setSelectedKeys(['records']);
-	}, [setSelectedKeys]);
 
 	const [thisRecord, setThisRecord] = React.useState(location.state?.record || {
 		recordId: '12345',
@@ -65,6 +48,24 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		placeholder: true,
 		date: new Date()
 	});
+
+	React.useEffect(() => {
+		setHeader({
+			title: `Disciplinary Case ${thisRecord.recordId || ''}`,
+			actions: [
+				<Button
+					type='primary'
+					icon={<LeftOutlined />}
+					onClick={() => navigate(-1)}
+				>
+					Back
+				</Button>
+			]
+		});
+	}, [setHeader]);
+	React.useEffect(() => {
+		setSelectedKeys(['records']);
+	}, [setSelectedKeys]);
 
 	const [repository, setRepository] = React.useState([]);
 	React.useEffect(() => {
@@ -201,10 +202,10 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 					</Card>
 				</Col>
 
-				<Col span={16} >
+				<Col span={!mobile ? 16 : 24} >
 					<Flex vertical gap={16}>
 						<Row gutter={[16, 16]}>
-							<Col span={12}>
+							<Col span={!mobile ? 12 : 24}>
 								<PanelCard
 									title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`}
 									contentMaxHeight={remToPx(32)}
@@ -260,7 +261,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									))}
 								</PanelCard>
 							</Col>
-							<Col span={12}>
+							<Col span={!mobile ? 12 : 24}>
 								<PanelCard
 									title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`}
 									contentMaxHeight={remToPx(32)}
@@ -325,10 +326,10 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									<Button
 										type='default'
 										size='small'
-										icon={<BellOutlined />}
+										icon={<FileAddOutlined />}
 										onClick={() => { }}
 									>
-										Summon
+										Generate Form
 									</Button>
 									<Button
 										type='primary'
@@ -361,7 +362,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 					</Flex>
 				</Col>
 
-				<Col span={8}>
+				<Col span={!mobile ? 8 : 24} >
 					<PanelCard
 						title='Progress'
 						contentMaxHeight='100%'
@@ -376,15 +377,25 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 								>
 									Return
 								</Button>
-								<Button
-									type='primary'
-									icon={<RightOutlined />}
-									disabled={step === 5}
-									onClick={() => { setStep(step + 1); }}
-									style={{ flexGrow: 1 }}
-								>
-									Proceed
-								</Button>
+								{step < 6 ? (
+									<Button
+										type='primary'
+										icon={<RightOutlined />}
+										iconPosition='end'
+										disabled={step === 6}
+										onClick={() => { setStep(step + 1); }}
+										style={{ flexGrow: 1 }}
+									>
+										Proceed
+									</Button>
+								) : (
+									<Button
+										type='primary'
+										style={{ flexGrow: 1 }}
+									>
+										Generate Report
+									</Button>
+								)}
 							</Flex>
 						}
 					>

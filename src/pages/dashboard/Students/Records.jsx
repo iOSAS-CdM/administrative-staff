@@ -413,7 +413,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 								icon={<RightOutlined />}
 								onClick={() => {
 									navigate(`/dashboard/students/records/${record.recordId}`, {
-										state: { student: record }
+										state: { record: record }
 									});
 								}}
 							/>
