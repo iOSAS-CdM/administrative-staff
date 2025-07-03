@@ -34,8 +34,8 @@ const SignIn = ({ navigate }) => {
 	return (
 		<>
 			<Flex vertical justify='center' align='center'>
-				<Text>Welcome back,</Text>
-				<Title level={1} style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Staff</Title>
+				<Text>Welcome to CdM-OSAS</Text>
+				<Title level={1} style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Sign In</Title>
 			</Flex>
 			<Form
 				id='authentication-form'

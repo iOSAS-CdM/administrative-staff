@@ -80,9 +80,9 @@ const ForgotPassword = ({ navigation }) => {
 	return (
 		<>
 			<Flex vertical justify='center' align='center'>
-				<Text>We're here to help you,</Text>
+				<Text>We're here to help you{name === 0 ? ',' : ''}</Text>
 				<Title level={1} style={{ color: 'var(--primary)', fontWeight: 'bold' }}>
-					{step === 0 ? 'Staff' : name}
+					{step === 0 ? 'Reset Password' : name}
 				</Title>
 			</Flex>
 
@@ -138,7 +138,7 @@ const ForgotPassword = ({ navigation }) => {
 					onFinish={(values) => { }}
 				>
 					<Paragraph style={{ textAlign: 'center' }}>
-						An OTP has been sent to your email.<br /> Please enter it below to verify your identity
+						An OTP has been sent to your email.<br /> Please enter it below to verify your identity.
 					</Paragraph>
 
 					<Form.Item
