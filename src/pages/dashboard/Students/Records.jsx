@@ -386,9 +386,8 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				view === 'card' ? (
 					<Row gutter={[16, 16]}>
 						{displayedRecords.map((record, index) => (
-							<Col key={index} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<Col key={record.recordId} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 								<RecordCard
-									key={index}
 									record={record}
 									animationDelay={index * 0.1}
 									loading={record.placeholder}

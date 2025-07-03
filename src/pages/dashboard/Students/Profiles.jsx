@@ -371,7 +371,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 				view === 'card' ? (
 					<Row gutter={[16, 16]}>
 						{displayedStudents.map((student, index) => (
-							<Col key={student.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<Col key={student.studentId} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 								<StudentCard
 									student={student}
 									animationDelay={index * 0.1}
