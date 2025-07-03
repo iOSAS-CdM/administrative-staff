@@ -2,7 +2,23 @@ import React from 'react';
 
 import { Card, Flex, Empty } from 'antd';
 
-const PanelCard = ({ title, footer, children, contentMaxHeight, ...props }) => {
+/**
+ * @param {{
+ * 	title: string,
+ * 	footer?: React.ReactNode,
+ * 	children?: React.ReactNode,
+ * 	contentMaxHeight?: string | number,
+ * 	...props: React.HTMLAttributes<HTMLDivElement>
+ * }} param0
+ * @returns {JSX.Element}
+ */
+const PanelCard = ({
+	title,
+	footer,
+	children,
+	contentMaxHeight,
+	...props
+}) => {
 	return (
 		<Card title={title} size='small' style={{ height: '100%' }} {...props}>
 			<Flex vertical gap={8} style={{

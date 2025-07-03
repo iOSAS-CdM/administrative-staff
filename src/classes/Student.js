@@ -16,7 +16,7 @@
  * 	phone: String,
  * 	studentId: String,
  * 	profilePicture?: String,
- * 	placeholder?: boolean,
+ * 	placeholder?: Boolean,
  * 	status?: 'active' | 'restricted' | 'archived',
  * }} BaseStudentProps
  */
