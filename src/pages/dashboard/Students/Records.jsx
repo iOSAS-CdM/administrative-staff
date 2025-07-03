@@ -39,6 +39,8 @@ import { MobileContext } from '../../../main';
 
 import NewCase from '../../../modals/NewCase';
 
+/** @typedef {[(import('../../../classes/Record').RecordProps & { placeholder: Boolean })[], React.Dispatch<React.SetStateAction<(import('../../../classes/Record').RecordProps & { placeholder: Boolean })[]>>]} RecordsState */
+
 const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		setSelectedKeys(['records']);
@@ -46,19 +48,34 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 
+	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
+	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
 	const [category, setCategory] = React.useState('ongoing');
+	/**
+	 * @typedef {{
+	 * 		severity: import('../../../classes/Record').RecordSeverity[],
+	 * 		occurances: (Number & 'succeeding')[]
+	 * 	}} Filter
+	 */
+	/** @type {[Filter, React.Dispatch<React.SetStateAction<Filter>>]} */
 	const [filter, setFilter] = React.useState({
 		severity: [],
 		occurances: []
 	});
+	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
 
+	/** @type {RecordsState} */
 	const [records, setRecords] = React.useState([]);
+	/** @type {RecordsState} */
 	const [categorizedRecords, setCategorizedRecords] = React.useState([]);
+	/** @type {RecordsState} */
 	const [filteredRecords, setFilteredRecords] = React.useState([]);
+	/** @type {RecordsState} */
 	const [displayedRecords, setDisplayedRecords] = React.useState([]);
 
 	React.useEffect(() => {
+		/** @type {import('../../../classes/Record').RecordProps[]} */
 		const placeholderRecord = [];
 		for (let i = 0; i < 20; i++) {
 			const id = `placeholder-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
@@ -83,6 +100,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		setRecords(placeholderRecord);
 
 		setTimeout(() => {
+			/** @type {import('../../../classes/Record').RecordProps[]} */
 			const fetchedRecords = [];
 
 			for (let i = 0; i < 40; i++) {
@@ -154,8 +172,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						Date().getDate() - (Math.floor(Math.random() * 10) + 1))
 				});
 			};
-			console.log(fetchedRecords);
-
 
 			const sortedRecords = fetchedRecords.sort((a, b) => b.date - a.date);
 			sortedRecords.forEach(record => {
@@ -163,7 +179,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 			});
 
 			setRecords(sortedRecords);
-		}, remToPx(2));
+		}, remToPx(200));
 	}, []);
 
 	React.useEffect(() => {
@@ -176,6 +192,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [records, category]);
 
 	React.useEffect(() => {
+		/** @type {import('../../../classes/Record').RecordProps[]} */
 		const filtered = [];
 
 		// Filter by severity and occurances
@@ -431,9 +448,19 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 export default DisciplinaryRecords;
 
+/**
+ * @param {{
+ * 	record: import('../../../classes/Record').RecordProps,
+ * 	animationDelay: Number,
+ * 	loading: Boolean,
+ * 	navigate: ReturnType<typeof useNavigate>
+ * }} param0 
+ * @returns 
+ */
 const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 	const [mounted, setMounted] = React.useState(false);
 
+	/** @type {[(import('../../../classes/Record').RecordProps & { placeholder: Boolean }), React.Dispatch<React.SetStateAction<(import('../../../classes/Record').RecordProps & { placeholder: Boolean })[]>>]} */
 	const [thisRecord, setThisRecord] = React.useState(record);
 
 	React.useEffect(() => {
@@ -455,20 +482,18 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 
 	return (
 		<ItemCard
-			key={thisRecord.recordId}
-
 			loading={loading}
 			mounted={mounted}
 
 			status={thisRecord.tags.status === 'archived' && 'archived'}
 
-			title={(
+			title={!loading && (
 				<Title level={3} style={{ margin: 0 }}>
 					{thisRecord.violation}
 				</Title>
 			)}
 
-			actions={[
+			actions={!loading && [
 				{
 					content: (
 						<Avatar.Group
@@ -517,7 +542,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 				{
 					content: <RightOutlined />,
 					onClick: () => {
-						if (thisRecord.placeholder) {
+						if (loading) {
 							Modal.error({
 								title: 'Error',
 								content: 'This is a placeholder disciplinary record. Please try again later.',
@@ -532,7 +557,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 				}
 			]}
 
-			extra={(
+			extra={!loading && (
 				<Flex style={{ flexWrap: 'wrap' }}>
 					<Tag color={
 						{
@@ -569,11 +594,13 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 				</Flex>
 			)}
 		>
-			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
-				<Text>
-					{thisRecord.description}
-				</Text>
-			</Flex>
+			{!loading && (
+				<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
+					<Text>
+						{thisRecord.description}
+					</Text>
+				</Flex>
+			)}
 		</ItemCard>
 	);
 };

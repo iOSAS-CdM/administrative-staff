@@ -42,7 +42,7 @@ import { MobileContext } from '../../../main';
 
 import Student from '../../../classes/Student';
 
-/** @typedef {[import('../../../classes/Student').StudentProps[] & { placeholder: Boolean }, React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps[] & { placeholder: Boolean }>>]} StudentState */
+/** @typedef {[(import('../../../classes/Student').StudentProps & { placeholder: Boolean })[], React.Dispatch<React.SetStateAction<(import('../../../classes/Student').StudentProps & { placeholder: Boolean })[]>>]} StudentsState */
 
 const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
@@ -68,13 +68,13 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
 
-	/** @type {StudentState} */
+	/** @type {StudentsState} */
 	const [students, setStudents] = React.useState([]);
-	/** @type {StudentState} */
+	/** @type {StudentsState} */
 	const [institutionizedStudents, setInstitutionizedStudents] = React.useState([]);
-	/** @type {StudentState} */
+	/** @type {StudentsState} */
 	const [filteredStudents, setFilteredStudents] = React.useState([]);
-	/** @type {StudentState} */
+	/** @type {StudentsState} */
 	const [displayedStudents, setDisplayedStudents] = React.useState([]);
 
 	const programs = {
@@ -477,8 +477,8 @@ export default Profiles;
 /**
  * @param {{
  * 	student: import('../../../classes/Student').StudentProps,
- * 	animationDelay?: Number,
- * 	loading?: Boolean,
+ * 	animationDelay: Number,
+ * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
  * }} param0 
  * @returns {JSX.Element}
@@ -486,7 +486,7 @@ export default Profiles;
 const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 	const [mounted, setMounted] = React.useState(false);
 
-	/** @type {StudentState} */
+	/** @type {[(import('../../../classes/Student').StudentProps & { placeholder: Boolean }), React.Dispatch<React.SetStateAction<(import('../../../classes/Student').StudentProps & { placeholder: Boolean })[]>>]} */
 	const [thisStudent, setThisStudent] = React.useState(student);
 
 	React.useEffect(() => {
