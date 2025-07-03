@@ -40,6 +40,10 @@ import ItemCard from '../../../components/ItemCard';
 
 import { MobileContext } from '../../../main';
 
+import Student from '../../../classes/Student';
+
+/** @typedef {[import('../../../classes/Student').StudentProps[] & { placeholder: Boolean }, React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps[] & { placeholder: Boolean }>>]} StudentState */
+
 const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		setSelectedKeys(['profiles']);
@@ -47,32 +51,49 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 
-	const [institute, setInstitute] = React.useState('active');
+	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
+	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
+	const [category, setCategory] = React.useState('active');
+	/**
+	 * @typedef {{
+	 * 		years: Number[],
+	 * 		programs: String[]
+	 * 	}} Filter
+	 */
+	/** @type {[Filter, React.Dispatch<React.SetStateAction<Filter>>]} */
 	const [filter, setFilter] = React.useState({
 		years: [],
 		programs: []
 	});
+	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
 
+	/** @type {StudentState} */
 	const [students, setStudents] = React.useState([]);
+	/** @type {StudentState} */
 	const [institutionizedStudents, setInstitutionizedStudents] = React.useState([]);
+	/** @type {StudentState} */
 	const [filteredStudents, setFilteredStudents] = React.useState([]);
+	/** @type {StudentState} */
 	const [displayedStudents, setDisplayedStudents] = React.useState([]);
 
+	const programs = {
+		'ics': ['BSCpE', 'BSIT'],
+		'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
+		'ibe': ['BSBA-HRM', 'BSE']
+	};
+
 	React.useEffect(() => {
+		/** @type {import('../../../classes/Student').StudentProps[]} */
 		const placeholderStudent = [];
+
 		for (let i = 0; i < 20; i++) {
 			const id = `placeholder-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
 			if (students.some(student => student.studentId === id)) {
 				continue;
 			};
 			const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-			const programs = {
-				'ics': ['BSCpE', 'BSIT'],
-				'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-				'ibe': ['BSBA-HRM', 'BSE']
-			};
-			placeholderStudent.push({
+			const student = new Student({
 				id: id,
 				name: {
 					first: `First ${i + 1}`,
@@ -80,32 +101,30 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 					last: `Last ${i + 1}`
 				},
 				email: `student${i + 1}@example.com`,
+				phone: `+63 912 345 678${i + 1}`,
 				studentId: id,
 				institute: institute,
 				program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
 				year: Math.floor(Math.random() * 4) + 1,
 				profilePicture: null,
-				placeholder: true,
-				status: 'active'
+				status: 'active',
+				placeholder: true
 			});
+			placeholderStudent.push(student);
 		};
 		setStudents(placeholderStudent);
 
 		fetch('https://randomuser.me/api/?results=100&inc=name,email,phone,login,picture')
 			.then(response => response.json())
 			.then(data => {
+				/** @type {import('../../../classes/Student').StudentProps[]} */
 				const fetchedStudents = [];
 
 				for (let i = 0; i < data.results.length; i++) {
 					const user = data.results[i];
 					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-					const programs = {
-						'ics': ['BSCpE', 'BSIT'],
-						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-						'ibe': ['BSBA-HRM', 'BSE']
-					};
 
-					fetchedStudents.push({
+					const student = new Student({
 						id: i + 1,
 						name: {
 							first: user.name.first,
@@ -125,9 +144,9 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
 						year: Math.floor(Math.random() * 4) + 1,
 						profilePicture: user.picture.large,
-						placeholder: false,
 						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
 					});
+					fetchedStudents.push(student);
 				};
 				setStudents(fetchedStudents);
 			})
@@ -137,14 +156,15 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		if (students.length > 0)
 			setInstitutionizedStudents(students.filter(student =>
-				(student.institute === institute && student.status === 'active')
-				|| (institute === 'active' && student.status === 'active')
-				|| (institute === 'restricted' && student.status === 'restricted')
-				|| (institute === 'archived' && student.status === 'archived'))
+				(student.institute === category && student.status === 'active')
+				|| (category === 'active' && student.status === 'active')
+				|| (category === 'restricted' && student.status === 'restricted')
+				|| (category === 'archived' && student.status === 'archived'))
 			);
-	}, [students, institute]);
+	}, [students, category]);
 
 	React.useEffect(() => {
+		/** @type {import('../../../classes/Student').StudentProps[]} */
 		const filtered = [];
 
 		// Filter by year and program
@@ -164,6 +184,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 			setDisplayedStudents(filteredStudents);
 			return;
 		};
+		setDisplayedStudents([]);
 
 		const searchTerm = search.toLowerCase();
 		const searchedStudents = filteredStudents.filter(student => {
@@ -176,8 +197,6 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 				student.email.toLowerCase().includes(searchTerm)
 			);
 		});
-
-		setDisplayedStudents([]);
 		setTimeout(() => {
 			setDisplayedStudents(searchedStudents);
 		}, remToPx(0.5));
@@ -216,9 +235,9 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 								{ label: 'Restricted', value: 'restricted' },
 								{ label: 'Archived', value: 'archived' }
 							]}
-							value={institute}
+							value={category}
 							onChange={(value) => {
-								setInstitute(value);
+								setCategory(value);
 							}}
 						/>
 					)}
@@ -241,9 +260,9 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 												{ label: 'Archived', value: 'archived' }
 											]}
 											vertical
-											value={institute}
+										value={category}
 											onChange={(value) => {
-												setInstitute(value);
+												setCategory(value);
 											}}
 											style={{ width: '100%' }}
 										/>
@@ -281,14 +300,14 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 											}}
 										>
 											<Flex vertical>
-												{(institute === 'ics' || institute === 'active' || institute === 'restricted' || institute === 'archived') && (
+												{(category === 'ics' || category === 'active' || category === 'restricted' || category === 'archived') && (
 													<>
 														<Text type='secondary'>Institute of Computing Studies</Text>
 														<Checkbox value='BSCpE'>Bachelor of Science in Computer Engineering (BSCpE)</Checkbox>
 														<Checkbox value='BSIT'>Bachelor of Science in Information Technology (BSIT)</Checkbox>
 													</>
 												)}
-												{(institute === 'ite' || institute === 'active' || institute === 'restricted' || institute === 'archived') && (
+												{(category === 'ite' || category === 'active' || category === 'restricted' || category === 'archived') && (
 													<>
 														<Text type='secondary'>Institute of Teacher Education</Text>
 														<Checkbox value='BSEd-SCI'>Bachelor of Secondary Education major in Science (BSEd-SCI)</Checkbox>
@@ -298,7 +317,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 														<Checkbox value='TCP'>Teacher Certificate Program (18 Units-TCP)</Checkbox>
 													</>
 												)}
-												{(institute === 'ibe' || institute === 'active' || institute === 'restricted' || institute === 'archived') && (
+												{(category === 'ibe' || category === 'active' || category === 'restricted' || category === 'archived') && (
 													<>
 														<Text type='secondary'>Institute of Business Entrepreneurship</Text>
 														<Checkbox value='BSBA-HRM'>Bachelor of Science in Business Administration Major in Human Resource Management (BSBA-HRM)</Checkbox>
@@ -340,7 +359,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Flex>
 			]
 		});
-	}, [setHeader, setSelectedKeys, institute, filter, search, view, mobile]);
+	}, [setHeader, setSelectedKeys, category, filter, search, view, mobile]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -455,9 +474,19 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 
 export default Profiles;
 
+/**
+ * @param {{
+ * 	student: import('../../../classes/Student').StudentProps,
+ * 	animationDelay?: Number,
+ * 	loading?: Boolean,
+ * 	navigate: ReturnType<typeof useNavigate>
+ * }} param0 
+ * @returns {JSX.Element}
+ */
 const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 	const [mounted, setMounted] = React.useState(false);
 
+	/** @type {StudentState} */
 	const [thisStudent, setThisStudent] = React.useState(student);
 
 	React.useEffect(() => {
@@ -469,9 +498,8 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 	}, [animationDelay]);
 
 	React.useEffect(() => {
-		if (student) {
+		if (student)
 			setThisStudent(student);
-		};
 	}, [student]);
 
 	const app = App.useApp();

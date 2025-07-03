@@ -53,6 +53,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setSelectedKeys(['profiles']);
 	}, [setSelectedKeys]);
 
+	/** @type {[import('../../../classes/Student').StudentProps, React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps>>]} */
 	const [thisStudent, setThisStudent] = React.useState(location.state?.student || {
 		id: '12345',
 		name: {
