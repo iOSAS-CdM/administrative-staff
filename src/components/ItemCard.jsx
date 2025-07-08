@@ -7,22 +7,34 @@ import {
 	Divider
 } from 'antd';
 
+ /**
+  * @typedef {{
+  * 	content: React.ReactNode,
+  * 	onClick?: Function
+  * }} ItemCardActionButton
+  */
+
 /**
- * @param {{
+* @typedef {{
+* 	content: React.ReactNode,
+* 	align?: 'left' | 'center' | 'right'
+* }} ItemCardAction
+ */
+
+/**
+ * @typedef {{
  * 	mounted: Boolean,
  *	loading: Boolean,
  * 	extra: React.ReactNode,
  * 	status: String,
- * 	actions: {
- * 		content: React.ReactNode,
- * 		onClick?: Function
- * 	}[],
  * 	children: React.ReactNode,
  * 	style?: React.CSSProperties,
- * 	className?: String,
- * 	...props: React.HTMLAttributes<HTMLDivElement>
- * }} param0
- * @returns {JSX.Element}
+ * 	className?: String
+ * } & import('antd/es/card').CardInterface} ItemCardBaseProps
+ */
+
+/**
+ * @param {ItemCardBaseProps} param0
  */
 const ItemCard = ({
 	mounted,
@@ -44,7 +56,8 @@ const ItemCard = ({
 			extra={extra}
 			style={{
 				...props.style,
-				height: '100%'
+				height: '100%',
+				overflow: 'hidden'
 			}}
 		>
 			<Flex vertical gap={16}>
@@ -56,10 +69,11 @@ const ItemCard = ({
 
 						<Flex justify='space-between' align='center'>
 							{actions.map((action, index) => (
-								<div key={Math.random().toString(36).substring(2, 15)} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', width: '100%', flexGrow: 1 }}>
+								<>
 									{
 										action.onClick ? (
 											<Button
+												key={`action-${index}`}
 												type='text'
 												size='small'
 												style={{ width: '100%' }}
@@ -72,15 +86,15 @@ const ItemCard = ({
 												display: 'flex',
 												alignItems: 'center',
 												width: '100%',
-												justifyContent: 'center'
+													justifyContent: action.align || 'center',
+													textAlign: action.align || 'center'
 											}}>{action.content}</div>
 										)
 									}
-
 									{index < actions.length - 1 && (
-										<Divider type='vertical' />
+										<Divider type='vertical' key={`divider-${index}`} />
 									)}
-								</div>
+								</>
 							))}
 						</Flex>
 					</Flex>

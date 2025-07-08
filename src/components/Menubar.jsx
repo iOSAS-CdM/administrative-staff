@@ -30,6 +30,7 @@ import Profiles from '../pages/dashboard/Students/Profiles';
 import Profile from '../pages/dashboard/Students/Profile';
 import DisciplinaryRecords from '../pages/dashboard/Students/Records';
 import DisciplinaryRecord from '../pages/dashboard/Students/Record';
+import Organizations from '../pages/dashboard/Students/Organizations';
 
 import remToPx from '../utils/remToPx';
 
@@ -100,7 +101,7 @@ const Menubar = () => {
 		{ path: '/students/profiles/*', element: <Profile {...props} /> },
 		{ path: '/students/records', element: <DisciplinaryRecords {...props} /> },
 		{ path: '/students/records/*', element: <DisciplinaryRecord {...props} /> },
-		{ path: '/students/organization', element: <p>Organizations</p> },
+		{ path: '/students/organizations', element: <Organizations {...props} /> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
 		{ path: '/utilities/faqs', element: <p>FAQs</p> },
 		{ path: '/utilities/announcements', element: <p>Announcements</p> },
@@ -129,9 +130,8 @@ const Menubar = () => {
 
 	React.useEffect(() => {
 		return () => {
-			if (timeoutRef.current) {
+			if (timeoutRef.current)
 				clearTimeout(timeoutRef.current);
-			}
 		};
 	}, []);
 
@@ -188,9 +188,9 @@ const Menubar = () => {
                     onClick: () => navigate('/dashboard/students/records')
                 },
                 {
-                    key: 'organization',
+                    key: 'organizations',
                     label: 'Organizations',
-                    onClick: () => navigate('/dashboard/students/organization')
+                    onClick: () => navigate('/dashboard/students/organizations')
                 }
             ]
         },

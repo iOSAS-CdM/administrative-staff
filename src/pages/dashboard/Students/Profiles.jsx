@@ -42,7 +42,7 @@ import { MobileContext } from '../../../main';
 
 import Student from '../../../classes/Student';
 
-/** @typedef {[(import('../../../classes/Student').StudentProps & { placeholder: Boolean })[], React.Dispatch<React.SetStateAction<(import('../../../classes/Student').StudentProps & { placeholder: Boolean })[]>>]} StudentsState */
+/** @typedef {[Student[], React.Dispatch<React.SetStateAction<Student[]>>]} StudentsState */
 
 const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
@@ -84,7 +84,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	};
 
 	React.useEffect(() => {
-		/** @type {import('../../../classes/Student').StudentProps[]} */
+		/** @type {Student[]} */
 		const placeholderStudent = [];
 
 		for (let i = 0; i < 20; i++) {
@@ -117,7 +117,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		fetch('https://randomuser.me/api/?results=100&inc=name,email,phone,login,picture')
 			.then(response => response.json())
 			.then(data => {
-				/** @type {import('../../../classes/Student').StudentProps[]} */
+				/** @type {Student[]} */
 				const fetchedStudents = [];
 
 				for (let i = 0; i < data.results.length; i++) {
@@ -164,7 +164,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [students, category]);
 
 	React.useEffect(() => {
-		/** @type {import('../../../classes/Student').StudentProps[]} */
+		/** @type {Student[]} */
 		const filtered = [];
 
 		// Filter by year and program
@@ -476,7 +476,7 @@ export default Profiles;
 
 /**
  * @param {{
- * 	student: import('../../../classes/Student').StudentProps,
+ * 	student: Student,
  * 	animationDelay: Number,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
@@ -486,7 +486,7 @@ export default Profiles;
 const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 	const [mounted, setMounted] = React.useState(false);
 
-	/** @type {[(import('../../../classes/Student').StudentProps & { placeholder: Boolean }), React.Dispatch<React.SetStateAction<(import('../../../classes/Student').StudentProps & { placeholder: Boolean })[]>>]} */
+	/** @type {[Student, React.Dispatch<React.SetStateAction<Student[]>>]} */
 	const [thisStudent, setThisStudent] = React.useState(student);
 
 	React.useEffect(() => {
@@ -580,6 +580,6 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 					}</Text>
 				</Flex>
 			</Flex>
-		</ItemCard >
+		</ItemCard>
 	);
 };

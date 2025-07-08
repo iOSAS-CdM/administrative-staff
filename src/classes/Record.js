@@ -4,7 +4,6 @@
 /**
  * @typedef {{
  * 	id?: Number | String,
- * 	recordId: String,
  * 	violation: String,
  * 	description: String,
  * 	tags: {
@@ -14,7 +13,8 @@
  * 	},
  * 	complainants: import('./Student').StudentProps[],
  * 	complainees: import('./Student').StudentProps[],
- * 	date: Date
+ * 	date: Date,
+ * 	placeholder?: Boolean
  * }} RecordProps
  */
 
@@ -24,7 +24,6 @@ class Record {
 	 */
 	constructor({
 		id = Math.floor(Math.random() * 1000000),
-		recordId,
 		violation,
 		description,
 		tags: {
@@ -35,11 +34,11 @@ class Record {
 		complainants = [],
 		complainees = [],
 		date = new Date(new Date().getFullYear(), new Date().getMonth(), new
-			Date().getDate() - (Math.floor(Math.random() * 10) + 1))
+			Date().getDate() - (Math.floor(Math.random() * 10) + 1)),
+		placeholder = false
 	}) {
 		// Initialize the record properties
 		this.id = id;
-		this.recordId = recordId;
 		this.violation = violation;
 		this.description = description;
 		this.tags = {
@@ -50,6 +49,7 @@ class Record {
 		this.complainants = complainants;
 		this.complainees = complainees;
 		this.date = date;
+		this.placeholder = placeholder;
 	};
 };
 

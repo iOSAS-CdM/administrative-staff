@@ -39,7 +39,10 @@ import { MobileContext } from '../../../main';
 
 import NewCase from '../../../modals/NewCase';
 
-/** @typedef {[(import('../../../classes/Record').RecordProps & { placeholder: Boolean })[], React.Dispatch<React.SetStateAction<(import('../../../classes/Record').RecordProps & { placeholder: Boolean })[]>>]} RecordsState */
+import Record from '../../../classes/Record';
+import Student from '../../../classes/Student';
+
+/** @typedef {Record[], React.Dispatch<React.SetStateAction<Record[]>>} RecordsState */
 
 const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
@@ -75,15 +78,14 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [displayedRecords, setDisplayedRecords] = React.useState([]);
 
 	React.useEffect(() => {
-		/** @type {import('../../../classes/Record').RecordProps[]} */
-		const placeholderRecord = [];
+		/** @type {Record[]} */
+		const placeholderRecords = [];
 		for (let i = 0; i < 20; i++) {
 			const id = `placeholder-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
-			if (records.some(record => record.recordId === id))
+			if (records.some(record => record.id === id))
 				continue;
-			placeholderRecord.push({
+			const placeholderRecord = new Record({
 				id: id,
-				recordId: id,
 				violation: `Placeholder Record ${i + 1}`,
 				description: `This is a placeholder record for testing purposes. Record number ${i + 1}.`,
 				tags: {
@@ -96,20 +98,75 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				placeholder: true,
 				date: new Date()
 			});
+			placeholderRecords.push(placeholderRecord);
 		};
-		setRecords(placeholderRecord);
+		setRecords(placeholderRecords);
 
 		setTimeout(() => {
-			/** @type {import('../../../classes/Record').RecordProps[]} */
+			/** @type {Record[]} */
 			const fetchedRecords = [];
 
 			for (let i = 0; i < 40; i++) {
 				const id = `record-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
-				if (records.some(record => record.recordId === id))
+				if (records.some(record => record.id === id))
 					continue;
-				fetchedRecords.push({
+
+				const complainants = [];
+				for (let j = 0; j < 10; j++) {
+					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
+					const programs = {
+						'ics': ['BSCpE', 'BSIT'],
+						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
+						'ibe': ['BSBA-HRM', 'BSE']
+					};
+					const student = new Student({
+						id: Math.floor(Math.random() * 1000) + 1,
+						name: {
+							first: 'user.name.first',
+							middle: 'user.name.middle',
+							last: 'user.name.last'
+						},
+						email: 'user.email',
+						phone: 'user.phone',
+						studentId: id + `-${i + 1}`,
+						institute: institute,
+						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
+						year: Math.floor(Math.random() * 4) + 1,
+						profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][j % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
+						placeholder: false,
+						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
+					});
+					complainants.push(student);
+				};
+				const complainees = [];
+				for (let j = 0; j < 10; j++) {
+					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
+					const programs = {
+						'ics': ['BSCpE', 'BSIT'],
+						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
+						'ibe': ['BSBA-HRM', 'BSE']
+					};
+					const student = new Student({
+						id: Math.floor(Math.random() * 1000) + 1,
+						name: {
+							first: 'user.name.first',
+							middle: 'user.name.middle',
+							last: 'user.name.last'
+						},
+						email: 'user.email',
+						phone: 'user.phone',
+						studentId: id + `-${i + 1}`,
+						institute: institute,
+						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
+						year: Math.floor(Math.random() * 4) + 1,
+						profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
+						placeholder: false,
+						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
+					});
+					complainees.push(student);
+				};
+				const record = new Record({
 					id: id,
-					recordId: id,
 					violation: `Record ${i + 1}`,
 					description: `This is a record for testing purposes. Record number ${i + 1}.`,
 					tags: {
@@ -117,60 +174,14 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						severity: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)],
 						occurances: Math.floor(Math.random() * 10) + 1
 					},
-					complainants: [...Array(10).keys().map((e, i) => {
-						const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-						const programs = {
-							'ics': ['BSCpE', 'BSIT'],
-							'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-							'ibe': ['BSBA-HRM', 'BSE']
-						};
-						return {
-							id: Math.floor(Math.random() * 1000) + 1,
-							name: {
-								first: 'user.name.first',
-								middle: 'user.name.middle',
-								last: 'user.name.last'
-							},
-							email: 'user.email',
-							phone: 'user.phone',
-							studentId: id + `-${i + 1}`,
-							institute: institute,
-							program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-							year: Math.floor(Math.random() * 4) + 1,
-							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
-							placeholder: false,
-							status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
-						}
-					})],
-					complainees: [...Array(10).keys().map((e, i) => {
-						const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-						const programs = {
-							'ics': ['BSCpE', 'BSIT'],
-							'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-							'ibe': ['BSBA-HRM', 'BSE']
-						};
-						return {
-							id: Math.floor(Math.random() * 1000) + 1,
-							name: {
-								first: 'user.name.first',
-								middle: 'user.name.middle',
-								last: 'user.name.last'
-							},
-							email: 'user.email',
-							phone: 'user.phone',
-							studentId: id + `-${i + 1}`,
-							institute: ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)],
-							program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-							year: Math.floor(Math.random() * 4) + 1,
-							profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
-							placeholder: false,
-							status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
-						}
-					})],
+					complainants: complainants,
+					complainees: complainees,
 					placeholder: false,
 					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
 						Date().getDate() - (Math.floor(Math.random() * 10) + 1))
 				});
+
+				fetchedRecords.push(record);
 			};
 
 			const sortedRecords = fetchedRecords.sort((a, b) => b.date - a.date);
@@ -192,7 +203,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [records, category]);
 
 	React.useEffect(() => {
-		/** @type {import('../../../classes/Record').RecordProps[]} */
+		/** @type {Record[]} */
 		const filtered = [];
 
 		// Filter by severity and occurances
@@ -386,7 +397,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				view === 'card' ? (
 					<Row gutter={[16, 16]}>
 						{displayedRecords.map((record, index) => (
-							<Col key={record.recordId} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 								<RecordCard
 									record={record}
 									animationDelay={index * 0.1}
@@ -397,8 +408,8 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						))}
 					</Row>
 				) : (
-					<Table dataSource={displayedRecords} pagination={false} rowKey='recordId' style={{ minWidth: '100%' }}>
-						<Table.Column align='center' title='ID' dataIndex='recordId' key='recordId' />
+						<Table dataSource={displayedRecords} pagination={false} rowKey='id' style={{ minWidth: '100%' }}>
+							<Table.Column align='center' title='ID' dataIndex='id' key='id' />
 						<Table.Column align='center' title='Title' dataIndex='title' key='title' />
 						<Table.Column align='center' title='Description' dataIndex='description' key='description' />
 						<Table.Column align='center' title='Complainants' key='complainants' render={(text, record) => (
@@ -428,7 +439,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							<Button
 								icon={<RightOutlined />}
 								onClick={() => {
-									navigate(`/dashboard/students/records/${record.recordId}`, {
+									navigate(`/dashboard/students/records/${record.id}`, {
 										state: { record: record }
 									});
 								}}
@@ -449,17 +460,17 @@ export default DisciplinaryRecords;
 
 /**
  * @param {{
- * 	record: import('../../../classes/Record').RecordProps,
+ * 	record: Record,
  * 	animationDelay: Number,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
- * }} param0 
+ * }} param0
  * @returns 
  */
 const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 	const [mounted, setMounted] = React.useState(false);
 
-	/** @type {[(import('../../../classes/Record').RecordProps & { placeholder: Boolean }), React.Dispatch<React.SetStateAction<(import('../../../classes/Record').RecordProps & { placeholder: Boolean })[]>>]} */
+	/** @type {[Record, React.Dispatch<React.SetStateAction<Record[]>>]} */
 	const [thisRecord, setThisRecord] = React.useState(record);
 
 	React.useEffect(() => {
@@ -548,7 +559,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 								centered: true
 							});
 						} else {
-							navigate(`/dashboard/students/records/${thisRecord.recordId}`, {
+							navigate(`/dashboard/students/records/${thisRecord.id}`, {
 								state: { record: thisRecord }
 							});
 						};

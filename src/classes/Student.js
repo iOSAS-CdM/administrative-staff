@@ -16,8 +16,8 @@
  * 	phone: String,
  * 	studentId: String,
  * 	profilePicture?: String,
- * 	placeholder?: Boolean,
  * 	status?: 'active' | 'restricted' | 'archived',
+ * 	placeholder?: Boolean
  * }} BaseStudentProps
  */
 
@@ -40,7 +40,7 @@ class Student {
 		institute,
 		program,
 		year,
-		profilePicture = 'https://via.placeholder.com/150',
+		profilePicture = 'https://picsum.photos/150',
 		placeholder = false,
 		status = 'active'
 	}) {

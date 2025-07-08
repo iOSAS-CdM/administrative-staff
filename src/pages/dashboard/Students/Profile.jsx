@@ -64,7 +64,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		email: 'email@mail.com',
 		studentId: '22-00250',
 		institute: 'head',
-		profilePicture: 'https://via.placeholder.com/150'
+		profilePicture: 'https://picsum.photos/150'
 	});
 
 	const [organizations, setOrganizations] = React.useState([]);
@@ -161,7 +161,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							style={{ width: '100%', height: '100%' }}
 						>
 							<Avatar
-								src={thisStudent.profilePicture || 'https://via.placeholder.com/150'}
+								src={thisStudent.profilePicture || 'https://picsum.photos/150'}
 								alt='Profile Picture'
 								shape='square'
 								style={{ width: '100%', height: '100%' }}
@@ -175,7 +175,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 								style={{ width: '100%', height: '100%' }}
 							>
 								<Avatar
-									src={thisStudent.profilePicture || 'https://via.placeholder.com/150'}
+										src={thisStudent.profilePicture || 'https://picsum.photos/150'}
 									alt='Profile Picture'
 									shape='square'
 									style={{ width: 'calc(var(--space-XL) * 12)', height: 'calc(var(--space-XL) * 12)' }}

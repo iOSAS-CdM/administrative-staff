@@ -35,7 +35,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const location = useLocation();
 
 	const [thisRecord, setThisRecord] = React.useState(location.state?.record || {
-		recordId: '12345',
+		id: '12345',
 		title: 'Placeholder Title',
 		description: 'Placeholder Description',
 		tags: {
@@ -51,7 +51,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	React.useEffect(() => {
 		setHeader({
-			title: `Disciplinary Case ${thisRecord.recordId || ''}`,
+			title: `Disciplinary Case ${thisRecord.id || ''}`,
 			actions: [
 				<Button
 					type='primary'
@@ -77,25 +77,25 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 					name: 'Document 1',
 					extension: 'pdf',
 					id: 'doc-1',
-					thumbnail: 'https://via.placeholder.com/150'
+					thumbnail: 'https://picsum.photos/150'
 				},
 				{
 					name: 'Document 2',
 					extension: 'pdf',
 					id: 'doc-2',
-					thumbnail: 'https://via.placeholder.com/150'
+					thumbnail: 'https://picsum.photos/150'
 				},
 				{
 					name: 'Image 1',
 					extension: 'jpg',
 					id: 'img-1',
-					thumbnail: 'https://via.placeholder.com/150'
+					thumbnail: 'https://picsum.photos/150'
 				},
 				{
 					name: 'Image 2',
 					extension: 'png',
 					id: 'img-2',
-					thumbnail: 'https://via.placeholder.com/150'
+					thumbnail: 'https://picsum.photos/150'
 				}
 			]);
 		};
@@ -172,7 +172,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 												centered: true
 											});
 										} else {
-											navigate(`/dashboard/students/records/${thisRecord.recordId}/edit`, {
+											navigate(`/dashboard/students/records/${thisRecord.id}/edit`, {
 												state: { record: thisRecord }
 											});
 										};
