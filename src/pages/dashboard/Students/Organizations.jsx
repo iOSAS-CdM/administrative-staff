@@ -218,7 +218,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Flex>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, mobile]);
+	}, [setHeader, setSelectedKeys, category, view, mobile]);
 	const app = App.useApp();
 	const Modal = app.modal;
 
@@ -362,7 +362,7 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 				}
 			]}
 
-			cover={(
+			cover={!thisOrganization.placeholder && (
 				<Image
 					src={thisOrganization.cover || 'https://picsum.photos/600/400'}
 					alt={`${thisOrganization.shortName} Cover`}

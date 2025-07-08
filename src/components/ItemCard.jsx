@@ -68,7 +68,7 @@ const ItemCard = ({
 						<Divider />
 
 						<Flex justify='space-between' align='center'>
-							{actions.map((action, index) => (
+							{/* {actions.map((action, index) => (
 								<>
 									{
 										action.onClick ? (
@@ -95,7 +95,47 @@ const ItemCard = ({
 										<Divider type='vertical' key={`divider-${index}`} />
 									)}
 								</>
-							))}
+							))} */}
+							{(() => {
+								const toReturn = [];
+
+								for (let i = 0; i < actions.length; i++) {
+									const action = actions[i];
+
+									if (action.onClick) {
+										toReturn.push(
+											<Button
+												key={`action-${i}`}
+												type='text'
+												size='small'
+												style={{ width: '100%' }}
+												onClick={typeof action.onClick === 'function' ? action.onClick : undefined}
+											>
+												{action.content}
+											</Button>
+										);
+									} else {
+										toReturn.push(
+											<div
+												key={`action-${i}`}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													width: '100%',
+													justifyContent: action.align || 'center',
+													textAlign: action.align || 'center'
+												}}
+											>
+												{action.content}
+											</div>
+										);
+									};
+
+									if (i < actions.length - 1)
+										toReturn.push(<Divider type='vertical' key={`divider-${i}`} />);
+								};
+								return toReturn;
+							})()}
 						</Flex>
 					</Flex>
 				)}
