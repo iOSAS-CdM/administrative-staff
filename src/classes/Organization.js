@@ -1,5 +1,12 @@
 /**
  * @typedef {{
+ * 	role: String,
+ * 	student: import('./Student').StudentProps
+ * }} OrganizationMember
+ */
+
+/**
+ * @typedef {{
  * 	id?: Number | String,
  * 	shortName: String,
  * 	fullName: String,
@@ -9,7 +16,7 @@
  * 	cover?: String,
  * 	status?: 'active' | 'restricted' | 'archived',
  * 	type?: 'college-wide' | 'institute-wide',
- * 	members?: import('./Student').StudentProps[],
+ * 	members?: OrganizationMember[],
  * 	placeholder?: Boolean
  * }} Organization
  */

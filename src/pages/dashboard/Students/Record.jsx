@@ -181,7 +181,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									Edit Record
 								</Button>
 								<Button
-									type='default'
+									type='primary'
 									danger
 									icon={<InboxOutlined />}
 									onClick={() => {

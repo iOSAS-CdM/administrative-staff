@@ -31,6 +31,7 @@ import Profile from '../pages/dashboard/Students/Profile';
 import DisciplinaryRecords from '../pages/dashboard/Students/Records';
 import DisciplinaryRecord from '../pages/dashboard/Students/Record';
 import Organizations from '../pages/dashboard/Students/Organizations';
+import Organization from '../pages/dashboard/Students/Organization';
 
 import remToPx from '../utils/remToPx';
 
@@ -102,6 +103,7 @@ const Menubar = () => {
 		{ path: '/students/records', element: <DisciplinaryRecords {...props} /> },
 		{ path: '/students/records/*', element: <DisciplinaryRecord {...props} /> },
 		{ path: '/students/organizations', element: <Organizations {...props} /> },
+		{ path: '/students/organizations/*', element: <Organization {...props} /> },
 		{ path: '/utilities/calendar', element: <p>Event Calendar</p> },
 		{ path: '/utilities/faqs', element: <p>FAQs</p> },
 		{ path: '/utilities/announcements', element: <p>Announcements</p> },

@@ -92,7 +92,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 				if (organizations.some(organization => organization.id === id))
 					continue;
 
-				/** @type {Student[]} */
+				/** @type {import('../../../classes/Organization').OrganizationMember[]} */
 				const members = [];
 				for (let j = 0; j < 10; j++) {
 					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
@@ -118,7 +118,10 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 						placeholder: false,
 						status: ['active', 'restricted'][Math.floor(Math.random() * 2)]
 					});
-					members.push(student);
+					members.push({
+						student: student,
+						role: ['Member', 'President', 'Vice President', 'Secretary', 'Treasurer'][Math.floor(Math.random() * 5)]
+					});
 				};
 
 				const organization = new Organization({
@@ -279,7 +282,7 @@ export default Organizations;
 
 /**
  * @param {{
- * 	organization: Organization,
+ * 	organization: import('../../../classes/Organization').Organization,
  * 	animationDelay: Number,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
@@ -289,7 +292,7 @@ export default Organizations;
 const OrganizationCard = ({ organization, animationDelay, loading, navigate }) => {
 	const [mounted, setMounted] = React.useState(false);
 
-	/** @type {[Organization & { placeholder: Boolean }, React.Dispatch<React.SetStateAction<Organization[]>>]} */
+	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization').Organization>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState(organization);
 
 	React.useEffect(() => {
@@ -329,10 +332,10 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 							{thisOrganization.members.map((member, index) => (
 								<Avatar
 									key={index}
-									src={member.profilePicture}
+									src={member.student.profilePicture}
 									style={{ cursor: 'pointer' }}
 									onClick={() => {
-										navigate(`/dashboard/students/profiles/${member.studentId}`, {
+										navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
 											state: { student: member }
 										});
 									}}
@@ -354,7 +357,7 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 								centered: true
 							});
 						else
-							navigate(`/dashboard/students/profiles/${thisOrganization.id}`, {
+							navigate(`/dashboard/students/organizations/${thisOrganization.id}`, {
 								state: { organization: thisOrganization }
 							});
 					},
