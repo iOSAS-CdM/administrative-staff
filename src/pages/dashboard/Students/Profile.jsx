@@ -64,7 +64,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		email: 'email@mail.com',
 		studentId: '22-00250',
 		institute: 'head',
-		profilePicture: 'https://picsum.photos/150'
+		profilePicture: '/Placeholder Image.svg'
 	});
 
 	const [organizations, setOrganizations] = React.useState([]);
@@ -73,17 +73,17 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 			{
 				name: 'Student Council',
 				role: 'Member',
-				profilePicture: 'https://picsum.photos/200'
+				profilePicture: '/Placeholder Image.svg'
 			},
 			{
 				name: 'Debate Club',
 				role: 'President',
-				profilePicture: 'https://picsum.photos/200'
+				profilePicture: '/Placeholder Image.svg'
 			},
 			{
 				name: 'Science Society',
 				role: 'Member',
-				profilePicture: 'https://picsum.photos/200'
+				profilePicture: '/Placeholder Image.svg'
 			}
 		].sort((a, b) => a.name.localeCompare(b.name));
 
@@ -161,7 +161,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							style={{ width: '100%', height: '100%' }}
 						>
 							<Avatar
-								src={thisStudent.profilePicture || 'https://picsum.photos/150'}
+								src={thisStudent.profilePicture || '/Placeholder Image.svg'}
 								alt='Profile Picture'
 								shape='square'
 								style={{ width: '100%', height: '100%' }}
@@ -175,7 +175,7 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 								style={{ width: '100%', height: '100%' }}
 							>
 								<Avatar
-										src={thisStudent.profilePicture || 'https://picsum.photos/150'}
+										src={thisStudent.profilePicture || '/Placeholder Image.svg'}
 									alt='Profile Picture'
 									shape='square'
 									style={{ width: 'calc(var(--space-XL) * 12)', height: 'calc(var(--space-XL) * 12)' }}

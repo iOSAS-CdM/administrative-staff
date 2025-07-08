@@ -72,8 +72,8 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 				description: 'This is a placeholder organization for testing purposes.',
 				email: `placeholder${i + 1}@example.com`,
 				phone: `+63 912 345 ${Math.floor(Math.random() * 1000)}`,
-				logo: 'https://picsum.photos/150',
-				cover: 'https://picsum.photos/600/400',
+				logo: '/Placeholder Image.svg',
+				cover: '/Placeholder Image.svg',
 				status: i % 3 === 0 ? 'active' : i % 3 === 1 ? 'restricted' : 'archived',
 				type: i % 2 === 0 ? 'college-wide' : 'institute-wide',
 				members: [],
@@ -128,8 +128,8 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 					description: `This is the description for organization ${i + 1}.`,
 					email: `org${i + 1}@example.com`,
 					phone: `+63 912 345 ${Math.floor(Math.random() * 1000)}`,
-					logo: 'https://picsum.photos/150',
-					cover: 'https://picsum.photos/600/400',
+					logo: '/Placeholder Image.svg',
+					cover: '/Placeholder Image.svg',
 					status: i % 3 === 0 ? 'active' : i % 3 === 1 ? 'restricted' : 'archived',
 					type: i % 2 === 0 ? 'college-wide' : 'institute-wide',
 					members: members
@@ -364,7 +364,7 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 
 			cover={!thisOrganization.placeholder && (
 				<Image
-					src={thisOrganization.cover || 'https://picsum.photos/600/400'}
+					src={thisOrganization.cover || '/Placeholder Image.svg'}
 					alt={`${thisOrganization.shortName} Cover`}
 					style={{ aspectRatio: '3/1', objectFit: 'cover' }}
 				/>

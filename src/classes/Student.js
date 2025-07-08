@@ -40,7 +40,7 @@ class Student {
 		institute,
 		program,
 		year,
-		profilePicture = 'https://picsum.photos/150',
+		profilePicture = '/Placeholder Image.svg',
 		placeholder = false,
 		status = 'active'
 	}) {

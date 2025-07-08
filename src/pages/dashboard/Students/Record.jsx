@@ -77,25 +77,25 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 					name: 'Document 1',
 					extension: 'pdf',
 					id: 'doc-1',
-					thumbnail: 'https://picsum.photos/150'
+					thumbnail: '/Placeholder Image.svg'
 				},
 				{
 					name: 'Document 2',
 					extension: 'pdf',
 					id: 'doc-2',
-					thumbnail: 'https://picsum.photos/150'
+					thumbnail: '/Placeholder Image.svg'
 				},
 				{
 					name: 'Image 1',
 					extension: 'jpg',
 					id: 'img-1',
-					thumbnail: 'https://picsum.photos/150'
+					thumbnail: '/Placeholder Image.svg'
 				},
 				{
 					name: 'Image 2',
 					extension: 'png',
 					id: 'img-2',
-					thumbnail: 'https://picsum.photos/150'
+					thumbnail: '/Placeholder Image.svg'
 				}
 			]);
 		};
