@@ -62,9 +62,16 @@ jobs:
                   name: tauri-app-windows-beta
                   path: src-tauri/target/release/bundle/msi/*.msi
 
-            - name: Upload artifact (Linux)
+            - name: Upload artifact (Linux DEB)
               if: matrix.platform == 'ubuntu-latest'
               uses: actions/upload-artifact@v4
               with:
-                  name: tauri-app-linux-beta
+                  name: tauri-app-linux-deb-beta
                   path: src-tauri/target/release/bundle/deb/*.deb
+
+            - name: Upload artifact (Arch Linux)
+              if: matrix.platform == 'ubuntu-latest'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: tauri-app-arch-beta
+                  path: src-tauri/target/release/bundle/pacman/*.pacman
