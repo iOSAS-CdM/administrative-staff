@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router';
 
 import {
 	App,
-	Table,
 	Input,
-	Card,
+	Tooltip,
 	Button,
 	Segmented,
-	Dropdown,
+	Popover,
 	Flex,
 	Empty,
 	Checkbox,
@@ -24,9 +23,7 @@ import {
 	FilterOutlined,
 	EditOutlined,
 	LockOutlined,
-	RightOutlined,
-	TableOutlined,
-	UnorderedListOutlined
+	RightOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -41,6 +38,129 @@ import ItemCard from '../../../components/ItemCard';
 import { MobileContext } from '../../../main';
 
 import Student from '../../../classes/Student';
+
+const Filters = ({ setFilter, category, mobile }) => (
+	<Flex vertical gap={8}>
+		<Divider>
+			<Text strong>Filters</Text>
+		</Divider>
+		<Flex vertical>
+			<Text strong>Year</Text>
+			<Checkbox.Group
+				onChange={(value) => {
+					setFilter((prev) => ({
+						...prev,
+						years: value
+					}));
+				}}
+			>
+				<Flex vertical>
+					<Checkbox value={1}>1st Year</Checkbox>
+					<Checkbox value={2}>2nd Year</Checkbox>
+					<Checkbox value={3}>3rd Year</Checkbox>
+					<Checkbox value={4}>4th Year</Checkbox>
+				</Flex>
+			</Checkbox.Group>
+		</Flex>
+
+		<Flex vertical>
+			<Text strong>Program</Text>
+			<Checkbox.Group
+				onChange={(value) => {
+					setFilter((prev) => ({
+						...prev,
+						programs: value
+					}));
+				}}
+			>
+				<Flex vertical>
+					{(category === 'ics' || category === 'active' || category === 'restricted' || category === 'archived') && (
+						<>
+							<Text type='secondary'>Institute of Computing Studies</Text>
+							<Checkbox value='BSCpE'>
+								{mobile ?
+									<Tooltip title='Bachelor of Science in Computer Engineering'>BSCpE</Tooltip>
+									: 'Bachelor of Science in Computer Engineering (BSCpE)'
+								}
+							</Checkbox>
+							<Checkbox value='BSIT'>
+								{mobile ?
+									<Tooltip title='Bachelor of Science in Information Technology'>BSIT</Tooltip>
+									: 'Bachelor of Science in Information Technology (BSIT)'
+								}
+							</Checkbox>
+						</>
+					)}
+					{(category === 'ite' || category === 'active' || category === 'restricted' || category === 'archived') && (
+						<>
+							<Text type='secondary'>Institute of Teacher Education</Text>
+							<Checkbox value='BSEd-SCI'>
+								{mobile ?
+									<Tooltip title='Bachelor of Secondary Education major in Science'>BSEd-SCI</Tooltip>
+									: 'Bachelor of Secondary Education major in Science (BSEd-SCI)'
+								}
+							</Checkbox>
+							<Checkbox value='BEEd-GEN'>
+								{mobile ?
+									<Tooltip title='Bachelor of Elementary Education - Generalist'>BEEd-GEN</Tooltip>
+									: 'Bachelor of Elementary Education - Generalist (BEEd-GEN)'
+								}
+							</Checkbox>
+							<Checkbox value='BEEd-ECED'>
+								{mobile ?
+									<Tooltip title='Bachelor of Early Childhood Education'>BEEd-ECED</Tooltip>
+									: 'Bachelor of Early Childhood Education (BEEd-ECED)'
+								}
+							</Checkbox>
+							<Checkbox value='BTLEd-ICT'>
+								{mobile ?
+									<Tooltip title='Bachelor of Technology and Livelihood Education major in Information and Communication Technology'>BTLEd-ICT</Tooltip>
+									: 'Bachelor of Technology and Livelihood Education major in Information and Communication Technology (BTLEd-ICT)'
+								}
+							</Checkbox>
+							<Checkbox value='TCP'>
+								{mobile ?
+									<Tooltip title='Teacher Certificate Program'>18 Units-TCP</Tooltip>
+									: 'Teacher Certificate Program (18 Units-TCP)'
+								}
+							</Checkbox>
+						</>
+					)}
+					{(category === 'ibe' || category === 'active' || category === 'restricted' || category === 'archived') && (
+						<>
+							<Text type='secondary'>Institute of Business Entrepreneurship</Text>
+							<Checkbox value='BSBA-HRM'>
+								{mobile ?
+									<Tooltip title='Bachelor of Science in Business Administration Major in Human Resource Management'>BSBA-HRM</Tooltip>
+									: 'Bachelor of Science in Business Administration Major in Human Resource Management (BSBA-HRM)'
+								}
+							</Checkbox>
+							<Checkbox value='BSE'>
+								{mobile ?
+									<Tooltip title='Bachelor of Science in Entrepreneurship'>BSE</Tooltip>
+									: 'Bachelor of Science in Entrepreneurship (BSE)'
+								}
+							</Checkbox>
+						</>
+					)}
+				</Flex>
+			</Checkbox.Group>
+		</Flex>
+
+		<Button
+			type='primary'
+			size='small'
+			onClick={() => {
+				setFilter({
+					years: [],
+					programs: []
+				});
+			}}
+		>
+			Reset
+		</Button>
+	</Flex>
+);
 
 /** @typedef {[Student[], React.Dispatch<React.SetStateAction<Student[]>>]} StudentsState */
 
@@ -202,8 +322,6 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		}, remToPx(0.5));
 	}, [search, filteredStudents, mobile]);
 
-	const [view, setView] = React.useState('card');
-
 	React.useEffect(() => {
 		setHeader({
 			title: 'Student Profiles',
@@ -224,142 +342,38 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
 					/>
 				</Flex>,
-				<Flex gap={8}>
-					{!mobile && (
-						<Segmented
-							options={[
-								{ label: 'Active', value: 'active' },
-								{ label: 'ICS', value: 'ics' },
-								{ label: 'ITE', value: 'ite' },
-								{ label: 'IBE', value: 'ibe' },
-								{ label: 'Restricted', value: 'restricted' },
-								{ label: 'Archived', value: 'archived' }
-							]}
-							value={category}
-							onChange={(value) => {
-								setCategory(value);
-							}}
-						/>
-					)}
-
-					<Dropdown
-						trigger={['click']}
-						placement='bottomRight'
-						arrow
-						popupRender={(menu) => (
-							<Card size='small'>
-								<Flex vertical gap={8}>
-									{mobile &&
-										<Segmented
-											options={[
-												{ label: 'Active', value: 'active' },
-												{ label: 'ICS', value: 'ics' },
-												{ label: 'ITE', value: 'ite' },
-												{ label: 'IBE', value: 'ibe' },
-												{ label: 'Restricted', value: 'restricted' },
-												{ label: 'Archived', value: 'archived' }
-											]}
-											vertical
-										value={category}
-											onChange={(value) => {
-												setCategory(value);
-											}}
-											style={{ width: '100%' }}
-										/>
-									}
-									<Divider>
-										<Text strong>Filters</Text>
-									</Divider>
-									<Flex vertical>
-										<Text strong>Year</Text>
-										<Checkbox.Group
-											onChange={(value) => {
-												setFilter((prev) => ({
-													...prev,
-													years: value
-												}));
-											}}
-										>
-											<Flex vertical>
-												<Checkbox value={1}>1st Year</Checkbox>
-												<Checkbox value={2}>2nd Year</Checkbox>
-												<Checkbox value={3}>3rd Year</Checkbox>
-												<Checkbox value={4}>4th Year</Checkbox>
-											</Flex>
-										</Checkbox.Group>
-									</Flex>
-
-									<Flex vertical>
-										<Text strong>Program</Text>
-										<Checkbox.Group
-											onChange={(value) => {
-												setFilter((prev) => ({
-													...prev,
-													programs: value
-												}));
-											}}
-										>
-											<Flex vertical>
-												{(category === 'ics' || category === 'active' || category === 'restricted' || category === 'archived') && (
-													<>
-														<Text type='secondary'>Institute of Computing Studies</Text>
-														<Checkbox value='BSCpE'>Bachelor of Science in Computer Engineering (BSCpE)</Checkbox>
-														<Checkbox value='BSIT'>Bachelor of Science in Information Technology (BSIT)</Checkbox>
-													</>
-												)}
-												{(category === 'ite' || category === 'active' || category === 'restricted' || category === 'archived') && (
-													<>
-														<Text type='secondary'>Institute of Teacher Education</Text>
-														<Checkbox value='BSEd-SCI'>Bachelor of Secondary Education major in Science (BSEd-SCI)</Checkbox>
-														<Checkbox value='BEEd-GEN'>Bachelor of Elementary Education - Generalist (BEEd-GEN)</Checkbox>
-														<Checkbox value='BEEd-ECED'>Bachelor of Early Childhood Education (BEEd-ECED)</Checkbox>
-														<Checkbox value='BTLEd-ICT'>Bachelor of Technology and Livelihood Education major in Information and Communication Technology (BTLEd-ICT)</Checkbox>
-														<Checkbox value='TCP'>Teacher Certificate Program (18 Units-TCP)</Checkbox>
-													</>
-												)}
-												{(category === 'ibe' || category === 'active' || category === 'restricted' || category === 'archived') && (
-													<>
-														<Text type='secondary'>Institute of Business Entrepreneurship</Text>
-														<Checkbox value='BSBA-HRM'>Bachelor of Science in Business Administration Major in Human Resource Management (BSBA-HRM)</Checkbox>
-														<Checkbox value='BSE'>Bachelor of Science in Entrepreneurship (BSE)</Checkbox>
-													</>
-												)}
-											</Flex>
-										</Checkbox.Group>
-									</Flex>
-
-									<Button
-										type='primary'
-										size='small'
-										onClick={() => {
-											setFilter({
-												years: [],
-												programs: []
-											});
-										}}
-									>
-										Reset
-									</Button>
-								</Flex>
-							</Card>
-						)}
-					>
-						<Button
-							icon={<FilterOutlined />}
-							onClick={(e) => e.stopPropagation()}
-						/>
-					</Dropdown>
-
-					<Button
-						icon={view === 'table' ? <UnorderedListOutlined /> : <TableOutlined />}
-						onClick={() => {
-							setView(view === 'table' ? 'card' : 'table');
-						}}
-					/>
-				</Flex>
+				<Segmented
+					options={[
+						{ label: 'Active', value: 'active' },
+						{ label: 'ICS', value: 'ics' },
+						{ label: 'ITE', value: 'ite' },
+						{ label: 'IBE', value: 'ibe' },
+						{ label: 'Restricted', value: 'restricted' },
+						{ label: 'Archived', value: 'archived' }
+					]}
+					value={category}
+					onChange={(value) => {
+						setCategory(value);
+					}}
+				/>,
+				<>
+					{!mobile ? (
+						<Popover
+							trigger={['click']}
+							placement='bottom'
+							arrow
+							content={(menu) => <Filters setFilter={setFilter} category={category} mobile={mobile} />}
+						>
+							<Button
+								icon={<FilterOutlined />}
+								onClick={(e) => e.stopPropagation()}
+							/>
+						</Popover>
+					) : <Filters setFilter={setFilter} category={category} mobile={mobile} />}
+				</>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, filter, search, view, mobile]);
+	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -368,105 +382,20 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
 			{/************************** Profiles **************************/}
 			{displayedStudents.length > 0 ? (
-				view === 'card' ? (
-					<Row gutter={[16, 16]}>
-						{displayedStudents.map((student, index) => (
-							<Col key={student.studentId} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
-								<StudentCard
-									student={student}
-									animationDelay={index * 0.1}
-									loading={student.placeholder}
-									navigate={navigate}
-								/>
-							</Col>
-						))}
-					</Row>
-				) : (
-					<Table dataSource={displayedStudents} pagination={false} rowKey='studentId' size='small' style={{ minWidth: '100%' }} scroll={{ x: '100%' }}>
-						<Table.Column align='center' title='Student ID' dataIndex='studentId' key='studentId' />
-						<Table.Column align='center' title='Profile Picture' dataIndex='profilePicture' render={(text, record) => (
-							<Avatar src={text} size='large' />
-						)} />
-						<Table.Column align='center' title='Name'>
-							<Table.Column
-								align='center'
-								title='First'
-								dataIndex={['name', 'first']}
-								key='firstName'
+				<Row gutter={[16, 16]}>
+					{displayedStudents.map((student, index) => (
+						<Col key={student.studentId} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<StudentCard
+								student={student}
+								animationDelay={index * 0.1}
+								loading={student.placeholder}
+								navigate={navigate}
 							/>
-							<Table.Column
-								align='center'
-								title='Middle'
-								dataIndex={['name', 'middle']}
-								key='middleName'
-							/>
-							<Table.Column
-								align='center'
-								title='Last'
-								dataIndex={['name', 'last']}
-								key='lastName'
-							/>
-						</Table.Column>
-						<Table.Column align='center' title='Email' dataIndex='email' key='email' />
-						<Table.Column
-							title='Actions'
-							align='center'
-							render={(text, record) => (
-								<Flex gap={8} justify='center' align='center'>
-									<Button
-										icon={<EditOutlined />}
-										onClick={() => {
-											if (record.placeholder)
-												Modal.error({
-													title: 'Error',
-													content: 'This is a placeholder student profile. Please try again later.',
-													centered: true
-												});
-											else
-												EditStudent(Modal, record, (updatedStudent) => {
-													setDisplayedStudents((prev) => prev.map((s) => s.studentId === updatedStudent.studentId ? updatedStudent : s));
-												});
-										}}
-									/>
-									<Button
-										icon={<LockOutlined />}
-										onClick={() => {
-											if (record.placeholder)
-												Modal.error({
-													title: 'Error',
-													content: 'This is a placeholder student profile. Please try again later.',
-													centered: true
-												});
-											else
-												RestrictStudent(Modal, thisStudent, (updatedStudent) => {
-													setDisplayedStudents((prev) => prev.map((s) => s.studentId === updatedStudent.studentId ? updatedStudent : s));
-												});
-										}}
-									/>
-									<Button
-										icon={<RightOutlined />}
-										onClick={() => {
-											if (record.placeholder)
-												Modal.error({
-													title: 'Error',
-													content: 'This is a placeholder student profile. Please try again later.',
-													centered: true
-												});
-											else
-												navigate(`/dashboard/students/profiles/${record.studentId}`, {
-													state: { student: record }
-												});
-										}}
-									/>
-								</Flex>
-							)}
-						/>
-					</Table>
-				)
+						</Col>
+					))}
+				</Row>
 			) : (
-				<Flex justify='center' align='center' style={{ height: '100%' }}>
-					<Empty description='No profiles found' />
-				</Flex>
+				<Empty description='No profiles found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
 			)}
 		</Flex>
 	);
@@ -572,7 +501,7 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 					style={{ width: remToPx(6), height: remToPx(6) }}
 				/>
 				<Flex vertical justify='flex-start' align='flex-start'>
-					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override' }}>{thisStudent.studentId}</Text></Title>
+					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.studentId}</Text></Title>
 					<Text>{
 						thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
 							thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :

@@ -18,9 +18,7 @@ import {
 import {
 	EditOutlined,
 	LockOutlined,
-	InboxOutlined,
 	LeftOutlined,
-	RightOutlined,
 	PlusOutlined,
 	BellOutlined,
 	FileAddOutlined
@@ -37,18 +35,16 @@ const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState(location.state?.organization || {
-		id: '12345',
-		title: 'Placeholder Title',
-		description: 'Placeholder Description',
-		tags: {
-			status: 'ongoing',
-			severity: 'Minor',
-			occurances: 1
-		},
-		complainants: [],
-		complainees: [],
-		placeholder: true,
-		date: new Date()
+		id: 'org-1',
+		shortName: 'Org 1',
+		fullName: 'Organization One',
+		description: 'This is a sample organization.',
+		email: 'org1@example.com',
+		logo: '/Placeholder Image.svg',
+		cover: '/Placeholder Image.svg',
+		status: 'active',
+		type: 'college-wide',
+		members: []
 	});
 
 	React.useEffect(() => {

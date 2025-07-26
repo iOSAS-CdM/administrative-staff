@@ -1,14 +1,12 @@
 import React from 'react';
-import { useLocation } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import {
 	App,
-	Table,
 	Input,
-	Card,
 	Button,
 	Segmented,
-	Dropdown,
+	Popover,
 	Flex,
 	Empty,
 	Row,
@@ -17,6 +15,7 @@ import {
 	Typography,
 	Checkbox,
 	Tag,
+	Badge,
 	Divider
 } from 'antd';
 
@@ -24,9 +23,9 @@ import {
 	RightOutlined,
 	SearchOutlined,
 	FilterOutlined,
-	UnorderedListOutlined,
-	TableOutlined,
-	BankOutlined
+	BankOutlined,
+	ExclamationCircleOutlined,
+	WarningOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -42,6 +41,43 @@ import NewCase from '../../../modals/NewCase';
 import Record from '../../../classes/Record';
 import Student from '../../../classes/Student';
 
+const Filters = ({ filter, setFilter }) => (
+	<Flex vertical gap={8}>
+		<Divider>
+			<Text strong>Filters</Text>
+		</Divider>
+		<Flex vertical>
+			<Text strong>Severity</Text>
+			<Checkbox.Group
+				onChange={(value) => {
+					if (value.includes('minor') && value.includes('major') && value.includes('severe')) value = [];
+					setFilter(prev => ({
+						...prev,
+						severity: value
+					}));
+				}}
+				value={filter.severity}
+			>
+				<Flex vertical>
+					<Checkbox value='minor'>Minor</Checkbox>
+					<Checkbox value='major'>Major</Checkbox>
+					<Checkbox value='severe'>Severe</Checkbox>
+				</Flex>
+			</Checkbox.Group>
+		</Flex>
+
+		<Button
+			type='primary'
+			size='small'
+			onClick={() => {
+				setFilter({ severity: [] });
+			}}
+		>
+			Reset
+		</Button>
+	</Flex>
+);
+
 /** @typedef {Record[], React.Dispatch<React.SetStateAction<Record[]>>} RecordsState */
 
 const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
@@ -56,14 +92,12 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [category, setCategory] = React.useState('ongoing');
 	/**
 	 * @typedef {{
-	 * 		severity: import('../../../classes/Record').RecordSeverity[],
-	 * 		occurances: (Number & 'succeeding')[]
+	 * 		severity: import('../../../classes/Record').RecordSeverity[]
 	 * 	}} Filter
 	 */
 	/** @type {[Filter, React.Dispatch<React.SetStateAction<Filter>>]} */
 	const [filter, setFilter] = React.useState({
-		severity: [],
-		occurances: []
+		severity: []
 	});
 	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
@@ -90,8 +124,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				description: `This is a placeholder record for testing purposes. Record number ${i + 1}.`,
 				tags: {
 					status: 'ongoing',
-					severity: 'Minor',
-					occurances: 1
+					severity: 'Minor'
 				},
 				complainants: [],
 				complainees: [],
@@ -128,7 +161,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						},
 						email: 'user.email',
 						phone: 'user.phone',
-						studentId: id + `-${i + 1}`,
+						studentId: id + `-${Math.floor(Math.random() * 1000) + 1}`,
 						institute: institute,
 						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
 						year: Math.floor(Math.random() * 4) + 1,
@@ -155,7 +188,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						},
 						email: 'user.email',
 						phone: 'user.phone',
-						studentId: id + `-${i + 1}`,
+						studentId: id + `-${Math.floor(Math.random() * 1000) + 1}`,
 						institute: institute,
 						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
 						year: Math.floor(Math.random() * 4) + 1,
@@ -163,7 +196,10 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						placeholder: false,
 						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
 					});
-					complainees.push(student);
+					complainees.push({
+						occurrence: j + 1,
+						student: student
+					});
 				};
 				const record = new Record({
 					id: id,
@@ -171,8 +207,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 					description: `This is a record for testing purposes. Record number ${i + 1}.`,
 					tags: {
 						status: ['ongoing', 'resolved', 'archived'][Math.floor(Math.random() * 3)],
-						severity: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)],
-						occurances: Math.floor(Math.random() * 10) + 1
+						severity: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)]
 					},
 					complainants: complainants,
 					complainees: complainees,
@@ -206,16 +241,12 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		/** @type {Record[]} */
 		const filtered = [];
 
-		// Filter by severity and occurances
+		// Filter by severity
 		for (const record of categorizedRecords) {
 			if (filter.severity.length > 0 && !filter.severity.includes(record.tags.severity.toLowerCase())) continue; // Skip if severity does not match
-			if (filter.occurances.length > 0 && (
-				!filter.occurances.includes(record.tags.occurances) // Skip if the record does not match the exact occurances
-				&& !(filter.occurances.includes('succeeding') && record.tags.occurances > 4) // Include if 'succeeding' is selected and occurances are greater than 4
-			)) continue; // Skip if occurances do not match
 
 			filtered.push(record);
-	};
+		};
 
 		setFilteredRecords(filtered);
 	}, [categorizedRecords, filter]);
@@ -238,8 +269,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 			setDisplayedRecords(searchedRecords);
 		}, remToPx(0.5));
 	}, [search, filteredRecords]);
-
-	const [view, setView] = React.useState('card');
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -264,119 +293,33 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
 					/>
 				</Flex>,
-				<Flex gap={8}>
-					{!mobile && (
-						<Segmented
-							options={[
-								{ label: 'Active', value: 'active' },
-								{ label: 'Ongoing', value: 'ongoing' },
-								{ label: 'Resolved', value: 'resolved' },
-								{ label: 'Archived', value: 'archived' }
-							]}
-							value={category}
-							onChange={(value) => {
-								setCategory(value);
-							}}
-						/>
-					)}
-
-					<Dropdown
-						trigger={['click']}
-						placement='bottomRight'
-						arrow
-						popupRender={(menu) => (
-							<Card size='small'>
-								<Flex vertical gap={8}>
-									{mobile &&
-										<Segmented
-											options={[
-											{ label: 'Active', value: 'active' },
-												{ label: 'Ongoing', value: 'ongoing' },
-												{ label: 'Resolved', value: 'resolved' },
-												{ label: 'Archived', value: 'archived' }
-											]}
-											vertical
-											value={category}
-											onChange={(value) => {
-												setCategory(value);
-											}}
-											style={{ width: '100%' }}
-										/>
-									}
-									<Divider>
-										<Text strong>Filters</Text>
-									</Divider>
-									<Flex vertical>
-										<Text strong>Severity</Text>
-										<Checkbox.Group
-											onChange={(value) => {
-												if (value.includes('minor') && value.includes('major') && value.includes('severe')) value = [];
-												setFilter(prev => ({
-													...prev,
-													severity: value
-												}));
-											}}
-											value={filter.severity}
-										>
-											<Flex vertical>
-												<Checkbox value='minor'>Minor</Checkbox>
-												<Checkbox value='major'>Major</Checkbox>
-												<Checkbox value='severe'>Severe</Checkbox>
-											</Flex>
-										</Checkbox.Group>
-									</Flex>
-
-									<Flex vertical>
-										<Text strong>Occurance</Text>
-										<Checkbox.Group
-											onChange={(value) => {
-												if (value.includes(1) && value.includes(2) && value.includes(3) && value.includes(4) && value.includes('succeeding')) value = [];
-												setFilter(prev => ({
-													...prev,
-													occurances: value
-												}));
-											}}
-											value={filter.occurances}
-										>
-											<Flex vertical>
-												<Checkbox value={1}>1st Offense</Checkbox>
-												<Checkbox value={2}>2nd Offense</Checkbox>
-												<Checkbox value={3}>3rd Offense</Checkbox>
-												<Checkbox value={4}>4th Offense</Checkbox>
-												<Checkbox value='succeeding'>Succeeding Offenses</Checkbox>
-											</Flex>
-										</Checkbox.Group>
-									</Flex>
-
-									<Button
-										type='primary'
-										size='small'
-										onClick={() => {
-											setCategory('active');
-											setFilter({ severity: [], occurances: [] });
-											setSearch('');
-										}}
-									>
-										Reset
-									</Button>
-								</Flex>
-							</Card>
-						)}
-					>
+				<Segmented
+					options={[
+						{ label: 'Active', value: 'active' },
+						{ label: 'Ongoing', value: 'ongoing' },
+						{ label: 'Resolved', value: 'resolved' },
+						{ label: 'Archived', value: 'archived' }
+					]}
+					value={category}
+					onChange={(value) => {
+						setCategory(value);
+					}}
+				/>,
+				<>
+					{!mobile ? (
+						<Popover
+							trigger={['click']}
+							placement='bottomRight'
+							arrow
+							content={<Filters filter={filter} setFilter={setFilter} />}
+						>
 						<Button
 							icon={<FilterOutlined />}
 							onClick={(e) => e.stopPropagation()}
 						/>
-					</Dropdown>
-
-					<Button
-						icon={view === 'table' ? <UnorderedListOutlined /> : <TableOutlined />}
-						onClick={() => {
-							setView(view === 'table' ? 'card' : 'table');
-						}}
-					/>
-				</Flex>,
-
+						</Popover>
+					) : <Filters filter={filter} setFilter={setFilter} />}
+				</>,
 				<Button
 					type='primary'
 					icon={<BankOutlined />}
@@ -388,69 +331,26 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Button>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, filter, search, view, mobile]);
+	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
 			{/************************** Records **************************/}
 			{displayedRecords.length > 0 ? (
-				view === 'card' ? (
-					<Row gutter={[16, 16]}>
-						{displayedRecords.map((record, index) => (
-							<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
-								<RecordCard
-									record={record}
-									animationDelay={index * 0.1}
-									loading={record.placeholder}
-									navigate={navigate}
-								/>
-							</Col>
-						))}
-					</Row>
-				) : (
-						<Table dataSource={displayedRecords} pagination={false} rowKey='id' style={{ minWidth: '100%' }}>
-							<Table.Column align='center' title='ID' dataIndex='id' key='id' />
-						<Table.Column align='center' title='Title' dataIndex='title' key='title' />
-						<Table.Column align='center' title='Description' dataIndex='description' key='description' />
-						<Table.Column align='center' title='Complainants' key='complainants' render={(text, record) => (
-							<Avatar.Group>
-								{record.complainants.map((complainant, index) => (
-									<Avatar key={index} src={complainant.profilePicture} />
-								))}
-							</Avatar.Group>
-						)} />
-						<Table.Column align='center' title='Complainees' key='complainees' render={(text, record) => (
-							<Avatar.Group>
-								{record.complainees.map((complainee, index) => (
-									<Avatar key={index} src={complainee.profilePicture} />
-								))}
-							</Avatar.Group>
-						)} />
-						<Table.Column align='center' title='Date' key='date' render={(text, record) => (
-							<Text>
-								{record.date.toLocaleDateString('en-US', {
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric'
-								})}
-							</Text>
-						)} />
-						<Table.Column align='center' title='Actions' key='actions' render={(text, record) => (
-							<Button
-								icon={<RightOutlined />}
-								onClick={() => {
-									navigate(`/dashboard/students/records/${record.id}`, {
-										state: { record: record }
-									});
-								}}
+				<Row gutter={[16, 16]}>
+					{displayedRecords.map((record, index) => (
+						<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<RecordCard
+								record={record}
+								animationDelay={index * 0.1}
+								loading={record.placeholder}
+								navigate={navigate}
 							/>
-						)} />
-					</Table>
-				)
+						</Col>
+					))}
+				</Row>
 			) : (
-				<Flex justify='center' align='center' style={{ height: '100%' }}>
-						<Empty description='No records found' />
-				</Flex>
+					<Empty description='No records found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
 			)}
 		</Flex>
 	);
@@ -491,126 +391,113 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 	const Modal = app.modal;
 
 	return (
-		<ItemCard
-			loading={loading}
-			mounted={mounted}
-
-			status={thisRecord.tags.status === 'archived' && 'archived'}
-
-			title={!loading && (
-				<Title level={3} style={{ margin: 0 }}>
-					{thisRecord.violation}
-				</Title>
-			)}
-
-			actions={!loading && [
+		<Badge.Ribbon
+			text={thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
+			color={
 				{
-					content: (
-						<Avatar.Group
-							max={{
-								count: 4
-							}}
-						>
-							{thisRecord.complainants.map((complainant, index) => (
-								<Avatar
-									key={index}
-									src={complainant.profilePicture}
-									style={{ cursor: 'pointer' }}
-									onClick={() => {
-										navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
-											state: { student: complainant }
-										});
-									}}
-								/>
-							))}
-							{thisRecord.complainees.map((complainee, index) => (
-								<Avatar
-									key={index}
-									src={complainee.profilePicture}
-									style={{ cursor: 'pointer' }}
-									onClick={() => {
-										navigate(`/dashboard/students/profiles/${complainee.studentId}`, {
-											state: { student: complainee }
-										});
-									}}
-								/>
-							))}
-						</Avatar.Group>
-					)
-				},
-				{
-					content: (
-						<Text>
-							{thisRecord.date.toLocaleDateString('en-US', {
-								year: 'numeric',
-								month: 'long',
-								day: 'numeric'
-							})}
-						</Text>
-					)
-				},
-				{
-					content: <RightOutlined />,
-					onClick: () => {
-						if (loading) {
-							Modal.error({
-								title: 'Error',
-								content: 'This is a placeholder disciplinary record. Please try again later.',
-								centered: true
-							});
-						} else {
-							navigate(`/dashboard/students/records/${thisRecord.id}`, {
-								state: { record: thisRecord }
-							});
-						};
-					}
-				}
-			]}
-
-			extra={!loading && (
-				<Flex style={{ flexWrap: 'wrap' }}>
-					<Tag color={
-						{
-							1: 'green',
-							2: 'orange',
-							3: 'red'
-						}[thisRecord.tags.occurances] || 'red'
-					}>
-						{
-							thisRecord.tags.occurances === 1 ? '1st' :
-								thisRecord.tags.occurances === 2 ? '2nd' :
-									thisRecord.tags.occurances === 3 ? '3rd' :
-										`${thisRecord.tags.occurances}th`
-						} Offense
-					</Tag>
-					<Tag color={
-						{
-							minor: 'blue',
-							major: 'orange',
-							severe: 'red'
-						}[thisRecord.tags.severity.toLowerCase()] || 'default'
-					}>
-						{thisRecord.tags.severity.charAt(0).toUpperCase() + thisRecord.tags.severity.slice(1)}
-					</Tag>
-					<Tag color={
-						{
-							ongoing: 'blue',
-							resolved: 'green',
-							archived: 'grey'
-						}[thisRecord.tags.status] || 'default'
-					}>
-						{thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
-					</Tag>
-				</Flex>
-			)}
+					ongoing: 'blue',
+					resolved: 'green',
+					archived: 'grey'
+				}[thisRecord.tags.status] || 'transparent'
+			}
+			style={{ display: loading ? 'none' : '' }}
 		>
-			{!loading && (
-				<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
-					<Text>
-						{thisRecord.description}
-					</Text>
-				</Flex>
-			)}
-		</ItemCard>
+			<ItemCard
+				loading={loading}
+				mounted={mounted}
+
+				status={thisRecord.tags.status === 'archived' && 'archived'}
+
+				title={!loading && (
+					<Title level={3}>
+						{
+							{
+								minor: null,
+								major: <WarningOutlined style={{ color: 'orange' }} title='Major Violation' />,
+								severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe Violation' />
+							}[thisRecord.tags.severity.toLowerCase()] || ''
+						} {thisRecord.violation}
+					</Title>
+				)}
+
+				actions={!loading && [
+					{
+						content: (
+							<Avatar.Group
+								max={{
+									count: 4
+								}}
+							>
+								{thisRecord.complainants.map((complainant, index) => (
+									<Avatar
+										key={index}
+										src={complainant.profilePicture}
+										style={{ cursor: 'pointer' }}
+										onClick={() => {
+											navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+												state: { student: complainant }
+											});
+										}}
+									/>
+								))}
+								{thisRecord.complainees.map((complainee, index) => (
+									<Badge
+										key={index}
+										title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
+										count={complainee.occurrence}
+										color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
+									>
+										<Avatar
+											src={complainee.student.profilePicture}
+											style={{ cursor: 'pointer' }}
+											onClick={() => {
+												navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
+													state: { student: complainee.student }
+												});
+											}}
+										/>
+									</Badge>
+								))}
+							</Avatar.Group>
+						)
+					},
+					{
+						content: (
+							<Text>
+								{thisRecord.date.toLocaleDateString('en-US', {
+									year: 'numeric',
+									month: 'long',
+									day: 'numeric'
+								})}
+							</Text>
+						)
+					},
+					{
+						content: <RightOutlined />,
+						onClick: () => {
+							if (loading) {
+								Modal.error({
+									title: 'Error',
+									content: 'This is a placeholder disciplinary record. Please try again later.',
+									centered: true
+								});
+							} else {
+								navigate(`/dashboard/students/records/${thisRecord.id}`, {
+									state: { record: thisRecord }
+								});
+							};
+						}
+					}
+				]}
+			>
+				{!loading && (
+					<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
+						<Text>
+							{thisRecord.description}
+						</Text>
+					</Flex>
+				)}
+			</ItemCard>
+		</Badge.Ribbon>
 	);
 };

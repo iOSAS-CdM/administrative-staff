@@ -11,6 +11,7 @@ import {
 	Avatar,
 	Typography,
 	Tag,
+	Badge,
 	App,
 	Steps
 } from 'antd';
@@ -40,8 +41,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		description: 'Placeholder Description',
 		tags: {
 			status: 'ongoing',
-			severity: 'Minor',
-			occurances: 1
+			severity: 'Minor'
 		},
 		complainants: [],
 		complainees: [],
@@ -125,20 +125,6 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									})}
 								</Text>
 								<div>
-									<Tag color={
-										{
-											1: 'green',
-											2: 'orange',
-											3: 'red'
-										}[thisRecord.tags.occurances] || 'red'
-									}>
-										{
-											thisRecord.tags.occurances === 1 ? '1st' :
-												thisRecord.tags.occurances === 2 ? '2nd' :
-													thisRecord.tags.occurances === 3 ? '3rd' :
-														`${thisRecord.tags.occurances}th`
-										} Offense
-									</Tag>
 									<Tag color={
 										{
 											minor: 'blue',
@@ -247,11 +233,11 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 													navigate(`/dashboard/students/profiles/${complainant.id}`, {
 														state: { student: complainant }
 													});
-												}
+												};
 											}}
 										>
-											<Flex align='center' gap={8}>
-												<Avatar src={complainant.profilePicture} size='large' />
+											<Flex align='flex-start' gap={8}>
+												<Avatar src={complainant.profilePicture} size='large' style={{ width: 32, height: 32 }} />
 												<Flex vertical>
 													<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
 													<Text type='secondary'>{complainant.studentId}</Text>
@@ -287,32 +273,39 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									}
 								>
 									{thisRecord.complainees.map((complainee, i) => (
-										<Card
-											key={complainee.studentId || i}
-											size='small'
-											style={{ width: '100%' }}
-											onClick={() => {
-												if (complainee.placeholder) {
-													Modal.error({
-														title: 'Error',
-														content: 'This is a placeholder complainee profile. Please try again later.',
-														centered: true
-													});
-												} else {
-													navigate(`/dashboard/students/profiles/${complainee.id}`, {
-														state: { student: complainee }
-													});
-												}
-											}}
+										<Badge
+											key={complainee.student.studentId || i}
+											title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
+											count={complainee.occurrence}
+											color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
+											offset={[-16, 16]}
 										>
-											<Flex align='center' gap={8}>
-												<Avatar src={complainee.profilePicture} size='large' />
-												<Flex vertical>
-													<Text>{complainee.name.first} {complainee.name.middle} {complainee.name.last}</Text>
-													<Text type='secondary'>{complainee.studentId}</Text>
+											<Card
+												size='small'
+												style={{ width: '100%' }}
+												onClick={() => {
+													if (complainee.student.placeholder) {
+														Modal.error({
+															title: 'Error',
+															content: 'This is a placeholder complainee profile. Please try again later.',
+															centered: true
+														});
+													} else {
+														navigate(`/dashboard/students/profiles/${complainee.student.id}`, {
+															state: { student: complainee.student }
+														});
+													};
+												}}
+											>
+												<Flex align='flex-start' gap={8}>
+													<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
+													<Flex vertical>
+														<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
+														<Text type='secondary'>{complainee.student.studentId}</Text>
+													</Flex>
 												</Flex>
-											</Flex>
-										</Card>
+											</Card>
+										</Badge>
 									))}
 								</PanelCard>
 							</Col>
@@ -349,8 +342,8 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									style={{ width: '100%' }}
 									onClick={() => { }}
 								>
-									<Flex align='center' gap={8}>
-										<Avatar src={file.thumbnail} size='large' shape='square' />
+									<Flex align='flex-start' gap={8}>
+										<Avatar src={file.thumbnail} size='large' shape='square' style={{ width: 32, height: 32 }} />
 										<Flex vertical>
 											<Text>{file.name}</Text>
 											<Text type='secondary'>{file.extension.toUpperCase()}</Text>

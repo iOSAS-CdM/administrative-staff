@@ -101,7 +101,6 @@ const CaseForm = () => {
 				date: dayjs(new Date()),
 				tags: {
 					severity: '', // 'minor', 'major', 'severe'
-					occurances: 1
 				},
 				complainants: [],
 				complainees: [],
@@ -146,54 +145,33 @@ const CaseForm = () => {
 							disabledDate={(current) => current && current > new Date()}
 						/>
 					</Form.Item>
-					<Space.Compact style={{ width: '100%' }}>
-						<Form.Item
-							name={['tags', 'severity']}
-							label='Severity'
-							rules={[{ required: true, message: 'Please select a severity!' }]}
-							style={{ flex: 1 }}
-							status={{
-								minor: 'default',
-								major: 'warning',
-								severe: 'error'
-							}[severity]}
-						>
-							<Select
-								placeholder='Select severity'
-								options={[
-									{ label: 'Minor', value: 'minor' },
-									{ label: 'Major', value: 'major' },
-									{ label: 'Severe', value: 'severe' }
-								]}
-								style={{ width: '100%' }}
-								filterOption={(input, option) =>
-									option.label.toLowerCase().includes(input.toLowerCase())
-								}
-								onChange={(value) => {
-									setSeverity(value);
-								}}
-							/>
-						</Form.Item>
-						<Form.Item
-							name={['tags', 'occurances']}
-							label='Occurrences'
-							rules={[{ required: true, message: 'Please enter occurrences!' }]}
-						>
-							<Input
-								type='number'
-								min={1}
-								placeholder='Enter occurrences'
-								style={{ width: '100%' }}
-								onChange={(e) => {
-									const value = e.target.value;
-									if (value < 0)
-										e.target.value = 0;
-									else if (value > 100)
-										e.target.value = 100;
-								}}
-							/>
-						</Form.Item>
-					</Space.Compact>
+					<Form.Item
+						name={['tags', 'severity']}
+						label='Severity'
+						rules={[{ required: true, message: 'Please select a severity!' }]}
+						style={{ flex: 1 }}
+						status={{
+							minor: 'default',
+							major: 'warning',
+							severe: 'error'
+						}[severity]}
+					>
+						<Select
+							placeholder='Select severity'
+							options={[
+								{ label: 'Minor', value: 'minor' },
+								{ label: 'Major', value: 'major' },
+								{ label: 'Severe', value: 'severe' }
+							]}
+							style={{ width: '100%' }}
+							filterOption={(input, option) =>
+								option.label.toLowerCase().includes(input.toLowerCase())
+							}
+							onChange={(value) => {
+								setSeverity(value);
+							}}
+						/>
+					</Form.Item>
 					<Form.Item
 						name='complainants'
 						label='Complainants'

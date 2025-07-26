@@ -26,9 +26,7 @@ const PanelCard = ({
 			}}>
 				<Flex vertical gap={8} className='scrollable-content' style={{ height: '100%', flexGrow: 1, maxHeight: contentMaxHeight }}>
 					{children || (
-						<Flex vertical justify='center' align='center' style={{ height: '100%' }}>
-							<Empty description='No content available' />
-						</Flex>
+						<Empty description='No content found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
 					)}
 				</Flex>
 

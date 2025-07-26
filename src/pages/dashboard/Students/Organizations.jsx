@@ -21,9 +21,7 @@ import {
 	FilterOutlined,
 	EditOutlined,
 	LockOutlined,
-	RightOutlined,
-	TableOutlined,
-	UnorderedListOutlined
+	RightOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -173,8 +171,6 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		}, remToPx(0.5));
 	}, [search, categorizedOrganizations]);
 
-	const [view, setView] = React.useState('card');
-
 	React.useEffect(() => {
 		setHeader({
 			title: 'Student Organizations',
@@ -195,33 +191,23 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
 					/>
 				</Flex>,
-				<Flex gap={8}>
-					{!mobile && (
-						<Segmented
-							options={[
-								{ label: 'Active', value: 'active' },
-								{ label: 'College-wide', value: 'college-wide' },
-								{ label: 'Institute-wide', value: 'institute-wide' },
-								{ label: 'Restricted', value: 'restricted' },
-								{ label: 'Archived', value: 'archived' }
-							]}
-							value={category}
-							onChange={(value) => {
-								setCategory(value);
-							}}
-						/>
-					)}
-
-					<Button
-						icon={view === 'table' ? <UnorderedListOutlined /> : <TableOutlined />}
-						onClick={() => {
-							setView(view === 'table' ? 'card' : 'table');
-						}}
-					/>
-				</Flex>
+				<Segmented
+					vertical={mobile}
+					options={[
+						{ label: 'Active', value: 'active' },
+						{ label: 'College-wide', value: 'college-wide' },
+						{ label: 'Institute-wide', value: 'institute-wide' },
+						{ label: 'Restricted', value: 'restricted' },
+						{ label: 'Archived', value: 'archived' }
+					]}
+					value={category}
+					onChange={(value) => {
+						setCategory(value);
+					}}
+				/>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, view, mobile]);
+	}, [setHeader, setSelectedKeys, category, mobile]);
 	const app = App.useApp();
 	const Modal = app.modal;
 
@@ -229,50 +215,20 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
 			{/************************** Student Organizations **************************/}
 			{displayedOrganizations.length > 0 ? (
-				view === 'card' ? (
-					<Row gutter={[16, 16]}>
-						{displayedOrganizations.map((organization, index) => (
-							<Col key={organization.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
-								<OrganizationCard
-									organization={organization}
-									animationDelay={index * 0.1}
-									loading={organization.placeholder}
-									navigate={navigate}
-								/>
-							</Col>
-						))}
-					</Row>
-				) : (
-					<Table dataSource={displayedOrganizations} pagination={false} rowKey='id' style={{ minWidth: '100%' }}>
-						<Table.Column align='center' title='ID' dataIndex='id' key='id' />
-						<Table.ColumnGroup title='Name'>
-							<Table.Column align='center' title='Short Name' dataIndex='shortName' key='shortName' />
-							<Table.Column align='center' title='Full Name' dataIndex='fullName' key='fullName' />
-						</Table.ColumnGroup>
-						<Table.Column align='center' title='Description' dataIndex='description' key='description' />
-						<Table.Column align='center' title='Members' key='members' render={(text, organization) => (
-							<Avatar.Group>
-								{organization.members.map((member, index) => (
-									<Avatar key={index} src={member.profilePicture} />
-								))}
-							</Avatar.Group>
-						)} />
-						<Table.Column align='center' title='Actions' key='actions' render={(text, organization) => (
-							<Button
-								icon={<RightOutlined />}
-								onClick={() => {
-									navigate(`/dashboard/students/organizations/${organization.organizationId}`, {
-										state: { organization: organization }
-									});
-								}}
+				<Row gutter={[16, 16]}>
+					{displayedOrganizations.map((organization, index) => (
+						<Col key={organization.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+							<OrganizationCard
+								organization={organization}
+								animationDelay={index * 0.1}
+								loading={organization.placeholder}
+								navigate={navigate}
 							/>
-						)} />
-					</Table>
-				)
+						</Col>
+					))}
+				</Row>
 			) : (
-				<Flex justify='center' align='center' style={{ height: '100%' }}>
-					<Empty description='No organizations found' />
-				</Flex>
+				<Empty description='No organizations found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
 			)}
 		</Flex>
 	);
@@ -380,7 +336,7 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 					style={{ width: remToPx(6), height: remToPx(6) }}
 				/>
 				<Flex vertical justify='flex-start' align='flex-start'>
-					<Title level={3}>{thisOrganization.shortName}<Text type='secondary' style={{ unicodeBidi: 'bidi-override' }}>{thisOrganization.studentId}</Text></Title>
+					<Title level={3}>{thisOrganization.shortName}<Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisOrganization.studentId}</Text></Title>
 					<Text>{thisOrganization.fullName}</Text>
 				</Flex>
 			</Flex>

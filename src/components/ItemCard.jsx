@@ -25,6 +25,7 @@ import {
  * @typedef {{
  * 	mounted: Boolean,
  *	loading: Boolean,
+ * 	title: React.ReactNode,
  * 	extra: React.ReactNode,
  * 	status: String,
  * 	children: React.ReactNode,
@@ -39,6 +40,7 @@ import {
 const ItemCard = ({
 	mounted,
 	loading,
+	title,
 	extra,
 	status,
 	actions,
@@ -53,7 +55,8 @@ const ItemCard = ({
 			hoverable
 			className={`card ${mounted && 'mounted'} ${(status && mounted) && status} ${props.className || ''}`}
 			actions={null}
-			extra={extra}
+			title={title}
+			extra={null}
 			style={{
 				...props.style,
 				height: '100%',
@@ -68,34 +71,6 @@ const ItemCard = ({
 						<Divider />
 
 						<Flex justify='space-between' align='center'>
-							{/* {actions.map((action, index) => (
-								<>
-									{
-										action.onClick ? (
-											<Button
-												key={`action-${index}`}
-												type='text'
-												size='small'
-												style={{ width: '100%' }}
-												onClick={typeof action.onClick === 'function' ? action.onClick : undefined}
-											>
-												{action.content}
-											</Button>
-										) : (
-											<div style={{
-												display: 'flex',
-												alignItems: 'center',
-												width: '100%',
-													justifyContent: action.align || 'center',
-													textAlign: action.align || 'center'
-											}}>{action.content}</div>
-										)
-									}
-									{index < actions.length - 1 && (
-										<Divider type='vertical' key={`divider-${index}`} />
-									)}
-								</>
-							))} */}
 							{(() => {
 								const toReturn = [];
 

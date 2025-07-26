@@ -8,7 +8,8 @@ import {
     Avatar,
     Typography,
     Button,
-    Menu
+	Menu,
+	Popover
 } from 'antd';
 
 import {
@@ -20,7 +21,8 @@ import {
     SmileOutlined,
     ToolOutlined,
 	RobotOutlined,
-	UserOutlined
+	UserOutlined,
+	MenuOutlined
 } from '@ant-design/icons';
 
 import { MobileContext, DisplayThemeContext } from '../main';
@@ -347,17 +349,47 @@ const Menubar = () => {
                         justify='space-between'
 						align='stretch'
 						gap={mobile ? 16 : 32}
-						wrap={true}
                         style={{ width: '100%', height: '100%' }}
 					>
 						<Title level={4}>{Header.title}</Title>
-						<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-							{Header.actions && Header.actions.map((action, index) => (
-								{...action,
-									key: index
-								}
-							))}
-						</Flex>
+						{!mobile ? (
+							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+								{Header.actions && Header.actions.map((action, index) => (
+									{
+										...action,
+										key: index
+									}
+								))}
+							</Flex>
+						) : (
+							Header.actions && Header.actions.length > 1 ? (
+								<Popover
+									trigger={['click']}
+									placement='bottom'
+									content={(menu) => (
+										<Flex vertical justify='flex-start' gap={16} flex={1} align='stretch'>
+											{Header.actions && Header.actions.map((action, index) => (
+												{
+													...action,
+													key: index
+												}
+											))}
+										</Flex>
+									)}
+								>
+									<Button type='default' icon={<MenuOutlined />} />
+								</Popover>
+							) : (
+								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+									{Header.actions && Header.actions.map((action, index) => (
+										{
+											...action,
+											key: index
+										}
+									))}
+								</Flex>
+							)
+						)}
                     </Flex>
                 </Card>
 

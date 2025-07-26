@@ -3,16 +3,22 @@
 
 /**
  * @typedef {{
+ * 	occurrence: Number,
+ * 	student: import('./Student').StudentProps
+ * }} RecordComplainanee
+ */
+
+/**
+ * @typedef {{
  * 	id?: Number | String,
  * 	violation: String,
  * 	description: String,
  * 	tags: {
  * 		status: RecordStatus,
- * 		severity: RecordSeverity,
- * 		occurances: Number
+ * 		severity: RecordSeverity
  * 	},
  * 	complainants: import('./Student').StudentProps[],
- * 	complainees: import('./Student').StudentProps[],
+ * 	complainees: RecordComplainanee[],
  * 	date: Date,
  * 	placeholder?: Boolean
  * }} RecordProps
@@ -28,8 +34,7 @@ class Record {
 		description,
 		tags: {
 			status,
-			severity,
-			occurances
+			severity
 		},
 		complainants = [],
 		complainees = [],
@@ -43,8 +48,7 @@ class Record {
 		this.description = description;
 		this.tags = {
 			status,
-			severity,
-			occurances
+			severity
 		};
 		this.complainants = complainants;
 		this.complainees = complainees;
