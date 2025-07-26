@@ -273,39 +273,41 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									}
 								>
 									{thisRecord.complainees.map((complainee, i) => (
-										<Badge
+										<Card
 											key={complainee.student.studentId || i}
-											title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
-											count={complainee.occurrence}
-											color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
-											offset={[-16, 16]}
+											size='small'
+											style={{ width: '100%' }}
+											onClick={() => {
+												if (complainee.student.placeholder) {
+													Modal.error({
+														title: 'Error',
+														content: 'This is a placeholder complainee profile. Please try again later.',
+														centered: true
+													});
+												} else {
+													navigate(`/dashboard/students/profiles/${complainee.student.id}`, {
+														state: { student: complainee.student }
+													});
+												};
+											}}
 										>
-											<Card
-												size='small'
-												style={{ width: '100%' }}
-												onClick={() => {
-													if (complainee.student.placeholder) {
-														Modal.error({
-															title: 'Error',
-															content: 'This is a placeholder complainee profile. Please try again later.',
-															centered: true
-														});
-													} else {
-														navigate(`/dashboard/students/profiles/${complainee.student.id}`, {
-															state: { student: complainee.student }
-														});
-													};
+											<Badge
+												title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
+												count={complainee.occurrence}
+												color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
+												styles={{
+													root: { position: 'absolute', top: 0, right: 0 }
 												}}
-											>
-												<Flex align='flex-start' gap={8}>
-													<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
-													<Flex vertical>
-														<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
-														<Text type='secondary'>{complainee.student.studentId}</Text>
-													</Flex>
+												offset={[-8, 8]}
+											/>
+											<Flex align='flex-start' gap={8}>
+												<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
+												<Flex vertical>
+													<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
+													<Text type='secondary'>{complainee.student.studentId}</Text>
 												</Flex>
-											</Card>
-										</Badge>
+											</Flex>
+										</Card>
 									))}
 								</PanelCard>
 							</Col>
