@@ -20,7 +20,7 @@ import {
 	ClearOutlined
 } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 import remToPx from '../utils/remToPx';
 

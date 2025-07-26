@@ -22,10 +22,11 @@ import {
     ToolOutlined,
 	RobotOutlined,
 	UserOutlined,
-	MenuOutlined
+	MenuOutlined,
+	SyncOutlined
 } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext } from '../main';
+import { MobileContext, DisplayThemeContext, SyncSeedContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
@@ -49,6 +50,7 @@ const Menubar = () => {
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
+	const { seed, setSeed } = React.useContext(SyncSeedContext);
 
     const [staff, setStaff] = React.useState({
         name: {
@@ -354,6 +356,13 @@ const Menubar = () => {
 						<Title level={4}>{Header.title}</Title>
 						{!mobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+								<Button
+									type='default'
+									icon={<SyncOutlined />}
+									onClick={() => {
+										setSeed(prev => prev + 1);
+									}}
+								/>
 								{Header.actions && Header.actions.map((action, index) => (
 									{
 										...action,
@@ -362,25 +371,41 @@ const Menubar = () => {
 								))}
 							</Flex>
 						) : (
-							Header.actions && Header.actions.length > 1 ? (
-								<Popover
-									trigger={['click']}
-									placement='bottom'
-									content={(menu) => (
-										<Flex vertical justify='flex-start' gap={16} flex={1} align='stretch'>
-											{Header.actions && Header.actions.map((action, index) => (
-												{
-													...action,
-													key: index
-												}
-											))}
-										</Flex>
-									)}
-								>
-									<Button type='default' icon={<MenuOutlined />} />
-								</Popover>
+								Header.actions && Header.actions.length > 2 ? (
+									<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+										<Button
+											type='default'
+											icon={<SyncOutlined />}
+											onClick={() => {
+												setSeed(prev => prev + 1);
+											}}
+										/>
+										<Popover
+											trigger={['click']}
+											placement='bottom'
+											content={(menu) => (
+												<Flex vertical justify='flex-start' gap={16} flex={1} align='stretch'>
+													{Header.actions && Header.actions.map((action, index) => (
+														{
+															...action,
+															key: index
+														}
+													))}
+												</Flex>
+											)}
+										>
+											<Button type='default' icon={<MenuOutlined />} />
+										</Popover>
+									</Flex>
 							) : (
 								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+									<Button
+										type='default'
+										icon={<SyncOutlined />}
+										onClick={() => {
+											setSeed(prev => prev + 1);
+										}}
+									/>
 									{Header.actions && Header.actions.map((action, index) => (
 										{
 											...action,

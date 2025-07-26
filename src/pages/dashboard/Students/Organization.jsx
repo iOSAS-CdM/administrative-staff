@@ -30,11 +30,16 @@ import remToPx from '../../../utils/remToPx';
 
 import PanelCard from '../../../components/PanelCard';
 
-const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+import { MobileContext, OSASContext } from '../../../main';
+
+const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
+	const { mobile, setMobile } = React.useContext(MobileContext);
+	const { osas, setOsas } = React.useContext(OSASContext);
+
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
-	const [thisOrganization, setThisOrganization] = React.useState(location.state?.organization || {
+	const [thisOrganization, setThisOrganization] = React.useState({
 		id: 'org-1',
 		shortName: 'Org 1',
 		fullName: 'Organization One',
@@ -46,6 +51,12 @@ const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		type: 'college-wide',
 		members: []
 	});
+	React.useEffect(() => {
+		if (!location.state?.id) return;
+		const organization = osas.organizations.find(o => o.id === location.state.id);
+		if (organization)
+			setThisOrganization(organization);
+	}, [location.state?.id]);
 
 	React.useEffect(() => {
 		setHeader({
@@ -247,10 +258,19 @@ const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						}
 					>
 						{thisOrganization.members.map((member, index) => (
-							<Card key={index} size='small' style={{ width: '100%' }}>
+							<Card
+								key={index}
+								size='small'
+								style={{ width: '100%' }}
+								onClick={() => {
+									navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
+										state: { studentId: member.student.studentId }
+									});
+								}}
+							>
 								<Flex justify='flex-start' align='center' gap={16}>
 									<Avatar
-										src={member.profilePicture || '/Placeholder Image.svg'}
+										src={member.student.profilePicture || '/Placeholder Image.svg'}
 										size='large'
 										style={{
 											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'

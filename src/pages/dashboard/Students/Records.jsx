@@ -34,7 +34,7 @@ const { Title, Text } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext } from '../../../main';
+import { MobileContext, OSASContext } from '../../../main';
 
 import NewCase from '../../../modals/NewCase';
 
@@ -86,6 +86,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
+	const { osas, setOsas } = React.useContext(OSASContext);
 
 	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -112,121 +113,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [displayedRecords, setDisplayedRecords] = React.useState([]);
 
 	React.useEffect(() => {
-		/** @type {Record[]} */
-		const placeholderRecords = [];
-		for (let i = 0; i < 20; i++) {
-			const id = `placeholder-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
-			if (records.some(record => record.id === id))
-				continue;
-			const placeholderRecord = new Record({
-				id: id,
-				violation: `Placeholder Record ${i + 1}`,
-				description: `This is a placeholder record for testing purposes. Record number ${i + 1}.`,
-				tags: {
-					status: 'ongoing',
-					severity: 'Minor'
-				},
-				complainants: [],
-				complainees: [],
-				placeholder: true,
-				date: new Date()
-			});
-			placeholderRecords.push(placeholderRecord);
-		};
-		setRecords(placeholderRecords);
-
-		setTimeout(() => {
-			/** @type {Record[]} */
-			const fetchedRecords = [];
-
-			for (let i = 0; i < 40; i++) {
-				const id = `record-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
-				if (records.some(record => record.id === id))
-					continue;
-
-				const complainants = [];
-				for (let j = 0; j < 10; j++) {
-					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-					const programs = {
-						'ics': ['BSCpE', 'BSIT'],
-						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-						'ibe': ['BSBA-HRM', 'BSE']
-					};
-					const student = new Student({
-						id: Math.floor(Math.random() * 1000) + 1,
-						name: {
-							first: 'user.name.first',
-							middle: 'user.name.middle',
-							last: 'user.name.last'
-						},
-						email: 'user.email',
-						phone: 'user.phone',
-						studentId: id + `-${Math.floor(Math.random() * 1000) + 1}`,
-						institute: institute,
-						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-						year: Math.floor(Math.random() * 4) + 1,
-						profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][j % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
-						placeholder: false,
-						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
-					});
-					complainants.push(student);
-				};
-				const complainees = [];
-				for (let j = 0; j < 10; j++) {
-					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-					const programs = {
-						'ics': ['BSCpE', 'BSIT'],
-						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-						'ibe': ['BSBA-HRM', 'BSE']
-					};
-					const student = new Student({
-						id: Math.floor(Math.random() * 1000) + 1,
-						name: {
-							first: 'user.name.first',
-							middle: 'user.name.middle',
-							last: 'user.name.last'
-						},
-						email: 'user.email',
-						phone: 'user.phone',
-						studentId: id + `-${Math.floor(Math.random() * 1000) + 1}`,
-						institute: institute,
-						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-						year: Math.floor(Math.random() * 4) + 1,
-						profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][i % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
-						placeholder: false,
-						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
-					});
-					complainees.push({
-						occurrence: j + 1,
-						student: student
-					});
-				};
-				const record = new Record({
-					id: id,
-					violation: `Record ${i + 1}`,
-					description: `This is a record for testing purposes. Record number ${i + 1}.`,
-					tags: {
-						status: ['ongoing', 'resolved', 'archived'][Math.floor(Math.random() * 3)],
-						severity: ['Minor', 'Major', 'Severe'][Math.floor(Math.random() * 3)]
-					},
-					complainants: complainants,
-					complainees: complainees,
-					placeholder: false,
-					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
-						Date().getDate() - (Math.floor(Math.random() * 10) + 1))
-				});
-
-				fetchedRecords.push(record);
-			};
-
-			const sortedRecords = fetchedRecords.sort((a, b) => b.date - a.date);
-			sortedRecords.forEach(record => {
-				record.date = new Date(record.date);
-			});
-
-			setRecords(sortedRecords);
-		}, remToPx(200));
-	}, []);
+		if (osas.records.length > 0)
+			setRecords(osas.records);
+	}, [osas.records]);
 
 	React.useEffect(() => {
 		if (records.length > 0)
@@ -435,7 +324,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 										style={{ cursor: 'pointer' }}
 										onClick={() => {
 											navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
-												state: { student: complainant }
+												state: { studentId: complainant.studentId }
 											});
 										}}
 									/>
@@ -452,7 +341,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 											style={{ cursor: 'pointer' }}
 											onClick={() => {
 												navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
-													state: { student: complainee.student }
+													state: { studentId: complainee.student.studentId }
 												});
 											}}
 										/>
@@ -483,7 +372,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 								});
 							} else {
 								navigate(`/dashboard/students/records/${thisRecord.id}`, {
-									state: { record: thisRecord }
+									state: { id: thisRecord.id }
 								});
 							};
 						}

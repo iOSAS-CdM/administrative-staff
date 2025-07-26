@@ -6,7 +6,6 @@
 
 /**
  * @typedef {{
- * 	id?: Number | String,
  * 	name: {
  * 		first: String,
  * 		middle: String,
@@ -32,7 +31,6 @@ class Student {
 	 * @param {StudentProps} param0
 	 */
 	constructor({
-		id = Math.floor(Math.random() * 1000000),
 		name,
 		email,
 		phone,
@@ -44,7 +42,6 @@ class Student {
 		placeholder = false,
 		status = 'active'
 	}) {
-		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.phone = phone;

@@ -32,8 +32,13 @@ const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
 
-const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+import { MobileContext, OSASContext } from '../../../main';
+
+const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
+
+	const { mobile, setMobile } = React.useContext(MobileContext);
+	const { osas, setOsas } = React.useContext(OSASContext);
 
 	React.useEffect(() => {
 		setHeader({
@@ -54,95 +59,114 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	}, [setSelectedKeys]);
 
 	/** @type {[import('../../../classes/Student').StudentProps, React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps>>]} */
-	const [thisStudent, setThisStudent] = React.useState(location.state?.student || {
-		id: '12345',
+	const [thisStudent, setThisStudent] = React.useState({
+		placeholder: true,
 		name: {
-			first: 'John',
-			middle: 'A.',
-			last: 'Doe'
+			first: 'Placeholder',
+			middle: 'Student',
+			last: 'Profile'
 		},
-		email: 'email@mail.com',
-		studentId: '22-00250',
-		institute: 'head',
-		profilePicture: '/Placeholder Image.svg'
+		studentId: '00000000',
+		email: 'placeholder@student.com'
 	});
+	React.useEffect(() => {
+		if (!location.state?.studentId) return;
+		const student = osas.students.find(s => s.studentId === location.state.studentId);
+		if (student)
+			setThisStudent(student);
+	}, [location.state?.studentId]);
 
 	const [organizations, setOrganizations] = React.useState([]);
 	React.useEffect(() => {
-		const fetchedOrganizations = [
-			{
-				name: 'Student Council',
-				role: 'Member',
-				profilePicture: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Debate Club',
-				role: 'President',
-				profilePicture: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Science Society',
-				role: 'Member',
-				profilePicture: '/Placeholder Image.svg'
-			}
-		].sort((a, b) => a.name.localeCompare(b.name));
-
+		if (!thisStudent || !thisStudent.studentId) return;
+		// Find organizations for the student that match the student id
+		const fetchedOrganizations = osas.organizations.filter(org => org.members.some(member => member.student.studentId === thisStudent.studentId));
+		console.log('Fetched Organizations:', fetchedOrganizations);
 		setOrganizations(fetchedOrganizations);
-	}, []);
+	}, [thisStudent, osas.organizations]);
 
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
-		const fetchedEvents = [
-			{
-				title: 'Disobedience to the proper dress code.',
-				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-				type: 'disciplinary',
-				tag: 'ongoing'
-			},
-			{
-				title: 'Loitering in the school premises.',
-				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-				type: 'disciplinary',
-				tag: 'ongoing'
-			},
-			{
-				title: 'Bullying and harassment of fellow students.',
-				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-				type: 'disciplinary',
-				tag: 'ongoing'
-			},
-			{
-				title: 'Vandalism of school property.',
-				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-				type: 'disciplinary',
-				tag: 'ongoing'
-			},
-			{
-				title: 'Unauthorized use of school facilities.',
-				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-				type: 'disciplinary',
-				tag: 'ongoing'
-			},
-			{
-				title: 'Excessive absences without valid reasons.',
-				date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-				type: 'disciplinary',
-				tag: 'ongoing'
-			}
-		].sort((a, b) => new Date(b.date) - new Date(a.date));
+		if (!thisStudent || !thisStudent.studentId) return;
+		// 	{
+		// 		title: 'Disobedience to the proper dress code.',
+		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+		// 		type: 'disciplinary',
+		// 		tag: 'ongoing'
+		// 	},
+		// 	{
+		// 		title: 'Loitering in the school premises.',
+		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+		// 		type: 'disciplinary',
+		// 		tag: 'ongoing'
+		// 	},
+		// 	{
+		// 		title: 'Bullying and harassment of fellow students.',
+		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+		// 		type: 'disciplinary',
+		// 		tag: 'ongoing'
+		// 	},
+		// 	{
+		// 		title: 'Vandalism of school property.',
+		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+		// 		type: 'disciplinary',
+		// 		tag: 'ongoing'
+		// 	},
+		// 	{
+		// 		title: 'Unauthorized use of school facilities.',
+		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+		// 		type: 'disciplinary',
+		// 		tag: 'ongoing'
+		// 	},
+		// 	{
+		// 		title: 'Excessive absences without valid reasons.',
+		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
+		// 		type: 'disciplinary',
+		// 		tag: 'ongoing'
+		// 	}
+		// ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-		// Group by day
-		const groupedEvents = fetchedEvents.reduce((acc, event) => {
-			const eventDate = moment(event.date).clone().startOf('day').fromNow();
-			if (!acc[eventDate])
-				acc[eventDate] = [];
-			acc[eventDate].push(event);
+		// // Group by day
+		// const groupedEvents = fetchedEvents.reduce((acc, event) => {
+		// 	const eventDate = moment(event.date).clone().startOf('day').fromNow();
+		// 	if (!acc[eventDate])
+		// 		acc[eventDate] = [];
+		// 	acc[eventDate].push(event);
+		// 	return acc;
+		// }, {});
+
+
+		// setEvents(groupedEvents);
+		const fetchedRecords = [
+			...osas.records.filter(record => {
+				return record.complainees.some(complainee => complainee.student.studentId === thisStudent.studentId);
+			}),
+			...osas.records.filter(record => {
+				return record.complainants.some(complainant => complainant.studentId === thisStudent.studentId);
+			})
+		];
+		const eventsMap = fetchedRecords.reduce((acc, record) => {
+			const dateKey = moment(record.date).format('YYYY-MM-DD');
+			if (!acc[dateKey]) {
+				acc[dateKey] = [];
+			}
+			acc[dateKey].push({
+				title: record.violation,
+				tag: record.tags.status,
+				type: 'disciplinary',
+				id: record.id
+			});
 			return acc;
 		}, {});
-
-
+		console.log('Fetched Events:', eventsMap);
+		const groupedEvents = Object.entries(eventsMap).reduce((acc, [date, events]) => {
+			const formattedDate = moment(date).format('YYYY-MM-DD');
+			acc[formattedDate] = events;
+			return acc;
+		}, {});
+		console.log('Grouped Events:', groupedEvents);
 		setEvents(groupedEvents);
-	}, []);
+	}, [thisStudent, osas.records]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -287,13 +311,22 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						<PanelCard title='Organizations'>
 							<Flex vertical gap={16} className='scrollable-content' style={{ maxHeight: 'calc(var(--space-XL) * 8)' }}>
 								{organizations.length > 0 && (
-									organizations.map((org, index) => (
-										<Card key={index} size='small' style={{ width: '100%' }}>
+									organizations.map((organization, index) => (
+										<Card
+											key={index}
+											size='small'
+											style={{ width: '100%' }}
+											onClick={() => {
+												navigate(`/dashboard/students/organizations/${organization.id}`, {
+													state: { id: organization.id }
+												});
+											}}
+										>
 											<Flex justify='flex-start' align='center' gap={16}>
-												<Avatar src={org.profilePicture} size='large' />
+												<Avatar src={organization.logo} size='large' />
 												<Flex vertical>
-													<Text strong>{org.name}</Text>
-													<Text type='secondary'>{org.role}</Text>
+													<Text strong>{organization.shortName}</Text>
+													<Text type='secondary'>{organization.members.find(member => member.student.studentId === thisStudent.studentId).role}</Text>
 												</Flex>
 											</Flex>
 										</Card>
@@ -312,7 +345,19 @@ const Profile = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									<Text strong>{date}</Text>
 
 									{events.map((event, index) => (
-										<Flex key={index} justify='flex-start' align='flex-start'>
+										<Flex
+											key={index}
+											justify='flex-start'
+											align='flex-start'
+											style={{ cursor: 'pointer' }}
+											onClick={() => {
+												if (event.type === 'disciplinary') {
+													navigate(`/dashboard/students/records/${event.id}`, {
+														state: { id: event.id }
+													});
+												};
+											}}
+										>
 											<Tag color={event.tag === 'ongoing' ? 'yellow' : 'green'}>{event.tag}</Tag>
 											<Text>{event.title}</Text>
 										</Flex>

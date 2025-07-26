@@ -33,7 +33,7 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext } from '../../../main';
+import { MobileContext, OSASContext } from '../../../main';
 
 import Organization from '../../../classes/Organization';
 import Student from '../../../classes/Student';
@@ -46,6 +46,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
+	const { osas, setOsas } = React.useContext(OSASContext);
 
 	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -61,85 +62,9 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [displayedOrganizations, setDisplayedOrganizations] = React.useState([]);
 
 	React.useEffect(() => {
-		/** @type {Organization[]} */
-		const placeholderOrganizations = [];
-		for (let i = 0; i < 10; i++) {
-			const placeholderOrganization = new Organization({
-				shortName: `Organization ${i + 1}`,
-				fullName: `Placeholder Organization ${i + 1}`,
-				description: 'This is a placeholder organization for testing purposes.',
-				email: `placeholder${i + 1}@example.com`,
-				phone: `+63 912 345 ${Math.floor(Math.random() * 1000)}`,
-				logo: '/Placeholder Image.svg',
-				cover: '/Placeholder Image.svg',
-				status: i % 3 === 0 ? 'active' : i % 3 === 1 ? 'restricted' : 'archived',
-				type: i % 2 === 0 ? 'college-wide' : 'institute-wide',
-				members: [],
-				placeholder: true
-			});
-			placeholderOrganizations.push(placeholderOrganization);
-		};
-		setOrganizations(placeholderOrganizations);
-
-		setTimeout(() => {
-			/** @type {Organization[]} */
-			const organizationsData = [];
-
-			for (let i = 0; i < 10; i++) {
-				const id = `organization-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
-				if (organizations.some(organization => organization.id === id))
-					continue;
-
-				/** @type {import('../../../classes/Organization').OrganizationMember[]} */
-				const members = [];
-				for (let j = 0; j < 10; j++) {
-					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-					const programs = {
-						'ics': ['BSCpE', 'BSIT'],
-						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-						'ibe': ['BSBA-HRM', 'BSE']
-					};
-					const student = new Student({
-						id: Math.floor(Math.random() * 1000) + 1,
-						name: {
-							first: 'user.name.first',
-							middle: 'user.name.middle',
-							last: 'user.name.last'
-						},
-						email: 'user.email',
-						phone: 'user.phone',
-						studentId: id + `-${i + 1}`,
-						institute: institute,
-						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-						year: Math.floor(Math.random() * 4) + 1,
-						profilePicture: `https://randomuser.me/api/portraits/${['men', 'women'][j % 2]}/${Math.floor(Math.random() * 100)}.jpg`,
-						placeholder: false,
-						status: ['active', 'restricted'][Math.floor(Math.random() * 2)]
-					});
-					members.push({
-						student: student,
-						role: ['Member', 'President', 'Vice President', 'Secretary', 'Treasurer'][Math.floor(Math.random() * 5)]
-					});
-				};
-
-				const organization = new Organization({
-					id: id,
-					shortName: `Organization ${i + 1}`,
-					fullName: `Organization Full Name ${i + 1}`,
-					description: `This is the description for organization ${i + 1}.`,
-					email: `org${i + 1}@example.com`,
-					phone: `+63 912 345 ${Math.floor(Math.random() * 1000)}`,
-					logo: '/Placeholder Image.svg',
-					cover: '/Placeholder Image.svg',
-					status: i % 3 === 0 ? 'active' : i % 3 === 1 ? 'restricted' : 'archived',
-					type: i % 2 === 0 ? 'college-wide' : 'institute-wide',
-					members: members
-				});
-				organizationsData.push(organization);
-			};
-			setOrganizations(organizationsData);
-		}, remToPx(200));
-	}, []);
+		if (osas.organizations.length > 0)
+			setOrganizations(osas.organizations);
+	}, [osas.organizations]);
 
 	React.useEffect(() => {
 		if (organizations.length > 0)
@@ -292,7 +217,7 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 									style={{ cursor: 'pointer' }}
 									onClick={() => {
 										navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
-											state: { student: member }
+											state: { studentId: member.student.studentId }
 										});
 									}}
 								/>
@@ -314,7 +239,7 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 							});
 						else
 							navigate(`/dashboard/students/organizations/${thisOrganization.id}`, {
-								state: { organization: thisOrganization }
+								state: { id: thisOrganization.id }
 							});
 					},
 					align: 'right'

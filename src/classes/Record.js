@@ -10,12 +10,13 @@
 
 /**
  * @typedef {{
- * 	id?: Number | String,
+ * 	id: Number | String,
  * 	violation: String,
  * 	description: String,
  * 	tags: {
  * 		status: RecordStatus,
- * 		severity: RecordSeverity
+ * 		severity: RecordSeverity,
+ * 		progress: Number
  * 	},
  * 	complainants: import('./Student').StudentProps[],
  * 	complainees: RecordComplainanee[],
@@ -34,7 +35,8 @@ class Record {
 		description,
 		tags: {
 			status,
-			severity
+			severity,
+			progress = 0
 		},
 		complainants = [],
 		complainees = [],
@@ -48,7 +50,8 @@ class Record {
 		this.description = description;
 		this.tags = {
 			status,
-			severity
+			severity,
+			progress
 		};
 		this.complainants = complainants;
 		this.complainees = complainees;

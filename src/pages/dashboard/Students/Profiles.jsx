@@ -35,7 +35,7 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext } from '../../../main';
+import { MobileContext, OSASContext } from '../../../main';
 
 import Student from '../../../classes/Student';
 
@@ -170,6 +170,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
+	const { osas, setOsas } = React.useContext(OSASContext);
 
 	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -197,81 +198,10 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	/** @type {StudentsState} */
 	const [displayedStudents, setDisplayedStudents] = React.useState([]);
 
-	const programs = {
-		'ics': ['BSCpE', 'BSIT'],
-		'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-		'ibe': ['BSBA-HRM', 'BSE']
-	};
-
 	React.useEffect(() => {
-		/** @type {Student[]} */
-		const placeholderStudent = [];
-
-		for (let i = 0; i < 20; i++) {
-			const id = `placeholder-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
-			if (students.some(student => student.studentId === id)) {
-				continue;
-			};
-			const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-			const student = new Student({
-				id: id,
-				name: {
-					first: `First ${i + 1}`,
-					middle: `Middle ${i + 1}`,
-					last: `Last ${i + 1}`
-				},
-				email: `student${i + 1}@example.com`,
-				phone: `+63 912 345 678${i + 1}`,
-				studentId: id,
-				institute: institute,
-				program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-				year: Math.floor(Math.random() * 4) + 1,
-				profilePicture: null,
-				status: 'active',
-				placeholder: true
-			});
-			placeholderStudent.push(student);
-		};
-		setStudents(placeholderStudent);
-
-		fetch('https://randomuser.me/api/?results=100&inc=name,email,phone,login,picture')
-			.then(response => response.json())
-			.then(data => {
-				/** @type {Student[]} */
-				const fetchedStudents = [];
-
-				for (let i = 0; i < data.results.length; i++) {
-					const user = data.results[i];
-					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-
-					const student = new Student({
-						id: i + 1,
-						name: {
-							first: user.name.first,
-							middle: user.name.middle || '',
-							last: user.name.last
-						},
-						email: user.email,
-						phone: user.phone,
-						studentId: (() => {
-							let id;
-							do {
-								id = `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`;
-							} while (fetchedStudents.some(student => student.studentId === id));
-							return id;
-						})(),
-						institute: institute,
-						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-						year: Math.floor(Math.random() * 4) + 1,
-						profilePicture: user.picture.large,
-						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
-					});
-					fetchedStudents.push(student);
-				};
-				setStudents(fetchedStudents);
-			})
-			.catch(error => console.error('Error fetching student data:', error));
-	}, []);
+		if (osas.students.length > 0)
+			setStudents(osas.students);
+	}, [osas.students]);
 
 	React.useEffect(() => {
 		if (students.length > 0)
@@ -488,7 +418,7 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 							});
 						else
 							navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
-								state: { student: thisStudent }
+								state: { studentId: thisStudent.studentId }
 							});
 					}
 				}

@@ -32,22 +32,34 @@ import remToPx from '../../../utils/remToPx';
 
 import PanelCard from '../../../components/PanelCard';
 
-const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+import { MobileContext, OSASContext } from '../../../main';
+
+const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
-	const [thisRecord, setThisRecord] = React.useState(location.state?.record || {
+	const { mobile, setMobile } = React.useContext(MobileContext);
+	const { osas, setOsas } = React.useContext(OSASContext);
+
+	const [thisRecord, setThisRecord] = React.useState({
 		id: '12345',
 		title: 'Placeholder Title',
 		description: 'Placeholder Description',
 		tags: {
 			status: 'ongoing',
-			severity: 'Minor'
+			severity: 'Minor',
+			progress: 0
 		},
 		complainants: [],
 		complainees: [],
 		placeholder: true,
 		date: new Date()
 	});
+	React.useEffect(() => {
+		if (!location.state?.id) return;
+		const record = osas.records.find(r => r.id === location.state.id);
+		if (record)
+			setThisRecord(record);
+	}, [location.state?.id]);
 
 	React.useEffect(() => {
 		setHeader({
@@ -104,7 +116,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const app = App.useApp();
 	const Modal = app.modal;
 
-	const [step, setStep] = React.useState(0);
+	const [step, setStep] = React.useState(thisRecord.tags.progress);
 
 	return (
 		<Flex
@@ -157,10 +169,7 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 												content: 'This is a placeholder disciplinary record. Please try again later.',
 												centered: true
 											});
-										} else {
-											navigate(`/dashboard/students/records/${thisRecord.id}/edit`, {
-												state: { record: thisRecord }
-											});
+											return;
 										};
 									}}
 								>
@@ -230,8 +239,8 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 														centered: true
 													});
 												} else {
-													navigate(`/dashboard/students/profiles/${complainant.id}`, {
-														state: { student: complainant }
+													navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+														state: { studentId: complainant.studentId }
 													});
 												};
 											}}
@@ -285,8 +294,8 @@ const Record = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 														centered: true
 													});
 												} else {
-													navigate(`/dashboard/students/profiles/${complainee.student.id}`, {
-														state: { student: complainee.student }
+													navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
+														state: { studentId: complainee.student.studentId }
 													});
 												};
 											}}
