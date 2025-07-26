@@ -148,6 +148,21 @@ const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									<Title level={1}>{thisOrganization.shortName}</Title>
 									<Title level={5}>{thisOrganization.fullName}</Title>
 								</Flex>
+								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
+									<Button
+										type='primary'
+										icon={<EditOutlined />}
+									>
+										Edit
+									</Button>
+									<Button
+										type='primary'
+										danger
+										icon={<LockOutlined />}
+									>
+										Restrict
+									</Button>
+								</Flex>
 							</Flex>
 						</Card>
 					</Col>
