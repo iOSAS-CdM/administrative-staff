@@ -24,7 +24,6 @@ export const DisplayThemeContext = React.createContext({
 
 const OSAS = () => {
 	const [mobile, setMobile] = React.useState(false);
-
 	React.useEffect(() => {
 		const handleResize = () => {
 			setMobile(window.innerWidth < remToPx(120));
@@ -38,8 +37,11 @@ const OSAS = () => {
 			window.removeEventListener('resize', handleResize);
 		};
 	}, []);
-
 	const [displayTheme, setDisplayTheme] = React.useState('light');
+	React.useEffect(() => {
+		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+			setDisplayTheme('dark');
+	}, [displayTheme]);
 
 	return (
 		<React.StrictMode>
