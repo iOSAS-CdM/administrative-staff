@@ -106,69 +106,111 @@ const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const app = App.useApp();
 	const Modal = app.modal;
 
-	const [step, setStep] = React.useState(0);
-
 	return (
 		<Flex
 			vertical
 			gap={16}
 		>
 			<Row gutter={[16, 16]}>
-				<Col span={24}>
-					<Card
-						cover={
-							<Image
-								src={thisOrganization.cover || '/Placeholder Image.svg'}
-								alt={`${thisOrganization.shortName} Cover`}
-								style={{ aspectRatio: '6/1', objectFit: 'cover' }}
-							/>}
-					>
-						<Flex justify='flex-start' align='flex-end' gap={16} style={{ width: '100%' }}>
-							<Flex
-								style={{
-									position: 'relative',
-									width: remToPx(20),
-									height: '100%'
-								}}
-							>
-								<Avatar
-									src={thisOrganization.logo}
-									size='large'
-									shape='square'
-									style={{
-										position: 'absolute',
-										width: remToPx(20),
-										height: remToPx(20),
-										bottom: 0,
-										border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
-									}}
+				{!mobile ? (
+					<Col span={24}>
+						<Card
+							cover={
+								<Image
+									src={thisOrganization.cover || '/Placeholder Image.svg'}
+									alt={`${thisOrganization.shortName} Cover`}
+									style={{ aspectRatio: '6/1', objectFit: 'cover' }}
 								/>
-							</Flex>
-							<Flex vertical justify='center' align='flex-start' gap={4} style={{ flex: 1, }}>
-								<Title level={1}>{thisOrganization.shortName}</Title>
-								<Title level={5}>{thisOrganization.fullName}</Title>
-							</Flex>
-
-							<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
-								<Button
-									type='primary'
-									icon={<EditOutlined />}
+							}
+						>
+							<Flex justify='flex-start' align='flex-end' gap={16} style={{ width: '100%' }}>
+								<Flex
+									style={{
+										position: 'relative',
+										width: remToPx(20),
+										height: '100%'
+									}}
 								>
-									Edit
-								</Button>
-								<Button
-									type='primary'
-									danger
-									icon={<LockOutlined />}
-								>
-									Restrict
-								</Button>
+									<Avatar
+										src={thisOrganization.logo}
+										size='large'
+										shape='square'
+										style={{
+											position: 'absolute',
+											width: remToPx(20),
+											height: remToPx(20),
+											bottom: 0,
+											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
+										}}
+									/>
+								</Flex>
+								<Flex vertical justify='center' align='flex-start' gap={4} style={{ flex: 1, }}>
+									<Title level={1}>{thisOrganization.shortName}</Title>
+									<Title level={5}>{thisOrganization.fullName}</Title>
+								</Flex>
 							</Flex>
-						</Flex>
-					</Card>
-				</Col>
+						</Card>
+					</Col>
+				) : (
+					<Col span={24}>
+						<Card
+							cover={
+								<Image
+									src={thisOrganization.cover || '/Placeholder Image.svg'}
+									alt={`${thisOrganization.shortName} Cover`}
+									style={{ aspectRatio: '2/1', objectFit: 'cover' }}
+								/>
+							}
+						>
+							<Flex vertical justify='flex-start' align='center' gap={16}>
+								<Flex
+									justify='center'
+									align='center'
+									gap={16}
+									style={{
+										position: 'relative',
+										width: '100%',
+										height: '100%'
+									}}
+								>
+									<Avatar
+										src={thisOrganization.logo}
+										size='large'
+										shape='square'
+										style={{
+											position: 'absolute',
+											width: remToPx(20),
+											height: remToPx(20),
+											bottom: 0,
+											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
+										}}
+									/>
+								</Flex>
+								<Flex vertical justify='flex-start' align='center' gap={4} style={{ flex: 1, }}>
+									<Title level={1}>{thisOrganization.shortName}</Title>
+									<Title level={5}>{thisOrganization.fullName}</Title>
+								</Flex>
+								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
+									<Button
+										type='primary'
+										icon={<EditOutlined />}
+									>
+										Edit
+									</Button>
+									<Button
+										type='primary'
+										danger
+										icon={<LockOutlined />}
+									>
+										Restrict
+									</Button>
+								</Flex>
+							</Flex>
+						</Card>
+					</Col>
+				)}
 
-				<Col span={8}>
+				<Col span={mobile? 24 : 8}>
 					<PanelCard
 						title='Members'
 						contentMaxHeight={remToPx(32)}
@@ -212,7 +254,7 @@ const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						))}
 					</PanelCard>
 				</Col>
-				<Col span={8}>
+				<Col span={mobile? 24 : 8}>
 					<PanelCard
 						title='Repository'
 						contentMaxHeight={remToPx(32)}
@@ -255,7 +297,7 @@ const Organization = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						))}
 					</PanelCard>
 				</Col>
-				<Col span={8}>
+				<Col span={mobile? 24 : 8}>
 					<PanelCard title='Calendar'>
 						<Calendar
 							style={{ width: '100%' }}
