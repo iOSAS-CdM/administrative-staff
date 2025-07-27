@@ -118,18 +118,18 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 			vertical
 			gap={16}
 		>
-			<Row gutter={[16, 16]}>
-				{!mobile ? (
-					<Col span={24}>
-						<Card
-							cover={
-								<Image
-									src={thisOrganization.cover || '/Placeholder Image.svg'}
-									alt={`${thisOrganization.shortName} Cover`}
-									style={{ aspectRatio: '6/1', objectFit: 'cover' }}
-								/>
-							}
-						>
+			<Flex gap={16} align='stretch' style={{ width: '100%' }}>
+				<Flex vertical gap={16} style={{ width: '100%' }}>
+					<Card
+						cover={
+							<Image
+								src={thisOrganization.cover || '/Placeholder Image.svg'}
+								alt={`${thisOrganization.shortName} Cover`}
+								style={{ aspectRatio: mobile ? '2/1' : '6/1', objectFit: 'cover' }}
+							/>
+						}
+					>
+						{!mobile ? (
 							<Flex justify='flex-start' align='flex-end' gap={16} style={{ width: '100%' }}>
 								<Flex
 									style={{
@@ -151,9 +151,10 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 										}}
 									/>
 								</Flex>
-								<Flex vertical justify='center' align='flex-start' gap={4} style={{ flex: 1, }}>
+								<Flex vertical justify='center' align='flex-start' style={{ flex: 1, }}>
 									<Title level={1}>{thisOrganization.shortName}</Title>
 									<Title level={5}>{thisOrganization.fullName}</Title>
+									<Text type='secondary'>{thisOrganization.description}</Text>
 								</Flex>
 								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
 									<Button
@@ -171,19 +172,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 									</Button>
 								</Flex>
 							</Flex>
-						</Card>
-					</Col>
-				) : (
-					<Col span={24}>
-						<Card
-							cover={
-								<Image
-									src={thisOrganization.cover || '/Placeholder Image.svg'}
-									alt={`${thisOrganization.shortName} Cover`}
-									style={{ aspectRatio: '2/1', objectFit: 'cover' }}
-								/>
-							}
-						>
+						) : (
 							<Flex vertical justify='flex-start' align='center' gap={16}>
 								<Flex
 									justify='center'
@@ -208,9 +197,10 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 										}}
 									/>
 								</Flex>
-								<Flex vertical justify='flex-start' align='center' gap={4} style={{ flex: 1, }}>
-									<Title level={1}>{thisOrganization.shortName}</Title>
-									<Title level={5}>{thisOrganization.fullName}</Title>
+									<Flex vertical justify='flex-start' align='center' style={{ flex: 1, }}>
+										<Title level={1}>{thisOrganization.shortName}</Title>
+										<Title level={5}>{thisOrganization.fullName}</Title>
+										<Text type='secondary'>{thisOrganization.description}</Text>
 								</Flex>
 								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
 									<Button
@@ -228,115 +218,117 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 									</Button>
 								</Flex>
 							</Flex>
-						</Card>
-					</Col>
-				)}
-
-				<Col span={mobile? 24 : 8}>
-					<PanelCard
-						title='Members'
-						contentMaxHeight={remToPx(32)}
-						footer={
-							<Flex justify='flex-end' align='center' gap={8}>
-								<Button
-									type='default'
-									size='small'
-									icon={<BellOutlined />}
-									onClick={() => { }}
-								>
-									Summon
-								</Button>
-								<Button
-									type='primary'
-									size='small'
-									icon={<PlusOutlined />}
-									onClick={() => { }}
-								>
-									Add
-								</Button>
-							</Flex>
-						}
-					>
-						{thisOrganization.members.map((member, index) => (
-							<Card
-								key={index}
-								size='small'
-								style={{ width: '100%' }}
-								onClick={() => {
-									navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
-										state: { studentId: member.student.studentId }
-									});
-								}}
+						)}
+					</Card>
+					<Flex vertical={mobile} gap={16} style={{ width: '100%', height: '100%' }}>
+						<div
+							style={{ width: '100%', height: '100%', order: mobile ? '2' : '' }}
+						>
+							<PanelCard
+								title='Members'
+								style={{ position: 'sticky', top: 0 }}
+								footer={
+									<Flex justify='flex-end' align='center' gap={8}>
+										<Button
+											type='default'
+											size='small'
+											icon={<BellOutlined />}
+											onClick={() => { }}
+										>
+											Summon
+										</Button>
+										<Button
+											type='primary'
+											size='small'
+											icon={<PlusOutlined />}
+											onClick={() => { }}
+										>
+											Add
+										</Button>
+									</Flex>
+								}
 							>
-								<Flex justify='flex-start' align='center' gap={16}>
-									<Avatar
-										src={member.student.profilePicture || '/Placeholder Image.svg'}
-										size='large'
-										style={{
-											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
+								{thisOrganization.members.length > 0 && thisOrganization.members.map((member, index) => (
+									<Card
+										key={index}
+										size='small'
+										style={{ width: '100%' }}
+										onClick={() => {
+											navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
+												state: { studentId: member.student.studentId }
+											});
 										}}
-									/>
-									<Flex vertical justify='flex-start' align='flex-start'>
-										<Title level={5}>{member.student.name.first} {member.student.name.middle} {member.student.name.last}</Title>
-										<Text type='secondary'>{member.role}</Text>
-									</Flex>
-								</Flex>
-							</Card>
-						))}
-					</PanelCard>
-				</Col>
-				<Col span={mobile? 24 : 8}>
-					<PanelCard
-						title='Repository'
-						contentMaxHeight={remToPx(32)}
-						footer={
-							<Flex justify='flex-end' align='center' gap={8}>
-								<Button
-									type='default'
-									size='small'
-									icon={<FileAddOutlined />}
-									onClick={() => { }}
-								>
-									Generate Form
-								</Button>
-								<Button
-									type='primary'
-									size='small'
-									icon={<PlusOutlined />}
-									onClick={() => { }}
-								>
-									Add
-								</Button>
-							</Flex>
-						}
+									>
+										<Flex justify='flex-start' align='center' gap={16}>
+											<Avatar
+												src={member.student.profilePicture || '/Placeholder Image.svg'}
+												size='large'
+												style={{
+													border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
+												}}
+											/>
+											<Flex vertical justify='flex-start' align='flex-start'>
+												<Title level={5}>{member.student.name.first} {member.student.name.middle} {member.student.name.last}</Title>
+												<Text type='secondary'>{member.role}</Text>
+											</Flex>
+										</Flex>
+									</Card>
+								))}
+							</PanelCard>
+						</div>
+						<div
+							style={{ width: '100%', height: '100%', order: mobile ? '1' : '' }}
+						>
+							<PanelCard title='Calendar' style={{ position: 'sticky', top: 0 }}>
+								<Calendar
+									style={{ width: '100%' }}
+									fullscreen={false}
+								/>
+							</PanelCard>
+						</div>
+					</Flex>
+				</Flex>
+			</Flex>
+			<PanelCard
+				title='Repository'
+				footer={
+					<Flex justify='flex-end' align='center' gap={8}>
+						<Button
+							type='default'
+							size='small'
+							icon={<FileAddOutlined />}
+							onClick={() => { }}
+						>
+							Generate Form
+						</Button>
+						<Button
+							type='primary'
+							size='small'
+							icon={<PlusOutlined />}
+							onClick={() => { }}
+						>
+							Add
+						</Button>
+					</Flex>
+				}
+			>
+				{repository.length > 0 && repository.map((file, i) => (
+					<Card
+						key={file.id || i}
+						size='small'
+						style={{ width: '100%' }}
+						onClick={() => { }}
 					>
-						{repository.map((file, i) => (
-							<Card
-								key={file.id || i}
-								size='small'
-								style={{ width: '100%' }}
-								onClick={() => { }}
-							>
-								<Flex align='center' gap={8}>
-									<Avatar src={file.thumbnail} size='large' shape='square' />
-									<Flex vertical>
-										<Text>{file.name}</Text>
-										<Text type='secondary'>{file.extension.toUpperCase()}</Text>
-									</Flex>
-								</Flex>
-							</Card>
-						))}
-					</PanelCard>
-				</Col>
-				<Col span={mobile? 24 : 8}>
-					<PanelCard title='Calendar'>
-						<Calendar
-							style={{ width: '100%' }}
-							fullscreen={false}
-						/>
-					</PanelCard>
-				</Col>
-			</Row>
+						<Flex align='center' gap={8}>
+							<Avatar src={file.thumbnail} size='large' shape='square' />
+							<Flex vertical>
+								<Text>{file.name}</Text>
+								<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+							</Flex>
+						</Flex>
+					</Card>
+				))}
+			</PanelCard>
 		</Flex>
 	);
 };

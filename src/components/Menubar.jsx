@@ -371,7 +371,7 @@ const Menubar = () => {
 								))}
 							</Flex>
 						) : (
-								Header.actions && Header.actions.length > 2 ? (
+								Header.actions && Header.actions.length > 1 ? (
 									<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 										<Button
 											type='default'
@@ -419,17 +419,15 @@ const Menubar = () => {
                 </Card>
 
                 {/*************************** Page Content ***************************/}
-                <Card
-					size='small'
+				<div
 					className='scrollable-content'
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 0,
-                        backgroundColor: 'var(--ant-color-bg-layout)'
-                    }}
-                >
-                    <AnimatePresence mode='wait'>
+					style={{
+						width: '100%',
+						height: '100%',
+						padding: 16
+					}}
+				>
+					<AnimatePresence mode='wait'>
 						<motion.div
 							key={location.pathname}
 							initial={{ opacity: 0, x: 20 }}
@@ -439,7 +437,7 @@ const Menubar = () => {
 							{routes}
 						</motion.div>
 					</AnimatePresence>
-                </Card>
+				</div>
             </Flex>
         </Flex>
     );

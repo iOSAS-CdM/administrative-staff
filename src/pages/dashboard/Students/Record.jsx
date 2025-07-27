@@ -13,6 +13,7 @@ import {
 	Tag,
 	Badge,
 	App,
+	Collapse,
 	Steps
 } from 'antd';
 
@@ -42,7 +43,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	const [thisRecord, setThisRecord] = React.useState({
 		id: '12345',
-		title: 'Placeholder Title',
+		violation: 'Placeholder Title',
 		description: 'Placeholder Description',
 		tags: {
 			status: 'ongoing',
@@ -123,8 +124,8 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 			vertical
 			gap={16}
 		>
-			<Row gutter={[16, 16]}>
-				<Col span={24}>
+			<Flex gap={16} align='stretch' style={{ width: '100%' }}>
+				<Flex vertical gap={16} style={{ width: '100%' }}>
 					<Card>
 						<Flex vertical gap={8}>
 							<Title level={1}>{thisRecord.violation}</Title>
@@ -195,230 +196,227 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 							</Flex>
 						</Flex>
 					</Card>
-				</Col>
-
-				<Col span={!mobile ? 16 : 24} >
-					<Flex vertical gap={16}>
-						<Row gutter={[16, 16]}>
-							<Col span={!mobile ? 12 : 24}>
-								<PanelCard
-									title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`}
-									contentMaxHeight={remToPx(32)}
-
-									footer={
-										<Flex justify='flex-end' align='center' gap={8}>
-											<Button
-												type='default'
-												size='small'
-												icon={<BellOutlined />}
-												onClick={() => { }}
-											>
-												Summon
-											</Button>
-											<Button
-												type='primary'
-												size='small'
-												icon={<PlusOutlined />}
-												onClick={() => { }}
-											>
-												Add
-											</Button>
-										</Flex>
-									}
-								>
-									{thisRecord.complainants.map((complainant, i) => (
-										<Card
-											key={complainant.studentId || i}
-											size='small'
-											style={{ width: '100%' }}
-											onClick={() => {
-												if (complainant.placeholder) {
-													Modal.error({
-														title: 'Error',
-														content: 'This is a placeholder complainant profile. Please try again later.',
-														centered: true
-													});
-												} else {
-													navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
-														state: { studentId: complainant.studentId }
-													});
-												};
-											}}
-										>
-											<Flex align='flex-start' gap={8}>
-												<Avatar src={complainant.profilePicture} size='large' style={{ width: 32, height: 32 }} />
-												<Flex vertical>
-													<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
-													<Text type='secondary'>{complainant.studentId}</Text>
-												</Flex>
-											</Flex>
-										</Card>
-									))}
-								</PanelCard>
-							</Col>
-							<Col span={!mobile ? 12 : 24}>
-								<PanelCard
-									title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`}
-									contentMaxHeight={remToPx(32)}
-									footer={
-										<Flex justify='flex-end' align='center' gap={8}>
-											<Button
-												type='default'
-												size='small'
-												icon={<BellOutlined />}
-												onClick={() => { }}
-											>
-												Summon
-											</Button>
-											<Button
-												type='primary'
-												size='small'
-												icon={<PlusOutlined />}
-												onClick={() => { }}
-											>
-												Add
-											</Button>
-										</Flex>
-									}
-								>
-									{thisRecord.complainees.map((complainee, i) => (
-										<Card
-											key={complainee.student.studentId || i}
-											size='small'
-											style={{ width: '100%' }}
-											onClick={() => {
-												if (complainee.student.placeholder) {
-													Modal.error({
-														title: 'Error',
-														content: 'This is a placeholder complainee profile. Please try again later.',
-														centered: true
-													});
-												} else {
-													navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
-														state: { studentId: complainee.student.studentId }
-													});
-												};
-											}}
-										>
-											<Badge
-												title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
-												count={complainee.occurrence}
-												color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
-												styles={{
-													root: { position: 'absolute', top: 0, right: 0 }
-												}}
-												offset={[-8, 8]}
-											/>
-											<Flex align='flex-start' gap={8}>
-												<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
-												<Flex vertical>
-													<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
-													<Text type='secondary'>{complainee.student.studentId}</Text>
-												</Flex>
-											</Flex>
-										</Card>
-									))}
-								</PanelCard>
-							</Col>
-						</Row>
-
-						<PanelCard
-							title='Repository'
-							contentMaxHeight={remToPx(16)}
-							footer={
-								<Flex justify='flex-end' align='center' gap={8}>
-									<Button
-										type='default'
-										size='small'
-										icon={<FileAddOutlined />}
-										onClick={() => { }}
-									>
-										Generate Form
-									</Button>
-									<Button
-										type='primary'
-										size='small'
-										icon={<PlusOutlined />}
-										onClick={() => { }}
-									>
-										Add
-									</Button>
-								</Flex>
-							}
+					<Flex vertical={mobile} gap={16} style={{ width: '100%', height: '100%' }}>
+						<div
+							style={{ width: '100%', height: '100%', order: mobile ? '2' : '' }}
 						>
-							{repository.map((file, i) => (
-								<Card
-									key={file.id || i}
-									size='small'
-									style={{ width: '100%' }}
-									onClick={() => { }}
-								>
-									<Flex align='flex-start' gap={8}>
-										<Avatar src={file.thumbnail} size='large' shape='square' style={{ width: 32, height: 32 }} />
-										<Flex vertical>
-											<Text>{file.name}</Text>
-											<Text type='secondary'>{file.extension.toUpperCase()}</Text>
-										</Flex>
+							<PanelCard
+								title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`}
+								style={{ position: 'sticky', top: 0 }}
+								footer={
+									<Flex justify='flex-end' align='center' gap={8}>
+										<Button
+											type='default'
+											size='small'
+											icon={<BellOutlined />}
+											onClick={() => { }}
+										>
+											Summon
+										</Button>
+										<Button
+											type='primary'
+											size='small'
+											icon={<PlusOutlined />}
+											onClick={() => { }}
+										>
+											Add
+										</Button>
 									</Flex>
-								</Card>
-							))}
-						</PanelCard>
-					</Flex>
-				</Col>
-
-				<Col span={!mobile ? 8 : 24} >
-					<PanelCard
-						title='Progress'
-						contentMaxHeight='100%'
-						footer={
-							<Flex justify='space-between' align='center' gap={8}>
-								<Button
-									type='default'
-									icon={<LeftOutlined />}
-									disabled={step === 0}
-									onClick={() => { setStep(step - 1); }}
-									style={{ flexGrow: 1 }}
-								>
-									Return
-								</Button>
-								{step < 6 ? (
-									<Button
-										type='primary'
-										icon={<RightOutlined />}
-										iconPosition='end'
-										disabled={step === 6}
-										onClick={() => { setStep(step + 1); }}
-										style={{ flexGrow: 1 }}
+								}
+							>
+								{thisRecord.complainants.length > 0 && thisRecord.complainants.map((complainant, i) => (
+									<Card
+										key={complainant.studentId || i}
+										size='small'
+										style={{ width: '100%' }}
+										onClick={() => {
+											if (complainant.placeholder) {
+												Modal.error({
+													title: 'Error',
+													content: 'This is a placeholder complainant profile. Please try again later.',
+													centered: true
+												});
+											} else {
+												navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+													state: { studentId: complainant.studentId }
+												});
+											};
+										}}
 									>
-										Proceed
-									</Button>
-								) : (
-									<Button
-										type='primary'
-										style={{ flexGrow: 1 }}
-									>
-										Generate Report
-									</Button>
-								)}
-							</Flex>
-						}
-					>
-						<Steps
-							current={step}
-							size='small'
-							direction='vertical'
-							style={{ width: '100%' }}
+										<Flex align='flex-start' gap={8}>
+											<Avatar src={complainant.profilePicture} size='large' style={{ width: 32, height: 32 }} />
+											<Flex vertical>
+												<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
+												<Text type='secondary'>{complainant.studentId}</Text>
+											</Flex>
+										</Flex>
+									</Card>
+								))}
+							</PanelCard>
+						</div>
+						<div
+							style={{ width: '100%', height: '100%', order: mobile ? '3' : '' }}
 						>
-							<Steps.Step title='Case Opened' description={moment(thisRecord.date).format('MMMM Do YYYY')} />
-							<Steps.Step title='Initial Interview' description='Interview with the complaining party opening the case.' />
-							<Steps.Step title='Respondent Interview' description='Interview with the complainant party.' />
-							<Steps.Step title='Resolution' description='Resolution of the case.' />
-							<Steps.Step title='Reconciliation' description='Reconciliation of both parties involved.' />
-							<Steps.Step title='Clearance' description='Submission of clearance of the issue on hand. Finalization of the case.' />
-						</Steps>
-					</PanelCard>
-				</Col>
-			</Row>
+							<PanelCard
+								title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`}
+								style={{ position: 'sticky', top: 0 }}
+								footer={
+									<Flex justify='flex-end' align='center' gap={8}>
+										<Button
+											type='default'
+											size='small'
+											icon={<BellOutlined />}
+											onClick={() => { }}
+										>
+											Summon
+										</Button>
+										<Button
+											type='primary'
+											size='small'
+											icon={<PlusOutlined />}
+											onClick={() => { }}
+										>
+											Add
+										</Button>
+									</Flex>
+								}
+							>
+								{thisRecord.complainees.length > 0 && thisRecord.complainees.map((complainee, i) => (
+									<Card
+										key={complainee.student.studentId || i}
+										size='small'
+										style={{ width: '100%' }}
+										onClick={() => {
+											if (complainee.student.placeholder) {
+												Modal.error({
+													title: 'Error',
+													content: 'This is a placeholder complainee profile. Please try again later.',
+													centered: true
+												});
+											} else {
+												navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
+													state: { studentId: complainee.student.studentId }
+												});
+											};
+										}}
+									>
+										<Badge
+											title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
+											count={complainee.occurrence}
+											color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
+											styles={{
+												root: { position: 'absolute', top: 0, right: 0 }
+											}}
+											offset={[-8, 8]}
+										/>
+										<Flex align='flex-start' gap={8}>
+											<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
+											<Flex vertical>
+												<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
+												<Text type='secondary'>{complainee.student.studentId}</Text>
+											</Flex>
+										</Flex>
+									</Card>
+								))}
+							</PanelCard>
+						</div>
+						<div
+							style={{ width: '100%', height: '100%', order: mobile ? '1' : '' }}
+						>
+							<PanelCard
+								title='Progress'
+								style={{ position: 'sticky', top: 0 }}
+								footer={
+									<Flex justify='space-between' align='center' gap={8}>
+										<Button
+											type='default'
+											icon={<LeftOutlined />}
+											disabled={step === 0}
+											onClick={() => { setStep(step - 1); }}
+											style={{ flexGrow: 1 }}
+										>
+											Return
+										</Button>
+										{step < 6 ? (
+											<Button
+												type='primary'
+												icon={<RightOutlined />}
+												iconPosition='end'
+												disabled={step === 6}
+												onClick={() => { setStep(step + 1); }}
+												style={{ flexGrow: 1 }}
+											>
+												Proceed
+											</Button>
+										) : (
+											<Button
+												type='primary'
+												style={{ flexGrow: 1 }}
+											>
+												Generate Report
+											</Button>
+										)}
+									</Flex>
+								}
+							>
+								<Steps
+									current={step}
+									size='small'
+									direction='vertical'
+									style={{ width: '100%' }}
+								>
+									<Steps.Step title='Case Opened' description={moment(thisRecord.date).format('MMMM Do YYYY')} />
+									<Steps.Step title='Initial Interview' description='Interview with the complaining party opening the case.' />
+									<Steps.Step title='Respondent Interview' description='Interview with the complainant party.' />
+									<Steps.Step title='Resolution' description='Resolution of the case.' />
+									<Steps.Step title='Reconciliation' description='Reconciliation of both parties involved.' />
+									<Steps.Step title='Clearance' description='Submission of clearance of the issue on hand. Finalization of the case.' />
+								</Steps>
+							</PanelCard>
+						</div>
+					</Flex>
+				</Flex>
+			</Flex>
+			<PanelCard
+				title='Repository'
+				footer={
+					<Flex justify='flex-end' align='center' gap={8}>
+						<Button
+							type='default'
+							size='small'
+							icon={<FileAddOutlined />}
+							onClick={() => { }}
+						>
+							Generate Form
+						</Button>
+						<Button
+							type='primary'
+							size='small'
+							icon={<PlusOutlined />}
+							onClick={() => { }}
+						>
+							Add
+						</Button>
+					</Flex>
+				}
+			>
+				{repository.length > 0 && repository.map((file, i) => (
+					<Card
+						key={file.id || i}
+						size='small'
+						style={{ width: '100%' }}
+						onClick={() => { }}
+					>
+						<Flex align='flex-start' gap={8}>
+							<Avatar src={file.thumbnail} size='large' shape='square' style={{ width: 32, height: 32 }} />
+							<Flex vertical>
+								<Text>{file.name}</Text>
+								<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+							</Flex>
+						</Flex>
+					</Card>
+				))}
+			</PanelCard>
 		</Flex>
 	);
 };

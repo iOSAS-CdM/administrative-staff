@@ -289,7 +289,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 					archived: 'grey'
 				}[thisRecord.tags.status] || 'transparent'
 			}
-			style={{ display: loading ? 'none' : '' }}
+			style={{ display: loading || thisRecord.tags.status === 'archived' ? 'none' : '' }}
 		>
 			<ItemCard
 				loading={loading}

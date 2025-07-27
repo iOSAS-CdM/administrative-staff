@@ -19,12 +19,12 @@ const PanelCard = ({
 	...props
 }) => {
 	return (
-		<Card title={title} size='small' style={{ height: '100%' }} {...props}>
+		<Card title={title} size='small' style={{ flex: 1, display: 'flex', height: '100%' }} {...props}>
 			<Flex vertical gap={8} style={{
 				position: 'relative',
 				height: '100%'
 			}}>
-				<Flex vertical gap={8} className='scrollable-content' style={{ height: '100%', flexGrow: 1, maxHeight: contentMaxHeight }}>
+				<Flex vertical gap={8} className='scrollable-content' style={{ flex: 1, minHeight: 'calc(var(--space-XL) * 10)' }}>
 					{children || (
 						<Empty description='No content found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
 					)}

@@ -83,10 +83,6 @@ span.ant-typography {
 .scrollable-content:hover {
 	scrollbar-color: var(--primary) transparent;
 }
-.scrollable-content > .ant-card-body {
-	height: unset;
-	min-height: 100%;
-}
 
 #root {
 	position: relative;
