@@ -243,6 +243,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 				student.name.middle.toLowerCase().includes(searchTerm) ||
 				student.name.last.toLowerCase().includes(searchTerm) ||
 				`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
+				`${student.name.first} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
 				student.studentId.toLowerCase().includes(searchTerm) ||
 				student.email.toLowerCase().includes(searchTerm)
 			);
