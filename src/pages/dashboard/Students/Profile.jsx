@@ -89,55 +89,6 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
 		if (!thisStudent || !thisStudent.studentId) return;
-		// 	{
-		// 		title: 'Disobedience to the proper dress code.',
-		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-		// 		type: 'disciplinary',
-		// 		tag: 'ongoing'
-		// 	},
-		// 	{
-		// 		title: 'Loitering in the school premises.',
-		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-		// 		type: 'disciplinary',
-		// 		tag: 'ongoing'
-		// 	},
-		// 	{
-		// 		title: 'Bullying and harassment of fellow students.',
-		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-		// 		type: 'disciplinary',
-		// 		tag: 'ongoing'
-		// 	},
-		// 	{
-		// 		title: 'Vandalism of school property.',
-		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-		// 		type: 'disciplinary',
-		// 		tag: 'ongoing'
-		// 	},
-		// 	{
-		// 		title: 'Unauthorized use of school facilities.',
-		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-		// 		type: 'disciplinary',
-		// 		tag: 'ongoing'
-		// 	},
-		// 	{
-		// 		title: 'Excessive absences without valid reasons.',
-		// 		date: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate() + (Math.floor(Math.random() * 10) - 5) + 1}`,
-		// 		type: 'disciplinary',
-		// 		tag: 'ongoing'
-		// 	}
-		// ].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-		// // Group by day
-		// const groupedEvents = fetchedEvents.reduce((acc, event) => {
-		// 	const eventDate = moment(event.date).clone().startOf('day').fromNow();
-		// 	if (!acc[eventDate])
-		// 		acc[eventDate] = [];
-		// 	acc[eventDate].push(event);
-		// 	return acc;
-		// }, {});
-
-
-		// setEvents(groupedEvents);
 		const fetchedRecords = [
 			...osas.records.filter(record => {
 				return record.complainees.some(complainee => complainee.student.studentId === thisStudent.studentId);
@@ -275,41 +226,43 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 					</Flex>
 				</Flex>
 			</Card>
-			<Flex vertical={mobile} gap={16} style={{ width: '100%' }}>
-				<Flex vertical gap={16}>
-					<PanelCard title='Calendar'>
-						<Calendar
-							fullscreen={false}
-							style={{ width: mobile ? '100%' : 'calc(var(--space-XL) * 20)' }}
-						/>
-					</PanelCard>
+			<Flex vertical={mobile} align='stretch' gap={16} style={{ position: 'relative', width: '100%' }}>
+				<div style={{ position: 'sticky', top: 0 }}>
+					<Flex vertical gap={16} style={{ position: 'sticky', top: 0 }}>
+						<PanelCard title='Calendar'>
+							<Calendar
+								fullscreen={false}
+								style={{ width: mobile ? '100%' : 'calc(var(--space-XL) * 20)' }}
+							/>
+						</PanelCard>
 
-					<PanelCard title='Organizations'>
-						{organizations.length > 0 && (
-							<Flex vertical gap={16} className='scrollable-content' style={{ maxHeight: 'calc(var(--space-XL) * 8)' }}>
-								{organizations.map((organization, index) => (
-									<Card
-										key={index}
-										size='small'
-										onClick={() => {
-											navigate(`/dashboard/students/organizations/${organization.id}`, {
-												state: { id: organization.id }
-											});
-										}}
-									>
-										<Flex justify='flex-start' align='center' gap={16}>
-											<Avatar src={organization.logo} size='large' />
-											<Flex vertical>
-												<Text strong>{organization.shortName}</Text>
-												<Text type='secondary'>{organization.members.find(member => member.student.studentId === thisStudent.studentId).role}</Text>
+						<PanelCard title='Organizations'>
+							{organizations.length > 0 && (
+								<Flex vertical gap={16} style={{ maxHeight: 'calc(var(--space-XL) * 20)' }}>
+									{organizations.map((organization, index) => (
+										<Card
+											key={index}
+											size='small'
+											onClick={() => {
+												navigate(`/dashboard/students/organizations/${organization.id}`, {
+													state: { id: organization.id }
+												});
+											}}
+										>
+											<Flex justify='flex-start' align='center' gap={16}>
+												<Avatar src={organization.logo} size='large' />
+												<Flex vertical>
+													<Text strong>{organization.shortName}</Text>
+													<Text type='secondary'>{organization.members.find(member => member.student.studentId === thisStudent.studentId).role}</Text>
+												</Flex>
 											</Flex>
-										</Flex>
-									</Card>
-								))}
-							</Flex>
-						)}
-					</PanelCard>
-				</Flex>
+										</Card>
+									))}
+								</Flex>
+							)}
+						</PanelCard>
+					</Flex>
+				</div>
 				<Flex style={{ width: '100%' }}>
 					<PanelCard title='Disciplinary Events' style={{ width: '100%' }}>
 						{Object.keys(events).length > 0 && (
