@@ -175,7 +175,7 @@ const Menubar = () => {
 		{
 			key: 'staff',
 			label: (
-				<Flex gap={32}>
+				<Flex gap={32} align='center'>
 					<Flex vertical style={{ flex: 1 }}>
 						<Title level={5} style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
 						<Text type='secondary' style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.role}</Text>
@@ -306,36 +306,6 @@ const Menubar = () => {
 						align='center'
 						style={{ width: '100%', height: '100%' }}
 					>
-						{/* <div
-							id='sidebar-toggle'
-							style={{
-								position: 'relative',
-								width: '100%',
-								height: minimized ? (() => {
-									const button = document.querySelector('.ant-btn');
-									if (button)
-										return button.offsetHeight + 'px';
-								})() : '0px',
-								transition: 'height var(--transition)',
-							}}
-						>
-							<Button
-								type={minimized ? 'default' : 'primary'}
-								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
-								onClick={() => setMinimized(!minimized)}
-								size={minimized ? 'default' : 'large'}
-								style={{
-									position: 'absolute',
-									top: 0,
-									left: minimized ? '50%' : 'calc(100% - var(--space-XL))',
-									transform: minimized ? 'translateX(-50%)' : 'none',
-									transition: 'left var(--transition), transform var(--transition)',
-									zIndex: 1000
-								}}
-							/>
-						</div> */}
-
-
 						{minimized && (
 							<Button
 								type='default'
