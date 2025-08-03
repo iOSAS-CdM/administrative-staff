@@ -189,68 +189,71 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
 					organization.status === 'restricted' && 'restricted'
 			}
 
-			actions={[
-				{
-					content: (
-						<Avatar.Group
-							max={{
-								count: 4
-							}}
-						>
-							{thisOrganization.members.map((member, index) => (
-								<Avatar
-									key={index}
-									src={member.student.profilePicture}
-									style={{ cursor: 'pointer' }}
-									onClick={() => {
-										navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
-											state: { studentId: member.student.studentId }
-										});
-									}}
-								/>
-							))}
-						</Avatar.Group>
-					),
-					align: 'left'
-				},
-				{
-					content: (
-						<RightOutlined key='view' />
-					),
-					onClick: () => {
-						if (thisOrganization.placeholder)
-							Modal.error({
-								title: 'Error',
-								content: 'This is a placeholder organization. Please try again later.',
-								centered: true
-							});
-						else
-							navigate(`/dashboard/students/organizations/${thisOrganization.id}`, {
-								state: { id: thisOrganization.id }
-							});
-					},
-					align: 'right'
-				}
-			]}
-
 			cover={!thisOrganization.placeholder && (
 				<Image
 					src={thisOrganization.cover || '/Placeholder Image.svg'}
 					alt={`${thisOrganization.shortName} Cover`}
-					style={{ aspectRatio: '3/1', objectFit: 'cover' }}
+					style={{ aspectRatio: '2/1', objectFit: 'cover' }}
 				/>
 			)}
+
+			onClick={() => {
+				if (loading) {
+					Modal.error({
+						title: 'Error',
+						content: 'This is a placeholder organization. Please try again later.',
+						centered: true
+					});
+					return;
+				};
+				navigate(`/dashboard/students/organizations/${thisOrganization.id}`, {
+					state: { id: thisOrganization.id }
+				});
+			}}
 		>
-			<Flex justify='flex-start' align='flex-start' gap={16} style={{ width: '100%' }}>
-				<Avatar
-					src={thisOrganization.logo}
-					size='large'
-					style={{ width: remToPx(6), height: remToPx(6) }}
-				/>
-				<Flex vertical justify='flex-start' align='flex-start'>
-					<Title level={3}>{thisOrganization.shortName}<Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisOrganization.studentId}</Text></Title>
-					<Text>{thisOrganization.fullName}</Text>
+			<Flex vertical justify='flex-start' align='center' gap={16} style={{ width: '100%' }}>
+				<div
+					style={{
+						position: 'relative',
+						height: 16,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center'
+					}}
+				>
+					<Avatar
+						src={thisOrganization.logo}
+						size='large'
+						style={{
+							position: 'absolute',
+							width: 64,
+							height: 64,
+							bottom: 0
+						}}
+					/>
+				</div>
+				<Flex vertical justify='flex-start' align='center'>
+					<Title level={3} style={{ textAlign: 'center' }}>{thisOrganization.shortName}</Title>
+					<Text style={{ textAlign: 'center' }}>{thisOrganization.fullName}</Text>
 				</Flex>
+				<Avatar.Group
+					max={{
+						count: 4
+					}}
+				>
+					{thisOrganization.members.map((member, index) => (
+						<Avatar
+							key={index}
+							src={member.student.profilePicture}
+							style={{ cursor: 'pointer' }}
+							onClick={() => {
+								navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
+									state: { studentId: member.student.studentId }
+								});
+							}}
+						/>
+					))}
+				</Avatar.Group>
 			</Flex>
 		</ItemCard>
 	);
