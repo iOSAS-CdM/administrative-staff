@@ -14,6 +14,7 @@ import {
 	Divider,
 	Row,
 	Col,
+	Dropdown,
 	Avatar,
 	Typography
 } from 'antd';
@@ -23,7 +24,8 @@ import {
 	FilterOutlined,
 	EditOutlined,
 	LockOutlined,
-	RightOutlined
+	RightOutlined,
+	EllipsisOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -315,7 +317,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 			{displayedStudents.length > 0 ? (
 				<Row gutter={[16, 16]}>
 					{displayedStudents.map((student, index) => (
-						<Col key={student.studentId} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+						<Col key={student.studentId} span={!mobile ? 12 : 24} style={{ height: '100%' }}>
 							<StudentCard
 								student={student}
 								loading={student.placeholder}
@@ -362,63 +364,28 @@ const StudentCard = ({ student, loading, navigate }) => {
 				student.status === 'restricted' && 'restricted'
 			}
 
-			actions={[
-				{
-					content: (
-						<EditOutlined key='edit' />
-					),
-					onClick: () => {
-						if (thisStudent.placeholder)
-							Modal.error({
-								title: 'Error',
-								content: 'This is a placeholder student profile. Please try again later.',
-								centered: true
-							});
-						else
-							EditStudent(Modal, thisStudent, setThisStudent);
-					}
-				},
-				{
-					content: (
-						<LockOutlined key='restrict' />
-					),
-					onClick: () => {
-						if (thisStudent.placeholder)
-							Modal.error({
-								title: 'Error',
-								content: 'This is a placeholder student profile. Please try again later.',
-								centered: true
-							});
-						else
-							RestrictStudent(Modal, thisStudent, setThisStudent);
-					}
-				},
-				{
-					content: (
-						<RightOutlined key='view' />
-					),
-					onClick: () => {
-						if (thisStudent.placeholder)
-							Modal.error({
-								title: 'Error',
-								content: 'This is a placeholder student profile. Please try again later.',
-								centered: true
-							});
-						else
-							navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
-								state: { studentId: thisStudent.studentId }
-							});
-					}
-				}
-			]}
+			onClick={(e) => {
+				if (e.target.closest('.student-card-dropdown, .ant-dropdown-menu'))
+					return;
+				if (thisStudent.placeholder)
+					Modal.error({
+						title: 'Error',
+						content: 'This is a placeholder student profile. Please try again later.',
+						centered: true
+					});
+				else
+					navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
+						state: { studentId: thisStudent.studentId }
+					});
+			}}
 		>
-			<Flex justify='flex-start' align='flex-start' gap={16} style={{ width: '100%' }}>
+			<Flex justify='flex-start' align='center' gap={16} style={{ width: '100%' }}>
 				<Avatar
 					src={thisStudent.profilePicture}
 					size='large'
-					style={{ width: remToPx(6), height: remToPx(6) }}
+					style={{ width: 64, height: 64 }}
 				/>
-				<Flex vertical justify='flex-start' align='flex-start'>
+				<Flex vertical justify='flex-start' align='flex-start' style={{ flex: 1 }}>
 					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.studentId}</Text></Title>
 					<Text>{
 						thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
@@ -426,6 +393,42 @@ const StudentCard = ({ student, loading, navigate }) => {
 								thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
 					}</Text>
 				</Flex>
+				<Dropdown
+					arrow
+					placement='bottom'
+					menu={{
+						items: [
+							{
+								key: 'edit',
+								icon: <EditOutlined />,
+								label: <Text>Edit</Text>
+							},
+							{
+								key: 'restrict',
+								icon: <LockOutlined />,
+								label: <Text>Restrict</Text>
+							}
+						],
+						onClick: (e) => {
+							if (thisStudent.placeholder)
+								Modal.error({
+									title: 'Error',
+									content: 'This is a placeholder student profile. Please try again later.',
+									centered: true
+								});
+							else if (e.key === 'edit')
+								EditStudent(Modal, thisStudent, setThisStudent);
+							else if (e.key === 'restrict')
+								RestrictStudent(Modal, thisStudent, setThisStudent);
+						}
+					}}
+				>
+					<Button
+						type='default'
+						className='student-card-dropdown'
+						icon={<EllipsisOutlined />}
+					/>
+				</Dropdown>
 			</Flex>
 		</ItemCard>
 	);
