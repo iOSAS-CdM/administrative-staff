@@ -30,7 +30,7 @@ import {
 
 import remToPx from '../../../utils/remToPx';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
@@ -284,18 +284,6 @@ const RecordCard = ({ record, loading, navigate }) => {
 
 				status={thisRecord.tags.status === 'archived' && 'archived'}
 
-				title={!loading && (
-					<Title level={3}>
-						{
-							{
-								minor: null,
-								major: <WarningOutlined style={{ color: 'orange' }} title='Major Violation' />,
-								severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe Violation' />
-							}[thisRecord.tags.severity.toLowerCase()] || ''
-						} {thisRecord.violation}
-					</Title>
-				)}
-
 				actions={!loading && [
 					{
 						content: (
@@ -347,30 +335,35 @@ const RecordCard = ({ record, loading, navigate }) => {
 								})}
 							</Text>
 						)
-					},
-					{
-						content: <RightOutlined />,
-						onClick: () => {
-							if (loading) {
-								Modal.error({
-									title: 'Error',
-									content: 'This is a placeholder disciplinary record. Please try again later.',
-									centered: true
-								});
-							} else {
-								navigate(`/dashboard/students/records/${thisRecord.id}`, {
-									state: { id: thisRecord.id }
-								});
-							};
-						}
 					}
 				]}
+
+				onClick={() => {
+					if (loading) {
+						Modal.error({
+							title: 'Error',
+							content: 'This is a placeholder disciplinary record. Please try again later.',
+							centered: true
+						});
+					} else {
+						navigate(`/dashboard/students/records/${thisRecord.id}`, {
+							state: { id: thisRecord.id }
+						});
+					};
+				}}
 			>
 				{!loading && (
 					<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
-						<Text>
-							{thisRecord.description}
-						</Text>
+						<Title level={3}>
+							{
+								{
+									minor: null,
+									major: <WarningOutlined style={{ color: 'orange' }} title='Major Violation' />,
+									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe Violation' />
+								}[thisRecord.tags.severity.toLowerCase()] || ''
+							} {thisRecord.violation}
+						</Title>
+						<Paragraph>{thisRecord.description}</Paragraph>
 					</Flex>
 				)}
 			</ItemCard>
