@@ -28,7 +28,7 @@ const SignIn = ({ navigate }) => {
 
 		setTimeout(() => {
 			setSigningIn(false);
-			navigate('/dashboard');
+			window.location.href = '/dashboard';
 		}, remToPx(20));
 	};
 
