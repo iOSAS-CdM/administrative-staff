@@ -16,8 +16,8 @@ import {
 import {
     HomeOutlined,
     NotificationOutlined,
-    LeftOutlined,
-    RightOutlined,
+	DoubleLeftOutlined,
+	DoubleRightOutlined,
     LogoutOutlined,
     SmileOutlined,
     ToolOutlined,
@@ -168,13 +168,26 @@ const Menubar = () => {
 		};
 	}, []);
 
+	/**
+	 * @type {import('antd').MenuProps['items']}
+	 */
     const menuItems = [
 		{
 			key: 'staff',
 			label: (
-				<Flex vertical>
-					<Title level={5} style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
-					<Text type='secondary' style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.role}</Text>
+				<Flex gap={32}>
+					<Flex vertical style={{ flex: 1 }}>
+						<Title level={5} style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
+						<Text type='secondary' style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.role}</Text>
+					</Flex>
+
+					{!minimized && (
+						<Button
+							type='default'
+							icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+							onClick={() => setMinimized(!minimized)}
+						/>
+					)}
 				</Flex>
 			),
 			icon: (
@@ -191,7 +204,10 @@ const Menubar = () => {
 		},
 		{
 			key: 'divider',
-			type: 'divider'
+			type: 'divider',
+			style: {
+				margin: '16px 0'
+			}
 		},
 		{
             key: 'home',
@@ -290,7 +306,7 @@ const Menubar = () => {
 						align='center'
 						style={{ width: '100%', height: '100%' }}
 					>
-						<div
+						{/* <div
 							id='sidebar-toggle'
 							style={{
 								position: 'relative',
@@ -305,7 +321,7 @@ const Menubar = () => {
 						>
 							<Button
 								type={minimized ? 'default' : 'primary'}
-								icon={minimized ? <RightOutlined /> : <LeftOutlined />}
+								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
 								onClick={() => setMinimized(!minimized)}
 								size={minimized ? 'default' : 'large'}
 								style={{
@@ -317,7 +333,16 @@ const Menubar = () => {
 									zIndex: 1000
 								}}
 							/>
-						</div>
+						</div> */}
+
+
+						{minimized && (
+							<Button
+								type='default'
+								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+								onClick={() => setMinimized(!minimized)}
+							/>
+						)}
                         <Flex
                             vertical
                             justify='center'
@@ -375,7 +400,7 @@ const Menubar = () => {
                 >
                     <Flex
                         justify='space-between'
-						align='stretch'
+						align='center'
 						gap={mobile ? 16 : 32}
                         style={{ width: '100%', height: '100%' }}
 					>
