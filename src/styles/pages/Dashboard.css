@@ -4,15 +4,6 @@
 	z-index: 1;
 }
 
-.card {
-	opacity: 0;
-	transform: translateY(2rem) scale(0.95);
-	transition: var(--transition);
-}
-.card.mounted {
-	opacity: 1;
-	transform: translateY(0) scale(1);
-}
 .card.archived {
 	opacity: 0.5;
 	filter: grayscale(100%);

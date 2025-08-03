@@ -9,6 +9,7 @@ import {
     Typography,
     Button,
 	Menu,
+	Badge,
 	Popover
 } from 'antd';
 
@@ -26,7 +27,7 @@ import {
 	SyncOutlined
 } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext, SyncSeedContext } from '../main';
+import { MobileContext, DisplayThemeContext, SyncSeedContext, OSASContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
@@ -43,6 +44,40 @@ const { Text, Title } = Typography;
 
 import '../styles/pages/Dashboard.css';
 
+const ReloadButton = ({ setSeed }) => {
+	const [shiftPressed, setShiftPressed] = React.useState(false);
+	React.useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.key === 'Shift')
+				setShiftPressed(true);
+		};
+		const handleKeyUp = (event) => {
+			if (event.key === 'Shift')
+				setShiftPressed(false);
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('keyup', handleKeyUp);
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('keyup', handleKeyUp);
+		};
+	}, []);
+	return (
+		<Badge color='blue' dot={shiftPressed}>
+			<Button
+				type='default'
+				icon={<SyncOutlined />}
+				onClick={() => {
+					if (shiftPressed)
+						location.reload();
+					else
+						setSeed(prev => prev + 1);
+				}}
+			/>
+		</Badge>
+	);
+};
+
 const Menubar = () => {
     const navigate = useNavigate();
 	const location = useLocation();
@@ -51,8 +86,9 @@ const Menubar = () => {
 	const { mobile, setMobile } = React.useContext(MobileContext);
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
 	const { seed, setSeed } = React.useContext(SyncSeedContext);
+	const { osas, setOsas } = React.useContext(OSASContext);
 
-    const [staff, setStaff] = React.useState({
+	const [staff, setStaff] = React.useState({
         name: {
             first: '',
             middle: '',
@@ -60,33 +96,23 @@ const Menubar = () => {
         },
         role: '',
         profilePicture: ''
-    });
+	});
+	React.useEffect(() => {
+		setStaff({
+			name: {
+				first: osas.staff.name.first,
+				middle: osas.staff.name.middle,
+				last: osas.staff.name.last
+			},
+			role: osas.staff.role,
+			profilePicture: osas.staff.profilePicture || '/Placeholder Image.svg'
+		});
+	}, [osas.staff]);
 
-    const [Header, setHeader] = React.useState({
+	const [Header, setHeader] = React.useState({
 		title: 'Dashboard',
 		actions: []
-    });
-
-    // Fetch staff data on component mount
-    React.useEffect(() => {
-        fetch('https://randomuser.me/api/?results=1&inc=name,%20picture')
-            .then(response => response.json())
-            .then(data => {
-                const user = data.results[0];
-                setStaff({
-                    name: {
-                        first: user.name.first,
-                        middle: user.name.middle || '',
-                        last: user.name.last
-                    },
-                    role: 'Head',
-                    profilePicture: user.picture.large
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching staff data:', error);
-            });
-    }, []);
+	});
 
 	const props = {
 		setHeader,
@@ -208,7 +234,7 @@ const Menubar = () => {
             children: [
                 {
                     key: 'calendar',
-                    label: 'Event Calendar',
+                    label: 'Calendar',
                     onClick: () => navigate('/dashboard/utilities/calendar')
                 },
                 {
@@ -356,13 +382,7 @@ const Menubar = () => {
 						<Title level={4}>{Header.title}</Title>
 						{!mobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-								<Button
-									type='default'
-									icon={<SyncOutlined />}
-									onClick={() => {
-										setSeed(prev => prev + 1);
-									}}
-								/>
+								<ReloadButton setSeed={setSeed} />
 								{Header.actions && Header.actions.map((action, index) => (
 									{
 										...action,
@@ -373,13 +393,7 @@ const Menubar = () => {
 						) : (
 								Header.actions && Header.actions.length > 1 ? (
 									<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-										<Button
-											type='default'
-											icon={<SyncOutlined />}
-											onClick={() => {
-												setSeed(prev => prev + 1);
-											}}
-										/>
+										<ReloadButton setSeed={setSeed} />
 										<Popover
 											trigger={['click']}
 											placement='bottom'

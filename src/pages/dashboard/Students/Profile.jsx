@@ -6,13 +6,12 @@ import {
 	Card,
 	Button,
 	Flex,
-	Row,
-	Col,
+	Badge,
 	Divider,
 	Avatar,
 	Image,
 	Typography,
-	Calendar,
+	Calendar as AntCalendar,
 	Tag,
 	App
 } from 'antd';
@@ -34,6 +33,53 @@ const { Title, Text } = Typography;
 import PanelCard from '../../../components/PanelCard';
 
 import { MobileContext, OSASContext } from '../../../main';
+
+const Calendar = ({ events }) => {
+	const [value, setValue] = React.useState(moment());
+	return (
+		<AntCalendar
+			fullscreen={false}
+			onPanelChange={(date) => {
+				setValue(date);
+			}}
+			fullCellRender={(date) => {
+				const eventsForDate = events.find(event =>
+					event.date.getDate() === date.date()
+					&& event.date.getMonth() === date.month()
+					&& event.date.getFullYear() === date.year()
+				)?.events || [];
+				return (
+					<Badge
+						color={
+							date.month() === value.month()
+								&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
+						}
+						count={eventsForDate.length}
+						style={{
+							opacity: date.month() === value.month()
+								&& date.year() === value.year() ? 1 : 0.5
+						}}
+					>
+						<Button
+							type={
+								date.date() === value.date()
+									&& date.month() === value.month()
+									&& date.year() === value.year() ? 'primary' : 'text'
+							}
+							style={{
+								opacity: date.month() === value.month()
+									&& date.year() === value.year() ? 1 : 0.5
+							}}
+							size='small'
+						>
+							{`${date.date()}`.padStart(2, '0')}
+						</Button>
+					</Badge>
+				)
+			}}
+		/>
+	);
+};
 
 const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
@@ -86,39 +132,27 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		setOrganizations(fetchedOrganizations);
 	}, [thisStudent, osas.organizations]);
 
+	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
 		if (!thisStudent || !thisStudent.studentId) return;
-		const fetchedRecords = [
-			...osas.records.filter(record => {
-				return record.complainees.some(complainee => complainee.student.studentId === thisStudent.studentId);
-			}),
-			...osas.records.filter(record => {
-				return record.complainants.some(complainant => complainant.studentId === thisStudent.studentId);
-			})
-		];
-		const eventsMap = fetchedRecords.reduce((acc, record) => {
-			const dateKey = moment(record.date).format('YYYY-MM-DD');
-			if (!acc[dateKey]) {
-				acc[dateKey] = [];
-			}
-			acc[dateKey].push({
-				title: record.violation,
-				tag: record.tags.status,
-				type: 'disciplinary',
-				id: record.id
-			});
-			return acc;
-		}, {});
-		console.log('Fetched Events:', eventsMap);
-		const groupedEvents = Object.entries(eventsMap).reduce((acc, [date, events]) => {
-			const formattedDate = moment(date).format('YYYY-MM-DD');
-			acc[formattedDate] = events;
-			return acc;
-		}, {});
-		console.log('Grouped Events:', groupedEvents);
-		setEvents(groupedEvents);
-	}, [thisStudent, osas.records]);
+		// Filter events that are related to the student
+		const studentEvents = [];
+		for (const day of osas.events) {
+			const eventsOnDay = day.events.filter(event =>
+				event.type === 'disciplinary' && (
+					event.content.complainants.some(c => c.studentId === thisStudent.studentId)
+					|| event.content.complainees.some(c => c.student.studentId === thisStudent.studentId)
+				)
+			);
+			if (eventsOnDay.length > 0)
+				studentEvents.push({
+					date: day.date,
+					events: eventsOnDay
+				});
+		};
+		setEvents(studentEvents);
+	}, [thisStudent, osas.events]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -227,13 +261,10 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Flex>
 			</Card>
 			<Flex vertical={mobile} align='stretch' gap={16} style={{ position: 'relative', width: '100%' }}>
-				<div style={{ position: 'sticky', top: 0 }}>
+				<div style={{ flex: 0 }}>
 					<Flex vertical gap={16} style={{ position: 'sticky', top: 0 }}>
 						<PanelCard title='Calendar'>
-							<Calendar
-								fullscreen={false}
-								style={{ width: mobile ? '100%' : 'calc(var(--space-XL) * 20)' }}
-							/>
+							<Calendar events={events} />
 						</PanelCard>
 
 						<PanelCard title='Organizations'>
@@ -263,28 +294,33 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 						</PanelCard>
 					</Flex>
 				</div>
-				<Flex style={{ width: '100%' }}>
+				<Flex style={{ width: '100%', flex: 1 }}>
 					<PanelCard title='Disciplinary Events' style={{ width: '100%' }}>
-						{Object.keys(events).length > 0 && (
-							Object.entries(events).map(([date, events]) => (
-								<Flex key={date} vertical gap={8}>
-									<Text strong>{date}</Text>
-									{events.map((event, index) => (
+						{events.length > 0 && (
+							events.map((event, index) => (
+								<Flex key={index} vertical gap={8}>
+									<Text strong>{moment(event.date).format('MMMM D, YYYY')}</Text>
+									{event.events.map((e, idx) => (
 										<Flex
-											key={index}
+											key={idx}
 											justify='flex-start'
 											align='flex-start'
-											style={{ cursor: 'pointer' }}
+											style={{ cursor: 'pointer', width: '100%' }}
 											onClick={() => {
-												if (event.type === 'disciplinary') {
-													navigate(`/dashboard/students/records/${event.id}`, {
-														state: { id: event.id }
-													});
-												};
+												navigate(`/dashboard/students/records/${e.id}`, {
+													state: { id: e.id }
+												});
 											}}
 										>
-											<Tag color={event.tag === 'ongoing' ? 'yellow' : 'green'}>{event.tag}</Tag>
-											<Text>{event.title}</Text>
+											<Badge
+												color={['yellow', 'orange', 'red'][e.content.complainees.find(c => c.student.studentId === thisStudent.studentId)?.occurrence - 1] || 'red'}
+												size='small'
+												count={e.content.complainees.some(c => c.student.studentId === thisStudent.studentId) ? e.content.complainees.find(c => c.student.studentId === thisStudent.studentId).occurrence : 0}
+												offset={[-8, 0]}
+											>
+												<Tag color={e.content.tags.status === 'ongoing' ? 'yellow' : 'green'}>{e.content.tags.status}</Tag>
+											</Badge>
+											<Text>{e.content.violation}</Text>
 										</Flex>
 									))}
 								</Flex>

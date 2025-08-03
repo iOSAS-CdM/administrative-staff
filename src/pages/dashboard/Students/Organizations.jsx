@@ -145,7 +145,6 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 						<Col key={organization.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 							<OrganizationCard
 								organization={organization}
-								animationDelay={index * 0.1}
 								loading={organization.placeholder}
 								navigate={navigate}
 							/>
@@ -164,25 +163,14 @@ export default Organizations;
 /**
  * @param {{
  * 	organization: import('../../../classes/Organization').Organization,
- * 	animationDelay: Number,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
  * }} param0
  * @returns {JSX.Element}
  */
-const OrganizationCard = ({ organization, animationDelay, loading, navigate }) => {
-	const [mounted, setMounted] = React.useState(false);
-
+const OrganizationCard = ({ organization, loading, navigate }) => {
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization').Organization>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState(organization);
-
-	React.useEffect(() => {
-		const timer = setTimeout(() => {
-			setMounted(true);
-		}, animationDelay * 1000 || 0);
-
-		return () => clearTimeout(timer);
-	}, [animationDelay]);
 
 	React.useEffect(() => {
 		if (organization)
@@ -195,7 +183,6 @@ const OrganizationCard = ({ organization, animationDelay, loading, navigate }) =
 	return (
 		<ItemCard
 			loading={loading}
-			mounted={mounted}
 
 			status={
 				organization.status === 'archived' ? 'archived' :

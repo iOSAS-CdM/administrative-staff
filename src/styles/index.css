@@ -64,7 +64,7 @@ span.ant-typography {
 }
 
 .scrollable-content {
-	overflow: auto;
+	overflow-y: auto;
 	position: relative;
 
 	scrollbar-width: thin;
@@ -103,4 +103,8 @@ span.ant-typography {
 
 	border: none;
 	border-radius: 0;
+}
+
+[data-chart-source-type="Ant Design Charts"] {
+	overflow: hidden;
 }

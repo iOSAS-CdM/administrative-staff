@@ -4,12 +4,14 @@ import {
 	Card,
 	Flex,
 	Button,
-	Calendar
+	Calendar as AntCalendar
 } from 'antd';
 
 import {
 	CalendarOutlined
 } from '@ant-design/icons';
+
+import { OSASContext } from '../../../main';
 
 const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	React.useEffect(() => {
@@ -32,11 +34,31 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setSelectedKeys(['calendar']);
 	}, [setSelectedKeys]);
 
+	const { osas, setOsas } = React.useContext(OSASContext);
+
+	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
+	const [events, setEvents] = React.useState([]);
+	React.useEffect(() => {
+		setEvents(osas.events);
+	}, [osas.events]);
+
 	return (
 		<Card>
-			<Calendar
+			<AntCalendar
 				cellRender={(date) => {
-					return;
+					const eventsForDate = events.find(event =>
+						event.date.getDate() === date.date()
+						&& event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					)?.events || [];
+					if (eventsForDate.length) console.log(eventsForDate);
+					return (eventsForDate.map((event, index) => (
+						event.type === 'disciplinary' ? (
+							<div key={index}>
+								<span>{event.content.violation}</span>
+							</div>
+						) : null
+					)))
 				}}
 			/>
 		</Card>

@@ -16,6 +16,7 @@ import './styles/index.css';
 import Student from './classes/Student';
 import Record from './classes/Record';
 import Organization from './classes/Organization';
+import Event from './classes/Event';
 
 export const MobileContext = React.createContext({
 	mobile: false,
@@ -30,7 +31,26 @@ export const SyncSeedContext = React.createContext({
 	seed: 0,
 	setSeed: () => { }
 });
-/** @typedef {{ students: Student[], records: Record[], organizations: Organization[] }} OSASData */
+/**
+ * @typedef {{
+ * 	staff: {
+ * 		name: {
+ * 			first: '',
+ * 			middle: '',
+ * 			last: ''
+ * 		},
+ * 		role: '',
+ * 		profilePicture: ''
+ * 	};
+ * 	students: Student[];
+ * 	records: Record[];
+ * 	organizations: Organization[];
+ * 	events: {
+ * 		date: Date,
+ * 		events: Event[]
+ * 	}[];
+ * }} OSASData
+ */
 export const OSASContext = React.createContext({
 	/** @type {OSASData} */
 	osas: {
@@ -65,12 +85,47 @@ const OSAS = () => {
 	const [seed, setSeed] = React.useState(0);
 
 	// Set singleton data for the app
-	/** @type {[OSASData, React.Dispatch<OSASData>]} */
+	/** @type {[OSASData, React.Dispatch<React.SetStateAction<OSASData>>]} */
 	const [osas, setOsas] = React.useState({
+		staff: {
+			name: {
+				first: '',
+				middle: '',
+				last: ''
+			},
+			role: '',
+			profilePicture: ''
+		},
 		students: [],
 		records: [],
-		organizations: []
+		organizations: [],
+		events: []
 	});
+	React.useEffect(() => {
+		fetch('https://randomuser.me/api/?results=1&inc=name,%20picture')
+			.then(response => response.json())
+			.then(data => {
+				const user = data.results[0];
+				const staff = {
+					name: {
+						first: user.name.first,
+						middle: user.name.middle || '',
+						last: user.name.last
+					},
+					role: 'Administrative Staff',
+					profilePicture: user.picture.large
+				};
+				setOsas(prev => ({
+					...prev,
+					staff: staff
+				}));
+				console.log('Staff data fetched:', staff);
+			})
+			.catch(error => {
+				console.error('Error fetching staff data:', error);
+			});
+	}, [seed]);
+
 	const programs = {
 		'ics': ['BSCpE', 'BSIT'],
 		'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
@@ -115,15 +170,59 @@ const OSAS = () => {
 					students: fetchedStudents
 				}));
 			})
-			.catch(error => console.error('Error fetching student data:', error));
-	}, [seed]);
+			.catch(error => {
+				console.error('Error fetching student data:', error);
+				/** @type {Student[]} */
+				const placeholderStudents = [];
+
+				for (let i = 0; i < 20; i++) {
+					const user = {
+						name: {
+							first: 'First',
+							middle: 'Middle',
+							last: 'Last'
+						},
+						email: 'example@mail.com',
+						phone: '+63 912 345 6789'
+					};
+					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
+
+					const student = new Student({
+						name: {
+							first: user.name.first,
+							middle: user.name.middle || '',
+							last: user.name.last
+						},
+						email: user.email,
+						phone: user.phone,
+						studentId: (() => {
+							let id;
+							do {
+								id = `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`;
+							} while (placeholderStudents.some(student => student.studentId === id));
+							return id;
+						})(),
+						institute: institute,
+						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
+						year: Math.floor(Math.random() * 4) + 1,
+						profilePicture: '/Placeholder Image.svg',
+						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
+					});
+					placeholderStudents.push(student);
+				};
+				setOsas(prev => ({
+					...prev,
+					students: placeholderStudents
+				}));
+			});
+	}, [osas.staff]);
 	React.useEffect(() => {
 		if (osas.students.length === 0) return;
 		setTimeout(() => {
 			/** @type {Record[]} */
 			const fetchedRecords = [];
 
-			for (let i = 0; i < 40; i++) {
+			for (let i = 0; i < 200; i++) {
 				const id = `record-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
 
 				const complainants = [];
@@ -155,7 +254,7 @@ const OSAS = () => {
 					complainees: complainees,
 					placeholder: false,
 					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
-						Date().getDate() - (Math.floor(Math.random() * 10) + 1))
+						Date().getDate() - Math.floor(Math.random() * 50))
 				});
 
 				fetchedRecords.push(record);
@@ -213,6 +312,36 @@ const OSAS = () => {
 			}));
 		}, remToPx(200));
 	}, [osas.students]);
+	React.useEffect(() => {
+		const events = [];
+		for (const record of osas.records) {
+			const event = new Event({
+				id: record.id,
+				type: 'disciplinary',
+				content: record
+			});
+			events.push(event);
+		};
+
+		const eventsMap = events.reduce((acc, event) => {
+			const dateKey = event.content.date.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+			if (!acc[dateKey]) {
+				acc[dateKey] = [];
+			}
+			acc[dateKey].push(event);
+			return acc;
+		}, {});
+
+		const sortedEvents = Object.entries(eventsMap).map(([date, events]) => ({
+			date: new Date(date),
+			events: events.sort((a, b) => new Date(b.content.date) - new Date(a.content.date))
+		})).sort((a, b) => b.date - a.date);
+
+		setOsas(prev => ({
+			...prev,
+			events: sortedEvents
+		}));
+	}, [osas.records]);
 
 	React.useEffect(() => {
 		console.log(osas);

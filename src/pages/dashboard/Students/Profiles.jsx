@@ -318,7 +318,6 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 						<Col key={student.studentId} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 							<StudentCard
 								student={student}
-								animationDelay={index * 0.1}
 								loading={student.placeholder}
 								navigate={navigate}
 							/>
@@ -337,25 +336,14 @@ export default Profiles;
 /**
  * @param {{
  * 	student: Student,
- * 	animationDelay: Number,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
  * }} param0 
  * @returns {JSX.Element}
  */
-const StudentCard = ({ student, animationDelay, loading, navigate }) => {
-	const [mounted, setMounted] = React.useState(false);
-
+const StudentCard = ({ student, loading, navigate }) => {
 	/** @type {[Student, React.Dispatch<React.SetStateAction<Student[]>>]} */
 	const [thisStudent, setThisStudent] = React.useState(student);
-
-	React.useEffect(() => {
-		const timer = setTimeout(() => {
-			setMounted(true);
-		}, animationDelay * 1000 || 0);
-
-		return () => clearTimeout(timer);
-	}, [animationDelay]);
 
 	React.useEffect(() => {
 		if (student)
@@ -368,7 +356,6 @@ const StudentCard = ({ student, animationDelay, loading, navigate }) => {
 	return (
 		<ItemCard
 			loading={loading}
-			mounted={mounted}
 
 			status={
 				student.status === 'archived' ? 'archived' :

@@ -231,7 +231,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 						<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
 							<RecordCard
 								record={record}
-								animationDelay={index * 0.1}
 								loading={record.placeholder}
 								navigate={navigate}
 							/>
@@ -250,25 +249,14 @@ export default DisciplinaryRecords;
 /**
  * @param {{
  * 	record: Record,
- * 	animationDelay: Number,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
  * }} param0
  * @returns 
  */
-const RecordCard = ({ record, animationDelay, loading, navigate }) => {
-	const [mounted, setMounted] = React.useState(false);
-
+const RecordCard = ({ record, loading, navigate }) => {
 	/** @type {[Record, React.Dispatch<React.SetStateAction<Record[]>>]} */
 	const [thisRecord, setThisRecord] = React.useState(record);
-
-	React.useEffect(() => {
-		const timer = setTimeout(() => {
-			setMounted(true);
-		}, animationDelay * 1000 || 0);
-
-		return () => clearTimeout(timer);
-	}, [animationDelay]);
 
 	React.useEffect(() => {
 		if (record) {
@@ -293,7 +281,6 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 		>
 			<ItemCard
 				loading={loading}
-				mounted={mounted}
 
 				status={thisRecord.tags.status === 'archived' && 'archived'}
 
@@ -334,7 +321,7 @@ const RecordCard = ({ record, animationDelay, loading, navigate }) => {
 										key={index}
 										title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
 										count={complainee.occurrence}
-										color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
+										color={['yellow', 'orange', 'red'][complainee.occurrence - 1] || 'red'}
 									>
 										<Avatar
 											src={complainee.student.profilePicture}

@@ -303,7 +303,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 										<Badge
 											title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
 											count={complainee.occurrence}
-											color={['blue', 'purple', 'red'][complainee.occurrence - 1] || 'red'}
+											color={['yellow', 'orange', 'red'][complainee.occurrence - 1] || 'red'}
 											styles={{
 												root: { position: 'absolute', top: 0, right: 0 }
 											}}

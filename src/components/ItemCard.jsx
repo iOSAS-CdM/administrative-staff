@@ -23,7 +23,6 @@ import {
 
 /**
  * @typedef {{
- * 	mounted: Boolean,
  *	loading: Boolean,
  * 	title: React.ReactNode,
  * 	extra: React.ReactNode,
@@ -38,7 +37,6 @@ import {
  * @param {ItemCardBaseProps} param0
  */
 const ItemCard = ({
-	mounted,
 	loading,
 	title,
 	extra,
@@ -53,7 +51,7 @@ const ItemCard = ({
 			loading={loading}
 			size='small'
 			hoverable
-			className={`card ${mounted && 'mounted'} ${(status && mounted) && status} ${props.className || ''}`}
+			className={`card ${status} ${props.className || ''}`}
 			actions={null}
 			title={title}
 			extra={null}
