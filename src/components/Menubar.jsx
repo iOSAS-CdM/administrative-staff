@@ -90,8 +90,8 @@ const Menubar = () => {
 	const { mobile, setMobile } = React.useContext(MobileContext);
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
 	const { seed, setSeed } = React.useContext(SyncSeedContext);
-	const { loadingStates, setLoadingStates } = React.useContext(LoadingStatesContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { loadingStates } = React.useContext(LoadingStatesContext);
+	const { osas } = React.useContext(OSASContext);
 
 	const [staff, setStaff] = React.useState({
         name: {
@@ -417,12 +417,9 @@ const Menubar = () => {
 						{!mobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 								<ReloadButton setSeed={setSeed} />
-								{Header.actions && Header.actions.map((action, index) => (
-									{
-										...action,
-										key: index
-									}
-								))}
+								{Header.actions && Header.actions.map((action, index) =>
+									React.cloneElement(action, { key: index })
+								)}
 							</Flex>
 						) : (
 								Header.actions && Header.actions.length > 1 ? (
@@ -433,12 +430,9 @@ const Menubar = () => {
 											placement='bottom'
 											content={(menu) => (
 												<Flex vertical justify='flex-start' gap={16} flex={1} align='stretch'>
-													{Header.actions && Header.actions.map((action, index) => (
-														{
-															...action,
-															key: index
-														}
-													))}
+													{Header.actions && Header.actions.map((action, index) =>
+														React.cloneElement(action, { key: index })
+													)}
 												</Flex>
 											)}
 										>

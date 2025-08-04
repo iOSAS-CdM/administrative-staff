@@ -171,8 +171,8 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		setSelectedKeys(['profiles']);
 	}, [setSelectedKeys]);
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
 
 	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */

@@ -131,7 +131,7 @@ const Calendar = ({ events }) => {
 	);
 };
 
-const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff }) => {
+const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 	React.useEffect(() => {
 		if (setHeader)
 			setHeader({
@@ -156,8 +156,8 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 
 
 
-	const { loadingStates, setLoadingStates } = React.useContext(LoadingStatesContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { loadingStates } = React.useContext(LoadingStatesContext);
+	const { osas } = React.useContext(OSASContext);
 
 	const chartConfig = {
 		height: 200,

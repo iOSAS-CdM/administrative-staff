@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLocation } from 'react-router';
-import moment from 'moment';
 
 import {
 	Card,
@@ -35,8 +34,8 @@ import { MobileContext, OSASContext } from '../../../main';
 const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
 
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState({

@@ -35,8 +35,8 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setSelectedKeys(['calendar']);
 	}, [setSelectedKeys]);
 
-	const { loadingStates, setLoadingStages } = React.useContext(LoadingStatesContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { loadingStates } = React.useContext(LoadingStatesContext);
+	const { osas } = React.useContext(OSASContext);
 
 	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
 	const [events, setEvents] = React.useState([]);

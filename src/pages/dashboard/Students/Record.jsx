@@ -38,8 +38,8 @@ import { MobileContext, OSASContext } from '../../../main';
 const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
 
 	const [thisRecord, setThisRecord] = React.useState({
 		id: '12345',

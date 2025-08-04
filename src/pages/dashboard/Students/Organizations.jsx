@@ -23,9 +23,6 @@ import remToPx from '../../../utils/remToPx';
 
 const { Title, Text } = Typography;
 
-import EditStudent from '../../../modals/EditStudent';
-import RestrictStudent from '../../../modals/RestrictStudent';
-
 import ItemCard from '../../../components/ItemCard';
 
 import { MobileContext, OSASContext } from '../../../main';
@@ -40,8 +37,8 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		setSelectedKeys(['organizations']);
 	}, [setSelectedKeys]);
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
 
 	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */

@@ -84,8 +84,8 @@ const Calendar = ({ events }) => {
 const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
 
 	React.useEffect(() => {
 		setHeader({
@@ -128,7 +128,6 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		if (!thisStudent || !thisStudent.studentId) return;
 		// Find organizations for the student that match the student id
 		const fetchedOrganizations = osas.organizations.filter(org => org.members.some(member => member.student.studentId === thisStudent.studentId));
-		console.log('Fetched Organizations:', fetchedOrganizations);
 		setOrganizations(fetchedOrganizations);
 	}, [thisStudent, osas.organizations]);
 

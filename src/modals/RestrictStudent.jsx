@@ -3,19 +3,10 @@ import React from 'react';
 import {
 	Form,
 	Input,
-	Button,
-	Select,
-	Upload,
-	Avatar,
-	Flex,
-	Typography,
-	Space
+	Typography
 } from 'antd';
 
 import {
-	SwapOutlined,
-	UploadOutlined,
-	EditOutlined,
 	SaveOutlined,
 	ClearOutlined
 } from '@ant-design/icons';

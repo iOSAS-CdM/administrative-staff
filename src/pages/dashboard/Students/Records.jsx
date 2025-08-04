@@ -20,7 +20,6 @@ import {
 } from 'antd';
 
 import {
-	RightOutlined,
 	SearchOutlined,
 	FilterOutlined,
 	BankOutlined,
@@ -85,8 +84,8 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
-	const { osas, setOsas } = React.useContext(OSASContext);
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
 
 	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */

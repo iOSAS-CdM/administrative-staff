@@ -74,7 +74,6 @@ const OSAS = () => {
 	React.useEffect(() => {
 		const handleResize = () => {
 			setMobile(window.innerWidth < remToPx(120));
-			console.log(`Mobile mode: ${window.innerWidth < remToPx(120)}`);
 		};
 
 		handleResize();
@@ -160,7 +159,6 @@ const OSAS = () => {
 					...prev,
 					staff: staff
 				}));
-				console.log('Staff data fetched:', staff);
 				setLoadingStates(prev => ({
 					...prev,
 					staff: true
@@ -224,7 +222,6 @@ const OSAS = () => {
 					...prev,
 					students: fetchedStudents
 				}));
-				console.log('Student data fetched:', fetchedStudents);
 				setLoadingStates(prev => ({
 					...prev,
 					students: true
@@ -332,7 +329,6 @@ const OSAS = () => {
 				...prev,
 				records: sortedRecords
 			}));
-			console.log('Record data fetched:', sortedRecords);
 			setLoadingStates(prev => ({
 				...prev,
 				records: true
@@ -379,7 +375,6 @@ const OSAS = () => {
 				...prev,
 				organizations: fetchedOrganizations
 			}));
-			console.log('Organization data fetched:', fetchedOrganizations);
 			setLoadingStates(prev => ({
 				...prev,
 				organizations: true
@@ -416,7 +411,6 @@ const OSAS = () => {
 			...prev,
 			events: sortedEvents
 		}));
-		console.log('Event data fetched:', sortedEvents);
 		setLoadingStates(prev => ({
 			...prev,
 			events: true
