@@ -9,6 +9,7 @@ import {
 	Segmented,
 	Popover,
 	Flex,
+	Spin,
 	Empty,
 	Checkbox,
 	Divider,
@@ -306,15 +307,14 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
 	const app = App.useApp();
-	const Modal = app.modal;
 
 	return (
-		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
+		<Flex vertical gap={16} style={{ width: '100%' }}>
 			{/************************** Profiles **************************/}
 			{displayedStudents.length > 0 ? (
 				<Row gutter={[16, 16]}>
 					{displayedStudents.map((student, index) => (
-						<Col key={student.studentId} span={!mobile ? 12 : 24} style={{ height: '100%' }}>
+						<Col key={student.studentId} span={!mobile ? 12 : 24}>
 							<StudentCard
 								student={student}
 								loading={student.placeholder}
@@ -324,7 +324,13 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 					))}
 				</Row>
 			) : (
-				<Empty description='No profiles found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+					{students.length !== 0 ? (
+						<Spin />
+					) : (
+						<Empty description='No profiles found' />
+					)}
+				</div>
 			)}
 		</Flex>
 	);

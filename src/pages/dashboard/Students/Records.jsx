@@ -14,7 +14,7 @@ import {
 	Avatar,
 	Typography,
 	Checkbox,
-	Tag,
+	Spin,
 	Badge,
 	Divider
 } from 'antd';
@@ -221,12 +221,12 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
 	return (
-		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
+		<Flex vertical gap={16} style={{ width: '100%' }}>
 			{/************************** Records **************************/}
 			{displayedRecords.length > 0 ? (
 				<Row gutter={[16, 16]}>
 					{displayedRecords.map((record, index) => (
-						<Col key={record.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+						<Col key={record.id} span={!mobile ? 8 : 24}>
 							<RecordCard
 								record={record}
 								loading={record.placeholder}
@@ -236,7 +236,13 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 					))}
 				</Row>
 			) : (
-					<Empty description='No records found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+					{records.length !== 0 ? (
+						<Spin />
+					) : (
+						<Empty description='No profiles found' />
+					)}
+				</div>
 			)}
 		</Flex>
 	);
@@ -287,7 +293,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 						content: (
 							<Avatar.Group
 								max={{
-									count: 4
+									count: 3
 								}}
 							>
 								{thisRecord.complainants.map((complainant, index) => (

@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router';
 
 import {
 	App,
-	Table,
+	Spin,
 	Input,
-	Button,
 	Segmented,
 	Flex,
 	Empty,
@@ -17,11 +16,7 @@ import {
 } from 'antd';
 
 import {
-	SearchOutlined,
-	FilterOutlined,
-	EditOutlined,
-	LockOutlined,
-	RightOutlined
+	SearchOutlined
 } from '@ant-design/icons';
 
 import remToPx from '../../../utils/remToPx';
@@ -137,12 +132,12 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 	const Modal = app.modal;
 
 	return (
-		<Flex vertical gap={16} style={{ width: '100%', height: '100%' }}>
+		<Flex vertical gap={16} style={{ width: '100%' }}>
 			{/************************** Student Organizations **************************/}
 			{displayedOrganizations.length > 0 ? (
 				<Row gutter={[16, 16]}>
 					{displayedOrganizations.map((organization, index) => (
-						<Col key={organization.id} span={!mobile ? 8 : 24} style={{ height: '100%' }}>
+						<Col key={organization.id} span={!mobile ? 8 : 24}>
 							<OrganizationCard
 								organization={organization}
 								loading={organization.placeholder}
@@ -152,7 +147,14 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 					))}
 				</Row>
 			) : (
-				<Empty description='No organizations found' style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+				
+				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+					{organizations.length !== 0 ? (
+						<Spin />
+					) : (
+						<Empty description='No profiles found' />
+					)}
+				</div>
 			)}
 		</Flex>
 	);
