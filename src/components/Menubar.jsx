@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, Routes, Route, useLocation, useRoutes } from 'react-router';
+import { useNavigate, useLocation, useRoutes } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
@@ -10,6 +10,7 @@ import {
     Button,
 	Menu,
 	Badge,
+	Skeleton,
 	Popover
 } from 'antd';
 
@@ -27,7 +28,7 @@ import {
 	SyncOutlined
 } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext, SyncSeedContext, OSASContext } from '../main';
+import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesContext , OSASContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
@@ -86,6 +87,7 @@ const Menubar = () => {
 	const { mobile, setMobile } = React.useContext(MobileContext);
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
 	const { seed, setSeed } = React.useContext(SyncSeedContext);
+	const { loadingStates, setLoadingStates } = React.useContext(LoadingStatesContext);
 	const { osas, setOsas } = React.useContext(OSASContext);
 
 	const [staff, setStaff] = React.useState({
@@ -177,8 +179,18 @@ const Menubar = () => {
 			label: (
 				<Flex gap={32} align='center'>
 					<Flex vertical style={{ flex: 1 }}>
-						<Title level={5} style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
-						<Text type='secondary' style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.role}</Text>
+						{loadingStates.staff ? (
+							<>
+								<Title level={5} style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
+								<Text type='secondary' style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.role}</Text>
+							</>
+						) : (
+							<Skeleton.Node
+								active
+								shape='square'
+								style={{ width: 128 }}
+							/>
+						)}
 					</Flex>
 
 					{!minimized && (
@@ -193,12 +205,21 @@ const Menubar = () => {
 			icon: (
 				minimized ?
 					<UserOutlined /> :
-					<Avatar
-						src={staff.profilePicture}
-						shape='square'
-						size={minimized ? 'small' : 'large'}
-						className='anticon ant-menu-item-icon'
-					/>
+					loadingStates.staff ? (
+						<Avatar
+							src={staff.profilePicture}
+							shape='square'
+							size={minimized ? 'small' : 'large'}
+							className='anticon ant-menu-item-icon'
+						/>
+					) : (
+						<Skeleton.Avatar
+							active
+							shape='square'
+							size={minimized ? 'small' : 'large'}
+							className='anticon ant-menu-item-icon'
+						/>
+					)
 			),
 			onClick: () => { }
 		},

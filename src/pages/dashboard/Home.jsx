@@ -9,11 +9,12 @@ import {
 	Flex,
 	Row,
 	Col,
+	Skeleton,
 	Badge,
 	Button
 } from 'antd';
 
-import { OSASContext } from '../../main';
+import { LoadingStatesContext, OSASContext } from '../../main';
 
 const { Title, Text } = Typography;
 
@@ -155,6 +156,7 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 
 
 
+	const { loadingStates, setLoadingStates } = React.useContext(LoadingStatesContext);
 	const { osas, setOsas } = React.useContext(OSASContext);
 
 	const chartConfig = {
@@ -238,12 +240,31 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 			<Row gutter={[16, 16]}>
 				<Col span={16}>
 					<Card size='small' style={{ height: '100%' }}>
-						<Flex vertical justify='center' style={{height: '100%'}}>
-							<Text>Good {timePeriod},</Text>
-							<Title level={1} style={{ color: 'var(--primary)' }}>
-								{staff?.name?.first || 'John'} {staff?.name?.middle || ''} {staff?.name?.last || 'Doe'}
-							</Title>
-							<Text>{staff?.role || 'Staff'}, Office of the Student Affairs and Services</Text>
+						<Flex vertical justify='center' gap={!loadingStates.staff && 8} style={{height: '100%'}}>
+							{!loadingStates.staff ? (
+								<>
+									<Skeleton.Node
+										active
+										style={{ width: 128, height: 8 }}
+									/>
+									<Skeleton.Node
+										active
+										style={{ width: 256, height: 32 }}
+									/>
+									<Skeleton.Node
+										active
+										style={{ width: 512, height: 8 }}
+									/>
+								</>
+							) : (
+								<>
+									<Text>Good {timePeriod},</Text>
+									<Title level={1} style={{ color: 'var(--primary)' }}>
+										{staff?.name?.first} {staff?.name?.middle} {staff?.name?.last}
+									</Title>
+									<Text>{staff?.role}, Office of the Student Affairs and Services</Text>
+								</>
+							)}
 						</Flex>
 					</Card>
 				</Col>
@@ -253,35 +274,49 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 
 				<Col span={8}>
 					<PanelCard title='Monthly Cases Ratio'>
-						<Pie
-							data={[
-								{
-									type: 'Resolved',
-									value: casesRatio.resolved
-								},
-								{
-									type: 'Unresolved',
-									value: casesRatio.unresolved
-								}
-							]}
-							innerRadius={0.6}
-							angleField='value'
-							colorField='type'
-							animate={null}
-							{...chartConfig}
-						/>
+						{!loadingStates.records ? (
+							<Skeleton.Node
+								active
+								style={{ width: '100%', height: 128 }}
+							/>
+						) : (
+								<Pie
+									data={[
+										{
+											type: 'Resolved',
+											value: casesRatio.resolved
+										},
+										{
+											type: 'Unresolved',
+											value: casesRatio.unresolved
+										}
+									]}
+									innerRadius={0.6}
+									angleField='value'
+									colorField='type'
+									animate={null}
+									{...chartConfig}
+								/>
+						)}
 					</PanelCard>
 				</Col>
 				<Col span={16}>
 					<PanelCard title='Monthly Cases Trend'>
-						<Line
-							data={monthlyCasesTrend}
-							xField='month'
-							yField='cases'
-							colorField='type'
-							seriesField='type'
-							{...chartConfig}
-						/>
+						{!loadingStates.records ? (
+							<Skeleton.Node
+								active
+								style={{ width: '100%', height: 128 }}
+							/>
+						) : (
+								<Line
+									data={monthlyCasesTrend}
+									xField='month'
+									yField='cases'
+									colorField='type'
+									seriesField='type'
+									{...chartConfig}
+								/>
+						)}
 					</PanelCard>
 				</Col>
 

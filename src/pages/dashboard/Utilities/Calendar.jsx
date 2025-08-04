@@ -51,7 +51,6 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						&& event.date.getMonth() === date.month()
 						&& event.date.getFullYear() === date.year()
 					)?.events || [];
-					if (eventsForDate.length) console.log(eventsForDate);
 					return (eventsForDate.map((event, index) => (
 						event.type === 'disciplinary' ? (
 							<div key={index}>

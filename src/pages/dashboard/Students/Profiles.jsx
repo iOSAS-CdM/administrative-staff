@@ -24,7 +24,6 @@ import {
 	FilterOutlined,
 	EditOutlined,
 	LockOutlined,
-	RightOutlined,
 	EllipsisOutlined
 } from '@ant-design/icons';
 
@@ -201,18 +200,16 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [displayedStudents, setDisplayedStudents] = React.useState([]);
 
 	React.useEffect(() => {
-		if (osas.students.length > 0)
-			setStudents(osas.students);
+		setStudents(osas.students);
 	}, [osas.students]);
 
 	React.useEffect(() => {
-		if (students.length > 0)
-			setInstitutionizedStudents(students.filter(student =>
-				(student.institute === category && student.status === 'active')
-				|| (category === 'active' && student.status === 'active')
-				|| (category === 'restricted' && student.status === 'restricted')
-				|| (category === 'archived' && student.status === 'archived'))
-			);
+		setInstitutionizedStudents(students.filter(student =>
+			(student.institute === category && student.status === 'active')
+			|| (category === 'active' && student.status === 'active')
+			|| (category === 'restricted' && student.status === 'restricted')
+			|| (category === 'archived' && student.status === 'archived'))
+		);
 	}, [students, category]);
 
 	React.useEffect(() => {

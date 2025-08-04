@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 
-import { ConfigProvider as DesignConfig, App, theme as DesignTheme } from 'antd';
+import { ConfigProvider as DesignConfig, App, theme as DesignTheme, notification } from 'antd';
 
 import Authentication from './pages/Authentication';
 import Menubar from './components/Menubar';
@@ -30,6 +30,14 @@ export const DisplayThemeContext = React.createContext({
 export const SyncSeedContext = React.createContext({
 	seed: 0,
 	setSeed: () => { }
+});
+export const LoadingStatesContext = React.createContext({
+	staff: false,
+	students: false,
+	records: false,
+	organizations: false,
+	events: false,
+	setLoadingStates: () => { }
 });
 /**
  * @typedef {{
@@ -84,6 +92,14 @@ const OSAS = () => {
 
 	const [seed, setSeed] = React.useState(0);
 
+	const [loadingStates, setLoadingStates] = React.useState({
+		staff: false,
+		students: false,
+		records: false,
+		organizations: false,
+		events: false
+	});
+
 	// Set singleton data for the app
 	/** @type {[OSASData, React.Dispatch<React.SetStateAction<OSASData>>]} */
 	const [osas, setOsas] = React.useState({
@@ -102,6 +118,29 @@ const OSAS = () => {
 		events: []
 	});
 	React.useEffect(() => {
+		setLoadingStates({
+			staff: false,
+			students: false,
+			records: false,
+			organizations: false,
+			events: false
+		});
+		setOsas({
+			staff: {
+				name: {
+					first: '',
+					middle: '',
+					last: ''
+				},
+				role: '',
+				profilePicture: ''
+			},
+			students: [],
+			records: [],
+			organizations: [],
+			events: []
+		});
+
 		fetch('https://randomuser.me/api/?results=1&inc=name,%20picture')
 			.then(response => response.json())
 			.then(data => {
@@ -120,9 +159,21 @@ const OSAS = () => {
 					staff: staff
 				}));
 				console.log('Staff data fetched:', staff);
+				setLoadingStates(prev => ({
+					...prev,
+					staff: true
+				}));
 			})
 			.catch(error => {
 				console.error('Error fetching staff data:', error);
+				notification.error({
+					message: 'Error',
+					description: 'Failed to fetch staff data. Please try again later.'
+				});
+				setLoadingStates(prev => ({
+					...prev,
+					staff: true
+				}));
 			});
 	}, [seed]);
 
@@ -132,6 +183,8 @@ const OSAS = () => {
 		'ibe': ['BSBA-HRM', 'BSE']
 	};
 	React.useEffect(() => {
+		if (!loadingStates.staff) return;
+
 		fetch('https://randomuser.me/api/?results=200&inc=name,email,phone,login,picture')
 			.then(response => response.json())
 			.then(data => {
@@ -168,6 +221,11 @@ const OSAS = () => {
 				setOsas(prev => ({
 					...prev,
 					students: fetchedStudents
+				}));
+				console.log('Student data fetched:', fetchedStudents);
+				setLoadingStates(prev => ({
+					...prev,
+					students: true
 				}));
 			})
 			.catch(error => {
@@ -214,10 +272,14 @@ const OSAS = () => {
 					...prev,
 					students: placeholderStudents
 				}));
+				notification.error({
+					message: 'Error',
+					description: 'Failed to fetch student data.'
+				});
 			});
-	}, [osas.staff]);
+	}, [loadingStates.staff]);
 	React.useEffect(() => {
-		if (osas.students.length === 0) return;
+		if (!loadingStates.students) return;
 		setTimeout(() => {
 			/** @type {Record[]} */
 			const fetchedRecords = [];
@@ -268,10 +330,15 @@ const OSAS = () => {
 				...prev,
 				records: sortedRecords
 			}));
+			console.log('Record data fetched:', sortedRecords);
+			setLoadingStates(prev => ({
+				...prev,
+				records: true
+			}));
 		}, remToPx(200));
-	}, [osas.students]);
+	}, [loadingStates.students]);
 	React.useEffect(() => {
-		if (osas.students.length === 0) return;
+		if (!loadingStates.students) return;
 		setTimeout(() => {
 			/** @type {Organization[]} */
 			const fetchedOrganizations = [];
@@ -310,9 +377,15 @@ const OSAS = () => {
 				...prev,
 				organizations: fetchedOrganizations
 			}));
+			console.log('Organization data fetched:', fetchedOrganizations);
+			setLoadingStates(prev => ({
+				...prev,
+				organizations: true
+			}));
 		}, remToPx(200));
-	}, [osas.students]);
+	}, [loadingStates.students]);
 	React.useEffect(() => {
+		if (!loadingStates.records || !loadingStates.organizations) return;
 		const events = [];
 		for (const record of osas.records) {
 			const event = new Event({
@@ -341,11 +414,12 @@ const OSAS = () => {
 			...prev,
 			events: sortedEvents
 		}));
-	}, [osas.records]);
-
-	React.useEffect(() => {
-		console.log(osas);
-	}, [osas]);
+		console.log('Event data fetched:', sortedEvents);
+		setLoadingStates(prev => ({
+			...prev,
+			events: true
+		}));
+	}, [loadingStates.records, loadingStates.organizations]);
 
 	return (
 		<React.StrictMode>
@@ -371,21 +445,23 @@ const OSAS = () => {
 				}}
 			>
 				<SyncSeedContext.Provider value={{ seed, setSeed }}>
-					<OSASContext.Provider value={{ osas, setOsas }}>
-						<App>
-							<BrowserRouter>
-								<MobileContext.Provider value={{ mobile, setMobile }}>
-									<DisplayThemeContext.Provider value={{ displayTheme, setDisplayTheme }}>
-										<Routes>
-											<Route path='/' element={<Navigate to='/authentication' replace />} />
-											<Route path='/authentication/*' element={<Authentication />} />
-											<Route path='/dashboard/*' element={<Menubar />} />
-										</Routes>
-									</DisplayThemeContext.Provider>
-								</MobileContext.Provider>
-							</BrowserRouter>
-						</App>
-					</OSASContext.Provider>
+					<LoadingStatesContext.Provider value={{ loadingStates, setLoadingStates }}>
+						<OSASContext.Provider value={{ osas, setOsas }}>
+							<App>
+								<BrowserRouter>
+									<MobileContext.Provider value={{ mobile, setMobile }}>
+										<DisplayThemeContext.Provider value={{ displayTheme, setDisplayTheme }}>
+											<Routes>
+												<Route path='/' element={<Navigate to='/authentication' replace />} />
+												<Route path='/authentication/*' element={<Authentication />} />
+												<Route path='/dashboard/*' element={<Menubar />} />
+											</Routes>
+										</DisplayThemeContext.Provider>
+									</MobileContext.Provider>
+								</BrowserRouter>
+							</App>
+						</OSASContext.Provider>
+					</LoadingStatesContext.Provider>
 				</SyncSeedContext.Provider>
 			</DesignConfig>
 		</React.StrictMode>

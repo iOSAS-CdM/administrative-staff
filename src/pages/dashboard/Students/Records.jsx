@@ -113,17 +113,15 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [displayedRecords, setDisplayedRecords] = React.useState([]);
 
 	React.useEffect(() => {
-		if (osas.records.length > 0)
-			setRecords(osas.records);
+		setRecords(osas.records);
 	}, [osas.records]);
 
 	React.useEffect(() => {
-		if (records.length > 0)
-			setCategorizedRecords(records.filter(record => (
-				(category === 'active' && record.tags.status !== 'archived')
-				|| (category === record.tags.status)
-				|| (category === 'archived' && record.tags.status === 'archived')
-			)));
+		setCategorizedRecords(records.filter(record => (
+			(category === 'active' && record.tags.status !== 'archived')
+			|| (category === record.tags.status)
+			|| (category === 'archived' && record.tags.status === 'archived')
+		)));
 	}, [records, category]);
 
 	React.useEffect(() => {
