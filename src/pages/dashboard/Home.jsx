@@ -245,15 +245,15 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 								<>
 									<Skeleton.Node
 										active
-										style={{ width: 128, height: 8 }}
+										style={{ width: 128, maxWidth: '100%', height: 8 }}
 									/>
 									<Skeleton.Node
 										active
-										style={{ width: 256, height: 32 }}
+										style={{ width: 256, maxWidth: '100%', height: 32 }}
 									/>
 									<Skeleton.Node
 										active
-										style={{ width: 512, height: 8 }}
+										style={{ width: 512, maxWidth: '100%', height: 8 }}
 									/>
 								</>
 							) : (
@@ -275,10 +275,22 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 				<Col span={8}>
 					<PanelCard title='Monthly Cases Ratio'>
 						{!loadingStates.records ? (
-							<Skeleton.Node
-								active
-								style={{ width: '100%', height: 128 }}
-							/>
+							<Flex vertical justify='flex-start' align='center'>
+								<Skeleton.Node
+									active
+									style={{ width: 128, height: 128, borderRadius: '100%' }}
+								/>
+								<Flex justify='flex-start' align='flex-start' gap={8} style={{ width: '100%' }}>
+									<Skeleton.Node
+										active
+										style={{ width: 64, maxWidth: '100%', height: 8 }}
+									/>
+									<Skeleton.Node
+										active
+										style={{ width: 64, maxWidth: '100%', height: 8 }}
+									/>
+								</Flex>
+							</Flex>
 						) : (
 								<Pie
 									data={[
@@ -322,7 +334,14 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, setDisplayTheme, staff
 
 				<Col span={16}>
 					<PanelCard title='Calendar'>
-						<Calendar events={events} />
+						{!loadingStates.events ? (
+							<Skeleton.Node
+								active
+								style={{ width: 512, maxWidth: '100%', height: 152 }}
+							/>
+						) : (
+							<Calendar events={events} />
+						)}
 					</PanelCard>
 				</Col>
 

@@ -86,7 +86,9 @@ const OSAS = () => {
 	}, []);
 	const [displayTheme, setDisplayTheme] = React.useState('light');
 	React.useEffect(() => {
-		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+		if (localStorage.getItem('displayTheme'))
+			setDisplayTheme(localStorage.getItem('displayTheme'));
+		else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
 			setDisplayTheme('dark');
 	}, [displayTheme]);
 

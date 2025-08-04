@@ -11,7 +11,8 @@ import {
 	Menu,
 	Badge,
 	Skeleton,
-	Popover
+	Popover,
+	Segmented
 } from 'antd';
 
 import {
@@ -25,7 +26,9 @@ import {
 	RobotOutlined,
 	UserOutlined,
 	MenuOutlined,
-	SyncOutlined
+	SyncOutlined,
+	MoonOutlined,
+	SunOutlined
 } from '@ant-design/icons';
 
 import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesContext , OSASContext } from '../main';
@@ -355,16 +358,31 @@ const Menubar = () => {
                             />
                         </Flex>
 
-                        <Button
-                            type='primary'
-							icon={<LogoutOutlined />}
-                            onClick={() => {
-                                navigate('/');
-                            }}
-							style={{ width: '100%' }}
-                        >
-                            {minimized ? '' : 'Sign Out'}
-                        </Button>
+						<Flex gap={16} align='center' style={{ width: '100%' }}>
+							<Button
+								type='primary'
+								icon={<LogoutOutlined />}
+								onClick={() => {
+									navigate('/');
+								}}
+								style={{ width: '100%' }}
+							>
+								{minimized ? '' : 'Sign Out'}
+							</Button>
+
+							<Segmented
+								options={[
+									{ value: 'light', icon: <SunOutlined /> },
+									{ value: 'dark', icon: <MoonOutlined /> }
+								]}
+								value={displayTheme}
+								onChange={(value) => {
+									localStorage.setItem('displayTheme', value);
+									setDisplayTheme(value);
+								}}
+								size='small'
+							/>
+						</Flex>
                     </Flex>
                 </Card>
             </Flex>
