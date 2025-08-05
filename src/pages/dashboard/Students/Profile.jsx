@@ -54,6 +54,7 @@ const Calendar = ({ events }) => {
 							date.month() === value.month()
 								&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
 						}
+						size='small'
 						count={eventsForDate.length}
 						style={{
 							opacity: date.month() === value.month()
