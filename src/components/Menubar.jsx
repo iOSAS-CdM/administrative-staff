@@ -3,11 +3,11 @@ import { useNavigate, useLocation, useRoutes } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
-    Card,
-    Flex,
-    Avatar,
-    Typography,
-    Button,
+	Card,
+	Flex,
+	Avatar,
+	Typography,
+	Button,
 	Menu,
 	Badge,
 	Skeleton,
@@ -16,13 +16,13 @@ import {
 } from 'antd';
 
 import {
-    HomeOutlined,
-    NotificationOutlined,
+	HomeOutlined,
+	NotificationOutlined,
 	DoubleLeftOutlined,
 	DoubleRightOutlined,
-    LogoutOutlined,
-    SmileOutlined,
-    ToolOutlined,
+	LogoutOutlined,
+	SmileOutlined,
+	ToolOutlined,
 	RobotOutlined,
 	UserOutlined,
 	MenuOutlined,
@@ -31,7 +31,7 @@ import {
 	SunOutlined
 } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesContext , OSASContext } from '../main';
+import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesContext, OSASContext } from '../main';
 
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
@@ -41,8 +41,6 @@ import DisciplinaryRecord from '../pages/dashboard/Students/Record';
 import Organizations from '../pages/dashboard/Students/Organizations';
 import Organization from '../pages/dashboard/Students/Organization';
 import CalendarPage from '../pages/dashboard/Utilities/Calendar';
-
-import remToPx from '../utils/remToPx';
 
 const { Text, Title } = Typography;
 
@@ -83,7 +81,7 @@ const ReloadButton = ({ setSeed }) => {
 };
 
 const Menubar = () => {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 	const location = useLocation();
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
 
@@ -94,13 +92,13 @@ const Menubar = () => {
 	const { osas } = React.useContext(OSASContext);
 
 	const [staff, setStaff] = React.useState({
-        name: {
-            first: '',
-            middle: '',
-            last: ''
-        },
-        role: '',
-        profilePicture: ''
+		name: {
+			first: '',
+			middle: '',
+			last: ''
+		},
+		role: '',
+		profilePicture: ''
 	});
 	React.useEffect(() => {
 		setStaff({
@@ -147,7 +145,7 @@ const Menubar = () => {
 		{ path: '/helpbot', element: <p>Helpbot</p> }
 	]);
 
-    const [minimized, setMinimized] = React.useState(false);
+	const [minimized, setMinimized] = React.useState(false);
 
 	// Reference to store timeout ID
 	const timeoutRef = React.useRef(null);
@@ -156,7 +154,7 @@ const Menubar = () => {
 		if (minimized) {
 			timeoutRef.current = setTimeout(() => {
 				setMinimized(false);
-			}, remToPx(100));
+			}, 1024); // 2^10
 		};
 	};
 	const handleMouseLeave = () => {
@@ -176,7 +174,7 @@ const Menubar = () => {
 	/**
 	 * @type {import('antd').MenuProps['items']}
 	 */
-    const menuItems = [
+	const menuItems = [
 		{
 			key: 'staff',
 			label: (
@@ -234,99 +232,99 @@ const Menubar = () => {
 			}
 		},
 		{
-            key: 'home',
-            label: 'Home',
-            icon: <HomeOutlined />,
-            onClick: () => navigate('/dashboard/home')
-        },
-        {
-            key: 'notifications',
-            label: 'Notifications',
-            icon: <NotificationOutlined />,
-            onClick: () => navigate('/dashboard/notifications')
-        },
-        {
-            key: 'students',
-            label: 'Students',
-            icon: <SmileOutlined />,
-            children: [
-                {
-                    key: 'profiles',
-                    label: 'Profiles',
-                    onClick: () => navigate('/dashboard/students/profiles')
-                },
-                {
-                    key: 'records',
-                    label: 'Disciplinary Records',
-                    onClick: () => navigate('/dashboard/students/records')
-                },
-                {
-                    key: 'organizations',
-                    label: 'Organizations',
-                    onClick: () => navigate('/dashboard/students/organizations')
-                }
-            ]
-        },
-        {
-            key: 'utilities',
-            label: 'Utilities',
-            icon: <ToolOutlined />,
-            children: [
-                {
-                    key: 'calendar',
-                    label: 'Calendar',
-                    onClick: () => navigate('/dashboard/utilities/calendar')
-                },
-                {
-                    key: 'faqs',
-                    label: 'FAQs',
-                    onClick: () => navigate('/dashboard/utilities/faqs')
-                },
-                {
-                    key: 'announcements',
-                    label: 'Announcements',
-                    onClick: () => navigate('/dashboard/utilities/announcements')
-                },
-                {
-                    key: 'repository',
-                    label: 'Repository',
-                    onClick: () => navigate('/dashboard/utilities/repository')
-                }
-            ]
-        },
-        {
-            key: 'helpbot',
-            label: 'Helpbot',
-            icon: <RobotOutlined />,
-            onClick: () => navigate('/dashboard/helpbot')
-        }
-    ];
+			key: 'home',
+			label: 'Home',
+			icon: <HomeOutlined />,
+			onClick: () => navigate('/dashboard/home')
+		},
+		{
+			key: 'notifications',
+			label: 'Notifications',
+			icon: <NotificationOutlined />,
+			onClick: () => navigate('/dashboard/notifications')
+		},
+		{
+			key: 'students',
+			label: 'Students',
+			icon: <SmileOutlined />,
+			children: [
+				{
+					key: 'profiles',
+					label: 'Profiles',
+					onClick: () => navigate('/dashboard/students/profiles')
+				},
+				{
+					key: 'records',
+					label: 'Disciplinary Records',
+					onClick: () => navigate('/dashboard/students/records')
+				},
+				{
+					key: 'organizations',
+					label: 'Organizations',
+					onClick: () => navigate('/dashboard/students/organizations')
+				}
+			]
+		},
+		{
+			key: 'utilities',
+			label: 'Utilities',
+			icon: <ToolOutlined />,
+			children: [
+				{
+					key: 'calendar',
+					label: 'Calendar',
+					onClick: () => navigate('/dashboard/utilities/calendar')
+				},
+				{
+					key: 'faqs',
+					label: 'FAQs',
+					onClick: () => navigate('/dashboard/utilities/faqs')
+				},
+				{
+					key: 'announcements',
+					label: 'Announcements',
+					onClick: () => navigate('/dashboard/utilities/announcements')
+				},
+				{
+					key: 'repository',
+					label: 'Repository',
+					onClick: () => navigate('/dashboard/utilities/repository')
+				}
+			]
+		},
+		{
+			key: 'helpbot',
+			label: 'Helpbot',
+			icon: <RobotOutlined />,
+			onClick: () => navigate('/dashboard/helpbot')
+		}
+	];
 
-    return (
-        <Flex
-            className='page-container'
-        >
-            {/*************************** Sidebar ***************************/}
-            <Flex
-                vertical
-                justify='space-between'
+	return (
+		<Flex
+			className='page-container'
+		>
+			{/*************************** Sidebar ***************************/}
+			<Flex
+				vertical
+				justify='space-between'
 				align='flex-start'
-            >
-                <Card
+			>
+				<Card
 					size='small'
-                    style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                        padding: 0,
-                        borderRadius: 0
-                    }}
+					style={{
+						position: 'relative',
+						width: '100%',
+						height: '100%',
+						padding: 0,
+						borderRadius: 0
+					}}
 					onMouseEnter={handleMouseEnter}
 					onMouseLeave={handleMouseLeave}
-                >
-                    <Flex
-                        vertical
-                        justify='space-between'
+				>
+					<Flex
+						vertical
+						justify='space-between'
 						align='center'
 						style={{ width: '100%', height: '100%' }}
 					>
@@ -337,26 +335,26 @@ const Menubar = () => {
 								onClick={() => setMinimized(!minimized)}
 							/>
 						)}
-                        <Flex
-                            vertical
-                            justify='center'
-                            align='center'
+						<Flex
+							vertical
+							justify='center'
+							align='center'
 							gap={16}
-                            style={{ width: '100%', height: '100%' }}
+							style={{ width: '100%', height: '100%' }}
 						>
-                            <Menu
-                                selectedKeys={selectedKeys}
-                                inlineCollapsed={minimized}
+							<Menu
+								selectedKeys={selectedKeys}
+								inlineCollapsed={minimized}
 								style={{
 									position: 'relative',
 									height: '100%',
 									padding: 0,
 									border: 'none'
 								}}
-                                items={menuItems}
-                                mode='inline'
-                            />
-                        </Flex>
+								items={menuItems}
+								mode='inline'
+							/>
+						</Flex>
 
 						<Flex gap={16} align='center' style={{ width: '100%' }}>
 							<Button
@@ -370,48 +368,50 @@ const Menubar = () => {
 								{minimized ? '' : 'Sign Out'}
 							</Button>
 
-							<Segmented
-								options={[
-									{ value: 'light', icon: <SunOutlined /> },
-									{ value: 'dark', icon: <MoonOutlined /> }
-								]}
-								value={displayTheme}
-								onChange={(value) => {
-									localStorage.setItem('displayTheme', value);
-									setDisplayTheme(value);
-								}}
-								size='small'
-							/>
+							{!minimized && (
+								<Segmented
+									options={[
+										{ value: 'light', icon: <SunOutlined /> },
+										{ value: 'dark', icon: <MoonOutlined /> }
+									]}
+									value={displayTheme}
+									onChange={(value) => {
+										localStorage.setItem('displayTheme', value);
+										setDisplayTheme(value);
+									}}
+									size='small'
+								/>
+							)}
 						</Flex>
-                    </Flex>
-                </Card>
-            </Flex>
+					</Flex>
+				</Card>
+			</Flex>
 
-            {/*************************** Main Content Area ***************************/}
-            <Flex
-                vertical
-                justify='start'
-                align='stretch'
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'var(--ant-color-bg-layout)'
-                }}
-            >
-                {/*************************** Header ***************************/}
-                <Card
+			{/*************************** Main Content Area ***************************/}
+			<Flex
+				vertical
+				justify='start'
+				align='stretch'
+				style={{
+					width: '100%',
+					height: '100%',
+					backgroundColor: 'var(--ant-color-bg-layout)'
+				}}
+			>
+				{/*************************** Header ***************************/}
+				<Card
 					size='small'
-                    style={{
-                        width: '100%',
-                        borderRadius: 0,
-                        backgroundColor: 'var(--ant-color-bg-base)'
-                    }}
-                >
-                    <Flex
-                        justify='space-between'
+					style={{
+						width: '100%',
+						borderRadius: 0,
+						backgroundColor: 'var(--ant-color-bg-base)'
+					}}
+				>
+					<Flex
+						justify='space-between'
 						align='center'
 						gap={mobile ? 16 : 32}
-                        style={{ width: '100%', height: '100%' }}
+						style={{ width: '100%', height: '100%' }}
 					>
 						<Title level={4}>{Header.title}</Title>
 						{!mobile ? (
@@ -422,23 +422,23 @@ const Menubar = () => {
 								)}
 							</Flex>
 						) : (
-								Header.actions && Header.actions.length > 1 ? (
-									<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-										<ReloadButton setSeed={setSeed} />
-										<Popover
-											trigger={['click']}
-											placement='bottom'
-											content={(menu) => (
-												<Flex vertical justify='flex-start' gap={16} flex={1} align='stretch'>
-													{Header.actions && Header.actions.map((action, index) =>
-														React.cloneElement(action, { key: index })
-													)}
-												</Flex>
-											)}
-										>
-											<Button type='default' icon={<MenuOutlined />} />
-										</Popover>
-									</Flex>
+							Header.actions && Header.actions.length > 1 ? (
+								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+									<ReloadButton setSeed={setSeed} />
+									<Popover
+										trigger={['click']}
+										placement='bottom'
+										content={(menu) => (
+											<Flex vertical justify='flex-start' gap={16} flex={1} align='stretch'>
+												{Header.actions && Header.actions.map((action, index) =>
+													React.cloneElement(action, { key: index })
+												)}
+											</Flex>
+										)}
+									>
+										<Button type='default' icon={<MenuOutlined />} />
+									</Popover>
+								</Flex>
 							) : (
 								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 									<Button
@@ -457,10 +457,10 @@ const Menubar = () => {
 								</Flex>
 							)
 						)}
-                    </Flex>
-                </Card>
+					</Flex>
+				</Card>
 
-                {/*************************** Page Content ***************************/}
+				{/*************************** Page Content ***************************/}
 				<div
 					className='scrollable-content'
 					style={{
@@ -481,9 +481,9 @@ const Menubar = () => {
 						</motion.div>
 					</AnimatePresence>
 				</div>
-            </Flex>
-        </Flex>
-    );
+			</Flex>
+		</Flex>
+	);
 };
 
 export default Menubar;

@@ -156,7 +156,7 @@ const Authentication = () => {
 				style={{
 					minHeight: '100vh',
 					height: '100%',
-					padding: mobile && 'calc(var(--space-XL) * 2'
+					padding: 16
 				}}
 			>
 				<Card className='authentication-card scrollable-content'>
@@ -176,6 +176,7 @@ const Authentication = () => {
 									initial={{ opacity: 0, x: 20 }}
 									animate={{ opacity: 1, x: 0 }}
 									exit={{ opacity: 0, x: -20 }}
+									style={{ width: 256 }}
 								>
 
 									<Flex vertical justify='center' align='center' gap='large' style={{ height: '100%' }}>

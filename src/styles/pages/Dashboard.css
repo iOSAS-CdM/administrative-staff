@@ -1,9 +1,3 @@
-#filter {
-	position: sticky;
-	top: var(--space-L);
-	z-index: 1;
-}
-
 .card.archived {
 	opacity: 0.5;
 	filter: grayscale(100%);

@@ -10,8 +10,6 @@ import {
 
 import { LoginOutlined, LoadingOutlined } from '@ant-design/icons';
 
-import remToPx from '../../utils/remToPx';
-
 const { Text, Title, Link } = Typography;
 
 /**
@@ -29,7 +27,7 @@ const SignIn = ({ navigate }) => {
 		setTimeout(() => {
 			setSigningIn(false);
 			window.location.href = '/dashboard';
-		}, remToPx(20));
+		}, 1024); // 2^10
 	};
 
 	return (

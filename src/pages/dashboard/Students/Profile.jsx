@@ -166,8 +166,8 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 						alt='Profile Picture'
 						shape='square'
 						style={{
-							width: 'calc(var(--space-XL) * 16)',
-							height: 'calc(var(--space-XL) * 16)',
+							width: 256,
+							height: 256,
 							border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 						}}
 					/>

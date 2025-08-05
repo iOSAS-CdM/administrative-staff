@@ -22,8 +22,6 @@ import {
 
 const { Text } = Typography;
 
-import remToPx from '../utils/remToPx';
-
 const EditStudentForm = React.createRef();
 
 /**
@@ -66,8 +64,8 @@ const StudentForm = ({ student }) => {
 								return false;
 							}}
 							style={{
-								width: 'calc(var(--space-XL) * 12)',
-								height: 'calc(var(--space-XL) * 12)',
+								width: 256,
+								height: 256,
 							}}
 						>
 							{ProfilePicture ? (
@@ -179,11 +177,11 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 		icon: <EditOutlined />,
 		width: {
 			xs: '100%',
-			sm: remToPx(50),
-			md: remToPx(60),
-			lg: remToPx(70),
-			xl: remToPx(80),
-			xxl: remToPx(90)
+			sm: 512, // 2^9
+			md: 512, // 2^9
+			lg: 512, // 2^9
+			xl: 1024, // 2^10
+			xxl: 1024 // 2^10
 		},
 		footer: (_, { CancelBtn, OkBtn }) => (
 			<Flex justify='flex-end' align='center' gap='small'>

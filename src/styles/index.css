@@ -1,20 +1,10 @@
 :root {
-	--space-2XS: 0.125rem;
-	--space-XS: 0.25rem;
-	--space-S: 0.5rem;
-	--space-M: 1rem;
-	--space-L: 1.5rem;
-	--space-XL: 2rem;
-	--space-2XL: 3rem;
-	--space-3XL: 4rem;
-
 	--primary: #106A2E;
 
 	--transition: 0.5s ease;
 }
 
 html {
-	font-size: calc(62.5% / 1.75);
 	scrollbar-width: thin;
 
 	overflow-x: hidden;
@@ -52,12 +42,12 @@ span.ant-typography {
 }
 
 ::-webkit-scrollbar {
-	width: var(--space-S);
-	height: var(--space-S);
+	width: 16;
+	height: 16;
 }
 ::-webkit-scrollbar-track {
 	background: transparent;
-	border-radius: var(--space-XS);
+	border-radius: 8;
 }
 ::-webkit-scrollbar-corner {
 	background: transparent;
@@ -73,12 +63,12 @@ span.ant-typography {
 }
 .scrollable-content::-webkit-scrollbar-thumb {
 	background: transparent;
-	border-radius: var(--space-S);
+	border-radius: 16;
 	transition: background var(--transition);
 }
 .scrollable-content::-webkit-scrollbar-track {
 	background: transparent;
-	border-radius: var(--space-XS);
+	border-radius: 8;
 }
 .scrollable-content:hover {
 	scrollbar-color: var(--primary) transparent;

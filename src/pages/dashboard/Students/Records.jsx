@@ -27,8 +27,6 @@ import {
 	WarningOutlined
 } from '@ant-design/icons';
 
-import remToPx from '../../../utils/remToPx';
-
 const { Title, Text, Paragraph } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
@@ -153,7 +151,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		setDisplayedRecords([]);
 		setTimeout(() => {
 			setDisplayedRecords(searchedRecords);
-		}, remToPx(0.5));
+		}, 8); // 2^3
 	}, [search, filteredRecords]);
 
 	const app = App.useApp();
@@ -173,10 +171,10 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							clearTimeout(window.recordDebounceTimer);
 							const debounceTimer = setTimeout(() => {
 								setSearch(value);
-							}, remToPx(0.5));
+							}, 8); // 2^3
 							window.recordDebounceTimer = debounceTimer;
 						}}
-						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
+						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
 					/>
 				</Flex>,
 				<Segmented

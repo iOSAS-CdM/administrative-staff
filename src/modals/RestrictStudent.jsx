@@ -13,8 +13,6 @@ import {
 
 const { Title, Text } = Typography;
 
-import remToPx from '../utils/remToPx';
-
 const RestrictStudentForm = React.createRef();
 
 /**

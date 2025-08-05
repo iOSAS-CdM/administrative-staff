@@ -7,7 +7,6 @@ import { ConfigProvider as DesignConfig, App, theme as DesignTheme, notification
 import Authentication from './pages/Authentication';
 import Menubar from './components/Menubar';
 
-import remToPx from './utils/remToPx';
 import rootToHex from './utils/rootToHex';
 
 import 'antd/dist/reset.css';
@@ -73,7 +72,7 @@ const OSAS = () => {
 	const [mobile, setMobile] = React.useState(false);
 	React.useEffect(() => {
 		const handleResize = () => {
-			setMobile(window.innerWidth < remToPx(120));
+			setMobile(window.innerWidth < 1024); // 2^10
 		};
 
 		handleResize();
@@ -333,7 +332,7 @@ const OSAS = () => {
 				...prev,
 				records: true
 			}));
-		}, remToPx(200));
+		}, 1024); // 2^10
 	}, [loadingStates.students]);
 	React.useEffect(() => {
 		if (!loadingStates.students) return;
@@ -379,7 +378,7 @@ const OSAS = () => {
 				...prev,
 				organizations: true
 			}));
-		}, remToPx(200));
+		}, 1024); // 2^10
 	}, [loadingStates.students]);
 	React.useEffect(() => {
 		if (!loadingStates.records || !loadingStates.organizations) return;
@@ -429,13 +428,13 @@ const OSAS = () => {
 					token: {
 						colorPrimary: rootToHex('var(--primary)'),
 						colorInfo: rootToHex('var(--primary)'),
-						fontSize: remToPx(1.5),
-						sizeUnit: remToPx(0.5),
-						borderRadius: remToPx(0.75)
+						fontSize: 16, // 2^4
+						sizeUnit: 4, // 2^2
+						borderRadius: 4 // 2^2
 					},
 					components: {
 						Menu: {
-							collapsedWidth: remToPx(6)
+							collapsedWidth: 64 // 2^6
 						}
 					}
 				}}

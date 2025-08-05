@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Form,
@@ -10,8 +11,6 @@ import {
 } from 'antd';
 
 import { LoginOutlined, LoadingOutlined } from '@ant-design/icons';
-
-import remToPx from '../../utils/remToPx';
 
 const { Text, Title, Link } = Typography;
 
@@ -34,7 +33,7 @@ const SignUp = ({ navigate }) => {
 		setTimeout(() => {
 			setSigningUp(false);
 			navigate('/dashboard');
-		}, remToPx(20));
+		}, 1024); // 2^10
 	};
 
 	return (

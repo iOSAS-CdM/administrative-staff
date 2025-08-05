@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Form,
@@ -14,8 +15,6 @@ import {
 	CheckOutlined,
 	KeyOutlined
 } from '@ant-design/icons';
-
-import remToPx from '../../utils/remToPx';
 
 const { Text, Title, Link, Paragraph } = Typography;
 
@@ -49,7 +48,7 @@ const ForgotPassword = ({ navigate }) => {
 			setSending(false);
 			setStep(1);
 			setName('John Doe'); // Simulate fetching name from server
-		}, remToPx(20));
+		}, 1024); // 2^10
 	};
 	const verify = (otp) => {
 		setVerifying(true);
@@ -57,7 +56,7 @@ const ForgotPassword = ({ navigate }) => {
 		setTimeout(() => {
 			setVerifying(false);
 			setStep(2); // Simulate successful verification
-		}, remToPx(20));
+		}, 1024); // 2^10
 	};
 
 	const resetPassword = (password) => {
@@ -65,7 +64,7 @@ const ForgotPassword = ({ navigate }) => {
 		setTimeout(() => {
 			setResetting(false);
 			navigate('/sign-in'); // Redirect to sign-in page after resetting password
-		}, remToPx(20));
+		}, 1024); // 2^10
 		setStep(0); // Reset step to initial state
 		setName(''); // Clear name after resetting password
 		setSending(false); // Reset sending state

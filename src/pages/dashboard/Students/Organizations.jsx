@@ -3,23 +3,21 @@ import { useNavigate } from 'react-router';
 
 import {
 	App,
-	Spin,
 	Input,
+	Button,
 	Segmented,
 	Flex,
 	Empty,
-	Image,
 	Row,
 	Col,
 	Avatar,
-	Typography
+	Typography,
+	Spin
 } from 'antd';
 
 import {
 	SearchOutlined
 } from '@ant-design/icons';
-
-import remToPx from '../../../utils/remToPx';
 
 const { Title, Text } = Typography;
 
@@ -85,7 +83,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		setDisplayedOrganizations([]);
 		setTimeout(() => {
 			setDisplayedOrganizations(searchedOrganizations);
-		}, remToPx(0.5));
+		}, 8); // 2^3
 	}, [search, categorizedOrganizations]);
 
 	React.useEffect(() => {
@@ -102,10 +100,10 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 							clearTimeout(window.profileDebounceTimer);
 							const debounceTimer = setTimeout(() => {
 								setSearch(value);
-							}, remToPx(0.5));
+							}, 8); // 2^3
 							window.profileDebounceTimer = debounceTimer;
 						}}
-						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
+						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
 					/>
 				</Flex>,
 				<Segmented

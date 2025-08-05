@@ -28,8 +28,6 @@ import {
 	EllipsisOutlined
 } from '@ant-design/icons';
 
-import remToPx from '../../../utils/remToPx';
-
 const { Title, Text } = Typography;
 
 import EditStudent from '../../../modals/EditStudent';
@@ -250,7 +248,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		});
 		setTimeout(() => {
 			setDisplayedStudents(searchedStudents);
-		}, remToPx(0.5));
+		}, 8); // 2^3
 	}, [search, filteredStudents, mobile]);
 
 	React.useEffect(() => {
@@ -267,10 +265,10 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 							clearTimeout(window.profileDebounceTimer);
 							const debounceTimer = setTimeout(() => {
 								setSearch(value);
-							}, remToPx(0.5));
+							}, 8); // 2^3
 							window.profileDebounceTimer = debounceTimer;
 						}}
-						style={{ width: '100%', minWidth: mobile ? '100%' : remToPx(20) }}
+						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
 					/>
 				</Flex>,
 				<Segmented

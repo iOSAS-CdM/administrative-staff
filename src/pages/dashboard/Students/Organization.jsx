@@ -25,8 +25,6 @@ import {
 
 const { Title, Text } = Typography;
 
-import remToPx from '../../../utils/remToPx';
-
 import PanelCard from '../../../components/PanelCard';
 
 import { MobileContext, OSASContext } from '../../../main';
@@ -133,7 +131,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 								<Flex
 									style={{
 										position: 'relative',
-										width: remToPx(20),
+										width: 256, // 2^8
 										height: '100%'
 									}}
 								>
@@ -143,8 +141,8 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 										shape='square'
 										style={{
 											position: 'absolute',
-											width: remToPx(20),
-											height: remToPx(20),
+											width: 256, // 2^8
+											height: 256, // 2^8
 											bottom: 0,
 											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 										}}
@@ -189,8 +187,8 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 										shape='square'
 										style={{
 											position: 'absolute',
-											width: remToPx(20),
-											height: remToPx(20),
+											width: 256, // 2^8
+											height: 256, // 2^8
 											bottom: 0,
 											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 										}}

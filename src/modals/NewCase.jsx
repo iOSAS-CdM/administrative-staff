@@ -23,8 +23,6 @@ import {
 
 const { Title, Text, Paragraph } = Typography;
 
-import remToPx from '../utils/remToPx';
-
 const NewCaseForm = React.createRef();
 
 const CaseForm = () => {
@@ -264,7 +262,7 @@ const CaseForm = () => {
 						showUploadList={false}
 						style={{
 							position: 'relative',
-							width: 'calc(var(--space-XL) * 14)',
+							width: 256,
 							height: '100%'
 						}}
 						accept='.jpg,.jpeg,.png'
@@ -286,7 +284,7 @@ const CaseForm = () => {
 								</>
 							) : (
 								<>
-									<UploadOutlined style={{ fontSize: 'calc(var(--space-XL) * 2)' }} />
+									<UploadOutlined style={{ fontSize: 32 }} />
 									<Title level={5} style={{ margin: 0 }}>
 										Upload Case Image
 									</Title>
@@ -339,9 +337,9 @@ const NewCase = async (Modal) => {
 			xs: '100%',
 			sm: '100%',
 			md: '100%',
-			lg: remToPx(70),
-			xl: remToPx(80),
-			xxl: remToPx(90)
+			lg: 512, // 2^9
+			xl: 1024, // 2^10
+			xxl: 1024 // 2^10
 		},
 		footer: (_, { CancelBtn, OkBtn }) => (
 			<Flex justify='flex-end' align='center' gap='small'>
