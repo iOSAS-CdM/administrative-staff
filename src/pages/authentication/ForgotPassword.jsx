@@ -235,7 +235,7 @@ const ForgotPassword = ({ navigate }) => {
 			)}
 
 
-			<Text>
+			<Text style={{ textWrap: 'nowrap' }}>
 				Remembered your password? <Link onClick={() => navigate('/authentication/sign-in')}>Sign In</Link>
 			</Text>
 		</>
