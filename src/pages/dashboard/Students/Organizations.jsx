@@ -12,7 +12,8 @@ import {
 	Col,
 	Avatar,
 	Typography,
-	Spin
+	Spin,
+	Image
 } from 'antd';
 
 import {

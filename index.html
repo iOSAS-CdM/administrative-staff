@@ -23,6 +23,15 @@
 	</noscript>
 	<div id="root"></div>
 	<script type="module" src="/src/main.jsx"></script>
+	<script>
+		// Listen to Ctrl + R
+		document.addEventListener('keydown', (event) => {
+			if (event.ctrlKey && event.key === 'r') {
+				event.preventDefault();
+				window.location.reload();
+			};
+		});
+	</script>
 </body>
 
 </html>

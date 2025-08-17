@@ -68,6 +68,8 @@ export const OSASContext = React.createContext({
 	setOsas: () => { }
 });
 
+const PRIMARY_COLOR = rootToHex('var(--primary)');
+
 const OSAS = () => {
 	const [mobile, setMobile] = React.useState(false);
 	React.useEffect(() => {
@@ -82,12 +84,24 @@ const OSAS = () => {
 			window.removeEventListener('resize', handleResize);
 		};
 	}, []);
-	const [displayTheme, setDisplayTheme] = React.useState('light');
+	const [displayTheme, setDisplayTheme] = React.useState(() => {
+		if (typeof window !== 'undefined')
+			return localStorage.getItem('displayTheme') ||
+				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+		return 'light'; // Fallback for SSR
+	});
+
+	// Effect to keep theme in sync
 	React.useEffect(() => {
-		if (localStorage.getItem('displayTheme'))
-			setDisplayTheme(localStorage.getItem('displayTheme'));
-		else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-			setDisplayTheme('dark');
+		// Save to localStorage
+		localStorage.setItem('displayTheme', displayTheme);
+
+		// Update document attribute for CSS
+		document.documentElement.setAttribute('data-theme', displayTheme);
+
+		// Notify Tauri about theme change
+		if (window.__TAURI_INTERNALS__)
+			window.__TAURI_INTERNALS__.invoke('set_theme', { theme: displayTheme });
 	}, [displayTheme]);
 
 	const [seed, setSeed] = React.useState(0);
@@ -416,29 +430,29 @@ const OSAS = () => {
 		}));
 	}, [loadingStates.records, loadingStates.organizations]);
 
+	const themeConfig = React.useMemo(() => ({
+		algorithm: [
+			DesignTheme.defaultAlgorithm,
+			...(displayTheme === 'dark' ? [DesignTheme.darkAlgorithm] : [])
+		],
+		cssVar: true,
+		token: {
+			colorPrimary: PRIMARY_COLOR,
+			colorInfo: PRIMARY_COLOR,
+			fontSize: 12,
+			sizeUnit: 2,
+			borderRadius: 4
+		},
+		components: {
+			Menu: {
+				collapsedWidth: 64
+			}
+		}
+	}), [displayTheme]);
+
 	return (
 		<React.StrictMode>
-			<DesignConfig
-				theme={{
-					algorithm: [
-						DesignTheme.defaultAlgorithm,
-						...[displayTheme === 'dark' ? DesignTheme.darkAlgorithm : DesignTheme.defaultAlgorithm]
-					],
-					cssVar: true,
-					token: {
-						colorPrimary: rootToHex('var(--primary)'),
-						colorInfo: rootToHex('var(--primary)'),
-						fontSize: 12, // 2^4
-						sizeUnit: 2, // 2^2
-						borderRadius: 4 // 2^2
-					},
-					components: {
-						Menu: {
-							collapsedWidth: 64 // 2^6
-						}
-					}
-				}}
-			>
+			<DesignConfig theme={themeConfig}>
 				<SyncSeedContext.Provider value={{ seed, setSeed }}>
 					<LoadingStatesContext.Provider value={{ loadingStates, setLoadingStates }}>
 						<OSASContext.Provider value={{ osas, setOsas }}>
