@@ -338,7 +338,7 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 						{!loadingStates.events ? (
 							<Skeleton.Node
 								active
-								style={{ width: 512, maxWidth: '100%', height: 152 }}
+								style={{ width: '100%', height: 152 }}
 							/>
 						) : (
 							<Calendar events={events} />

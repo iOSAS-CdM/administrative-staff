@@ -428,8 +428,8 @@ const OSAS = () => {
 					token: {
 						colorPrimary: rootToHex('var(--primary)'),
 						colorInfo: rootToHex('var(--primary)'),
-						fontSize: 16, // 2^4
-						sizeUnit: 4, // 2^2
+						fontSize: 12, // 2^4
+						sizeUnit: 2, // 2^2
 						borderRadius: 4 // 2^2
 					},
 					components: {

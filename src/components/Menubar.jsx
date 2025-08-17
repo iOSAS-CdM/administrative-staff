@@ -178,28 +178,31 @@ const Menubar = () => {
 		{
 			key: 'staff',
 			label: (
-				<Flex gap={32} align='center'>
-					<Flex vertical style={{ flex: 1 }}>
+				<Flex justify='space-between' align='center' style={{ width: '100%' }}>
+					<div style={{ flez: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
 						{loadingStates.staff ? (
-							<>
-								<Title level={5} style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
-								<Text type='secondary' style={{ color: minimized && 'var(--ant-color-bg-base)' }}>{staff.role}</Text>
-							</>
+							<Flex vertical>
+								<Title level={5} style={{ color: 'currentColor' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
+								<Text type='secondary' style={{ color: 'currentColor' }}>{staff.role}</Text>
+							</Flex>
 						) : (
 							<Skeleton.Node
 								active
 								shape='square'
-								style={{ width: 128 }}
+									style={{ width: '100%' }}
 							/>
 						)}
-					</Flex>
+					</div>
 
 					{!minimized && (
-						<Button
-							type='default'
-							icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
-							onClick={() => setMinimized(!minimized)}
-						/>
+						<div style={{ width: 32 }}>
+							<Button
+								type='default'
+								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+								onClick={() => setMinimized(!minimized)}
+								style={{ minWidth: '128x !important', height: 32 }}
+							/>
+						</div>
 					)}
 				</Flex>
 			),
@@ -348,6 +351,7 @@ const Menubar = () => {
 								style={{
 									position: 'relative',
 									height: '100%',
+									width: minimized ? 64 : 256,
 									padding: 0,
 									border: 'none'
 								}}
