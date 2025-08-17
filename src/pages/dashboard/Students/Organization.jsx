@@ -5,8 +5,6 @@ import {
 	Card,
 	Button,
 	Flex,
-	Row,
-	Col,
 	Avatar,
 	Typography,
 	Calendar,
@@ -187,8 +185,8 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 										shape='square'
 										style={{
 											position: 'absolute',
-											width: 256, // 2^8
-											height: 256, // 2^8
+											width: 128, // 2^7
+											height: 128, // 2^7
 											bottom: 0,
 											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 										}}
