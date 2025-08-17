@@ -36,7 +36,6 @@ import { MobileContext, OSASContext } from '../../../main';
 import NewCase from '../../../modals/NewCase';
 
 import Record from '../../../classes/Record';
-import Student from '../../../classes/Student';
 
 const Filters = ({ filter, setFilter }) => (
 	<Flex vertical gap={8}>
@@ -298,7 +297,8 @@ const RecordCard = ({ record, loading, navigate }) => {
 										key={index}
 										src={complainant.profilePicture}
 										style={{ cursor: 'pointer' }}
-										onClick={() => {
+										onClick={(e) => {
+											e.stopPropagation();
 											navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
 												state: { studentId: complainant.studentId }
 											});
@@ -315,7 +315,8 @@ const RecordCard = ({ record, loading, navigate }) => {
 										<Avatar
 											src={complainee.student.profilePicture}
 											style={{ cursor: 'pointer' }}
-											onClick={() => {
+											onClick={(e) => {
+												e.stopPropagation();
 												navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
 													state: { studentId: complainee.student.studentId }
 												});

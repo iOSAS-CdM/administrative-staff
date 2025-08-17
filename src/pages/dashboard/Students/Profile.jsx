@@ -78,6 +78,7 @@ const Calendar = ({ events }) => {
 					</Badge>
 				)
 			}}
+			style={{ minWidth: 256 }}
 		/>
 	);
 };

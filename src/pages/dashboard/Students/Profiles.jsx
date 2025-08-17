@@ -366,8 +366,6 @@ const StudentCard = ({ student, loading, navigate }) => {
 			}
 
 			onClick={(e) => {
-				if (e.target.closest('.student-card-dropdown, .ant-dropdown-menu'))
-					return;
 				if (thisStudent.placeholder)
 					Modal.error({
 						title: 'Error',
@@ -411,6 +409,8 @@ const StudentCard = ({ student, loading, navigate }) => {
 							}
 						],
 						onClick: (e) => {
+							e.stopPropagation?.();
+							e.domEvent.stopPropagation();
 							if (thisStudent.placeholder)
 								Modal.error({
 									title: 'Error',
@@ -423,11 +423,12 @@ const StudentCard = ({ student, loading, navigate }) => {
 								RestrictStudent(Modal, thisStudent, setThisStudent);
 						}
 					}}
+					onClick={(e) => e.stopPropagation()}
 				>
 					<Button
 						type='default'
-						className='student-card-dropdown'
 						icon={<EllipsisOutlined />}
+						onClick={(e) => e.stopPropagation()}
 					/>
 				</Dropdown>
 			</Flex>

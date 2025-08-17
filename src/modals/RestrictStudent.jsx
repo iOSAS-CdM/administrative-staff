@@ -3,15 +3,14 @@ import React from 'react';
 import {
 	Form,
 	Input,
-	Typography
+	Flex
 } from 'antd';
 
 import {
 	SaveOutlined,
-	ClearOutlined
+	ClearOutlined,
+	BankOutlined
 } from '@ant-design/icons';
-
-const { Title, Text } = Typography;
 
 const RestrictStudentForm = React.createRef();
 
@@ -23,6 +22,17 @@ const RestrictStudentForm = React.createRef();
 const RestrictStudent = async (Modal, student) => {
 	Modal.warning({
 		title: 'Restrict Student',
+		centered: true,
+		closable: { 'aria-label': 'Close' },
+		icon: <BankOutlined />,
+		width: {
+			xs: '100%',
+			sm: '100%',
+			md: '100%',
+			lg: 512, // 2^9
+			xl: 1024, // 2^10
+			xxl: 1024 // 2^10
+		},
 		content: (
 			<Form
 				layout='vertical'
@@ -70,11 +80,8 @@ const RestrictStudent = async (Modal, student) => {
 			hidden: false
 		},
 		onCancel: () => {
-			setAddingNew(false);
-			return new Promise((resolve) => {
-				newStudent = null; // Reset newStudent if cancelled
-				resolve();
-			});
+			RestrictStudentForm.current.resetFields();
+			console.log('Restriction cancelled');
 		}
 	});
 };

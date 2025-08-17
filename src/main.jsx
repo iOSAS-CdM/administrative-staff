@@ -61,9 +61,19 @@ export const LoadingStatesContext = React.createContext({
 export const OSASContext = React.createContext({
 	/** @type {OSASData} */
 	osas: {
+		staff: {
+			name: {
+				first: '',
+				middle: '',
+				last: ''
+			},
+			role: '',
+			profilePicture: ''
+		},
 		students: [],
 		records: [],
-		organizations: []
+		organizations: [],
+		events: []
 	},
 	setOsas: () => { }
 });
