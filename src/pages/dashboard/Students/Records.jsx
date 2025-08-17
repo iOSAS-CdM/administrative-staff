@@ -148,9 +148,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		});
 
 		setDisplayedRecords([]);
-		setTimeout(() => {
+		requestAnimationFrame(() => {
 			setDisplayedRecords(searchedRecords);
-		}, 8); // 2^3
+		});
 	}, [search, filteredRecords]);
 
 	const app = App.useApp();

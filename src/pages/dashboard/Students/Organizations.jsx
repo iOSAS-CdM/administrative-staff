@@ -27,7 +27,6 @@ import ItemCard from '../../../components/ItemCard';
 import { MobileContext, OSASContext } from '../../../main';
 
 import Organization from '../../../classes/Organization';
-import Student from '../../../classes/Student';
 
 /** @typedef {[Organization[], React.Dispatch<React.SetStateAction<Organization[]>>]} OrganizationsState */
 
@@ -82,9 +81,9 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		});
 
 		setDisplayedOrganizations([]);
-		setTimeout(() => {
+		requestAnimationFrame(() => {
 			setDisplayedOrganizations(searchedOrganizations);
-		}, 8); // 2^3
+		});
 	}, [search, categorizedOrganizations]);
 
 	React.useEffect(() => {
@@ -143,7 +142,6 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 					))}
 				</Row>
 			) : (
-				
 				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
 					{organizations.length !== 0 ? (
 						<Spin />
@@ -244,7 +242,8 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
 							key={index}
 							src={member.student.profilePicture}
 							style={{ cursor: 'pointer' }}
-							onClick={() => {
+							onClick={(e) => {
+								e.stopPropagation();
 								navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
 									state: { studentId: member.student.studentId }
 								});

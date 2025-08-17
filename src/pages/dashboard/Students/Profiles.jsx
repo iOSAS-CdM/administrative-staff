@@ -224,7 +224,9 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 			filtered.push(student);
 		};
 
-		setFilteredStudents(filtered);
+		requestAnimationFrame(() => {
+			setFilteredStudents(filtered);
+		});
 	}, [institutionizedStudents, filter]);
 
 	React.useEffect(() => {
