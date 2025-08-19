@@ -6,3 +6,14 @@
 	opacity: 0.5;
 	filter: grayscale(100%);
 }
+
+.panel-card {
+	transition: max-height var(--transition);
+}
+.panel-card .ant-card-head {
+	cursor: pointer;
+}
+.panel-card .ant-card-head:hover {
+	background-color: var(--ant-color-fill-content-hover);
+	transition: background-color var(--transition);
+}
