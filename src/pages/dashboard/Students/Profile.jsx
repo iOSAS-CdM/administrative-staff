@@ -39,9 +39,7 @@ const Calendar = ({ events }) => {
 	return (
 		<AntCalendar
 			fullscreen={false}
-			onPanelChange={(date) => {
-				setValue(date);
-			}}
+			onPanelChange={(date) => setValue(date)}
 			fullCellRender={(date, info) => {
 				if (info.type === 'date') {
 					const eventsForDate = events.find(event =>

@@ -160,11 +160,8 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 				</Flex>
 			) : (
 				<Calendar
-					onPanelChange={(date) => {
-						setValue(date);
-					}}
+					onPanelChange={(date) => setValue(date)}
 					cellRender={(date, info) => {
-						// console.log(date.toDate());
 						if (info.type === 'date') {
 							const eventsForDate = events.find(event =>
 								event.date.getDate() === date.date()
@@ -205,7 +202,6 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 								</Flex>
 							);
 						};
-
 					}}
 				/>
 			)}
