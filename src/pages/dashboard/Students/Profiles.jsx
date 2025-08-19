@@ -372,7 +372,7 @@ const StudentCard = ({ student, loading, navigate }) => {
 						centered: true
 					});
 				else
-					navigate(`/dashboard/student/${thisStudent.studentId}`, {
+					navigate(`/dashboard/students/profile/${thisStudent.studentId}`, {
 						state: { studentId: thisStudent.studentId }
 					});
 			}}

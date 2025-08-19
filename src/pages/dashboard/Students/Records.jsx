@@ -284,7 +284,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 										style={{ cursor: 'pointer' }}
 										onClick={(e) => {
 											e.stopPropagation();
-											navigate(`/dashboard/student/${complainant.studentId}`, {
+											navigate(`/dashboard/students/profile/${complainant.studentId}`, {
 												state: { studentId: complainant.studentId }
 											});
 										}}
@@ -302,7 +302,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 											style={{ cursor: 'pointer' }}
 											onClick={(e) => {
 												e.stopPropagation();
-												navigate(`/dashboard/student/${complainee.student.studentId}`, {
+												navigate(`/dashboard/students/profile/${complainee.student.studentId}`, {
 													state: { studentId: complainee.student.studentId }
 												});
 											}}

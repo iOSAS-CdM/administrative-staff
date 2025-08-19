@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation, useRoutes } from 'react-router';
+import { useNavigate, useLocation, useRoutes, Navigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
@@ -142,7 +142,7 @@ const Menubar = () => {
 	};
 
 	const routes = useRoutes([
-		{ path: '/', element: <Home {...props} /> },
+		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/home', element: <Home {...props} /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
 
@@ -158,7 +158,7 @@ const Menubar = () => {
 				{ path: 'archived', element: <Profiles {...props} /> }
 			]
 		},
-		{ path: '/student/*', element: <Profile {...props} /> },
+		{ path: '/students/profile/*', element: <Profile {...props} /> },
 
 		{
 			path: '/students/records/*',
