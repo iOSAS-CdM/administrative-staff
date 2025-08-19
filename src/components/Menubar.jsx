@@ -160,7 +160,6 @@ const Menubar = () => {
 		},
 		{ path: '/student/*', element: <Profile {...props} /> },
 
-
 		{
 			path: '/students/records/*',
 			element: <DisciplinaryRecords {...props} />,
