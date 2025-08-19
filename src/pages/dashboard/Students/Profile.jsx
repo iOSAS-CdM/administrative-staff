@@ -308,7 +308,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 											align='flex-start'
 											style={{ cursor: 'pointer', width: '100%' }}
 											onClick={() => {
-												navigate(`/dashboard/students/records/${e.id}`, {
+												navigate(`/dashboard/students/record/${e.id}`, {
 													state: { id: e.id }
 												});
 											}}

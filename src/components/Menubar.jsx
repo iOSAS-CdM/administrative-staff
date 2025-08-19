@@ -161,8 +161,17 @@ const Menubar = () => {
 		{ path: '/student/*', element: <Profile {...props} /> },
 
 
-		{ path: '/students/records', element: <DisciplinaryRecords {...props} /> },
-		{ path: '/students/records/*', element: <DisciplinaryRecord {...props} /> },
+		{
+			path: '/students/records/*',
+			element: <DisciplinaryRecords {...props} />,
+			children: [
+				{ path: 'active', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
+			]
+		},
+		{ path: '/students/record/*', element: <DisciplinaryRecord {...props} /> },
 		{ path: '/students/organizations', element: <Organizations {...props} /> },
 		{ path: '/students/organizations/*', element: <Organization {...props} /> },
 		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate, useRoutes } from 'react-router';
+import { useLocation, useNavigate, useRoutes, Navigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
@@ -208,8 +208,23 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 			filtered.push(student);
 		};
 
+		if (search.trim() !== '') {
+			const searchTerm = search.toLowerCase().trim();
+			return filtered.filter(student => {
+				return (
+					student.name.first.toLowerCase().includes(searchTerm) ||
+					student.name.middle.toLowerCase().includes(searchTerm) ||
+					student.name.last.toLowerCase().includes(searchTerm) ||
+					`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
+					`${student.name.first} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
+					student.studentId.toLowerCase().includes(searchTerm) ||
+					student.email.toLowerCase().includes(searchTerm)
+				);
+			});
+		};
+
 		return filtered;
-	}, [osas.students, filter]);
+	}, [osas.students, filter, search]);
 	/**
 	 * @type {{
 	 * 	ics: Student[];
@@ -229,24 +244,8 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 			restricted: [],
 			archived: []
 		};
-		let workingStudents = filteredStudents;
 
-		if (search.trim() !== '') {
-			const searchTerm = search.toLowerCase().trim();
-			workingStudents = filteredStudents.filter(student => {
-				return (
-					student.name.first.toLowerCase().includes(searchTerm) ||
-					student.name.middle.toLowerCase().includes(searchTerm) ||
-					student.name.last.toLowerCase().includes(searchTerm) ||
-					`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
-					`${student.name.first} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
-					student.studentId.toLowerCase().includes(searchTerm) ||
-					student.email.toLowerCase().includes(searchTerm)
-				);
-			});
-		};
-
-		for (const student of workingStudents) {
+		for (const student of filteredStudents) {
 			if (student.institute === 'ics' && student.status === 'active')
 				categorized.ics.push(student);
 			if (student.institute === 'ite' && student.status === 'active')
@@ -262,7 +261,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		};
 
 		return categorized;
-	}, [filteredStudents, search]);
+	}, [filteredStudents]);
 
 	React.useEffect(() => {
 		setHeader({
@@ -318,7 +317,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
 	const routes = useRoutes([
-		{ path: '/', element: <CategoryPage institutionalizedStudents={categorizedStudents.active} /> },
+		{ path: '/', element: <Navigate to='active' replace /> },
 		{ path: '/active', element: <CategoryPage institutionalizedStudents={categorizedStudents.active} /> },
 		{ path: '/ics', element: <CategoryPage institutionalizedStudents={categorizedStudents.ics} /> },
 		{ path: '/ite', element: <CategoryPage institutionalizedStudents={categorizedStudents.ite} /> },

@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useRoutes, Navigate } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import {
 	App,
@@ -86,7 +87,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState('ongoing');
+	const [category, setCategory] = React.useState(location.pathname.split('/').pop() || 'active');
 	/**
 	 * @typedef {{
 	 * 		severity: import('../../../classes/Record').RecordSeverity[]
@@ -100,58 +101,62 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [search, setSearch] = React.useState('');
 
 	/** @type {RecordsState} */
-	const [records, setRecords] = React.useState([]);
-	/** @type {RecordsState} */
-	const [categorizedRecords, setCategorizedRecords] = React.useState([]);
-	/** @type {RecordsState} */
-	const [filteredRecords, setFilteredRecords] = React.useState([]);
-	/** @type {RecordsState} */
-	const [displayedRecords, setDisplayedRecords] = React.useState([]);
-
-	React.useEffect(() => {
-		setRecords(osas.records);
-	}, [osas.records]);
-
-	React.useEffect(() => {
-		setCategorizedRecords(records.filter(record => (
-			(category === 'active' && record.tags.status !== 'archived')
-			|| (category === record.tags.status)
-			|| (category === 'archived' && record.tags.status === 'archived')
-		)));
-	}, [records, category]);
-
-	React.useEffect(() => {
+	const filteredRecords = React.useMemo(() => {
 		/** @type {Record[]} */
 		const filtered = [];
 
 		// Filter by severity
-		for (const record of categorizedRecords) {
+		for (const record of osas.records) {
 			if (filter.severity.length > 0 && !filter.severity.includes(record.tags.severity.toLowerCase())) continue; // Skip if severity does not match
 
 			filtered.push(record);
 		};
 
-		setFilteredRecords(filtered);
-	}, [categorizedRecords, filter]);
-
-	React.useEffect(() => {
-		if (search.trim() === '') {
-			setDisplayedRecords(filteredRecords);
-			return;
+		if (search.trim() !== '') {
+			const searchTerm = search.toLowerCase().trim();
+			return filtered.filter(record => {
+				return (
+					record.violation.toLowerCase().includes(searchTerm) ||
+					record.description.toLowerCase().includes(searchTerm)
+				);
+			});
 		};
 
-		const searchTerm = search.toLowerCase();
-		const searchedRecords = filteredRecords.filter(record => {
-			const fullTitle = record.violation.toLowerCase();
-			const fullDescription = record.description.toLowerCase();
-			return fullTitle.includes(searchTerm) || fullDescription.includes(searchTerm);
-		});
+		return filtered;
+	}, [osas.records, filter, search]);
 
-		setDisplayedRecords([]);
-		requestAnimationFrame(() => {
-			setDisplayedRecords(searchedRecords);
-		});
-	}, [search, filteredRecords]);
+	/**
+	 * @type {{
+	 * 	active: Record[],
+	 * 	ongoing: Record[],
+	 * 	resolved: Record[],
+	 * 	archived: Record[]
+	 * }}
+	 */
+	const categorizedRecords = React.useMemo(() => {
+		const categorized = {
+			active: [],
+			ongoing: [],
+			resolved: [],
+			archived: []
+		};
+
+		for (const record of filteredRecords) {
+			categorized[record.tags.status].push(record);
+			if (record.tags.status !== 'archived')
+				categorized.active.push(record);
+		};
+
+		return categorized;
+	}, [filteredRecords]);
+
+	const routes = useRoutes([
+		{ path: '/', element: <Navigate to='active' replace /> },
+		{ path: '/active', element: <CategoryPage categorizedRecords={categorizedRecords.active} /> },
+		{ path: '/ongoing', element: <CategoryPage categorizedRecords={categorizedRecords.ongoing} /> },
+		{ path: '/resolved', element: <CategoryPage categorizedRecords={categorizedRecords.resolved} /> },
+		{ path: '/archived', element: <CategoryPage categorizedRecords={categorizedRecords.archived} /> }
+	]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -186,6 +191,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 					value={category}
 					onChange={(value) => {
 						setCategory(value);
+						navigate(`/dashboard/students/records/${value}`);
 					}}
 				/>,
 				<>
@@ -218,28 +224,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{/************************** Records **************************/}
-			{displayedRecords.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					{displayedRecords.map((record, index) => (
-						<Col key={record.id} span={!mobile ? 8 : 24}>
-							<RecordCard
-								record={record}
-								loading={record.placeholder}
-								navigate={navigate}
-							/>
-						</Col>
-					))}
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{records.length !== 0 ? (
-						<Spin />
-					) : (
-						<Empty description='No profiles found' />
-					)}
-				</div>
-			)}
+			{routes}
 		</Flex>
 	);
 };
@@ -348,7 +333,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 							centered: true
 						});
 					} else {
-						navigate(`/dashboard/students/records/${thisRecord.id}`, {
+						navigate(`/dashboard/students/record/${thisRecord.id}`, {
 							state: { id: thisRecord.id }
 						});
 					};
@@ -370,5 +355,52 @@ const RecordCard = ({ record, loading, navigate }) => {
 				)}
 			</ItemCard>
 		</Badge.Ribbon>
+	);
+};
+
+/**
+ * @param {{
+ * 	categorizedRecords: Record[];
+ * }} props
+ * @returns {JSX.Element}
+ */
+const CategoryPage = ({ categorizedRecords }) => {
+	const navigate = useNavigate();
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
+	return (
+		<>
+			{categorizedRecords.length > 0 ? (
+				<Row gutter={[16, 16]}>
+					<AnimatePresence mode='popLayout'>
+						{categorizedRecords.map((record, index) => (
+							<Col key={record.id} span={!mobile ? 12 : 24}>
+								<motion.div
+									key={index}
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -20 }}
+									transition={{ duration: 0.3, delay: index * 0.05 }}
+								>
+									<RecordCard
+										record={record}
+										loading={record.placeholder}
+										navigate={navigate}
+									/>
+								</motion.div>
+							</Col>
+						))}
+					</AnimatePresence>
+				</Row>
+			) : (
+				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+					{osas.records.length !== 0 ? (
+						<Spin />
+					) : (
+						<Empty description='No records found' />
+					)}
+				</div>
+			)}
+		</>
 	);
 };
