@@ -226,6 +226,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 									<Card
 										key={complainant.studentId || i}
 										size='small'
+										hoverable
 										style={{ width: '100%' }}
 										onClick={() => {
 											if (complainant.placeholder) {
@@ -283,6 +284,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 									<Card
 										key={complainee.student.studentId || i}
 										size='small'
+										hoverable
 										style={{ width: '100%' }}
 										onClick={() => {
 											if (complainee.student.placeholder) {
@@ -402,6 +404,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 					<Card
 						key={file.id || i}
 						size='small'
+						hoverable
 						style={{ width: '100%' }}
 						onClick={() => { }}
 					>

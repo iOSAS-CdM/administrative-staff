@@ -247,6 +247,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 									<Card
 										key={index}
 										size='small'
+										hoverable
 										style={{ width: '100%' }}
 										onClick={() => {
 											navigate(`/dashboard/students/profile/${member.student.studentId}`, {
@@ -311,6 +312,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 					<Card
 						key={file.id || i}
 						size='small'
+						hoverable
 						style={{ width: '100%' }}
 						onClick={() => { }}
 					>

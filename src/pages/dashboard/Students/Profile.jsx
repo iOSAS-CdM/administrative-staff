@@ -275,6 +275,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 										<Card
 											key={index}
 											size='small'
+											hoverable
 											onClick={() => {
 												navigate(`/dashboard/students/organization/${organization.id}`, {
 													state: { id: organization.id }
