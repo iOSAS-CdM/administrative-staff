@@ -147,7 +147,7 @@ const Menubar = () => {
 		{ path: '/notifications', element: <p>Notifications</p> },
 
 		{
-			path: '/students/profiles',
+			path: '/students/profiles/*',
 			element: <Profiles {...props} />,
 			children: [
 				{ path: 'active', element: <Profiles {...props} /> },

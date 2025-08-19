@@ -202,6 +202,7 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
 					src={thisOrganization.cover || '/Placeholder Image.svg'}
 					alt={`${thisOrganization.shortName} Cover`}
 					style={{ aspectRatio: '2/1', objectFit: 'cover' }}
+					onClick={(e) => { e.stopPropagation(); }}
 				/>
 			)}
 
