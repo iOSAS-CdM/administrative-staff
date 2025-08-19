@@ -235,7 +235,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 													centered: true
 												});
 											} else {
-												navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+												navigate(`/dashboard/student/${complainant.studentId}`, {
 													state: { studentId: complainant.studentId }
 												});
 											};
@@ -292,7 +292,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 													centered: true
 												});
 											} else {
-												navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
+												navigate(`/dashboard/student/${complainee.student.studentId}`, {
 													state: { studentId: complainee.student.studentId }
 												});
 											};

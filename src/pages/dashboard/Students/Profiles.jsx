@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate, useRoutes } from 'react-router';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import {
 	App,
@@ -162,19 +163,23 @@ const Filters = ({ setFilter, category, mobile }) => (
 	</Flex>
 );
 
-/** @typedef {[Student[], React.Dispatch<React.SetStateAction<Student[]>>]} StudentsState */
-
+/**
+ * @param {import('../../../components/Menubar').PageProps} props
+ * @returns {JSX.Element}
+ */
 const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		setSelectedKeys(['profiles']);
 	}, [setSelectedKeys]);
+
+	const location = useLocation();
 
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);
 
 	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState('active');
+	const [category, setCategory] = React.useState(location.pathname.split('/').pop() || 'active');
 	/**
 	 * @typedef {{
 	 * 		years: Number[],
@@ -189,34 +194,13 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
 
-	/** @type {StudentsState} */
-	const [students, setStudents] = React.useState([]);
-	/** @type {StudentsState} */
-	const [institutionizedStudents, setInstitutionizedStudents] = React.useState([]);
-	/** @type {StudentsState} */
-	const [filteredStudents, setFilteredStudents] = React.useState([]);
-	/** @type {StudentsState} */
-	const [displayedStudents, setDisplayedStudents] = React.useState([]);
-
-	React.useEffect(() => {
-		setStudents(osas.students);
-	}, [osas.students]);
-
-	React.useEffect(() => {
-		setInstitutionizedStudents(students.filter(student =>
-			(student.institute === category && student.status === 'active')
-			|| (category === 'active' && student.status === 'active')
-			|| (category === 'restricted' && student.status === 'restricted')
-			|| (category === 'archived' && student.status === 'archived'))
-		);
-	}, [students, category]);
-
-	React.useEffect(() => {
+	/** @type {Student[]} */
+	const filteredStudents = React.useMemo(() => {
 		/** @type {Student[]} */
 		const filtered = [];
 
 		// Filter by year and program
-		for (const student of institutionizedStudents) {
+		for (const student of osas.students) {
 			if (filter.years.length > 0 && !filter.years.includes(student.year))
 				continue;
 			if (filter.programs.length > 0 && !filter.programs.includes(student.program))
@@ -224,44 +208,70 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 			filtered.push(student);
 		};
 
-		requestAnimationFrame(() => {
-			setFilteredStudents(filtered);
-		});
-	}, [institutionizedStudents, filter]);
-
-	React.useEffect(() => {
-		if (search.trim() === '') {
-			setDisplayedStudents(filteredStudents);
-			return;
+		return filtered;
+	}, [osas.students, filter]);
+	/**
+	 * @type {{
+	 * 	ics: Student[];
+	 * 	ite: Student[];
+	 * 	ibe: Student[];
+	 * 	active: Student[];
+	 * 	restricted: Student[];
+	 * 	archived: Student[];
+	 * }}
+	 */
+	const categorizedStudents = React.useMemo(() => {
+		const categorized = {
+			ics: [],
+			ite: [],
+			ibe: [],
+			active: [],
+			restricted: [],
+			archived: []
 		};
-		setDisplayedStudents([]);
+		let workingStudents = filteredStudents;
 
-		const searchTerm = search.toLowerCase();
-		const searchedStudents = filteredStudents.filter(student => {
-			return (
-				student.name.first.toLowerCase().includes(searchTerm) ||
-				student.name.middle.toLowerCase().includes(searchTerm) ||
-				student.name.last.toLowerCase().includes(searchTerm) ||
-				`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
-				`${student.name.first} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
-				student.studentId.toLowerCase().includes(searchTerm) ||
-				student.email.toLowerCase().includes(searchTerm)
-			);
-		});
-		setTimeout(() => {
-			setDisplayedStudents(searchedStudents);
-		}, 8); // 2^3
-	}, [search, filteredStudents, mobile]);
+		if (search.trim() !== '') {
+			const searchTerm = search.toLowerCase().trim();
+			workingStudents = filteredStudents.filter(student => {
+				return (
+					student.name.first.toLowerCase().includes(searchTerm) ||
+					student.name.middle.toLowerCase().includes(searchTerm) ||
+					student.name.last.toLowerCase().includes(searchTerm) ||
+					`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
+					`${student.name.first} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
+					student.studentId.toLowerCase().includes(searchTerm) ||
+					student.email.toLowerCase().includes(searchTerm)
+				);
+			});
+		};
+
+		for (const student of workingStudents) {
+			if (student.institute === 'ics' && student.status === 'active')
+				categorized.ics.push(student);
+			if (student.institute === 'ite' && student.status === 'active')
+				categorized.ite.push(student);
+			if (student.institute === 'ibe' && student.status === 'active')
+				categorized.ibe.push(student);
+			if (student.status === 'active')
+				categorized.active.push(student);
+			if (student.status === 'restricted')
+				categorized.restricted.push(student);
+			if (student.status === 'archived')
+				categorized.archived.push(student);
+		};
+
+		return categorized;
+	}, [filteredStudents, search]);
 
 	React.useEffect(() => {
 		setHeader({
 			title: 'Student Profiles',
 			actions: [
 				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
-					<Input
+					<Input.Search
 						placeholder='Search'
 						allowClear
-						prefix={<SearchOutlined />}
 						onChange={(e) => {
 							const value = e.target.value;
 							clearTimeout(window.profileDebounceTimer);
@@ -285,6 +295,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 					value={category}
 					onChange={(value) => {
 						setCategory(value);
+						navigate(`/dashboard/students/profiles/${value}`);
 					}}
 				/>,
 				<>
@@ -306,32 +317,19 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		});
 	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
-	const app = App.useApp();
+	const routes = useRoutes([
+		{ path: '/', element: <CategoryPage institutionalizedStudents={categorizedStudents.active} /> },
+		{ path: '/active', element: <CategoryPage institutionalizedStudents={categorizedStudents.active} /> },
+		{ path: '/ics', element: <CategoryPage institutionalizedStudents={categorizedStudents.ics} /> },
+		{ path: '/ite', element: <CategoryPage institutionalizedStudents={categorizedStudents.ite} /> },
+		{ path: '/ibe', element: <CategoryPage institutionalizedStudents={categorizedStudents.ibe} /> },
+		{ path: '/restricted', element: <CategoryPage institutionalizedStudents={categorizedStudents.restricted} /> },
+		{ path: '/archived', element: <CategoryPage institutionalizedStudents={categorizedStudents.archived} /> }
+	]);
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{/************************** Profiles **************************/}
-			{displayedStudents.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					{displayedStudents.map((student, index) => (
-						<Col key={student.studentId} span={!mobile ? 12 : 24}>
-							<StudentCard
-								student={student}
-								loading={student.placeholder}
-								navigate={navigate}
-							/>
-						</Col>
-					))}
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{students.length !== 0 ? (
-						<Spin />
-					) : (
-						<Empty description='No profiles found' />
-					)}
-				</div>
-			)}
+			{routes}
 		</Flex>
 	);
 };
@@ -343,7 +341,7 @@ export default Profiles;
  * 	student: Student,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
- * }} param0 
+ * }} props 
  * @returns {JSX.Element}
  */
 const StudentCard = ({ student, loading, navigate }) => {
@@ -375,7 +373,7 @@ const StudentCard = ({ student, loading, navigate }) => {
 						centered: true
 					});
 				else
-					navigate(`/dashboard/students/profiles/${thisStudent.studentId}`, {
+					navigate(`/dashboard/student/${thisStudent.studentId}`, {
 						state: { studentId: thisStudent.studentId }
 					});
 			}}
@@ -435,5 +433,52 @@ const StudentCard = ({ student, loading, navigate }) => {
 				</Dropdown>
 			</Flex>
 		</ItemCard>
+	);
+};
+
+/**
+ * @param {{
+ * 	institutionalizedStudents: Student[];
+ * }} props
+ * @returns {JSX.Element}
+ */
+const CategoryPage = ({ institutionalizedStudents }) => {
+	const navigate = useNavigate();
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
+	return (
+		<>
+			{institutionalizedStudents.length > 0 ? (
+				<Row gutter={[16, 16]}>
+					<AnimatePresence mode='popLayout'>
+						{institutionalizedStudents.map((student, index) => (
+							<Col key={student.studentId} span={!mobile ? 12 : 24}>
+								<motion.div
+									key={index}
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -20 }}
+									transition={{ duration: 0.3, delay: index * 0.05 }}
+								>
+									<StudentCard
+										student={student}
+										loading={student.placeholder}
+										navigate={navigate}
+									/>
+								</motion.div>
+							</Col>
+						))}
+					</AnimatePresence>
+				</Row>
+			) : (
+				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+					{osas.students.length !== 0 ? (
+						<Spin />
+					) : (
+						<Empty description='No profiles found' />
+					)}
+				</div>
+			)}
+		</>
 	);
 };

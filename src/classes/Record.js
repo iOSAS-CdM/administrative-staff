@@ -27,7 +27,7 @@
 
 class Record {
 	/**
-	 * @param {RecordProps} param0
+	 * @param {RecordProps} props
 	 */
 	constructor({
 		id = Math.floor(Math.random() * 1000000),

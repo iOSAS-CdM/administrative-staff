@@ -15,7 +15,7 @@ const { Text, Title, Link } = Typography;
 /**
  * @param {{
  * 		navigate: import('react-router').NavigateFunction
- * }} param0
+ * }} props
  * @returns {JSX.Element}
  */
 const SignIn = ({ navigate }) => {

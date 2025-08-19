@@ -251,7 +251,7 @@ export default DisciplinaryRecords;
  * 	record: Record,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
- * }} param0
+ * }} props
  * @returns 
  */
 const RecordCard = ({ record, loading, navigate }) => {
@@ -299,7 +299,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 										style={{ cursor: 'pointer' }}
 										onClick={(e) => {
 											e.stopPropagation();
-											navigate(`/dashboard/students/profiles/${complainant.studentId}`, {
+											navigate(`/dashboard/student/${complainant.studentId}`, {
 												state: { studentId: complainant.studentId }
 											});
 										}}
@@ -317,7 +317,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 											style={{ cursor: 'pointer' }}
 											onClick={(e) => {
 												e.stopPropagation();
-												navigate(`/dashboard/students/profiles/${complainee.student.studentId}`, {
+												navigate(`/dashboard/student/${complainee.student.studentId}`, {
 													state: { studentId: complainee.student.studentId }
 												});
 											}}

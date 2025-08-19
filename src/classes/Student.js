@@ -28,7 +28,7 @@
 
 class Student {
 	/**
-	 * @param {StudentProps} param0
+	 * @param {StudentProps} props
 	 */
 	constructor({
 		name,

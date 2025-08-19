@@ -249,7 +249,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 										size='small'
 										style={{ width: '100%' }}
 										onClick={() => {
-											navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
+											navigate(`/dashboard/student/${member.student.studentId}`, {
 												state: { studentId: member.student.studentId }
 											});
 										}}

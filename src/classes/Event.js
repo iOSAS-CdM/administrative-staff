@@ -18,7 +18,7 @@
 
 class Event {
 	/**
-	 * @param {EventProps} param0
+	 * @param {EventProps} props
 	 */
 	constructor({
 		id = Math.floor(Math.random() * 1000000),

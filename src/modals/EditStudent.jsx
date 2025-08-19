@@ -27,7 +27,7 @@ const EditStudentForm = React.createRef();
 /**
  * @param {{
  * 	student: import('../classes/Student').StudentProps
- * }} param0
+ * }} props
  * @returns {JSX.Element}
  */
 const StudentForm = ({ student }) => {
@@ -41,12 +41,12 @@ const StudentForm = ({ student }) => {
 			initialValues={student}
 			style={{ width: '100%' }}
 		>
-			<Flex justify='center' align='flex-start' gap='large'>
+			<Flex justify='center' align='flex-start' gap={32}>
 				<Form.Item
 					name='profilePicture'
 					rules={[{ required: true, message: 'Please upload a profile picture!' }]}
 				>
-					<Flex vertical justify='center' align='center' gap='small'>
+					<Flex vertical justify='center' align='center' gap={16}>
 						<Upload
 							listType='picture-card'
 							showUploadList={false}
@@ -64,8 +64,8 @@ const StudentForm = ({ student }) => {
 								return false;
 							}}
 							style={{
-								width: 256,
-								height: 256,
+								width: 128,
+								height: 128
 							}}
 						>
 							{ProfilePicture ? (
@@ -73,8 +73,8 @@ const StudentForm = ({ student }) => {
 									src={ProfilePicture}
 									shape='square'
 									style={{
-										width: '100%',
-										height: '100%',
+										width: 128,
+										height: 128,
 										objectFit: 'cover'
 									}}
 								/>
@@ -180,11 +180,11 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 			sm: 512, // 2^9
 			md: 512, // 2^9
 			lg: 512, // 2^9
-			xl: 1024, // 2^10
+			xl: 512 * 1.5, // 2^10
 			xxl: 1024 // 2^10
 		},
 		footer: (_, { CancelBtn, OkBtn }) => (
-			<Flex justify='flex-end' align='center' gap='small'>
+			<Flex justify='flex-end' align='center' gap={16}>
 				<CancelBtn />
 				<OkBtn />
 			</Flex>

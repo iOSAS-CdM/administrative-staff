@@ -8,7 +8,7 @@ import { Card, Flex, Empty } from 'antd';
  * 	footer?: React.ReactNode,
  * 	children?: React.ReactNode,
  * 	contentMaxHeight?: string | number
- * } & import('antd/es/card').CardInterface} param0
+ * } & import('antd/es/card').CardInterface} props
  * @returns {JSX.Element}
  */
 const PanelCard = ({

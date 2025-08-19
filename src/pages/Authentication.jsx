@@ -160,8 +160,8 @@ const Authentication = () => {
 				}}
 			>
 				<Card className='authentication-card scrollable-content'>
-					<Flex vertical justify='space-between' align='center' gap='large' style={{ height: '100%' }}>
-						<Flex vertical justify='center' align='center' gap='large' style={{ height: '100%' }}>
+					<Flex vertical justify='space-between' align='center' gap={32} style={{ height: '100%' }}>
+						<Flex vertical justify='center' align='center' gap={32} style={{ height: '100%' }}>
 							<Image
 								src='/CdM-OSAS Banner.png'
 								alt='Logo Colegio de Montalban'
@@ -179,7 +179,7 @@ const Authentication = () => {
 									style={{ width: 256 }}
 								>
 
-									<Flex vertical justify='center' align='center' gap='large' style={{ height: '100%' }}>
+									<Flex vertical justify='center' align='center' gap={32} style={{ height: '100%' }}>
 										{routes}
 									</Flex>
 								</motion.div>

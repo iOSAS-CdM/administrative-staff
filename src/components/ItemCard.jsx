@@ -34,7 +34,7 @@ import {
  */
 
 /**
- * @param {ItemCardBaseProps} param0
+ * @param {ItemCardBaseProps} props
  */
 const ItemCard = ({
 	loading,

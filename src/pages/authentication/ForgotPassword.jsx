@@ -23,7 +23,7 @@ import '../../styles/pages/Authentication.css';
 /**
  * @param {{
  * 		navigate: import('react-router').NavigateFunction
- * }} param0
+ * }} props
  * @returns {JSX.Element}
  */
 const ForgotPassword = ({ navigate }) => {

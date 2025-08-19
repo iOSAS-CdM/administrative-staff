@@ -52,7 +52,7 @@ const RestrictStudent = async (Modal, student) => {
 			</Form>
 		),
 		footer: (_, { CancelBtn, OkBtn }) => (
-			<Flex justify='flex-end' align='center' gap='small'>
+			<Flex justify='flex-end' align='center' gap={16}>
 				<CancelBtn />
 				<OkBtn />
 			</Flex>

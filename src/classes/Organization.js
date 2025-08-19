@@ -23,7 +23,7 @@
 
 class Organization {
 	/**
-	 * @param {Organization} param0
+	 * @param {Organization} props
 	 */
 	constructor({
 		id = Math.floor(Math.random() * 1000000),

@@ -46,6 +46,19 @@ const { Text, Title } = Typography;
 
 import '../styles/pages/Dashboard.css';
 
+/**
+ * @typedef {{
+ * 	setHeader: React.Dispatch<React.SetStateAction<Header>>,
+ * 	setSelectedKeys: React.Dispatch<React.SetStateAction<string[]>>,
+ * 	mobile: boolean,
+ * 	staff: Staff,
+ * 	setMobile: React.Dispatch<React.SetStateAction<boolean>>,
+ * 	displayTheme: 'light' | 'dark',
+ * 	setDisplayTheme: React.Dispatch<React.SetStateAction<'light' | 'dark'>>,
+ * 	navigate: (path: string) => void
+ * }} PageProps
+ */
+
 const ReloadButton = ({ setSeed }) => {
 	const [shiftPressed, setShiftPressed] = React.useState(false);
 	React.useEffect(() => {
@@ -132,8 +145,22 @@ const Menubar = () => {
 		{ path: '/', element: <Home {...props} /> },
 		{ path: '/home', element: <Home {...props} /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
-		{ path: '/students/profiles', element: <Profiles {...props} /> },
-		{ path: '/students/profiles/*', element: <Profile {...props} /> },
+
+		{
+			path: '/students/profiles',
+			element: <Profiles {...props} />,
+			children: [
+				{ path: 'active', element: <Profiles {...props} /> },
+				{ path: 'ics', element: <Profiles {...props} /> },
+				{ path: 'ite', element: <Profiles {...props} /> },
+				{ path: 'ibe', element: <Profiles {...props} /> },
+				{ path: 'restricted', element: <Profiles {...props} /> },
+				{ path: 'archived', element: <Profiles {...props} /> }
+			]
+		},
+		{ path: '/student/*', element: <Profile {...props} /> },
+
+
 		{ path: '/students/records', element: <DisciplinaryRecords {...props} /> },
 		{ path: '/students/records/*', element: <DisciplinaryRecord {...props} /> },
 		{ path: '/students/organizations', element: <Organizations {...props} /> },

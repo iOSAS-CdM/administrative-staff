@@ -161,7 +161,7 @@ export default Organizations;
  * 	organization: import('../../../classes/Organization').Organization,
  * 	loading: Boolean,
  * 	navigate: ReturnType<typeof useNavigate>
- * }} param0
+ * }} props
  * @returns {JSX.Element}
  */
 const OrganizationCard = ({ organization, loading, navigate }) => {
@@ -244,7 +244,7 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
 							style={{ cursor: 'pointer' }}
 							onClick={(e) => {
 								e.stopPropagation();
-								navigate(`/dashboard/students/profiles/${member.student.studentId}`, {
+								navigate(`/dashboard/student/${member.student.studentId}`, {
 									state: { studentId: member.student.studentId }
 								});
 							}}

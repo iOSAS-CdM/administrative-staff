@@ -342,7 +342,7 @@ const NewCase = async (Modal) => {
 			xxl: 1024 // 2^10
 		},
 		footer: (_, { CancelBtn, OkBtn }) => (
-			<Flex justify='flex-end' align='center' gap='small'>
+			<Flex justify='flex-end' align='center' gap={16}>
 				<Text type='secondary' italic>
 					Fill up all the required fields *
 				</Text>
