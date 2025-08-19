@@ -350,6 +350,8 @@ const RecordCard = ({ record, loading, navigate }) => {
 	);
 };
 
+export { RecordCard };
+
 /**
  * @param {{
  * 	categorizedRecords: Record[];

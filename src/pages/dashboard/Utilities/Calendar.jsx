@@ -9,7 +9,10 @@ import {
 	Skeleton,
 	Typography,
 	Input,
-	Dropdown
+	Dropdown,
+	App,
+	Row,
+	Col
 } from 'antd';
 
 import {
@@ -17,6 +20,9 @@ import {
 } from '@ant-design/icons';
 
 import { LoadingStatesContext, OSASContext } from '../../../main';
+
+import NewCase from '../../../modals/NewCase';
+import { RecordCard } from '../Students/Records';
 
 const { Text } = Typography;
 
@@ -38,7 +44,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							label: {
 								disciplinary: event.content.violation
 							}[event.type],
-							onClick: () => navigate(`/dashboard/students/record/${event.id}`, { replace: true, state: { record: event.content } })
+							onClick: () => navigate(`/dashboard/students/record/${event.id}`)
 						}))
 					}}
 				>
@@ -57,6 +63,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							{
 								key: 'create-disciplinary-record',
 								label: 'Disciplinary Record',
+								onClick: () => NewCase(Modal)
 							},
 							{
 								key: 'create-announcement',
@@ -122,6 +129,9 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	const [value, setValue] = React.useState(moment());
 
+	const app = App.useApp();
+	const Modal = app.modal;
+
 	return (
 		<Card>
 			{!loadingStates.events ? (
@@ -161,6 +171,39 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 			) : (
 				<Calendar
 					onPanelChange={(date) => setValue(date)}
+						onSelect={(date, info) => {
+							if (info.source === 'date') {
+								const eventsForDate = events.find(event =>
+									event.date.getDate() === date.date()
+									&& event.date.getMonth() === date.month()
+									&& event.date.getFullYear() === date.year()
+								)?.events || [];
+								const modal = Modal.info({
+									title: `Events for ${date.format('MMMM D, YYYY')}`,
+									centered: true,
+									closable: { 'aria-label': 'Close' },
+									content: (
+										<Row gutter={[16, 16]}>
+											{eventsForDate.map((event, index) => (
+												event.type === 'disciplinary' ? (
+													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+														<RecordCard record={event.content} loading={false} navigate={navigate} />
+													</Col>
+												) : null
+											))}
+										</Row>
+									),
+									width: {
+										xs: '100%',
+										sm: '100%',
+										md: '100%',
+										lg: 512, // 2^9
+										xl: 1024, // 2^10
+										xxl: 1024 // 2^10
+									}
+								});
+							};
+						}}
 					cellRender={(date, info) => {
 						if (info.type === 'date') {
 							const eventsForDate = events.find(event =>
@@ -210,3 +253,5 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 };
 
 export default CalendarPage;
+
+// function(current: dayjs, info: { prefixCls: string, originNode: React.ReactElement, today: dayjs, range?: 'start' | 'end', type: PanelMode, locale?: Locale, subType?: 'hour' | 'minute' | 'second' | 'meridiem' }) => React.ReactNode
