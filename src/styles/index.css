@@ -68,21 +68,22 @@ span.ant-typography {
 .scrollable-content {
 	overflow-y: auto;
 	position: relative;
-
+}
+*, .scrollable-content {
 	scrollbar-width: thin;
 	scrollbar-color: transparent transparent;
 	transition: scrollbar-color var(--transition);
 }
-.scrollable-content::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb, .scrollable-content::-webkit-scrollbar-thumb {
 	background: transparent;
 	border-radius: 16;
 	transition: background var(--transition);
 }
-.scrollable-content::-webkit-scrollbar-track {
+*::-webkit-scrollbar-thumb, .scrollable-content::-webkit-scrollbar-track {
 	background: transparent;
 	border-radius: 8;
 }
-.scrollable-content:hover {
+*:hover, .scrollable-content:hover {
 	scrollbar-color: var(--primary) transparent;
 }
 
