@@ -229,7 +229,7 @@ const OSAS = () => {
 						studentId: (() => {
 							let id;
 							do {
-								id = `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`;
+								id = `25-${String(i).padStart(5, '0')}`;
 							} while (fetchedStudents.some(student => student.studentId === id));
 							return id;
 						})(),
@@ -278,7 +278,7 @@ const OSAS = () => {
 						studentId: (() => {
 							let id;
 							do {
-								id = `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`;
+								id = `25-${String(i).padStart(5, '0')}`;
 							} while (placeholderStudents.some(student => student.studentId === id));
 							return id;
 						})(),
@@ -307,7 +307,7 @@ const OSAS = () => {
 			const fetchedRecords = [];
 
 			for (let i = 0; i < 200; i++) {
-				const id = `record-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
+				const id = `record-25-${String(i).padStart(5, '0')}-${i + 1}`;
 
 				const complainants = [];
 				for (let j = 0; j < 10; j++) {
@@ -365,7 +365,7 @@ const OSAS = () => {
 			const fetchedOrganizations = [];
 
 			for (let i = 0; i < 10; i++) {
-				const id = `organization-25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}-${i + 1}`;
+				const id = `organization-25-${String(i).padStart(5, '0')}-${i + 1}`;
 
 				/** @type {import('../../../classes/Organization').OrganizationMember[]} */
 				const members = [];

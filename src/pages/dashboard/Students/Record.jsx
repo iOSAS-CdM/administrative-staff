@@ -1,19 +1,16 @@
 import React from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import moment from 'moment';
 
 import {
 	Card,
 	Button,
 	Flex,
-	Row,
-	Col,
 	Avatar,
 	Typography,
 	Tag,
 	Badge,
 	App,
-	Collapse,
 	Steps
 } from 'antd';
 
@@ -38,14 +35,16 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);
+	
+	const { id } = useParams();
 
 	const [thisRecord, setThisRecord] = React.useState({
-		id: '12345',
-		violation: 'Placeholder Title',
-		description: 'Placeholder Description',
+		id: '',
+		violation: '',
+		description: '',
 		tags: {
-			status: 'ongoing',
-			severity: 'Minor',
+			status: '',
+			severity: '',
 			progress: 0
 		},
 		complainants: [],
@@ -54,11 +53,11 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 		date: new Date()
 	});
 	React.useEffect(() => {
-		if (!location.state?.id) return;
-		const record = osas.records.find(r => r.id === location.state.id);
+		if (!id) return;
+		const record = osas.records.find(r => r.id === id);
 		if (record)
 			setThisRecord(record);
-	}, [location.state?.id]);
+	}, [id, osas.records]);
 
 	React.useEffect(() => {
 		setHeader({

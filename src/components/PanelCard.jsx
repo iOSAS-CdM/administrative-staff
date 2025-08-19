@@ -6,10 +6,10 @@ import { MinusOutlined, CaretDownOutlined } from '@ant-design/icons';
 
 /**
  * @param {{
- * 	title: string,
+ * 	title: String,
  * 	footer?: React.ReactNode,
  * 	children?: React.ReactNode,
- * 	contentMaxHeight?: string | number
+ * 	contentMaxHeight?: String | Number
  * } & import('antd/es/card').CardInterface} props
  * @returns {JSX.Element}
  */
@@ -39,13 +39,11 @@ const PanelCard = ({
 			style={{
 				flex: 1,
 				display: 'flex',
-				height: '100%',
 				maxHeight: collapsed ? 32 : 1024,
 				overflowY: 'hidden',
 				...props.style
 			}}
 			onClick={(e) => {
-				console.log(e.target.classList);
 				if (e.target.classList.contains('ant-card-head') || e.target.classList.contains('ant-card-head-title'))
 					setColapsed(!collapsed);
 			}}

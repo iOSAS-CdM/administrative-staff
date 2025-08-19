@@ -41,6 +41,7 @@ import DisciplinaryRecord from '../pages/dashboard/Students/Record';
 import Organizations from '../pages/dashboard/Students/Organizations';
 import Organization from '../pages/dashboard/Students/Organization';
 import CalendarPage from '../pages/dashboard/Utilities/Calendar';
+import FAQsPage from '../pages/dashboard/Utilities/FAQs';
 
 const { Text, Title } = Typography;
 
@@ -100,7 +101,7 @@ const Menubar = () => {
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
-	const { seed, setSeed } = React.useContext(SyncSeedContext);
+	const { setSeed } = React.useContext(SyncSeedContext);
 	const { loadingStates } = React.useContext(LoadingStatesContext);
 	const { osas } = React.useContext(OSASContext);
 
@@ -158,7 +159,7 @@ const Menubar = () => {
 				{ path: 'archived', element: <Profiles {...props} /> }
 			]
 		},
-		{ path: '/students/profile/*', element: <Profile {...props} /> },
+		{ path: '/students/profile/:studentId', element: <Profile {...props} /> },
 
 		{
 			path: '/students/records/*',
@@ -170,23 +171,23 @@ const Menubar = () => {
 				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
 			]
 		},
-		{ path: '/students/record/*', element: <DisciplinaryRecord {...props} /> },
+		{ path: '/students/record/:id', element: <DisciplinaryRecord {...props} /> },
 
 		{
 			path: '/students/organizations/*',
 			element: <Organizations {...props} />,
 			children: [
-				{ path: 'active', element: <DisciplinaryRecord {...props} /> },
-				{ path: 'college-wide', element: <DisciplinaryRecord {...props} /> },
-				{ path: 'institute-wide', element: <DisciplinaryRecord {...props} /> },
-				{ path: 'restricted', element: <DisciplinaryRecord {...props} /> },
-				{ path: 'archived', element: <DisciplinaryRecord {...props} /> }
+				{ path: 'active', element: <Organizations {...props} /> },
+				{ path: 'college-wide', element: <Organizations {...props} /> },
+				{ path: 'institute-wide', element: <Organizations {...props} /> },
+				{ path: 'restricted', element: <Organizations {...props} /> },
+				{ path: 'archived', element: <Organizations {...props} /> }
 			]
 		},
-		{ path: '/students/organization/*', element: <Organization {...props} /> },
+		{ path: '/students/organization/:id', element: <Organization {...props} /> },
 
 		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
-		{ path: '/utilities/faqs', element: <p>FAQs</p> },
+		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
 		{ path: '/utilities/announcements', element: <p>Announcements</p> },
 		{ path: '/utilities/repository', element: <p>Repository</p> },
 		{ path: '/helpbot', element: <p>Helpbot</p> }
@@ -285,13 +286,13 @@ const Menubar = () => {
 			key: 'home',
 			label: 'Home',
 			icon: <HomeOutlined />,
-			onClick: () => navigate('/dashboard/home')
+			onClick: () => navigate('/dashboard/home', { replace: true })
 		},
 		{
 			key: 'notifications',
 			label: 'Notifications',
 			icon: <NotificationOutlined />,
-			onClick: () => navigate('/dashboard/notifications')
+			onClick: () => navigate('/dashboard/notifications', { replace: true })
 		},
 		{
 			key: 'students',
@@ -301,17 +302,17 @@ const Menubar = () => {
 				{
 					key: 'profiles',
 					label: 'Profiles',
-					onClick: () => navigate('/dashboard/students/profiles')
+					onClick: () => navigate('/dashboard/students/profiles/active', { replace: true })
 				},
 				{
 					key: 'records',
 					label: 'Disciplinary Records',
-					onClick: () => navigate('/dashboard/students/records')
+					onClick: () => navigate('/dashboard/students/records/ongoing', { replace: true })
 				},
 				{
 					key: 'organizations',
 					label: 'Organizations',
-					onClick: () => navigate('/dashboard/students/organizations')
+					onClick: () => navigate('/dashboard/students/organizations/active', { replace: true })
 				}
 			]
 		},
@@ -323,22 +324,22 @@ const Menubar = () => {
 				{
 					key: 'calendar',
 					label: 'Calendar',
-					onClick: () => navigate('/dashboard/utilities/calendar')
+					onClick: () => navigate('/dashboard/utilities/calendar', { replace: true })
 				},
 				{
 					key: 'faqs',
 					label: 'FAQs',
-					onClick: () => navigate('/dashboard/utilities/faqs')
+					onClick: () => navigate('/dashboard/utilities/faqs', { replace: true })
 				},
 				{
 					key: 'announcements',
 					label: 'Announcements',
-					onClick: () => navigate('/dashboard/utilities/announcements')
+					onClick: () => navigate('/dashboard/utilities/announcements', { replace: true })
 				},
 				{
 					key: 'repository',
 					label: 'Repository',
-					onClick: () => navigate('/dashboard/utilities/repository')
+					onClick: () => navigate('/dashboard/utilities/repository', { replace: true })
 				}
 			]
 		},
@@ -346,7 +347,7 @@ const Menubar = () => {
 			key: 'helpbot',
 			label: 'Helpbot',
 			icon: <RobotOutlined />,
-			onClick: () => navigate('/dashboard/helpbot')
+			onClick: () => navigate('/dashboard/helpbot', { replace: true })
 		}
 	];
 
@@ -412,7 +413,7 @@ const Menubar = () => {
 								type='primary'
 								icon={<LogoutOutlined />}
 								onClick={() => {
-									navigate('/');
+									navigate('/'), { replace: true };
 								}}
 								style={{ width: '100%' }}
 							>

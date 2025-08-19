@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useRoutes, Navigate } from 'react-router';
+import { useNavigate, useRoutes } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -87,7 +87,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState(location.pathname.split('/').pop() || 'active');
+	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
 	/**
 	 * @typedef {{
 	 * 		severity: import('../../../classes/Record').RecordSeverity[]
@@ -151,7 +151,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [filteredRecords]);
 
 	const routes = useRoutes([
-		{ path: '/', element: <Navigate to='active' replace /> },
 		{ path: '/active', element: <CategoryPage categorizedRecords={categorizedRecords.active} /> },
 		{ path: '/ongoing', element: <CategoryPage categorizedRecords={categorizedRecords.ongoing} /> },
 		{ path: '/resolved', element: <CategoryPage categorizedRecords={categorizedRecords.resolved} /> },
@@ -190,7 +189,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 					]}
 					value={category}
 					onChange={(value) => {
-						setCategory(value);
 						navigate(`/dashboard/students/records/${value}`);
 					}}
 				/>,
@@ -284,9 +282,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 										style={{ cursor: 'pointer' }}
 										onClick={(e) => {
 											e.stopPropagation();
-											navigate(`/dashboard/students/profile/${complainant.studentId}`, {
-												state: { studentId: complainant.studentId }
-											});
+											navigate(`/dashboard/students/profile/${complainant.studentId}`);
 										}}
 									/>
 								))}
@@ -302,9 +298,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 											style={{ cursor: 'pointer' }}
 											onClick={(e) => {
 												e.stopPropagation();
-												navigate(`/dashboard/students/profile/${complainee.student.studentId}`, {
-													state: { studentId: complainee.student.studentId }
-												});
+												navigate(`/dashboard/students/profile/${complainee.student.studentId}`);
 											}}
 										/>
 									</Badge>
@@ -333,9 +327,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 							centered: true
 						});
 					} else {
-						navigate(`/dashboard/students/record/${thisRecord.id}`, {
-							state: { id: thisRecord.id }
-						});
+						navigate(`/dashboard/students/record/${thisRecord.id}`);
 					};
 				}}
 			>

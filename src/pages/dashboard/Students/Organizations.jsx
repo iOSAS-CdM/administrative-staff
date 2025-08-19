@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate, useRoutes, Navigate } from 'react-router';
+import { useLocation, useNavigate, useRoutes } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -42,7 +42,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState(location.pathname.split('/').pop() || 'active');
+	const [category, setCategory] = React.useState();
 	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
 
@@ -74,43 +74,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		return categorized;
 	}, [osas.organizations, category]);
 
-	// React.useEffect(() => {
-	// 	if (osas.organizations.length > 0)
-	// 		setOrganizations(osas.organizations);
-	// }, [osas.organizations]);
-
-	// React.useEffect(() => {
-	// 	if (organizations.length > 0)
-	// 		setCategorizedOrganizations(organizations.filter(organization => (
-	// 			organization.status === category ||
-	// 			(organization.type === category && (category === 'college-wide' || category === 'institute-wide')) && organization.status === 'active' ||
-	// 			(organization.status === 'active' && category === 'active') ||
-	// 			(organization.status === 'restricted' && category === 'restricted') ||
-	// 			(organization.status === 'archived' && category === 'archived')
-	// 		)));
-	// }, [organizations, category]);
-
-	// React.useEffect(() => {
-	// 	if (search.trim() === '') {
-	// 		setDisplayedOrganizations(categorizedOrganizations);
-	// 		return;
-	// 	};
-
-	// 	const searchTerm = search.toLowerCase();
-	// 	const searchedOrganizations = categorizedOrganizations.filter(organization => {
-	// 		const fullName = organization.fullName.toLowerCase();
-	// 		const shortName = organization.shortName.toLowerCase();
-	// 		return fullName.includes(searchTerm) || shortName.includes(searchTerm);
-	// 	});
-
-	// 	setDisplayedOrganizations([]);
-	// 	requestAnimationFrame(() => {
-	// 		setDisplayedOrganizations(searchedOrganizations);
-	// 	});
-	// }, [search, categorizedOrganizations]);
-
 	const routes = useRoutes([
-		{ path: '/', element: <Navigate to='active' replace /> },
 		{ path: '/active', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['active']} /> },
 		{ path: '/college-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['college-wide']} /> },
 		{ path: '/institute-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['institute-wide']} /> },
@@ -149,7 +113,6 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 					]}
 					value={category}
 					onChange={(value) => {
-						setCategory(value);
 						navigate(`/dashboard/students/organizations/${value}`);
 					}}
 				/>

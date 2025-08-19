@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 
 import {
 	Card,
@@ -33,25 +33,28 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);
 
+	const { id } = useParams();
+
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState({
-		id: 'org-1',
-		shortName: 'Org 1',
-		fullName: 'Organization One',
-		description: 'This is a sample organization.',
-		email: 'org1@example.com',
-		logo: '/Placeholder Image.svg',
-		cover: '/Placeholder Image.svg',
-		status: 'active',
-		type: 'college-wide',
+		placeholder: true,
+		id: '',
+		shortName: '',
+		fullName: '',
+		description: '',
+		email: '',
+		logo: '',
+		cover: '',
+		status: '',
+		type: '',
 		members: []
 	});
 	React.useEffect(() => {
-		if (!location.state?.id) return;
-		const organization = osas.organizations.find(o => o.id === location.state.id);
+		if (!id) return;
+		const organization = osas.organizations.find(o => o.id === id);
 		if (organization)
 			setThisOrganization(organization);
-	}, [location.state?.id]);
+	}, [id, osas.organizations]);
 
 	React.useEffect(() => {
 		setHeader({
@@ -75,34 +78,34 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		if (thisOrganization.placeholder) {
 			setRepository([]);
-		} else {
-			setRepository([
-				{
-					name: 'Document 1',
-					extension: 'pdf',
-					id: 'doc-1',
-					thumbnail: '/Placeholder Image.svg'
-				},
-				{
-					name: 'Document 2',
-					extension: 'pdf',
-					id: 'doc-2',
-					thumbnail: '/Placeholder Image.svg'
-				},
-				{
-					name: 'Image 1',
-					extension: 'jpg',
-					id: 'img-1',
-					thumbnail: '/Placeholder Image.svg'
-				},
-				{
-					name: 'Image 2',
-					extension: 'png',
-					id: 'img-2',
-					thumbnail: '/Placeholder Image.svg'
-				}
-			]);
+			return;
 		};
+		setRepository([
+			{
+				name: 'Document 1',
+				extension: 'pdf',
+				id: 'doc-1',
+				thumbnail: '/Placeholder Image.svg'
+			},
+			{
+				name: 'Document 2',
+				extension: 'pdf',
+				id: 'doc-2',
+				thumbnail: '/Placeholder Image.svg'
+			},
+			{
+				name: 'Image 1',
+				extension: 'jpg',
+				id: 'img-1',
+				thumbnail: '/Placeholder Image.svg'
+			},
+			{
+				name: 'Image 2',
+				extension: 'png',
+				id: 'img-2',
+				thumbnail: '/Placeholder Image.svg'
+			}
+		]);
 	}, [thisOrganization]);
 
 	const app = App.useApp();
@@ -120,7 +123,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 							<Image
 								src={thisOrganization.cover || '/Placeholder Image.svg'}
 								alt={`${thisOrganization.shortName} Cover`}
-								style={{ aspectRatio: mobile ? '2/1' : '6/1', objectFit: 'cover' }}
+								style={{ borderRadius: 'var(--ant-border-radius-outer)', aspectRatio: mobile ? '2/1' : '6/1', objectFit: 'cover', overflow: 'hidden' }}
 							/>
 						}
 					>

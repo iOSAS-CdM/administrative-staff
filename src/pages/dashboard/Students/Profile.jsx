@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import moment from 'moment';
 
 import {
@@ -42,41 +42,66 @@ const Calendar = ({ events }) => {
 			onPanelChange={(date) => {
 				setValue(date);
 			}}
-			fullCellRender={(date) => {
-				const eventsForDate = events.find(event =>
-					event.date.getDate() === date.date()
-					&& event.date.getMonth() === date.month()
-					&& event.date.getFullYear() === date.year()
-				)?.events || [];
-				return (
-					<Badge
-						color={
-							date.month() === value.month()
-								&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
-						}
-						size='small'
-						count={eventsForDate.length}
-						style={{
-							opacity: date.month() === value.month()
-								&& date.year() === value.year() ? 1 : 0.5
-						}}
-					>
-						<Button
-							type={
-								date.date() === value.date()
-									&& date.month() === value.month()
-									&& date.year() === value.year() ? 'primary' : 'text'
+			fullCellRender={(date, info) => {
+				if (info.type === 'date') {
+					const eventsForDate = events.find(event =>
+						event.date.getDate() === date.date()
+						&& event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					)?.events || [];
+					return (
+						<Badge
+							color={
+								date.month() === value.month()
+									&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
 							}
+							size='small'
+							count={eventsForDate.length}
 							style={{
 								opacity: date.month() === value.month()
 									&& date.year() === value.year() ? 1 : 0.5
 							}}
-							size='small'
 						>
-							{`${date.date()}`.padStart(2, '0')}
-						</Button>
-					</Badge>
-				)
+							<Button
+								type={
+									date.date() === value.date()
+										&& date.month() === value.month()
+										&& date.year() === value.year() ? 'primary' : 'text'
+								}
+								style={{
+									opacity: date.month() === value.month()
+										&& date.year() === value.year() ? 1 : 0.5
+								}}
+								size='small'
+							>
+								{`${date.date()}`.padStart(2, '0')}
+							</Button>
+						</Badge>
+					);
+				} else {
+					const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+					let eventCount = 0;
+					const eventsForMonth = events.filter(event =>
+						event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					);
+					for (const day of eventsForMonth)
+						eventCount += day.events.length;
+					return (
+						<Badge
+							count={eventCount}
+						>
+							<Button
+								type={
+									date.month() === value.month()
+										&& date.year() === value.year() ? 'primary' : 'text'
+								}
+							>
+								{months[date.month()]}
+							</Button>
+						</Badge>
+					);
+				};
 			}}
 			style={{ minWidth: 256 }}
 		/>
@@ -107,23 +132,25 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		setSelectedKeys(['profiles']);
 	}, [setSelectedKeys]);
 
+	const { studentId } = useParams();
+
 	/** @type {[import('../../../classes/Student').StudentProps, React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps>>]} */
 	const [thisStudent, setThisStudent] = React.useState({
 		placeholder: true,
 		name: {
-			first: 'Placeholder',
-			middle: 'Student',
-			last: 'Profile'
+			first: '',
+			middle: '',
+			last: ''
 		},
-		studentId: '00000000',
-		email: 'placeholder@student.com'
+		studentId: '',
+		email: ''
 	});
 	React.useEffect(() => {
-		if (!location.state?.studentId) return;
-		const student = osas.students.find(s => s.studentId === location.state.studentId);
+		if (!studentId) return;
+		const student = osas.students.find(s => s.studentId === studentId);
 		if (student)
 			setThisStudent(student);
-	}, [location.state?.studentId]);
+	}, [studentId, osas.students]);
 
 	const [organizations, setOrganizations] = React.useState([]);
 	React.useEffect(() => {

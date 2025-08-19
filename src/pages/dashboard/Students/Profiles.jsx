@@ -22,7 +22,6 @@ import {
 } from 'antd';
 
 import {
-	SearchOutlined,
 	FilterOutlined,
 	EditOutlined,
 	LockOutlined,
@@ -179,7 +178,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState(location.pathname.split('/').pop() || 'active');
+	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
 	/**
 	 * @typedef {{
 	 * 		years: Number[],
@@ -293,7 +292,6 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 					]}
 					value={category}
 					onChange={(value) => {
-						setCategory(value);
 						navigate(`/dashboard/students/profiles/${value}`);
 					}}
 				/>,
@@ -317,7 +315,6 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
 	const routes = useRoutes([
-		{ path: '/', element: <Navigate to='active' replace /> },
 		{ path: '/active', element: <CategoryPage institutionalizedStudents={categorizedStudents.active} /> },
 		{ path: '/ics', element: <CategoryPage institutionalizedStudents={categorizedStudents.ics} /> },
 		{ path: '/ite', element: <CategoryPage institutionalizedStudents={categorizedStudents.ite} /> },
@@ -372,9 +369,7 @@ const StudentCard = ({ student, loading, navigate }) => {
 						centered: true
 					});
 				else
-					navigate(`/dashboard/students/profile/${thisStudent.studentId}`, {
-						state: { studentId: thisStudent.studentId }
-					});
+					navigate(`/dashboard/students/profile/${thisStudent.studentId}`);
 			}}
 		>
 			<Flex justify='flex-start' align='center' gap={16} style={{ width: '100%' }}>
