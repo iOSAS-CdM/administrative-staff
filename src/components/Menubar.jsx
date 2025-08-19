@@ -172,8 +172,20 @@ const Menubar = () => {
 			]
 		},
 		{ path: '/students/record/*', element: <DisciplinaryRecord {...props} /> },
-		{ path: '/students/organizations', element: <Organizations {...props} /> },
-		{ path: '/students/organizations/*', element: <Organization {...props} /> },
+
+		{
+			path: '/students/organizations/*',
+			element: <Organizations {...props} />,
+			children: [
+				{ path: 'active', element: <DisciplinaryRecord {...props} /> },
+				{ path: 'college-wide', element: <DisciplinaryRecord {...props} /> },
+				{ path: 'institute-wide', element: <DisciplinaryRecord {...props} /> },
+				{ path: 'restricted', element: <DisciplinaryRecord {...props} /> },
+				{ path: 'archived', element: <DisciplinaryRecord {...props} /> }
+			]
+		},
+		{ path: '/students/organization/*', element: <Organization {...props} /> },
+
 		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
 		{ path: '/utilities/faqs', element: <p>FAQs</p> },
 		{ path: '/utilities/announcements', element: <p>Announcements</p> },

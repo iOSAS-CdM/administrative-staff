@@ -276,7 +276,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 											key={index}
 											size='small'
 											onClick={() => {
-												navigate(`/dashboard/students/organizations/${organization.id}`, {
+												navigate(`/dashboard/students/organization/${organization.id}`, {
 													state: { id: organization.id }
 												});
 											}}

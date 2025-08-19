@@ -1,10 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate, useRoutes, Navigate } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import {
 	App,
 	Input,
-	Button,
 	Segmented,
 	Flex,
 	Empty,
@@ -38,53 +38,85 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);
 
+	const location = useLocation();
+
 	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState('active');
+	const [category, setCategory] = React.useState(location.pathname.split('/').pop() || 'active');
 	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
 
-	/** @type {OrganizationsState} */
-	const [organizations, setOrganizations] = React.useState([]);
-	/** @type {OrganizationsState} */
-	const [categorizedOrganizations, setCategorizedOrganizations] = React.useState([]);
-	/** @type {OrganizationsState} */
-	const [displayedOrganizations, setDisplayedOrganizations] = React.useState([]);
-
-	React.useEffect(() => {
-		if (osas.organizations.length > 0)
-			setOrganizations(osas.organizations);
-	}, [osas.organizations]);
-
-	React.useEffect(() => {
-		if (organizations.length > 0)
-			setCategorizedOrganizations(organizations.filter(organization => (
-				organization.status === category ||
-				(organization.type === category && (category === 'college-wide' || category === 'institute-wide')) && organization.status === 'active' ||
-				(organization.status === 'active' && category === 'active') ||
-				(organization.status === 'restricted' && category === 'restricted') ||
-				(organization.status === 'archived' && category === 'archived')
-			)));
-	}, [organizations, category]);
-
-	React.useEffect(() => {
-		if (search.trim() === '') {
-			setDisplayedOrganizations(categorizedOrganizations);
-			return;
+	/**
+	 * @type {{
+	 * 	active: Organization[],
+	 * 	'college-wide': Organization[],
+	 * 	'institute-wide': Organization[],
+	 * 	restricted: Organization[],
+	 * 	archived: Organization[]
+	 * }}
+	 */
+	const categorizedOrganizations = React.useMemo(() => {
+		const categorized = {
+			active: [],
+			'college-wide': [],
+			'institute-wide': [],
+			restricted: [],
+			archived: []
 		};
 
-		const searchTerm = search.toLowerCase();
-		const searchedOrganizations = categorizedOrganizations.filter(organization => {
-			const fullName = organization.fullName.toLowerCase();
-			const shortName = organization.shortName.toLowerCase();
-			return fullName.includes(searchTerm) || shortName.includes(searchTerm);
-		});
+		for (const organization of osas.organizations) {
+			categorized[organization.status].push(organization);
 
-		setDisplayedOrganizations([]);
-		requestAnimationFrame(() => {
-			setDisplayedOrganizations(searchedOrganizations);
-		});
-	}, [search, categorizedOrganizations]);
+			if (organization.status === 'active')
+				categorized[organization.type].push(organization);
+		};
+
+		return categorized;
+	}, [osas.organizations, category]);
+
+	// React.useEffect(() => {
+	// 	if (osas.organizations.length > 0)
+	// 		setOrganizations(osas.organizations);
+	// }, [osas.organizations]);
+
+	// React.useEffect(() => {
+	// 	if (organizations.length > 0)
+	// 		setCategorizedOrganizations(organizations.filter(organization => (
+	// 			organization.status === category ||
+	// 			(organization.type === category && (category === 'college-wide' || category === 'institute-wide')) && organization.status === 'active' ||
+	// 			(organization.status === 'active' && category === 'active') ||
+	// 			(organization.status === 'restricted' && category === 'restricted') ||
+	// 			(organization.status === 'archived' && category === 'archived')
+	// 		)));
+	// }, [organizations, category]);
+
+	// React.useEffect(() => {
+	// 	if (search.trim() === '') {
+	// 		setDisplayedOrganizations(categorizedOrganizations);
+	// 		return;
+	// 	};
+
+	// 	const searchTerm = search.toLowerCase();
+	// 	const searchedOrganizations = categorizedOrganizations.filter(organization => {
+	// 		const fullName = organization.fullName.toLowerCase();
+	// 		const shortName = organization.shortName.toLowerCase();
+	// 		return fullName.includes(searchTerm) || shortName.includes(searchTerm);
+	// 	});
+
+	// 	setDisplayedOrganizations([]);
+	// 	requestAnimationFrame(() => {
+	// 		setDisplayedOrganizations(searchedOrganizations);
+	// 	});
+	// }, [search, categorizedOrganizations]);
+
+	const routes = useRoutes([
+		{ path: '/', element: <Navigate to='active' replace /> },
+		{ path: '/active', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['active']} /> },
+		{ path: '/college-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['college-wide']} /> },
+		{ path: '/institute-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['institute-wide']} /> },
+		{ path: '/restricted', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['restricted']} /> },
+		{ path: '/archived', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['archived']} /> }
+	]);
 
 	React.useEffect(() => {
 		setHeader({
@@ -118,6 +150,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 					value={category}
 					onChange={(value) => {
 						setCategory(value);
+						navigate(`/dashboard/students/organizations/${value}`);
 					}}
 				/>
 			]
@@ -128,28 +161,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{/************************** Student Organizations **************************/}
-			{displayedOrganizations.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					{displayedOrganizations.map((organization, index) => (
-						<Col key={organization.id} span={!mobile ? 8 : 24}>
-							<OrganizationCard
-								organization={organization}
-								loading={organization.placeholder}
-								navigate={navigate}
-							/>
-						</Col>
-					))}
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{organizations.length !== 0 ? (
-						<Spin />
-					) : (
-						<Empty description='No profiles found' />
-					)}
-				</div>
-			)}
+			{routes}
 		</Flex>
 	);
 };
@@ -202,7 +214,7 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
 					});
 					return;
 				};
-				navigate(`/dashboard/students/organizations/${thisOrganization.id}`, {
+				navigate(`/dashboard/students/organization/${thisOrganization.id}`, {
 					state: { id: thisOrganization.id }
 				});
 			}}
@@ -253,5 +265,52 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
 				</Avatar.Group>
 			</Flex>
 		</ItemCard>
+	);
+};
+
+/**
+ * @param {{
+ * 	categorizedOrganizations: Organization[];
+ * }} props
+ * @returns {JSX.Element}
+ */
+const CategoryPage = ({ categorizedOrganizations }) => {
+	const navigate = useNavigate();
+	const { mobile } = React.useContext(MobileContext);
+	const { osas } = React.useContext(OSASContext);
+	return (
+		<>
+			{categorizedOrganizations.length > 0 ? (
+				<Row gutter={[16, 16]}>
+					<AnimatePresence mode='popLayout'>
+						{categorizedOrganizations.map((organization, index) => (
+							<Col key={organization.id} span={!mobile ? 12 : 24}>
+								<motion.div
+									key={index}
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -20 }}
+									transition={{ duration: 0.3, delay: index * 0.05 }}
+								>
+									<OrganizationCard
+										organization={organization}
+										loading={organization.placeholder}
+										navigate={navigate}
+									/>
+								</motion.div>
+							</Col>
+						))}
+					</AnimatePresence>
+				</Row>
+			) : (
+				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+					{osas.organizations.length !== 0 ? (
+						<Spin />
+					) : (
+						<Empty description='No organizations found' />
+					)}
+				</div>
+			)}
+		</>
 	);
 };
