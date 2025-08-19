@@ -63,11 +63,11 @@ const ReloadButton = ({ setSeed }) => {
 	const [shiftPressed, setShiftPressed] = React.useState(false);
 	React.useEffect(() => {
 		const handleKeyDown = (event) => {
-			if (event.key === 'Shift')
+			if (event.key === 'Shift' || event.key === 'Control')
 				setShiftPressed(true);
 		};
 		const handleKeyUp = (event) => {
-			if (event.key === 'Shift')
+			if (event.key === 'Shift' || event.key === 'Control')
 				setShiftPressed(false);
 		};
 		window.addEventListener('keydown', handleKeyDown);
