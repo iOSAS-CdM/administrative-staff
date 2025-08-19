@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useLocation, useParams, useNavigate } from 'react-router';
 import moment from 'moment';
 
 import {
@@ -13,7 +13,10 @@ import {
 	Typography,
 	Calendar as AntCalendar,
 	Tag,
-	App
+	App,
+	Row,
+	Col,
+	Empty
 } from 'antd';
 
 import {
@@ -31,15 +34,101 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
+import { RecordCard } from './Records';
 
 import { MobileContext, OSASContext } from '../../../main';
 
 const Calendar = ({ events }) => {
 	const [value, setValue] = React.useState(moment());
+	const { mobile } = React.useContext(MobileContext);
+
+	const navigate = useNavigate();
+
+	const app = App.useApp();
+	const Modal = app.modal;
+
 	return (
 		<AntCalendar
 			fullscreen={false}
 			onPanelChange={(date) => setValue(date)}
+			onSelect={(date, info) => {
+				if (info.source === 'date') {
+					const eventsForDate = events.find(event =>
+						event.date.getDate() === date.date()
+						&& event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					)?.events || [];
+					const modal = Modal.info({
+						title: `Events for ${date.format('MMMM D, YYYY')}`,
+						centered: true,
+						closable: { 'aria-label': 'Close' },
+						content: (
+							<>
+								{
+									eventsForDate.length !== 0 ? (
+										<Row gutter={[16, 16]}>
+											{eventsForDate.map((event, index) => (
+												event.type === 'disciplinary' ? (
+													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+														<RecordCard record={event.content} loading={false} navigate={navigate} />
+													</Col>
+												) : null
+											))}
+										</Row>
+									) : (
+										<Empty description='No events found' />
+									)
+								}
+							</>
+						),
+						width: {
+							xs: '100%',
+							sm: '100%',
+							md: '100%',
+							lg: 512, // 2^9
+							xl: 1024, // 2^10
+							xxl: 1024 // 2^10
+						}
+					});
+				} else {
+					const eventsForMonth = events.filter(event =>
+						event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					).flatMap(day => day.events).sort((a, b) => a.content.date - b.content.date);
+					const modal = Modal.info({
+						title: `Events for ${date.format('MMMM YYYY')}`,
+						centered: true,
+						closable: { 'aria-label': 'Close' },
+						content: (
+							<>
+								{
+									eventsForMonth.length !== 0 ? (
+										<Row gutter={[16, 16]}>
+											{eventsForMonth.map((event, index) => (
+												event.type === 'disciplinary' ? (
+													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+														<RecordCard record={event.content} loading={false} navigate={navigate} />
+													</Col>
+												) : null
+											))}
+										</Row>
+									) : (
+										<Empty description='No events found' />
+									)
+								}
+							</>
+						),
+						width: {
+							xs: '100%',
+							sm: '100%',
+							md: '100%',
+							lg: 512, // 2^9
+							xl: 1024, // 2^10
+							xxl: 1024 // 2^10
+						}
+					});
+				};
+			}}
 			fullCellRender={(date, info) => {
 				if (info.type === 'date') {
 					const eventsForDate = events.find(event =>

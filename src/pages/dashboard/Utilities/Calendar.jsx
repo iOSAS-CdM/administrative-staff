@@ -12,7 +12,8 @@ import {
 	Dropdown,
 	App,
 	Row,
-	Col
+	Col,
+	Empty
 } from 'antd';
 
 import {
@@ -183,15 +184,60 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									centered: true,
 									closable: { 'aria-label': 'Close' },
 									content: (
-										<Row gutter={[16, 16]}>
-											{eventsForDate.map((event, index) => (
-												event.type === 'disciplinary' ? (
-													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-														<RecordCard record={event.content} loading={false} navigate={navigate} />
-													</Col>
-												) : null
-											))}
-										</Row>
+										<>
+											{
+												eventsForDate.length !== 0 ? (
+													<Row gutter={[16, 16]}>
+														{eventsForDate.map((event, index) => (
+															event.type === 'disciplinary' ? (
+																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+																	<RecordCard record={event.content} loading={false} navigate={navigate} />
+																</Col>
+															) : null
+														))}
+													</Row>
+												) : (
+													<Empty description='No events found' />
+												)
+											}
+										</>
+									),
+									width: {
+										xs: '100%',
+										sm: '100%',
+										md: '100%',
+										lg: 512, // 2^9
+										xl: 1024, // 2^10
+										xxl: 1024 // 2^10
+									}
+								});
+							} else {
+								const eventsForMonth = events.filter(event =>
+									event.date.getMonth() === date.month()
+									&& event.date.getFullYear() === date.year()
+								).flatMap(day => day.events).sort((a, b) => a.content.date - b.content.date);
+								const modal = Modal.info({
+									title: `Events for ${date.format('MMMM YYYY')}`,
+									centered: true,
+									closable: { 'aria-label': 'Close' },
+									content: (
+										<>
+											{
+												eventsForMonth.length !== 0 ? (
+													<Row gutter={[16, 16]}>
+														{eventsForMonth.map((event, index) => (
+															event.type === 'disciplinary' ? (
+																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+																	<RecordCard record={event.content} loading={false} navigate={navigate} />
+																</Col>
+															) : null
+														))}
+													</Row>
+												) : (
+													<Empty description='No events found' />
+												)
+											}
+										</>
 									),
 									width: {
 										xs: '100%',
