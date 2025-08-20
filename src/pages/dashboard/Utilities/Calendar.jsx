@@ -299,5 +299,3 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 };
 
 export default CalendarPage;
-
-// function(current: dayjs, info: { prefixCls: string, originNode: React.ReactElement, today: dayjs, range?: 'start' | 'end', type: PanelMode, locale?: Locale, subType?: 'hour' | 'minute' | 'second' | 'meridiem' }) => React.ReactNode

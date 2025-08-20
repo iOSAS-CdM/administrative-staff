@@ -51,7 +51,7 @@ const PanelCard = ({
 			<Flex vertical gap={8} style={{ position: 'relative' }}>
 				<Flex vertical gap={8} style={{ flex: 1, minHeight: 128 }}>
 					{children || (
-						<Empty description='No content found' style={{ position: 'absolute', height: 128, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+						<Empty description='Empty' style={{ position: 'absolute', height: 128, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
 					)}
 				</Flex>
 

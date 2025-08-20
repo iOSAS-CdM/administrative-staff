@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import { useNavigate } from 'react-router';
 import { Pie, Line } from '@ant-design/charts';
 
 import {
@@ -11,16 +12,18 @@ import {
 	Col,
 	Skeleton,
 	Badge,
-	Button
+	Button,
+	App
 } from 'antd';
 
-import { LoadingStatesContext, OSASContext } from '../../main';
+import { LoadingStatesContext, OSASContext, MobileContext } from '../../main';
 
 const { Title, Text } = Typography;
 
 import rootToHex from '../../utils/rootToHex';
 
 import PanelCard from '../../components/PanelCard';
+import { RecordCard } from './Students/Records';
 
 const Timer = () => {
 	const [time, setTime] = React.useState({
@@ -86,48 +89,157 @@ const Timer = () => {
 
 const Calendar = ({ events }) => {
 	const [value, setValue] = React.useState(moment());
+	const { mobile } = React.useContext(MobileContext);
+
+	const navigate = useNavigate();
+
+	const app = App.useApp();
+	const Modal = app.modal;
+
 	return (
 		<AntCalendar
 			fullscreen={false}
-			onPanelChange={(date) => {
-				setValue(date);
-			}}
-			fullCellRender={(date) => {
-				const eventsForDate = events.find(event =>
-					event.date.getDate() === date.date()
-					&& event.date.getMonth() === date.month()
-					&& event.date.getFullYear() === date.year()
-				)?.events || [];
-				return (
-					<Badge
-						color={
-							date.month() === value.month()
-								&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
+			onPanelChange={(date) => setValue(date)}
+			onSelect={(date, info) => {
+				if (info.source === 'date') {
+					const eventsForDate = events.find(event =>
+						event.date.getDate() === date.date()
+						&& event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					)?.events || [];
+					const modal = Modal.info({
+						title: `Events for ${date.format('MMMM D, YYYY')}`,
+						centered: true,
+						closable: { 'aria-label': 'Close' },
+						content: (
+							<>
+								{
+									eventsForDate.length !== 0 ? (
+										<Row gutter={[16, 16]}>
+											{eventsForDate.map((event, index) => (
+												event.type === 'disciplinary' ? (
+													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+														<RecordCard record={event.content} loading={false} navigate={navigate} />
+													</Col>
+												) : null
+											))}
+										</Row>
+									) : (
+										<Empty description='No events found' />
+									)
+								}
+							</>
+						),
+						width: {
+							xs: '100%',
+							sm: '100%',
+							md: '100%',
+							lg: 512, // 2^9
+							xl: 1024, // 2^10
+							xxl: 1024 // 2^10
 						}
-						size='small'
-						count={eventsForDate.length}
-						style={{
-							opacity: date.month() === value.month()
-								&& date.year() === value.year() ? 1 : 0.5
-						}}
-					>
-						<Button
-							type={
-								date.date() === value.date()
-									&& date.month() === value.month()
-									&& date.year() === value.year() ? 'primary' : 'text'
+					});
+				} else {
+					const eventsForMonth = events.filter(event =>
+						event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					).flatMap(day => day.events).sort((a, b) => a.content.date - b.content.date);
+					const modal = Modal.info({
+						title: `Events for ${date.format('MMMM YYYY')}`,
+						centered: true,
+						closable: { 'aria-label': 'Close' },
+						content: (
+							<>
+								{
+									eventsForMonth.length !== 0 ? (
+										<Row gutter={[16, 16]}>
+											{eventsForMonth.map((event, index) => (
+												event.type === 'disciplinary' ? (
+													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+														<RecordCard record={event.content} loading={false} navigate={navigate} />
+													</Col>
+												) : null
+											))}
+										</Row>
+									) : (
+										<Empty description='No events found' />
+									)
+								}
+							</>
+						),
+						width: {
+							xs: '100%',
+							sm: '100%',
+							md: '100%',
+							lg: 512, // 2^9
+							xl: 1024, // 2^10
+							xxl: 1024 // 2^10
+						}
+					});
+				};
+			}}
+			fullCellRender={(date, info) => {
+				if (info.type === 'date') {
+					const eventsForDate = events.find(event =>
+						event.date.getDate() === date.date()
+						&& event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					)?.events || [];
+					return (
+						<Badge
+							color={
+								date.month() === value.month()
+									&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
 							}
+							size='small'
+							count={eventsForDate.length}
 							style={{
 								opacity: date.month() === value.month()
 									&& date.year() === value.year() ? 1 : 0.5
 							}}
-							size='small'
 						>
-							{`${date.date()}`.padStart(2, '0')}
-						</Button>
-					</Badge>
-				)
+							<Button
+								type={
+									date.date() === value.date()
+										&& date.month() === value.month()
+										&& date.year() === value.year() ? 'primary' : 'text'
+								}
+								style={{
+									opacity: date.month() === value.month()
+										&& date.year() === value.year() ? 1 : 0.5
+								}}
+								size='small'
+							>
+								{`${date.date()}`.padStart(2, '0')}
+							</Button>
+						</Badge>
+					);
+				} else {
+					const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+					let eventCount = 0;
+					const eventsForMonth = events.filter(event =>
+						event.date.getMonth() === date.month()
+						&& event.date.getFullYear() === date.year()
+					);
+					for (const day of eventsForMonth)
+						eventCount += day.events.length;
+					return (
+						<Badge
+							count={eventCount}
+						>
+							<Button
+								type={
+									date.month() === value.month()
+										&& date.year() === value.year() ? 'primary' : 'text'
+								}
+							>
+								{months[date.month()]}
+							</Button>
+						</Badge>
+					);
+				};
 			}}
+			style={{ minWidth: 256 }}
 		/>
 	);
 };

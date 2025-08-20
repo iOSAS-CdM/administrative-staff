@@ -9,27 +9,30 @@ import {
 
  /**
   * @typedef {{
-  * 	content: React.ReactNode,
-  * 	onClick?: Function
+  * 	content: React.ReactNode;
+  * 	icon: React.ReactNode;
+  * 	type: 'primary' | 'default' | 'dashed' | 'text' | 'link';
+  * 	danger?: boolean;
+  * 	onClick?: Function;
   * }} ItemCardActionButton
   */
 
 /**
 * @typedef {{
-* 	content: React.ReactNode,
-* 	align?: 'left' | 'center' | 'right'
+* 	content: React.ReactNode;
+* 	align?: 'left' | 'center' | 'right';
 * }} ItemCardAction
  */
 
 /**
  * @typedef {{
- *	loading: Boolean,
- * 	title: React.ReactNode,
- * 	extra: React.ReactNode,
- * 	status: String,
- * 	children: React.ReactNode,
- * 	style?: React.CSSProperties,
- * 	className?: String
+ *	loading: Boolean;
+ * 	title: React.ReactNode;
+ * 	extra: React.ReactNode;
+ * 	status: String;
+ * 	children: React.ReactNode;
+ * 	style?: React.CSSProperties;
+ * 	className?: String;
  * } & import('antd/es/card').CardInterface} ItemCardBaseProps
  */
 
@@ -68,7 +71,7 @@ const ItemCard = ({
 					<Flex vertical gap={8}>
 						<Divider />
 
-						<Flex justify='space-between' align='center'>
+						<Flex justify='space-between' align='center' gap={16}>
 							{(() => {
 								const toReturn = [];
 
@@ -79,9 +82,11 @@ const ItemCard = ({
 										toReturn.push(
 											<Button
 												key={`action-${i}`}
-												type='text'
+												type={action.type || 'text'}
 												size='small'
+												danger={action.danger}
 												style={{ width: '100%' }}
+												icon={action.icon}
 												onClick={typeof action.onClick === 'function' ? action.onClick : undefined}
 											>
 												{action.content}
