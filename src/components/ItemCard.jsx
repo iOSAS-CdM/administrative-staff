@@ -13,6 +13,7 @@ import {
   * 	icon: React.ReactNode;
   * 	type: 'primary' | 'default' | 'dashed' | 'text' | 'link';
   * 	danger?: boolean;
+  * 	style?: React.CSSProperties;
   * 	onClick?: Function;
   * }} ItemCardActionButton
   */
@@ -21,6 +22,7 @@ import {
 * @typedef {{
 * 	content: React.ReactNode;
 * 	align?: 'left' | 'center' | 'right';
+* 	style?: React.CSSProperties;
 * }} ItemCardAction
  */
 
@@ -85,8 +87,8 @@ const ItemCard = ({
 												type={action.type || 'text'}
 												size='small'
 												danger={action.danger}
-												style={{ width: '100%' }}
 												icon={action.icon}
+												style={action.style}
 												onClick={typeof action.onClick === 'function' ? action.onClick : undefined}
 											>
 												{action.content}
@@ -101,7 +103,8 @@ const ItemCard = ({
 													alignItems: 'center',
 													width: '100%',
 													justifyContent: action.align || 'center',
-													textAlign: action.align || 'center'
+													textAlign: action.align || 'center',
+													...action.style
 												}}
 											>
 												{action.content}

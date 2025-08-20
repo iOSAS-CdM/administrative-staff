@@ -3,21 +3,31 @@ import React from 'react';
 import {
 	Card,
 	Flex,
-	Button
+	Row,
+	Col,
+	Button,
+	Typography
 } from 'antd';
 
 import {
-	CalendarOutlined
+	QuestionCircleOutlined,
+	EditOutlined,
+	DeleteOutlined,
+	SaveOutlined
 } from '@ant-design/icons';
 
-const FAQsPage = ({ setHeader, mobile, navigate }) => {
+import ItemCard from '../../../components/ItemCard';
+
+const { Paragraph, Title } = Typography;
+
+const FAQsPage = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		setHeader({
 			title: 'Frequently Asked Questions',
 			actions: [
 				<Button
 					type='primary'
-					icon={<CalendarOutlined />}
+					icon={<QuestionCircleOutlined />}
 				>
 					Add FAQ
 				</Button>
@@ -25,10 +35,73 @@ const FAQsPage = ({ setHeader, mobile, navigate }) => {
 		});
 	}, [setHeader]);
 
+	React.useEffect(() => {
+		setSelectedKeys(['faqs']);
+	}, [setSelectedKeys]);
+
+	/** @type {[{ question: String, answer: String, editMode: Boolean }[], React.Dispatch<React.SetStateAction<{ question: String, answer: String, editMode: Boolean }[]>>]} */
+	const [faqs, setFaqs] = React.useState([]);
+
+	React.useEffect(() => {
+		// Fetch FAQs from an API or define them here
+		const fetchedFaqs = [
+			{ question: 'What is the return policy?', answer: 'You can return any item within 30 days.', editMode: false },
+			{ question: 'How do I track my order?', answer: 'You can track your order in the "My Orders" section.', editMode: false },
+			{ question: 'Do you ship internationally?', answer: 'Yes, we ship to over 100 countries.', editMode: false }
+		];
+		setFaqs(fetchedFaqs);
+	}, []);
+
 	return (
-		<Card>
-			a
-		</Card>
+		<Row gutter={[16, 16]}>
+			{faqs.map((faq, index) => (
+				<Col key={index} span={8}>
+					<ItemCard
+						actions={!faq.editMode ? [
+							{
+								icon: <EditOutlined />,
+								type: 'primary',
+								content: 'Edit',
+								style: { width: '100%' },
+								onClick: () => {
+									setFaqs(faqs.map((f, i) => i === index ? { ...f, editMode: true } : f));
+								}
+							},
+							{
+								icon: <DeleteOutlined />,
+								danger: true,
+								type: 'default',
+								style: { width: '100%' },
+								content: 'Delete',
+								onClick: () => { }
+							}
+						] : [
+							{
+								icon: <SaveOutlined />,
+								type: 'primary',
+								style: { width: '100%' },
+								content: 'Save',
+								onClick: () => {
+									setFaqs(faqs.map((f, i) => i === index ? { ...f, editMode: false } : f));
+								}
+							},
+							{
+								icon: <DeleteOutlined />,
+								danger: true,
+								type: 'default',
+								content: 'Cancel',
+								onClick: () => {
+									setFaqs(faqs.map((f, i) => i === index ? { ...f, editMode: false } : f));
+								}
+							}
+						]}
+					>
+						<Title level={4}>{faq.question}</Title>
+						<Paragraph>{faq.answer}</Paragraph>
+					</ItemCard>
+				</Col>
+			))}
+		</Row>
 	);
 };
 
