@@ -40,31 +40,31 @@ const FAQsPage = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	/** @type {[{ question: String, answer: String, editMode: Boolean }[], React.Dispatch<React.SetStateAction<{ question: String, answer: String, editMode: Boolean }[]>>]} */
-	const [faqs, setFaqs] = React.useState([]);
+	const [FAQs, setFAQs] = React.useState([]);
 
 	React.useEffect(() => {
 		// Fetch FAQs from an API or define them here
-		const fetchedFaqs = [
+		const fetchedFAQs = [
 			{ question: 'What is the return policy?', answer: 'You can return any item within 30 days.', editMode: false },
 			{ question: 'How do I track my order?', answer: 'You can track your order in the "My Orders" section.', editMode: false },
 			{ question: 'Do you ship internationally?', answer: 'Yes, we ship to over 100 countries.', editMode: false }
 		];
-		setFaqs(fetchedFaqs);
+		setFAQs(fetchedFAQs);
 	}, []);
 
 	return (
 		<Row gutter={[16, 16]}>
-			{faqs.map((faq, index) => (
+			{FAQs.map((FAQ, index) => (
 				<Col key={index} span={8}>
 					<ItemCard
-						actions={!faq.editMode ? [
+						actions={!FAQ.editMode ? [
 							{
 								icon: <EditOutlined />,
 								type: 'primary',
 								content: 'Edit',
 								style: { width: '100%' },
 								onClick: () => {
-									setFaqs(faqs.map((f, i) => i === index ? { ...f, editMode: true } : f));
+									setFAQs(FAQs.map((f, i) => i === index ? { ...f, editMode: true } : f));
 								}
 							},
 							{
@@ -82,7 +82,7 @@ const FAQsPage = ({ setHeader, setSelectedKeys, navigate }) => {
 								style: { width: '100%' },
 								content: 'Save',
 								onClick: () => {
-									setFaqs(faqs.map((f, i) => i === index ? { ...f, editMode: false } : f));
+									setFAQs(FAQs.map((f, i) => i === index ? { ...f, editMode: false } : f));
 								}
 							},
 							{
@@ -91,13 +91,13 @@ const FAQsPage = ({ setHeader, setSelectedKeys, navigate }) => {
 								type: 'default',
 								content: 'Cancel',
 								onClick: () => {
-									setFaqs(faqs.map((f, i) => i === index ? { ...f, editMode: false } : f));
+									setFAQs(FAQs.map((f, i) => i === index ? { ...f, editMode: false } : f));
 								}
 							}
 						]}
 					>
-						<Title level={4}>{faq.question}</Title>
-						<Paragraph>{faq.answer}</Paragraph>
+						<Title level={4}>{FAQ.question}</Title>
+						<Paragraph>{FAQ.answer}</Paragraph>
 					</ItemCard>
 				</Col>
 			))}

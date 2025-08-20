@@ -12,6 +12,7 @@ import rootToHex from './utils/rootToHex';
 import 'antd/dist/reset.css';
 import './styles/index.css';
 
+import Staff from './classes/Staff';
 import Student from './classes/Student';
 import Record from './classes/Record';
 import Organization from './classes/Organization';
@@ -165,19 +166,22 @@ const OSAS = () => {
 			events: []
 		});
 
-		fetch('https://randomuser.me/api/?results=1&inc=name,%20picture')
+		fetch('https://randomuser.me/api/?results=1&inc=name,%20picture,%20email,%20phone')
 			.then(response => response.json())
 			.then(data => {
 				const user = data.results[0];
-				const staff = {
+				const staff = new Staff({
+					id: 'staff-25-00001',
 					name: {
 						first: user.name.first,
 						middle: user.name.middle || '',
 						last: user.name.last
 					},
-					role: 'Administrative Staff',
+					email: user.email,
+					phone: user.phone,
+					role: 'head',
 					profilePicture: user.picture.large
-				};
+				});
 				setOsas(prev => ({
 					...prev,
 					staff: staff

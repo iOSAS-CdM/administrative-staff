@@ -42,6 +42,7 @@ import Organizations from '../pages/dashboard/Students/Organizations';
 import Organization from '../pages/dashboard/Students/Organization';
 import CalendarPage from '../pages/dashboard/Utilities/Calendar';
 import FAQsPage from '../pages/dashboard/Utilities/FAQs';
+import Announcements from '../pages/dashboard/Utilities/Announements';
 
 const { Text, Title } = Typography;
 
@@ -188,7 +189,7 @@ const Menubar = () => {
 
 		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
 		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
-		{ path: '/utilities/announcements', element: <p>Announcements</p> },
+		{ path: '/utilities/announcements', element: <Announcements {...props} /> },
 		{ path: '/utilities/repository', element: <p>Repository</p> },
 		{ path: '/helpbot', element: <p>Helpbot</p> }
 	]);
