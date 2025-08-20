@@ -38,6 +38,7 @@ const Announcements = ({ setHeader, setSelectedKeys, navigate }) => {
 				<Button
 					type='primary'
 					icon={<NotificationOutlined />}
+					onClick={() => navigate('/dashboard/utilities/announcements/new')}
 				>
 					Create an Announcement
 				</Button>

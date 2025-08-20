@@ -439,7 +439,6 @@ const OSAS = () => {
 
 				fetchedAnnouncements.push(announcement);
 			};
-			console.log('Fetched Announcements:', fetchedAnnouncements);
 
 			setOsas(prev => ({
 				...prev,

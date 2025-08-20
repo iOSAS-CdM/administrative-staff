@@ -43,6 +43,7 @@ import Organization from '../pages/dashboard/Students/Organization';
 import CalendarPage from '../pages/dashboard/Utilities/Calendar';
 import FAQsPage from '../pages/dashboard/Utilities/FAQs';
 import Announcements from '../pages/dashboard/Utilities/Announements';
+import NewAnnouncement from '../pages/dashboard/Utilities/NewAnnouncement';
 
 const { Text, Title } = Typography;
 
@@ -189,7 +190,11 @@ const Menubar = () => {
 
 		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
 		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
-		{ path: '/utilities/announcements', element: <Announcements {...props} /> },
+		{
+			path: '/utilities/announcements',
+			element: <Announcements {...props} />
+		},
+		{ path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
 		{ path: '/utilities/repository', element: <p>Repository</p> },
 		{ path: '/helpbot', element: <p>Helpbot</p> }
 	]);
@@ -432,7 +437,6 @@ const Menubar = () => {
 										localStorage.setItem('displayTheme', value);
 										setDisplayTheme(value);
 									}}
-									size='small'
 								/>
 							)}
 						</Flex>
