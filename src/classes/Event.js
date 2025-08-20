@@ -2,7 +2,7 @@
  * @typedef {import('./Record').RecordProps} DisciplinaryEventProps
  */
 /**
- * @typedef {{ id: Number | Student }} AnnouncementEventProps
+ * @typedef {{ id: Number | String }} EventProps
  */
 
 /**
@@ -12,9 +12,9 @@
  */
 
 /** @typedef {BaseEventProps & { type: 'disciplinary', content: DisciplinaryEventProps}} DisciplinaryEvent */
-/** @typedef {BaseEventProps & { type: 'announcement', content: AnnouncementEventProps}} AnnouncementEvent */
+/** @typedef {BaseEventProps & { type: 'announcement', content: EventProps}} Event */
 
-/** @typedef {DisciplinaryEvent |  AnnouncementEvent} EventProps */
+/** @typedef {DisciplinaryEvent |  Event} EventProps */
 
 class Event {
 	/**

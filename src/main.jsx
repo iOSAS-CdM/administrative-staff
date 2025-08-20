@@ -16,6 +16,7 @@ import Staff from './classes/Staff';
 import Student from './classes/Student';
 import Record from './classes/Record';
 import Organization from './classes/Organization';
+import Announcement from './classes/Announcement';
 import Event from './classes/Event';
 
 export const MobileContext = React.createContext({
@@ -53,6 +54,7 @@ export const LoadingStatesContext = React.createContext({
  * 	students: Student[];
  * 	records: Record[];
  * 	organizations: Organization[];
+ * 	announcements: Announcement[];
  * 	events: {
  * 		date: Date,
  * 		events: Event[]
@@ -74,6 +76,7 @@ export const OSASContext = React.createContext({
 		students: [],
 		records: [],
 		organizations: [],
+		announcements: [],
 		events: []
 	},
 	setOsas: () => { }
@@ -122,6 +125,7 @@ const OSAS = () => {
 		students: false,
 		records: false,
 		organizations: false,
+		announcements: false,
 		events: false
 	});
 
@@ -140,6 +144,7 @@ const OSAS = () => {
 		students: [],
 		records: [],
 		organizations: [],
+		announcements: [],
 		events: []
 	});
 	React.useEffect(() => {
@@ -148,7 +153,8 @@ const OSAS = () => {
 			students: false,
 			records: false,
 			organizations: false,
-			events: false
+			events: false,
+			announcements: false
 		});
 		setOsas({
 			staff: {
@@ -163,6 +169,7 @@ const OSAS = () => {
 			students: [],
 			records: [],
 			organizations: [],
+			announcements: [],
 			events: []
 		});
 
@@ -409,6 +416,42 @@ const OSAS = () => {
 		}, 1024); // 2^10
 	}, [loadingStates.students]);
 	React.useEffect(() => {
+		if (!loadingStates.students || !loadingStates.staff) return;
+		setTimeout(() => {
+			/** @type {Announcement[]} */
+			const fetchedAnnouncements = [];
+
+			for (let i = 0; i < 10; i++) {
+				const id = `announcement-25-${String(i).padStart(5, '0')}-${i + 1}`;
+				const announcement = new Announcement({
+					id: id,
+					title: `Announcement ${i + 1}`,
+					description: `This is the description for announcement ${i + 1}.`,
+					date: new Date(new Date().getFullYear(), new Date().getMonth(), new
+						Date().getDate() - Math.floor(Math.random() * 50)),
+					authors: [
+						{
+							type: 'staff',
+							user: osas.staff
+						}
+					]
+				});
+
+				fetchedAnnouncements.push(announcement);
+			};
+			console.log('Fetched Announcements:', fetchedAnnouncements);
+
+			setOsas(prev => ({
+				...prev,
+				announcements: fetchedAnnouncements
+			}));
+			setLoadingStates(prev => ({
+				...prev,
+				announcements: true
+			}));
+		}, 1024); // 2^10
+	}, [osas.students, osas.staff]);
+	React.useEffect(() => {
 		if (!loadingStates.records || !loadingStates.organizations) return;
 		const events = [];
 		for (const record of osas.records) {
@@ -442,7 +485,7 @@ const OSAS = () => {
 			...prev,
 			events: true
 		}));
-	}, [loadingStates.records, loadingStates.organizations]);
+	}, [loadingStates.records, loadingStates.announcements, loadingStates.organizations]);
 
 	const themeConfig = React.useMemo(() => ({
 		algorithm: [
