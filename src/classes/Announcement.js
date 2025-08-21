@@ -21,7 +21,8 @@
  * 	content: String,
  * 	date: Date,
  * 	authors: (StaffAuthor | StudentAuthor)[],
- * 	archived?: Boolean
+ * 	archived?: Boolean,
+ * 	images: HTMLImageElement[]
  * }} AnnouncementProps
  */
 

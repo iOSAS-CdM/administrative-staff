@@ -10,7 +10,8 @@ import {
 	Card,
 	Divider,
 	Dropdown,
-	Segmented
+	Segmented,
+	App
 } from 'antd';
 
 import {
@@ -24,7 +25,10 @@ import {
 	UnorderedListOutlined,
 	OrderedListOutlined,
 	MenuFoldOutlined,
-	MenuUnfoldOutlined
+	MenuUnfoldOutlined,
+	FileImageOutlined,
+	LinkOutlined,
+	FileAddOutlined
 } from '@ant-design/icons';
 
 import { marked } from 'marked';
@@ -64,12 +68,13 @@ const NewAnnouncement = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { osas } = React.useContext(OSASContext);
-
 	const { mobile } = React.useContext(MobileContext);
+	const Modal = App.useApp().modal;
 
 	const AnnouncementForm = React.useRef(null);
 	const [cover, setCover] = React.useState('');
 	const [mode, setMode] = React.useState('editing'); // editing | preview
+	const [files, setFiles] = React.useState([]);
 
 	const InsertHeading = (level) => {
 		const textArea = document.getElementById('text-area');
@@ -183,9 +188,6 @@ const NewAnnouncement = ({ setHeader, setSelectedKeys, navigate }) => {
 								const reader = new FileReader();
 								reader.onload = (e) => {
 									setCover(e.target.result);
-									AnnouncementForm.current.setFieldsValue({
-										repository: [e.target.result]
-									});
 								};
 								reader.readAsDataURL(file);
 							};
@@ -283,9 +285,50 @@ const NewAnnouncement = ({ setHeader, setSelectedKeys, navigate }) => {
 									<Flex justify='center' align='center' gap={8}>
 										<Button size='small' icon={<UnorderedListOutlined />} onClick={() => InsertList('ul')} />
 										<Button size='small' icon={<OrderedListOutlined />} onClick={() => InsertList('ol')} />
-										<Button size='small' icon={<MenuFoldOutlined />} onClick={() => InsertList('indent')} />
-										<Button size='small' icon={<MenuUnfoldOutlined />} onClick={() => InsertList('outdent')} />
+										<Button size='small' icon={<MenuFoldOutlined />} onClick={() => InsertList('outdent')} />
+										<Button size='small' icon={<MenuUnfoldOutlined />} onClick={() => InsertList('indent')} />
 									</Flex>
+									<Divider type='vertical' />
+									<Flex justify='center' align='center' gap={8}>
+										<Button size='small' icon={<LinkOutlined />} onClick={() => { }} />
+										<Button size='small' icon={<FileImageOutlined />} onClick={() => {
+											const modal = Modal.confirm({
+												title: 'Upload Image',
+												icon: null,
+												content: (
+													<Upload.Dragger
+														listType='picture'
+														beforeUpload={(file) => {
+															if (FileReader && file) {
+																const reader = new FileReader();
+																reader.onload = (e) => {
+																	setFiles(prev => [...prev, e.target.result]);
+																	modal.destroy(); // Close modal after upload
+																};
+																reader.readAsDataURL(file);
+															};
+															return false;
+														}} // Prevent auto upload
+														showUploadList={false}
+														style={{
+															position: 'relative',
+															width: '100%',
+															height: 256
+														}}
+														accept='.jpg,.jpeg,.png'
+													>
+														<p className='ant-upload-drag-icon'>
+															<UploadOutlined />
+														</p>
+														<p className='ant-upload-text'>Click or drag file to this area to upload</p>
+														<p className='ant-upload-hint'>Support for a single or bulk upload.</p>
+													</Upload.Dragger>
+												)
+											});
+										}} />
+									</Flex>
+									<Divider type='vertical' />
+									<Button size='small' icon={<FileAddOutlined />} onClick={() => InsertBeforeAndAfter('```', '```')} />
 								</Flex>
 								<Form.Item
 									name='description'
