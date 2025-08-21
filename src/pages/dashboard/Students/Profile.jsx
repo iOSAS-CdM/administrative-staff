@@ -434,7 +434,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 												count={e.content.complainees.some(c => c.student.studentId === thisStudent.studentId) ? e.content.complainees.find(c => c.student.studentId === thisStudent.studentId).occurrence : 0}
 												offset={[-8, 0]}
 											>
-												<Tag color={e.content.tags.status === 'ongoing' ? 'yellow' : 'green'}>{e.content.tags.status}</Tag>
+												<Tag color={e.content.tags.status === 'ongoing' ? 'yellow' : 'var(--primary)'}>{e.content.tags.status}</Tag>
 											</Badge>
 											<Text>{e.content.violation}</Text>
 										</Flex>

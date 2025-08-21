@@ -256,7 +256,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 			color={
 				{
 					ongoing: 'blue',
-					resolved: 'green',
+					resolved: 'var(--primary)',
 					archived: 'grey'
 				}[thisRecord.tags.status] || 'transparent'
 			}

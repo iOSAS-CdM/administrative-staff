@@ -147,7 +147,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 									<Tag color={
 										{
 											ongoing: 'blue',
-											resolved: 'green',
+											resolved: 'var(--primary)',
 											archived: 'grey'
 										}[thisRecord.tags.status] || 'default'
 									}>

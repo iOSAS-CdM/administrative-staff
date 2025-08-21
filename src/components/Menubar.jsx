@@ -45,6 +45,7 @@ import FAQsPage from '../pages/dashboard/Utilities/FAQs';
 import Announcements from '../pages/dashboard/Utilities/Announements';
 import NewAnnouncement from '../pages/dashboard/Utilities/NewAnnouncement';
 import Repository from '../pages/dashboard/Utilities/Repository';
+import Helpbot from '../pages/dashboard/Utilities/Helpbot';
 
 const { Text, Title } = Typography;
 
@@ -196,7 +197,7 @@ const Menubar = () => {
 		{ path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
 
 		{ path: '/utilities/repository', element: <Repository {...props} /> },
-		{ path: '/helpbot', element: <p>Helpbot</p> }
+		{ path: '/helpbot', element: <Helpbot {...props} /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
