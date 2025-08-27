@@ -42,15 +42,7 @@ export const LoadingStatesContext = React.createContext({
 });
 /**
  * @typedef {{
- * 	staff: {
- * 		name: {
- * 			first: '',
- * 			middle: '',
- * 			last: ''
- * 		},
- * 		role: '',
- * 		profilePicture: ''
- * 	};
+ * 	staff: Staff;
  * 	students: Student[];
  * 	records: Record[];
  * 	organizations: Organization[];
@@ -71,7 +63,8 @@ export const OSASContext = React.createContext({
 				last: ''
 			},
 			role: '',
-			profilePicture: ''
+			profilePicture: '',
+			status: ''
 		},
 		students: [],
 		records: [],
@@ -139,7 +132,8 @@ const OSAS = () => {
 				last: ''
 			},
 			role: '',
-			profilePicture: ''
+			profilePicture: '',
+			status: ''
 		},
 		students: [],
 		records: [],
@@ -187,7 +181,8 @@ const OSAS = () => {
 					email: user.email,
 					phone: user.phone,
 					role: 'head',
-					profilePicture: user.picture.large
+					profilePicture: user.picture.large,
+					status: 'active'
 				});
 				setOsas(prev => ({
 					...prev,
