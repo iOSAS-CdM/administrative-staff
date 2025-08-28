@@ -7,7 +7,8 @@ import {
 	Button,
 	Input,
 	Typography,
-	Checkbox
+	Checkbox,
+	App
 } from 'antd';
 
 import { LoginOutlined, LoadingOutlined } from '@ant-design/icons';
@@ -30,6 +31,9 @@ const SignUp = ({ navigate }) => {
 
 	const [showPassword, setShowPassword] = React.useState(false);
 
+	const app = App.useApp();
+	const Notification = app.notification;
+
 	const signUp = async (values) => {
 		setSigningUp(true);
 
@@ -43,10 +47,14 @@ const SignUp = ({ navigate }) => {
 			body: JSON.stringify({ id, email, password })
 		});
 
-		if (response.ok) {
-			navigate('/authentication/sign-in');
+		if (!response.ok) {
+			const error = await response.json();
+			Notification.error({
+				message: 'Sign Up Failed',
+				description: error.message || 'Please check your details and try again.'
+			});
 		} else {
-			// Handle error
+			navigate('/authentication/sign-in');
 		};
 		setSigningUp(false);
 	};
