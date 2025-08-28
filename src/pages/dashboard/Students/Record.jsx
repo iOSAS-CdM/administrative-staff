@@ -59,7 +59,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 			setThisRecord(record);
 	}, [id, osas.records]);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: `Disciplinary Case ${thisRecord.id || ''}`,
 			actions: [

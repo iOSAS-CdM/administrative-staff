@@ -5,7 +5,7 @@ import { Button } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
 
 const Repository = ({ setHeader, setSelectedKeys, navigate }) => {
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Public Form Repository',
 			actions: [

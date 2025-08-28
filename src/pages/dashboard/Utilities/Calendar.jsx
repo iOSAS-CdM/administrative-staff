@@ -33,7 +33,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 	const [searchedEvents, setSearchedEvents] = React.useState([]);
 	const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Calendar',
 			actions: [

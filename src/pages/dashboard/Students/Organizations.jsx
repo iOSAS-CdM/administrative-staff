@@ -82,7 +82,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		{ path: '/archived', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['archived']} /> }
 	]);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Student Organizations',
 			actions: [

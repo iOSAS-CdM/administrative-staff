@@ -79,7 +79,7 @@ const PRIMARY_COLOR = rootToHex('var(--primary)');
 
 const OSAS = () => {
 	const [mobile, setMobile] = React.useState(false);
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		const handleResize = () => {
 			setMobile(window.innerWidth < 1024); // 2^10
 		};
@@ -99,7 +99,7 @@ const OSAS = () => {
 	});
 
 	// Effect to keep theme in sync
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		// Save to localStorage
 		localStorage.setItem('displayTheme', displayTheme);
 
@@ -141,7 +141,7 @@ const OSAS = () => {
 		announcements: [],
 		events: []
 	});
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setLoadingStates({
 			staff: false,
 			students: false,
@@ -211,7 +211,7 @@ const OSAS = () => {
 		'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
 		'ibe': ['BSBA-HRM', 'BSE']
 	};
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!loadingStates.staff) return;
 
 		fetch('https://randomuser.me/api/?results=200&inc=name,email,phone,login,picture')
@@ -306,7 +306,7 @@ const OSAS = () => {
 				});
 			});
 	}, [loadingStates.staff]);
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!loadingStates.students) return;
 		setTimeout(() => {
 			/** @type {Record[]} */
@@ -364,7 +364,7 @@ const OSAS = () => {
 			}));
 		}, 1024); // 2^10
 	}, [loadingStates.students]);
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!loadingStates.students) return;
 		setTimeout(() => {
 			/** @type {Organization[]} */
@@ -410,7 +410,7 @@ const OSAS = () => {
 			}));
 		}, 1024); // 2^10
 	}, [loadingStates.students]);
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!loadingStates.students || !loadingStates.staff) return;
 		setTimeout(() => {
 			/** @type {Announcement[]} */
@@ -445,7 +445,7 @@ const OSAS = () => {
 			}));
 		}, 1024); // 2^10
 	}, [osas.students, osas.staff]);
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!loadingStates.records || !loadingStates.organizations) return;
 		const events = [];
 		for (const record of osas.records) {
@@ -527,5 +527,7 @@ const OSAS = () => {
 		</React.StrictMode>
 	);
 };
+
+export const API_Route = import.meta.env.DEV ? 'http://localhost:3001' : 'http://47.130.158.40';
 
 ReactDOM.createRoot(document.getElementById('root')).render(<OSAS />);

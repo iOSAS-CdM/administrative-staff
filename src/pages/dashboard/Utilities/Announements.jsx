@@ -31,7 +31,7 @@ import { OSASContext, MobileContext } from '../../../main';
  */
 
 const Announcements = ({ setHeader, setSelectedKeys, navigate }) => {
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Announcements',
 			actions: [

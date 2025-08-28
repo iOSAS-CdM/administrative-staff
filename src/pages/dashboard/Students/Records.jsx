@@ -160,7 +160,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	const app = App.useApp();
 	const Modal = app.modal;
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Disciplinary Records',
 			actions: [

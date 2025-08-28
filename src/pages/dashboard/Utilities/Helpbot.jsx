@@ -15,7 +15,7 @@ import { OSASContext } from '../../../main';
  */
 
 const Helpbot = ({ setHeader, setSelectedKeys, navigate }) => {
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Helpbot',
 			actions: [

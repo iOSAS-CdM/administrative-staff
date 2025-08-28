@@ -56,7 +56,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 			setThisOrganization(organization);
 	}, [id, osas.organizations]);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: `Student Organization ${thisOrganization.id || ''}`,
 			actions: [

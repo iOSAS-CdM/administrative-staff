@@ -201,7 +201,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: `Student ${location.state?.student?.studentId || 'Profile'}`,
 			actions: [

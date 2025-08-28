@@ -262,7 +262,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		return categorized;
 	}, [filteredStudents]);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Student Profiles',
 			actions: [
