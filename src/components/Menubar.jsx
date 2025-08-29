@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation, useRoutes, Navigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
+import supabase from '../utils/supabaseClient';
 
 import {
 	Card,
@@ -420,7 +421,13 @@ const Menubar = () => {
 								type='primary'
 								icon={<LogoutOutlined />}
 								onClick={() => {
-									navigate('/'), { replace: true };
+									supabase.auth.signOut()
+										.then(() => {
+											window.location.href = '/authentication';
+										})
+										.catch((error) => {
+											console.error('Sign Out Error:', error);
+										});
 								}}
 								style={{ width: '100%' }}
 							>

@@ -1,4 +1,5 @@
 import React from 'react';
+import supabase from '../../utils/supabaseClient';
 
 import {
 	Form,
@@ -21,13 +22,26 @@ const { Text, Title, Link } = Typography;
 const SignIn = ({ navigate }) => {
 	const [signingIn, setSigningIn] = React.useState(false);
 
-	const signIn = () => {
+	const SignInForm = React.useRef(null);
+	const signIn = async (values) => {
 		setSigningIn(true);
 
-		setTimeout(() => {
-			setSigningIn(false);
-			window.location.href = '/dashboard';
-		}, 1024); // 2^10
+		const { email, password } = values;
+		const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+		if (error) {
+			SignInForm.current.setFields([
+				{
+					name: 'email',
+					errors: ' '
+				},
+				{
+					name: 'password',
+					errors: [error.message]
+				}
+			]);
+		};
+
+		setSigningIn(false);
 	};
 
 	return (
@@ -39,8 +53,9 @@ const SignIn = ({ navigate }) => {
 			<Form
 				id='authentication-form'
 				layout='vertical'
+				ref={SignInForm}
 				onFinish={(values) => {
-					signIn();
+					signIn(values);
 				}}
 			>
 				<Form.Item

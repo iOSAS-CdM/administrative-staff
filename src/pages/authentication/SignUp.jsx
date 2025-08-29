@@ -34,6 +34,7 @@ const SignUp = ({ navigate }) => {
 	const app = App.useApp();
 	const Notification = app.notification;
 
+	const SignUpForm = React.useRef(null);
 	const signUp = async (values) => {
 		setSigningUp(true);
 
@@ -49,10 +50,24 @@ const SignUp = ({ navigate }) => {
 
 		if (!response.ok) {
 			const error = await response.json();
-			Notification.error({
-				message: 'Sign Up Failed',
-				description: error.message || 'Please check your details and try again.'
-			});
+			SignUpForm.current.setFields([
+				{
+					name: 'id',
+					errors: ' '
+				},
+				{
+					name: 'email',
+					errors: ' '
+				},
+				{
+					name: 'password',
+					errors: ' '
+				},
+				{
+					name: 'confirmPassword',
+					errors: [error.message]
+				}
+			]);
 		} else {
 			navigate('/authentication/sign-in');
 		};
@@ -68,6 +83,7 @@ const SignUp = ({ navigate }) => {
 			<Form
 				id='authentication-form'
 				layout='vertical'
+				ref={SignUpForm}
 				onFinish={(values) => {
 					signUp(values);
 				}}
@@ -116,8 +132,8 @@ const SignUp = ({ navigate }) => {
 								if (!value || getFieldValue('password') === value)
 									return Promise.resolve();
 								return Promise.reject(new Error('Passwords do not match!'));
-							},
-						}),
+							}
+						})
 					]}
 				>
 					<Input.Password placeholder='Confirm Password' type='password' visibilityToggle={{ visible: showPassword, onVisibleChange: (visible) => setShowPassword(visible) }} />

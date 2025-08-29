@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import supabase from './utils/supabaseClient';
 
 import { ConfigProvider as DesignConfig, App, theme as DesignTheme, notification } from 'antd';
 
@@ -501,6 +502,65 @@ const OSAS = () => {
 		}
 	}), [displayTheme]);
 
+	const [session, setSession] = React.useState(null);
+	const [sessionChecked, setSessionChecked] = React.useState(false);
+
+	// Get initial session
+	React.useLayoutEffect(() => {
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			setSession(session);
+			setSessionChecked(true);
+		});
+
+		supabase.auth.onAuthStateChange((_event, session) => {
+			setSession(session);
+			setSessionChecked(true);
+		});
+	}, []);
+
+	// Modify `fetch`
+	React.useLayoutEffect(() => {
+		const originalFetch = window.fetch;
+
+		window.fetch = async (...args) => {
+			// Only add headers if we have a session with access token
+			if (session?.access_token) {
+				// First arg is the resource/URL, second arg is options
+				if (args[1] && typeof args[1] === 'object') {
+					// If headers already exist, add to them
+					args[1].headers = {
+						...args[1].headers,
+						'Authorization': `Bearer ${JSON.parse(localStorage.getItem('CustomApp')).access_token}`
+					};
+				} else {
+					// Create headers object if options doesn't exist
+					args[1] = {
+						...(args[1] || {}),
+						headers: {
+							'Authorization': `Bearer ${JSON.parse(localStorage.getItem('CustomApp')).access_token}`
+						}
+					};
+				};
+			};
+
+			const response = await originalFetch(...args);
+
+			// If we have a session but get a 403 Forbidden response, sign out
+			if (session && response.status === 403) {
+				await supabase.auth.signOut();
+				window.location.href = '/unauthorized';
+			};
+
+			return response;
+		};
+
+		return () => {
+			window.fetch = originalFetch;
+		};
+	}, [session, sessionChecked]);
+
+	if (!sessionChecked) return null;
+
 	return (
 		<React.StrictMode>
 			<DesignConfig theme={themeConfig}>
@@ -513,8 +573,8 @@ const OSAS = () => {
 										<DisplayThemeContext.Provider value={{ displayTheme, setDisplayTheme }}>
 											<Routes>
 												<Route path='/' element={<Navigate to='/authentication' replace />} />
-												<Route path='/authentication/*' element={<Authentication />} />
-												<Route path='/dashboard/*' element={<Menubar />} />
+												<Route path='/authentication/*' element={!session ? <Authentication /> : <Navigate to='/dashboard' replace />} />
+												<Route path='/dashboard/*' element={session ? <Menubar /> : <Navigate to='/authentication' replace />} />
 											</Routes>
 										</DisplayThemeContext.Provider>
 									</MobileContext.Provider>
