@@ -114,6 +114,9 @@ const OSAS = () => {
 
 	const [seed, setSeed] = React.useState(0);
 
+	const [session, setSession] = React.useState(null);
+	const [sessionChecked, setSessionChecked] = React.useState(false);
+
 	const [loadingStates, setLoadingStates] = React.useState({
 		staff: false,
 		students: false,
@@ -122,6 +125,47 @@ const OSAS = () => {
 		announcements: false,
 		events: false
 	});
+
+	// Modify `fetch`
+	React.useLayoutEffect(() => {
+		const originalFetch = window.fetch;
+
+		window.fetch = async (...args) => {
+			// Only add headers if we have a session with access token
+			if (session?.access_token) {
+				// First arg is the resource/URL, second arg is options
+				if (args[1] && typeof args[1] === 'object') {
+					// If headers already exist, add to them
+					args[1].headers = {
+						...args[1].headers,
+						'Authorization': `Bearer ${JSON.parse(localStorage.getItem('CustomApp')).access_token}`
+					};
+				} else {
+					// Create headers object if options doesn't exist
+					args[1] = {
+						...(args[1] || {}),
+						headers: {
+							'Authorization': `Bearer ${JSON.parse(localStorage.getItem('CustomApp')).access_token}`
+						}
+					};
+				};
+			};
+
+			const response = await originalFetch(...args);
+
+			// If we have a session but get a 403 Forbidden response, sign out
+			if (session && response.status === 403) {
+				await supabase.auth.signOut();
+				window.location.href = '/unauthorized';
+			};
+
+			return response;
+		};
+
+		return () => {
+			window.fetch = originalFetch;
+		};
+	}, [session, sessionChecked]);
 
 	// Set singleton data for the app
 	/** @type {[OSASData, React.Dispatch<React.SetStateAction<OSASData>>]} */
@@ -143,6 +187,7 @@ const OSAS = () => {
 		events: []
 	});
 	React.useLayoutEffect(() => {
+		if (!sessionChecked || !session) return;
 		setLoadingStates({
 			staff: false,
 			students: false,
@@ -168,44 +213,40 @@ const OSAS = () => {
 			events: []
 		});
 
-		fetch('https://randomuser.me/api/?results=1&inc=name,%20picture,%20email,%20phone')
+		fetch(`${API_Route}/staff/me`)
 			.then(response => response.json())
 			.then(data => {
-				const user = data.results[0];
-				const staff = new Staff({
-					id: 'staff-25-00001',
-					name: {
-						first: user.name.first,
-						middle: user.name.middle || '',
-						last: user.name.last
-					},
-					email: user.email,
-					phone: user.phone,
-					role: 'head',
-					profilePicture: user.picture.large,
-					status: 'active'
-				});
-				setOsas(prev => ({
-					...prev,
-					staff: staff
-				}));
-				setLoadingStates(prev => ({
-					...prev,
-					staff: true
-				}));
+				console.log(data);
+				if (data) {
+					setOsas(prev => ({
+						...prev,
+						staff: {
+							...prev.staff,
+							id: data.id,
+							email: data.email,
+							name: {
+								first: data.name.first || '',
+								middle: data.name.middle || '',
+								last: data.name.last || ''
+							},
+							role: data.role,
+							profilePicture: data.profilePicture || '',
+						}
+					}));
+					setLoadingStates(prev => ({
+						...prev,
+						staff: true
+					}));
+				}
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error('Error fetching staff data:', error);
 				notification.error({
 					message: 'Error',
 					description: 'Failed to fetch staff data. Please try again later.'
 				});
-				setLoadingStates(prev => ({
-					...prev,
-					staff: true
-				}));
 			});
-	}, [seed]);
+	}, [seed, session, sessionChecked]);
 
 	const programs = {
 		'ics': ['BSCpE', 'BSIT'],
@@ -502,9 +543,6 @@ const OSAS = () => {
 		}
 	}), [displayTheme]);
 
-	const [session, setSession] = React.useState(null);
-	const [sessionChecked, setSessionChecked] = React.useState(false);
-
 	// Get initial session
 	React.useLayoutEffect(() => {
 		supabase.auth.getSession().then(({ data: { session } }) => {
@@ -517,47 +555,6 @@ const OSAS = () => {
 			setSessionChecked(true);
 		});
 	}, []);
-
-	// Modify `fetch`
-	React.useLayoutEffect(() => {
-		const originalFetch = window.fetch;
-
-		window.fetch = async (...args) => {
-			// Only add headers if we have a session with access token
-			if (session?.access_token) {
-				// First arg is the resource/URL, second arg is options
-				if (args[1] && typeof args[1] === 'object') {
-					// If headers already exist, add to them
-					args[1].headers = {
-						...args[1].headers,
-						'Authorization': `Bearer ${JSON.parse(localStorage.getItem('CustomApp')).access_token}`
-					};
-				} else {
-					// Create headers object if options doesn't exist
-					args[1] = {
-						...(args[1] || {}),
-						headers: {
-							'Authorization': `Bearer ${JSON.parse(localStorage.getItem('CustomApp')).access_token}`
-						}
-					};
-				};
-			};
-
-			const response = await originalFetch(...args);
-
-			// If we have a session but get a 403 Forbidden response, sign out
-			if (session && response.status === 403) {
-				await supabase.auth.signOut();
-				window.location.href = '/unauthorized';
-			};
-
-			return response;
-		};
-
-		return () => {
-			window.fetch = originalFetch;
-		};
-	}, [session, sessionChecked]);
 
 	if (!sessionChecked) return null;
 
