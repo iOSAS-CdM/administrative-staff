@@ -281,7 +281,10 @@ const Menubar = () => {
 						/>
 					)
 			),
-			onClick: () => { }
+			onClick: () => { },
+			style: {
+				height: 32
+			}
 		},
 		{
 			key: 'divider',
@@ -407,7 +410,7 @@ const Menubar = () => {
 								style={{
 									position: 'relative',
 									height: '100%',
-									width: minimized ? 64 : 256,
+									width: minimized ? 64 : 256 + (128 / 2),
 									padding: 0,
 									border: 'none'
 								}}
@@ -464,12 +467,12 @@ const Menubar = () => {
 				}}
 			>
 				{/*************************** Header ***************************/}
-				<Card
-					size='small'
+				<div
 					style={{
 						width: '100%',
-						borderRadius: 0,
-						backgroundColor: 'var(--ant-color-bg-base)'
+						padding: 16,
+						backgroundColor: 'var(--ant-color-bg-base)',
+						borderBottom: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 					}}
 				>
 					<Flex
@@ -523,7 +526,7 @@ const Menubar = () => {
 							)
 						)}
 					</Flex>
-				</Card>
+				</div>
 
 				{/*************************** Page Content ***************************/}
 				<div
