@@ -419,7 +419,19 @@ const Menubar = () => {
 							/>
 						</Flex>
 
-						<Flex gap={16} align='center' style={{ width: '100%' }}>
+						<Flex gap={16} vertical align='center' style={{ width: '100%' }}>
+							<Segmented
+								vertical={minimized}
+								options={[
+									{ value: 'light', icon: <SunOutlined /> },
+									{ value: 'dark', icon: <MoonOutlined /> }
+								]}
+								value={displayTheme}
+								onChange={(value) => {
+									localStorage.setItem('displayTheme', value);
+									setDisplayTheme(value);
+								}}
+							/>
 							<Button
 								type='primary'
 								icon={<LogoutOutlined />}
@@ -436,20 +448,6 @@ const Menubar = () => {
 							>
 								{minimized ? '' : 'Sign Out'}
 							</Button>
-
-							{!minimized && (
-								<Segmented
-									options={[
-										{ value: 'light', icon: <SunOutlined /> },
-										{ value: 'dark', icon: <MoonOutlined /> }
-									]}
-									value={displayTheme}
-									onChange={(value) => {
-										localStorage.setItem('displayTheme', value);
-										setDisplayTheme(value);
-									}}
-								/>
-							)}
 						</Flex>
 					</Flex>
 				</Card>
