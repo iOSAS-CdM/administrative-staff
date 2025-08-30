@@ -189,7 +189,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 					]}
 					value={category}
 					onChange={(value) => {
-						navigate(`/dashboard/students/records/${value}`);
+						navigate(`/dashboard/discipline/records/${value}`);
 					}}
 				/>,
 				<>
@@ -200,10 +200,10 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 							arrow
 							content={<Filters filter={filter} setFilter={setFilter} />}
 						>
-						<Button
-							icon={<FilterOutlined />}
-							onClick={(e) => e.stopPropagation()}
-						/>
+							<Button
+								icon={<FilterOutlined />}
+								onClick={(e) => e.stopPropagation()}
+							/>
 						</Popover>
 					) : <Filters filter={filter} setFilter={setFilter} />}
 				</>,
@@ -327,7 +327,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 							centered: true
 						});
 					} else {
-						navigate(`/dashboard/students/record/${thisRecord.id}`);
+						navigate(`/dashboard/discipline/record/${thisRecord.id}`);
 					};
 				}}
 			>

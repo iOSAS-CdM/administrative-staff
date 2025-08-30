@@ -34,7 +34,7 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
-import { RecordCard } from './Records';
+import { RecordCard } from '../Discipline/Records';
 
 import { MobileContext, OSASContext } from '../../../main';
 
@@ -423,7 +423,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 											align='flex-start'
 											style={{ cursor: 'pointer', width: '100%' }}
 											onClick={() => {
-												navigate(`/dashboard/students/record/${e.id}`, {
+												navigate(`/dashboard/discipline/record/${e.id}`, {
 													state: { id: e.id }
 												});
 											}}

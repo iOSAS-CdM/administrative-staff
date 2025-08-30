@@ -45,7 +45,7 @@ const Helpbot = ({ setHeader, setSelectedKeys, navigate }) => {
 				sender: 'bot', content: `Opening a case is a very simple task, and I am here to help you out!
 
 Here are the steps:
- - First navigate to the [Disciplinary Records](/dashboard/students/records/ongoing) tab on your Side Panel, there you will see the list of all existing Disciplinary Records.
+ - First navigate to the [Disciplinary Records](/dashboard/discipline/records/ongoing) tab on your Side Panel, there you will see the list of all existing Disciplinary Records.
  - Click on the “Open a New Case” button on the top-right corner of your screen and a modal will popup.
  - Fill up the required values depending on your case.
  - You may also click the “Open OCR” and use your mobile phone to scan a document for easier input.
