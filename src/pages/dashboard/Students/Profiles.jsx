@@ -264,7 +264,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: 'Student Profiles',
+			title: 'Verified Profiles',
 			actions: [
 				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
 					<Input.Search

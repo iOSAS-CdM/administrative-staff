@@ -167,6 +167,8 @@ const Menubar = () => {
 		},
 		{ path: '/students/profile/:studentId', element: <Profile {...props} /> },
 
+		{ path: '/students/unverified/*', element: <p>Unverified</p> },
+
 		{
 			path: '/students/organizations/*',
 			element: <Organizations {...props} />,
@@ -317,6 +319,11 @@ const Menubar = () => {
 					key: 'profiles',
 					label: 'Profiles',
 					onClick: () => navigate('/dashboard/students/profiles/active', { replace: true })
+				},
+				{
+					key: 'unverified',
+					label: 'Unverified Profiles',
+					onClick: () => navigate('/dashboard/students/unverified/active', { replace: true })
 				},
 				{
 					key: 'organizations',
