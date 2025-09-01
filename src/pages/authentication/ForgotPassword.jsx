@@ -6,7 +6,8 @@ import {
 	Flex,
 	Button,
 	Input,
-	Typography
+	Typography,
+	App
 } from 'antd';
 
 import {
@@ -20,6 +21,8 @@ const { Text, Title, Link, Paragraph } = Typography;
 
 import '../../styles/pages/Authentication.css';
 
+import { API_Route } from '../../main';
+
 /**
  * @param {{
  * 		navigate: import('react-router').NavigateFunction
@@ -31,49 +34,111 @@ const ForgotPassword = ({ navigate }) => {
 	const [verifying, setVerifying] = React.useState(false);
 	const [resetting, setResetting] = React.useState(false);
 
-	const StaffInfoForm = React.createRef();
-	const OTPForm = React.createRef();
-	const ResetPasswordForm = React.createRef();
+	const StaffInfoForm = React.useRef(null);
+	const OTPForm = React.useRef(null);
+	const ResetPasswordForm = React.useRef(null);
 
 	// 0 = Send OTP, 1 = Verify OTP, 2 = Reset Password
 	const [step, setStep] = React.useState(0);
-	const [name, setName] = React.useState('');
+	const [user, setUser] = React.useState({});
+	const [otp, setOtp] = React.useState(null);
 
 
 
-	const send = () => {
+	const send = async (values) => {
 		setSending(true);
 
-		setTimeout(() => {
+		const { id, email } = values;
+
+		const request = await fetch(`${API_Route}/auth/staff/password-recovery`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ id, email })
+		}).catch((error) => {
+			console.error('Error sending OTP:', error);
+		});
+
+		if (!request.ok) {
+			const errorData = await request.json();
+			StaffInfoForm.current.setFields([
+				{
+					name: 'id',
+					errors: ' '
+				},
+				{
+					name: 'email',
+					errors: [errorData.message]
+				}
+			]);
 			setSending(false);
-			setStep(1);
-			setName('John Doe'); // Simulate fetching name from server
-		}, 1024); // 2^10
+			return;
+		};
+
+		const data = await request.json();
+		setUser(data);
+		setSending(false);
+		setStep(1); // Move to OTP verification step
 	};
-	const verify = (otp) => {
+	const verify = async (values) => {
 		setVerifying(true);
 
-		setTimeout(() => {
+		const { otp } = values;
+
+		const request = await fetch(`${API_Route}/auth/staff/verify-otp`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ id: user.id, email: user.email, otp })
+		}).catch((error) => {
+			console.error('Error verifying OTP:', error);
+		});
+
+		if (!request.ok) {
+			OTPForm.current.setFields([
+				{
+					name: 'otp',
+					errors: ['Invalid OTP']
+				}
+			]);
 			setVerifying(false);
-			setStep(2); // Simulate successful verification
-		}, 1024); // 2^10
+			return;
+		};
+
+		setOtp(otp);
+		setVerifying(false);
+		setStep(2); // Move to password reset step
 	};
 
-	const resetPassword = (password) => {
+	const resetPassword = async (password) => {
 		setResetting(true);
-		setTimeout(() => {
+
+		const request = await fetch(`${API_Route}/auth/staff/reset-password`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ id: user.id, email: user.email, otp, password })
+		}).catch((error) => {
+			console.error('Error resetting password:', error);
+		});
+
+		if (!request.ok) {
+			const errorData = await request.json();
+			ResetPasswordForm.current.setFields([
+				{
+					name: 'password',
+					errors: [errorData.message]
+				}
+			]);
 			setResetting(false);
-			navigate('/sign-in'); // Redirect to sign-in page after resetting password
-		}, 1024); // 2^10
-		setStep(0); // Reset step to initial state
-		setName(''); // Clear name after resetting password
-		setSending(false); // Reset sending state
-		setVerifying(false); // Reset verifying state
-		setResetting(false); // Reset resetting state
-		StaffInfoForm.current.resetFields(); // Reset Staff Info Form
-		OTPForm.current.resetFields(); // Reset OTP Form
-		ResetPasswordForm.current.resetFields(); // Reset Reset Password Form
-		navigate('/sign-in'); // Redirect to sign-in page
+			return;
+		};
+
+		setResetting(false);
+		navigate('/sign-in'); // Redirect to sign-in page after resetting password
 	};
 
 	return (
@@ -81,7 +146,7 @@ const ForgotPassword = ({ navigate }) => {
 			<Flex vertical justify='center' align='center'>
 				<Text>We're here to help you{step > 1 ? ',' : ''}</Text>
 				<Title level={1} style={{ color: 'var(--primary)', fontWeight: 'bold' }}>
-					{step === 0 ? 'Reset Password' : name}
+					{step === 0 ? 'Reset Password' : user?.name?.first}
 				</Title>
 			</Flex>
 
@@ -92,10 +157,12 @@ const ForgotPassword = ({ navigate }) => {
 					id='authentication-form'
 					layout='vertical'
 					ref={StaffInfoForm}
-					onFinish={(values) => { }}
+					onFinish={(values) => {
+						send(values);
+					}}
 				>
 					<Form.Item
-						name='employeeId'
+						name='id'
 						rules={[{ required: true, message: 'Please input your Employee ID!' }]}
 					>
 						<Input placeholder='Employee ID' type='text' />
@@ -111,17 +178,7 @@ const ForgotPassword = ({ navigate }) => {
 							type='primary'
 							icon={sending ? <LoadingOutlined /> : <MailOutlined />}
 							disabled={sending}
-
-							onClick={() => {
-								StaffInfoForm.current
-									.validateFields()
-									.then((values) => {
-										send();
-									})
-									.catch((errorInfo) => {
-										console.error('Validation Failed:', errorInfo);
-									});
-							}}
+							htmlType='submit'
 						>
 							Send OTP
 						</Button>
@@ -134,7 +191,9 @@ const ForgotPassword = ({ navigate }) => {
 					id='authentication-form'
 					layout='vertical'
 					ref={OTPForm}
-					onFinish={(values) => { }}
+					onFinish={(values) => {
+						verify(values);
+					}}
 				>
 					<Paragraph style={{ textAlign: 'center' }}>
 						An OTP has been sent to your email.<br /> Please enter it below to verify your identity.
@@ -152,7 +211,7 @@ const ForgotPassword = ({ navigate }) => {
 					</Form.Item>
 
 					<Paragraph style={{ textAlign: 'center' }}>
-						Did not receive the OTP? <Link onClick={() => { send() }}>{sending && <LoadingOutlined />} Resend OTP</Link>
+						Did not receive the OTP? <Link onClick={() => { send({ id: user.id, email: user.email }) }}>{sending && <LoadingOutlined />} Resend OTP</Link>
 					</Paragraph>
 
 					<Flex vertical align='stretch'>
@@ -160,17 +219,7 @@ const ForgotPassword = ({ navigate }) => {
 							type='primary'
 							icon={verifying ? <LoadingOutlined /> : <CheckOutlined />}
 							disabled={verifying}
-
-							onClick={() => {
-								OTPForm.current
-									.validateFields()
-									.then((values) => {
-										verify(values.otp);
-									})
-									.catch((errorInfo) => {
-										console.error('Validation Failed:', errorInfo);
-									});
-							}}
+							htmlType='submit'
 						>
 							Verify OTP
 						</Button>
@@ -183,14 +232,35 @@ const ForgotPassword = ({ navigate }) => {
 					id='authentication-form'
 					layout='vertical'
 					ref={ResetPasswordForm}
-					onFinish={(values) => { }}
+					onFinish={(values) => {
+						resetPassword(values.password);
+					}}
 				>
 					<Form.Item
 						name='password'
 						rules={[
-							{ required: true, message: 'Please input your new password!' },
-							{ min: 8, message: 'Password must be at least 8 characters long!' },
-							{ pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,15}$/, message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number, and one special character!' }
+							{ required: true, message: 'Please input your password!' },
+							() => ({
+								validator(_, value) {
+									if (value.length < 8)
+										return Promise.reject(new Error('Password must be at least 8 characters!'));
+									return Promise.resolve();
+								}
+							}),
+							() => ({
+								validator(_, value) {
+									if (value.search(/[a-z]/i) < 0)
+										return Promise.reject(new Error('Password must contain at least one letter!'));
+									return Promise.resolve();
+								}
+							}),
+							() => ({
+								validator(_, value) {
+									if (value.search(/[0-9]/) < 0)
+										return Promise.reject(new Error('Password must contain at least one number!'));
+									return Promise.resolve();
+								}
+							})
 						]}
 					>
 						<Input.Password placeholder='New Password' />
@@ -198,13 +268,12 @@ const ForgotPassword = ({ navigate }) => {
 					<Form.Item
 						name='confirmPassword'
 						rules={[
-							{ required: true, message: 'Please confirm your new password!' },
+							{ required: true, message: 'Please confirm your password!' },
 							({ getFieldValue }) => ({
 								validator(_, value) {
-									if (!value || getFieldValue('password') === value) {
+									if (!value || getFieldValue('password') === value)
 										return Promise.resolve();
-									};
-									return Promise.reject(new Error('The two passwords that you entered do not match!'));
+									return Promise.reject(new Error('Passwords do not match!'));
 								}
 							})
 						]}
@@ -214,19 +283,9 @@ const ForgotPassword = ({ navigate }) => {
 					<Flex vertical align='stretch'>
 						<Button
 							type='primary'
-							icon={sending ? <LoadingOutlined /> : <KeyOutlined />}
-							disabled={sending}
-
-							onClick={() => {
-								ResetPasswordForm.current
-									.validateFields()
-									.then((values) => {
-										resetPassword(values.password);
-									})
-									.catch((errorInfo) => {
-										console.error('Validation Failed:', errorInfo);
-									});
-							}}
+							icon={resetting ? <LoadingOutlined /> : <KeyOutlined />}
+							disabled={resetting}
+							htmlType='submit'
 						>
 							Reset Password
 						</Button>
