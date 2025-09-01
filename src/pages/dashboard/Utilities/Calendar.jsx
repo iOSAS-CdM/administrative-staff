@@ -23,7 +23,7 @@ import {
 import { LoadingStatesContext, OSASContext } from '../../../main';
 
 import NewCase from '../../../modals/NewCase';
-import { RecordCard } from '../Students/Records';
+import { RecordCard } from '../Discipline/Records';
 
 const { Text } = Typography;
 
@@ -45,7 +45,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 							label: {
 								disciplinary: event.content.violation
 							}[event.type],
-							onClick: () => navigate(`/dashboard/students/record/${event.id}`)
+							onClick: () => navigate(`/dashboard/discipline/record/${event.id}`)
 						}))
 					}}
 				>

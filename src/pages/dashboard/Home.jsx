@@ -23,7 +23,7 @@ const { Title, Text } = Typography;
 import rootToHex from '../../utils/rootToHex';
 
 import PanelCard from '../../components/PanelCard';
-import { RecordCard } from './Students/Records';
+import { RecordCard } from './Discipline/Records';
 
 const Timer = () => {
 	const [time, setTime] = React.useState({

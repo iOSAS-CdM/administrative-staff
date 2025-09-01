@@ -29,7 +29,8 @@ import {
 	MenuOutlined,
 	SyncOutlined,
 	MoonOutlined,
-	SunOutlined
+	SunOutlined,
+	SolutionOutlined
 } from '@ant-design/icons';
 
 import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesContext, OSASContext } from '../main';
@@ -37,8 +38,8 @@ import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesConte
 import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
 import Profile from '../pages/dashboard/Students/Profile';
-import DisciplinaryRecords from '../pages/dashboard/Students/Records';
-import DisciplinaryRecord from '../pages/dashboard/Students/Record';
+import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
+import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
 import Organizations from '../pages/dashboard/Students/Organizations';
 import Organization from '../pages/dashboard/Students/Organization';
 import CalendarPage from '../pages/dashboard/Utilities/Calendar';
@@ -166,17 +167,7 @@ const Menubar = () => {
 		},
 		{ path: '/students/profile/:studentId', element: <Profile {...props} /> },
 
-		{
-			path: '/students/records/*',
-			element: <DisciplinaryRecords {...props} />,
-			children: [
-				{ path: 'active', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
-			]
-		},
-		{ path: '/students/record/:id', element: <DisciplinaryRecord {...props} /> },
+		{ path: '/students/unverified/*', element: <p>Unverified</p> },
 
 		{
 			path: '/students/organizations/*',
@@ -190,6 +181,20 @@ const Menubar = () => {
 			]
 		},
 		{ path: '/students/organization/:id', element: <Organization {...props} /> },
+
+		{
+			path: '/discipline/records/*',
+			element: <DisciplinaryRecords {...props} />,
+			children: [
+				{ path: 'active', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
+			]
+		},
+		{ path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
+
+		{ path: '/discipline/reports/*', element: <p>Reports</p> },
 
 		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
 		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
@@ -316,14 +321,31 @@ const Menubar = () => {
 					onClick: () => navigate('/dashboard/students/profiles/active', { replace: true })
 				},
 				{
-					key: 'records',
-					label: 'Disciplinary Records',
-					onClick: () => navigate('/dashboard/students/records/ongoing', { replace: true })
+					key: 'unverified',
+					label: 'Unverified Profiles',
+					onClick: () => navigate('/dashboard/students/unverified/active', { replace: true })
 				},
 				{
 					key: 'organizations',
 					label: 'Organizations',
 					onClick: () => navigate('/dashboard/students/organizations/active', { replace: true })
+				}
+			]
+		},
+		{
+			key: 'discipline',
+			label: 'Discipline',
+			icon: <SolutionOutlined />,
+			children: [
+				{
+					key: 'records',
+					label: 'Records',
+					onClick: () => navigate('/dashboard/discipline/records/ongoing', { replace: true })
+				},
+				{
+					key: 'reports',
+					label: 'Reports',
+					onClick: () => navigate('/dashboard/discipline/reports', { replace: true })
 				}
 			]
 		},
