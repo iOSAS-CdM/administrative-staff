@@ -1,112 +1,17 @@
 import React from 'react';
-import { useNavigate, useRoutes } from 'react-router';
-import { motion, AnimatePresence } from 'framer-motion';
-import supabase from '../utils/supabaseClient';
-import { listen } from '@tauri-apps/api/event';
-import { open } from '@tauri-apps/plugin-shell';
-import { start, cancel } from '@fabianlars/tauri-plugin-oauth';
+import { useNavigate } from 'react-router';
 
-import { getVersion } from '@tauri-apps/api/app';
+import { Flex, Button, Image, Typography, Card } from 'antd';
 
-import {
-	Card,
-	Flex,
-	Button,
-	Divider,
-	Image,
-	Typography
-} from 'antd';
-
-import { GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
-
-import { MobileContext, DisplayThemeContext } from '../main';
-
-const { Text, Title, Link } = Typography;
-
-import SignIn from './authentication/SignIn';
-import SignUp from './authentication/SignUp';
-import ForgotPassword from './authentication/ForgotPassword';
+const { Text, Title } = Typography;
 
 import '../styles/pages/Authentication.css';
 
-const Authentication = () => {
-	const [version, setVersion] = React.useState('');
+import { DisplayThemeContext } from '../main';
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
+const Unauthorized = () => {
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
-	const [signingIn, setSigningIn] = React.useState(false);
-
 	const navigate = useNavigate();
-
-	React.useEffect(() => {
-		const fetchVersion = async () => {
-			const appVersion = await getVersion();
-			setVersion(appVersion);
-		};
-
-		fetchVersion();
-	}, []);
-
-	const routes = useRoutes([
-		{ path: '/', element: <SignIn navigate={navigate} /> },
-		{ path: '/sign-in', element: <SignIn navigate={navigate} /> },
-		{ path: '/sign-up', element: <SignUp navigate={navigate} /> },
-		{ path: '/forgot-password', element: <ForgotPassword navigate={navigate} /> }
-	]);
-
-	const signInWithGoogle = React.useCallback(async () => {
-		setSigningIn(true);
-		let port;
-
-		const unlisten = await listen('oauth://url', (data) => {
-			if (!data.payload) return;
-
-			const url = new URL(data.payload);
-			const code = new URLSearchParams(url.search).get('code');
-
-			if (code) {
-				supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-					if (error) {
-						alert(error.message);
-						console.error(error);
-						return;
-					};
-					console.log(data);
-					location.reload();
-
-					unlisten();
-					cancel(port)
-						.catch((e) => console.error(`Error cancelling OAuth listener for port ${port}:`, e));
-				});
-			};
-		});
-
-		await start({
-			ports: [8000],
-			response: `<script>window.location.href = 'http://${window.location.hostname}:${window.location.port}/auth-return';</script>`,
-		})
-			.then(async (p) => {
-				console.log(`OAuth listener started on port ${p}`);
-				port = p;
-			})
-			.catch((e) => console.error('Error starting OAuth listener:', e));
-
-		if (!port) return;
-
-		const { data, error } = await supabase.auth.signInWithOAuth({
-			provider: 'google',
-			options: {
-				redirectTo: `http://localhost:${port}`,
-				skipBrowserRedirect: true
-			}
-		});
-		console.log(data, error);
-
-		if (data.url)
-			open(data.url);
-		else if (error)
-			console.error('Error signing in with Google:', error.message);
-	}, []);
 
 	return (
 		<>
@@ -207,67 +112,26 @@ const Authentication = () => {
 				</svg>
 			</div>
 
-			<Flex
-				layout='vertical'
-				justify='center'
-				align='center'
-				className={`page-container${mobile ? ' mobile' : ''}`}
+			<Card
 				style={{
-					minHeight: '100vh',
-					height: '100%',
-					padding: 16
+					position: 'absolute',
+					top: '50%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)'
 				}}
 			>
-				<Card className='authentication-card scrollable-content'>
-					<Flex vertical justify='space-between' align='center' gap={32} style={{ height: '100%' }}>
-						<Flex vertical justify='center' align='center' gap={32} style={{ height: '100%' }}>
-							<Image
-								src='/CdM-OSAS Banner.png'
-								alt='Logo Colegio de Montalban'
-								width='75%'
-								preview={false}
-							/>
-							<Divider />
-
-							<AnimatePresence mode='wait'>
-								<motion.div
-									key={location.pathname}
-									initial={{ opacity: 0, x: 20 }}
-									animate={{ opacity: 1, x: 0 }}
-									exit={{ opacity: 0, x: -20 }}
-									style={{ width: 256 }}
-								>
-
-									<Flex vertical justify='center' align='center' gap={32} style={{ height: '100%' }}>
-										{routes}
-									</Flex>
-								</motion.div>
-							</AnimatePresence>
-
-							<Divider>or</Divider>
-							<Button
-								icon={signingIn ? <LoadingOutlined /> : <GoogleOutlined />}
-								onClick={signInWithGoogle}
-								loading={signingIn}
-							>
-								Sign In with Google
-							</Button>
-						</Flex>
-						<Text style={{ display: 'block', textAlign: 'center' }}>Copyright © Colegio de Montalban 2025.</Text>
+				<Flex vertical align='center' gap={32}>
+					<Image width={256} height={256} src='/CDM Logo.png' preview={false} />
+					<Flex vertical align='center' gap={4}>
+						<Title level={3} style={{ textAlign: 'center' }}>Unauthorized Access</Title>
+						<Text style={{ textAlign: 'center' }}>You do not have permission to use this application</Text>
+						<Text style={{ textAlign: 'center' }}>Please contact the <a href='mailto:danieljohnbyns@gmail.com'>system developer</a> if you believe this is an error</Text>
 					</Flex>
-				</Card>
-			</Flex>
-
-			<Flex vertical id='version-info-panel' className={`${displayTheme}${mobile ? ' mobile' : ''}`} justify='center' align='flex-start'>
-				<Text>
-					Version {version}
-				</Text>
-				<Text>
-					For support, contact us via <Link href='mailto:danieljohnbyns@gmail.com'>danieljohnbyns@gmail.com</Link>.
-				</Text>
-			</Flex>
+					<Button type='primary' size='large' onClick={() => { window.localStorage.clear(); navigate('/authentication/sign-in'); }}>Go to Home</Button>
+				</Flex>
+			</Card>
 		</>
 	);
 };
 
-export default Authentication;
+export default Unauthorized;

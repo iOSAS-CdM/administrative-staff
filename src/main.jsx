@@ -7,6 +7,7 @@ import { ConfigProvider as DesignConfig, App, theme as DesignTheme, notification
 
 import Authentication from './pages/Authentication';
 import Menubar from './components/Menubar';
+import Unauthorized from './pages/Unauthorized';
 
 import rootToHex from './utils/rootToHex';
 
@@ -572,6 +573,8 @@ const OSAS = () => {
 												<Route path='/' element={<Navigate to='/authentication' replace />} />
 												<Route path='/authentication/*' element={!session ? <Authentication /> : <Navigate to='/dashboard' replace />} />
 												<Route path='/dashboard/*' element={session ? <Menubar /> : <Navigate to='/authentication' replace />} />
+
+												<Route path="/unauthorized" element={<Unauthorized />} />
 											</Routes>
 										</DisplayThemeContext.Provider>
 									</MobileContext.Provider>
