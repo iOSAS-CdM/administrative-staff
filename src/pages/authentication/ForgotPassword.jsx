@@ -138,7 +138,7 @@ const ForgotPassword = ({ navigate }) => {
 		};
 
 		setResetting(false);
-		navigate('/sign-in'); // Redirect to sign-in page after resetting password
+		navigate('/authentication/sign-in'); // Redirect to sign-in page after resetting password
 	};
 
 	return (
