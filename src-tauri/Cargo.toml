@@ -36,8 +36,3 @@ custom-protocol = ["tauri/custom-protocol"]
 
 [target."cfg(any(target_os = \"macos\", windows, target_os = \"linux\"))".dependencies]
 tauri-plugin-single-instance = { version = "2.0.0", features = ["deep-link"] }
-
-[profile.release.package.wry]
-debug = true
-debug-assertions = true
-
