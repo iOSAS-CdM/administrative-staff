@@ -405,12 +405,13 @@ const Menubar = () => {
 					}}
 					onMouseEnter={handleMouseEnter}
 					onMouseLeave={handleMouseLeave}
+					className='scrollable-content'
 				>
 					<Flex
 						vertical
 						justify='space-between'
 						align='center'
-						style={{ width: '100%', height: '100%' }}
+						style={{ width: '100%', minHeight: '100%' }}
 					>
 						{minimized && (
 							<Button
