@@ -29,12 +29,12 @@ jobs:
               uses: dtolnay/rust-toolchain@stable
               with:
                   toolchain: stable
-                  target: ${{ matrix.platform == 'macos-latest' && 'x86_64-apple-darwin' || matrix.platform == 'ubuntu-latest' && 'x86_64-unknown-linux-gnu' || 'x86_64-unknown-windows-msvc' }}
+                  target: ${{ matrix.platform == 'macos-latest' && 'x86_64-apple-darwin' || matrix.platform == 'ubuntu-latest' && 'x86_64-unknown-linux-gnu' || 'x86_64-pc-windows-msvc' }}
                   components: rustfmt, clippy
                   targets: |
                       x86_64-apple-darwin
                       x86_64-unknown-linux-gnu
-                      x86_64-unknown-windows-msvc
+                      x86_64-pc-windows-msvc
 
             - name: Install dependencies (Linux)
               if: matrix.platform == 'ubuntu-latest'
