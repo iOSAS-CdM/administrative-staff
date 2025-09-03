@@ -47,6 +47,8 @@ jobs:
 
             - name: Build Tauri app
               run: npm run tauri build # Or yarn tauri build
+              env:
+                  NO_STRIP: true
 
             - name: Upload artifact (macOS)
               if: matrix.platform == 'macos-latest'
