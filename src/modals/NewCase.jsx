@@ -61,11 +61,11 @@ const CaseForm = () => {
 						},
 						email: user.email,
 						phone: user.phone,
-						studentId: (() => {
+						id: (() => {
 							let id;
 							do {
 								id = `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`;
-							} while (fetchedStudents.some(student => student.studentId === id));
+							} while (fetchedStudents.some(student => student.id === id));
 							return id;
 						})(),
 						institute: institute,
@@ -179,8 +179,8 @@ const CaseForm = () => {
 							mode='tags'
 							placeholder='Select complainants'
 							options={complainantOptionStudents.map(student => ({
-								label: `${student.name.first} ${student.name.last} (${student.studentId})`,
-								value: student.studentId,
+								label: `${student.name.first} ${student.name.last} (${student.id})`,
+								value: student.id,
 								disabled: student.disabled
 							}))}
 							onChange={(value) => {
@@ -188,7 +188,7 @@ const CaseForm = () => {
 								const selectedStudents = new Set(value);
 								const updatedComplaineeOptions = complaineeOptionStudents.map(student => ({
 									...student,
-									disabled: selectedStudents.has(student.studentId)
+									disabled: selectedStudents.has(student.id)
 								}));
 								setComplaineeOptionStudents(updatedComplaineeOptions);
 							}}
@@ -208,8 +208,8 @@ const CaseForm = () => {
 							mode='tags'
 							placeholder='Select complainees'
 							options={complaineeOptionStudents.map(student => ({
-								label: `${student.name.first} ${student.name.last} (${student.studentId})`,
-								value: student.studentId,
+								label: `${student.name.first} ${student.name.last} (${student.id})`,
+								value: student.id,
 								disabled: student.disabled
 							}))}
 							onChange={(value) => {
@@ -217,7 +217,7 @@ const CaseForm = () => {
 								const selectedStudents = new Set(value);
 								const updatedComplainantOptions = complainantOptionStudents.map(student => ({
 									...student,
-									disabled: selectedStudents.has(student.studentId)
+									disabled: selectedStudents.has(student.id)
 								}));
 								setComplainantOptionStudents(updatedComplainantOptions);
 							}}

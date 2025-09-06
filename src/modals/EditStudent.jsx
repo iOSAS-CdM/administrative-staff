@@ -120,7 +120,7 @@ const StudentForm = ({ student }) => {
 					</Form.Item>
 					<Space.Compact style={{ width: '100%' }}>
 						<Form.Item
-							name='studentId'
+							name='id'
 							rules={[{ required: true, message: 'Please input the employee ID!' }]}
 							style={{ width: '100%' }}
 						>
@@ -132,7 +132,7 @@ const StudentForm = ({ student }) => {
 							style={{ width: 'fit-content' }}
 							onClick={() => {
 								EditStudentForm.current.setFieldsValue({
-									studentId: `${String((new Date()).getFullYear()).slice(1)}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
+									id: `${String((new Date()).getFullYear()).slice(1)}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
 								});
 							}}
 						>
