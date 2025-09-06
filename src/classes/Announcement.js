@@ -13,7 +13,6 @@
 
 /**
  * @typedef {{
- * 	placeholder: Boolean,
  * 	id: Number | String,
  * 	title: String,
  * 	description: String,
@@ -31,7 +30,6 @@ class Announcement {
 	 * @param {AnnouncementProps} props
 	 */
 	constructor({
-		placeholder = false,
 		id = Math.floor(Math.random() * 1000000),
 		title,
 		description,
@@ -41,7 +39,6 @@ class Announcement {
 		authors = [],
 		archived = false
 	}) {
-		this.placeholder = placeholder;
 		this.id = id;
 		this.title = title;
 		this.description = description;

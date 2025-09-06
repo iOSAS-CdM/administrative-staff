@@ -20,8 +20,7 @@
  * 	},
  * 	complainants: import('./Student').StudentProps[],
  * 	complainees: RecordComplainanee[],
- * 	date: Date,
- * 	placeholder?: Boolean
+ * 	date: Date
  * }} RecordProps
  */
 
@@ -41,8 +40,7 @@ class Record {
 		complainants = [],
 		complainees = [],
 		date = new Date(new Date().getFullYear(), new Date().getMonth(), new
-			Date().getDate() - (Math.floor(Math.random() * 10) + 1)),
-		placeholder = false
+			Date().getDate() - (Math.floor(Math.random() * 10) + 1))
 	}) {
 		// Initialize the record properties
 		this.id = id;
@@ -56,7 +54,6 @@ class Record {
 		this.complainants = complainants;
 		this.complainees = complainees;
 		this.date = date;
-		this.placeholder = placeholder;
 	};
 };
 

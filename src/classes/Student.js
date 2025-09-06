@@ -11,12 +11,13 @@
  * 		middle: String,
  * 		last: String
  * 	},
+ * 	role: 'student',
  * 	email: String,
  * 	phone: String,
  * 	studentId: String,
  * 	profilePicture?: String,
  * 	status?: 'active' | 'restricted' | 'archived',
- * 	placeholder?: Boolean
+ * 	organizations?: import('./Organization').OrganizationProps[],
  * }} BaseStudentProps
  */
 
@@ -32,6 +33,7 @@ class Student {
 	 */
 	constructor({
 		name,
+		role,
 		email,
 		phone,
 		studentId,
@@ -39,10 +41,11 @@ class Student {
 		program,
 		year,
 		profilePicture = '/Placeholder Image.svg',
-		placeholder = false,
-		status = 'active'
+		status = 'active',
+		organizations = []
 	}) {
 		this.name = name;
+		this.role = role;
 		this.email = email;
 		this.phone = phone;
 		this.studentId = studentId;
@@ -50,8 +53,8 @@ class Student {
 		this.program = program;
 		this.year = year;
 		this.profilePicture = profilePicture;
-		this.placeholder = placeholder;
 		this.status = status;
+		this.organizations = organizations;
 	};
 };
 

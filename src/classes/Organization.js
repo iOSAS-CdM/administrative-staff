@@ -17,7 +17,6 @@
  * 	status?: 'active' | 'restricted' | 'archived',
  * 	type?: 'college-wide' | 'institute-wide',
  * 	members?: OrganizationMember[],
- * 	placeholder?: Boolean
  * }} Organization
  */
 
@@ -35,8 +34,7 @@ class Organization {
 		cover = '/Placeholder Image.svg',
 		status = 'active',
 		type = 'college-wide',
-		members = [],
-		placeholder = false
+		members = []
 	}) {
 		this.id = id;
 		this.shortName = shortName;
@@ -48,7 +46,6 @@ class Organization {
 		this.status = status;
 		this.type = type;
 		this.members = members;
-		this.placeholder = placeholder;
 	};
 };
 

@@ -1,11 +1,16 @@
 /**
  * @typedef {{
- * 	id: Number | String;
- * 	name: String;
- * 	email: String;
- * 	role: 'head' | 'guidance' | 'prefect' | 'student-affairs';
- * 	profilePicture: String;
- * 	status: 'active' | 'restricted' | 'archived';
+ *  id: Number | String;
+ *  name: {
+ * 		first: String;
+ * 		last: String;
+ * 		middle?: String;
+ * 	};
+ *  email: String;
+ *  role: 'head' | 'guidance' | 'prefect' | 'student-affairs';
+ *  profilePicture: String;
+ *  status: 'active' | 'restricted' | 'archived';
+ *  reason?: String;
  * }} StaffProps
  */
 
@@ -19,7 +24,8 @@ class Staff {
 		email,
 		role,
 		profilePicture,
-		status
+		status,
+		reason
 	}) {
 		this.id = id;
 		this.name = name;
@@ -27,6 +33,9 @@ class Staff {
 		this.role = role;
 		this.profilePicture = profilePicture;
 		this.status = status;
+		if (status === 'restricted') {
+			this.reason = reason;
+		}
 	};
 };
 
