@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation, useRoutes, Navigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
-import supabase from '../utils/supabaseClient';
+import supabase from '../utils/supabase';
 
 import {
 	Card,

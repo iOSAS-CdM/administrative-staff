@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
-import supabase from './utils/supabaseClient';
+import supabase from './utils/supabase';
+import authFetch from './utils/authFetch';
 
 import { ConfigProvider as DesignConfig, App, theme as DesignTheme, notification } from 'antd';
 
@@ -214,7 +215,7 @@ const OSAS = () => {
 			events: []
 		});
 
-		fetch(`${API_Route}/auth/me`)
+		authFetch(`${API_Route}/auth/me`)
 			.then(response => response.json())
 			.then(data => {
 				console.log(data);
@@ -589,5 +590,6 @@ const OSAS = () => {
 };
 
 export const API_Route = import.meta.env.DEV ? 'http://localhost:3001' : 'http://47.130.158.40';
+export const navigationRef = React.createRef();
 
 ReactDOM.createRoot(document.getElementById('root')).render(<OSAS />);

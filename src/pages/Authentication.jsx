@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useRoutes } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
-import supabase from '../utils/supabaseClient';
+import supabase from '../utils/supabase';
 import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-shell';
 import { start, cancel } from '@fabianlars/tauri-plugin-oauth';
