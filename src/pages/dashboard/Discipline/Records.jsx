@@ -282,7 +282,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 										style={{ cursor: 'pointer' }}
 										onClick={(e) => {
 											e.stopPropagation();
-											navigate(`/dashboard/students/profile/${complainant.studentId}`);
+											navigate(`/dashboard/students/profile/${complainant.id}`);
 										}}
 									/>
 								))}
@@ -298,7 +298,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 											style={{ cursor: 'pointer' }}
 											onClick={(e) => {
 												e.stopPropagation();
-												navigate(`/dashboard/students/profile/${complainee.student.studentId}`);
+												navigate(`/dashboard/students/profile/${complainee.student.id}`);
 											}}
 										/>
 									</Badge>

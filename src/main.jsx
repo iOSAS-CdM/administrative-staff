@@ -214,7 +214,7 @@ const OSAS = () => {
 			events: []
 		});
 
-		fetch(`${API_Route}/staff/me`)
+		fetch(`${API_Route}/auth/me`)
 			.then(response => response.json())
 			.then(data => {
 				console.log(data);
@@ -275,11 +275,11 @@ const OSAS = () => {
 						},
 						email: user.email,
 						phone: user.phone,
-						studentId: (() => {
+						id: (() => {
 							let id;
 							do {
 								id = `25-${String(i).padStart(5, '0')}`;
-							} while (fetchedStudents.some(student => student.studentId === id));
+							} while (fetchedStudents.some(student => student.id === id));
 							return id;
 						})(),
 						institute: institute,
@@ -324,11 +324,11 @@ const OSAS = () => {
 						},
 						email: user.email,
 						phone: user.phone,
-						studentId: (() => {
+						id: (() => {
 							let id;
 							do {
 								id = `25-${String(i).padStart(5, '0')}`;
-							} while (placeholderStudents.some(student => student.studentId === id));
+							} while (placeholderStudents.some(student => student.id === id));
 							return id;
 						})(),
 						institute: institute,
@@ -361,13 +361,13 @@ const OSAS = () => {
 				const complainants = [];
 				for (let j = 0; j < 10; j++) {
 					const student = osas.students[Math.floor(Math.random() * osas.students.length)];
-					if (complainants.some(c => c.studentId === student.studentId)) continue; // Avoid duplicates
+					if (complainants.some(c => c.id === student.id)) continue; // Avoid duplicates
 					complainants.push(student);
 				};
 				const complainees = [];
 				for (let j = 0; j < 10; j++) {
 					const student = osas.students[Math.floor(Math.random() * osas.students.length)];
-					if (complainees.some(c => c.student.studentId === student.studentId) || complainants.some(c => c.studentId === student.studentId)) continue; // Avoid duplicates
+					if (complainees.some(c => c.student.id === student.id) || complainants.some(c => c.id === student.id)) continue; // Avoid duplicates
 					complainees.push({
 						occurrence: j + 1,
 						student: student
@@ -420,7 +420,7 @@ const OSAS = () => {
 				const members = [];
 				for (const role of ['President', 'Vice President', 'Secretary', 'Treasurer', 'Member']) {
 					const student = osas.students[Math.floor(Math.random() * osas.students.length)];
-					if (members.some(m => m.student.studentId === student.studentId)) continue; // Avoid duplicates
+					if (members.some(m => m.student.id === student.id)) continue; // Avoid duplicates
 					members.push({
 						role: role,
 						student: student

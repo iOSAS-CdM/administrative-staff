@@ -223,7 +223,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 							>
 								{thisRecord.complainants.length > 0 && thisRecord.complainants.map((complainant, i) => (
 									<Card
-										key={complainant.studentId || i}
+										key={complainant.id || i}
 										size='small'
 										hoverable
 										style={{ width: '100%' }}
@@ -235,8 +235,8 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 													centered: true
 												});
 											} else {
-												navigate(`/dashboard/students/profile/${complainant.studentId}`, {
-													state: { studentId: complainant.studentId }
+												navigate(`/dashboard/students/profile/${complainant.id}`, {
+													state: { id: complainant.id }
 												});
 											};
 										}}
@@ -245,7 +245,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 											<Avatar src={complainant.profilePicture} size='large' style={{ width: 32, height: 32 }} />
 											<Flex vertical>
 												<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
-												<Text type='secondary'>{complainant.studentId}</Text>
+												<Text type='secondary'>{complainant.id}</Text>
 											</Flex>
 										</Flex>
 									</Card>
@@ -281,7 +281,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 							>
 								{thisRecord.complainees.length > 0 && thisRecord.complainees.map((complainee, i) => (
 									<Card
-										key={complainee.student.studentId || i}
+										key={complainee.student.id || i}
 										size='small'
 										hoverable
 										style={{ width: '100%' }}
@@ -293,8 +293,8 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 													centered: true
 												});
 											} else {
-												navigate(`/dashboard/students/profile/${complainee.student.studentId}`, {
-													state: { studentId: complainee.student.studentId }
+												navigate(`/dashboard/students/profile/${complainee.student.id}`, {
+													state: { id: complainee.student.id }
 												});
 											};
 										}}
@@ -312,7 +312,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 											<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
 											<Flex vertical>
 												<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
-												<Text type='secondary'>{complainee.student.studentId}</Text>
+												<Text type='secondary'>{complainee.student.id}</Text>
 											</Flex>
 										</Flex>
 									</Card>

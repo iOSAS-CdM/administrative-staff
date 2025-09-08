@@ -165,7 +165,7 @@ const Menubar = () => {
 				{ path: 'archived', element: <Profiles {...props} /> }
 			]
 		},
-		{ path: '/students/profile/:studentId', element: <Profile {...props} /> },
+		{ path: '/students/profile/:id', element: <Profile {...props} /> },
 
 		{ path: '/students/unverified/*', element: <p>Unverified</p> },
 

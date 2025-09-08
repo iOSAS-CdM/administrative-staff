@@ -220,8 +220,8 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
 							style={{ cursor: 'pointer' }}
 							onClick={(e) => {
 								e.stopPropagation();
-								navigate(`/dashboard/students/profile/${member.student.studentId}`, {
-									state: { studentId: member.student.studentId }
+								navigate(`/dashboard/students/profile/${member.student.id}`, {
+									state: { id: member.student.id }
 								});
 							}}
 						/>

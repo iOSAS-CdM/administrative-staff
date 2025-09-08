@@ -253,8 +253,8 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 										hoverable
 										style={{ width: '100%' }}
 										onClick={() => {
-											navigate(`/dashboard/students/profile/${member.student.studentId}`, {
-												state: { studentId: member.student.studentId }
+											navigate(`/dashboard/students/profile/${member.student.id}`, {
+												state: { id: member.student.id }
 											});
 										}}
 									>

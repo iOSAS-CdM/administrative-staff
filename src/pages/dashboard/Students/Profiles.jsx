@@ -216,7 +216,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 					student.name.last.toLowerCase().includes(searchTerm) ||
 					`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
 					`${student.name.first} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
-					student.studentId.toLowerCase().includes(searchTerm) ||
+					student.id.toLowerCase().includes(searchTerm) ||
 					student.email.toLowerCase().includes(searchTerm)
 				);
 			});
@@ -369,7 +369,7 @@ const StudentCard = ({ student, loading, navigate }) => {
 						centered: true
 					});
 				else
-					navigate(`/dashboard/students/profile/${thisStudent.studentId}`);
+					navigate(`/dashboard/students/profile/${thisStudent.id}`);
 			}}
 		>
 			<Flex justify='flex-start' align='center' gap={16} style={{ width: '100%' }}>
@@ -379,7 +379,7 @@ const StudentCard = ({ student, loading, navigate }) => {
 					style={{ width: 64, height: 64 }}
 				/>
 				<Flex vertical justify='flex-start' align='flex-start' style={{ flex: 1 }}>
-					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.studentId}</Text></Title>
+					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.id}</Text></Title>
 					<Text>{
 						thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
 							thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
@@ -446,7 +446,7 @@ const CategoryPage = ({ institutionalizedStudents }) => {
 				<Row gutter={[16, 16]}>
 					<AnimatePresence mode='popLayout'>
 						{institutionalizedStudents.map((student, index) => (
-							<Col key={student.studentId} span={!mobile ? 12 : 24}>
+							<Col key={student.id} span={!mobile ? 12 : 24}>
 								<motion.div
 									key={index}
 									initial={{ opacity: 0, y: 20 }}

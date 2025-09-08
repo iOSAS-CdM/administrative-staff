@@ -38,7 +38,7 @@ const RestrictStudent = async (Modal, student) => {
 				layout='vertical'
 				ref={RestrictStudentForm}
 				initialValues={{
-					studentId: student.id,
+					id: student.id,
 					reason: ''
 				}}
 			>

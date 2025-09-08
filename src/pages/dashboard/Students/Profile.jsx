@@ -203,7 +203,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: `Student ${location.state?.student?.studentId || 'Profile'}`,
+			title: `Student ${location.state?.student?.id || 'Profile'}`,
 			actions: [
 				<Button
 					type='primary'
@@ -219,7 +219,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		setSelectedKeys(['profiles']);
 	}, [setSelectedKeys]);
 
-	const { studentId } = useParams();
+	const { id } = useParams();
 
 	/** @type {[import('../../../classes/Student').StudentProps, React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps>>]} */
 	const [thisStudent, setThisStudent] = React.useState({
@@ -229,35 +229,35 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 			middle: '',
 			last: ''
 		},
-		studentId: '',
+		id: '',
 		email: ''
 	});
 	React.useEffect(() => {
-		if (!studentId) return;
-		const student = osas.students.find(s => s.studentId === studentId);
+		if (!id) return;
+		const student = osas.students.find(s => s.id === id);
 		if (student)
 			setThisStudent(student);
-	}, [studentId, osas.students]);
+	}, [id, osas.students]);
 
 	const [organizations, setOrganizations] = React.useState([]);
 	React.useEffect(() => {
-		if (!thisStudent || !thisStudent.studentId) return;
+		if (!thisStudent || !thisStudent.id) return;
 		// Find organizations for the student that match the student id
-		const fetchedOrganizations = osas.organizations.filter(org => org.members.some(member => member.student.studentId === thisStudent.studentId));
+		const fetchedOrganizations = osas.organizations.filter(org => org.members.some(member => member.student.id === thisStudent.id));
 		setOrganizations(fetchedOrganizations);
 	}, [thisStudent, osas.organizations]);
 
 	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
-		if (!thisStudent || !thisStudent.studentId) return;
+		if (!thisStudent || !thisStudent.id) return;
 		// Filter events that are related to the student
 		const studentEvents = [];
 		for (const day of osas.events) {
 			const eventsOnDay = day.events.filter(event =>
 				event.type === 'disciplinary' && (
-					event.content.complainants.some(c => c.studentId === thisStudent.studentId)
-					|| event.content.complainees.some(c => c.student.studentId === thisStudent.studentId)
+					event.content.complainants.some(c => c.id === thisStudent.id)
+					|| event.content.complainees.some(c => c.student.id === thisStudent.id)
 				)
 			);
 			if (eventsOnDay.length > 0)
@@ -296,7 +296,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 						style={{ height: '100%' }}
 					>
 						<Title level={1}>
-							{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}> {thisStudent.studentId} </Text>
+							{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}> {thisStudent.id} </Text>
 						</Title>
 						<Text>
 							{
@@ -400,7 +400,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 												<Avatar src={organization.logo} size='large' />
 												<Flex vertical>
 													<Text strong>{organization.shortName}</Text>
-													<Text type='secondary'>{organization.members.find(member => member.student.studentId === thisStudent.studentId).role}</Text>
+													<Text type='secondary'>{organization.members.find(member => member.student.id === thisStudent.id).role}</Text>
 												</Flex>
 											</Flex>
 										</Card>
@@ -429,9 +429,9 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 											}}
 										>
 											<Badge
-												color={['yellow', 'orange', 'red'][e.content.complainees.find(c => c.student.studentId === thisStudent.studentId)?.occurrence - 1] || 'red'}
+												color={['yellow', 'orange', 'red'][e.content.complainees.find(c => c.student.id === thisStudent.id)?.occurrence - 1] || 'red'}
 												size='small'
-												count={e.content.complainees.some(c => c.student.studentId === thisStudent.studentId) ? e.content.complainees.find(c => c.student.studentId === thisStudent.studentId).occurrence : 0}
+												count={e.content.complainees.some(c => c.student.id === thisStudent.id) ? e.content.complainees.find(c => c.student.id === thisStudent.id).occurrence : 0}
 												offset={[-8, 0]}
 											>
 												<Tag color={e.content.tags.status === 'ongoing' ? 'yellow' : 'var(--primary)'}>{e.content.tags.status}</Tag>
