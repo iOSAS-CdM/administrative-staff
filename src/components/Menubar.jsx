@@ -13,7 +13,8 @@ import {
 	Badge,
 	Skeleton,
 	Popover,
-	Segmented
+	Segmented,
+	App
 } from 'antd';
 
 import {
@@ -111,6 +112,8 @@ const Menubar = () => {
 	const { loadingStates } = React.useContext(LoadingStatesContext);
 	const { osas } = React.useContext(OSASContext);
 
+	const { notification } = App.useApp();
+
 	const [staff, setStaff] = React.useState({
 		name: {
 			first: '',
@@ -120,16 +123,16 @@ const Menubar = () => {
 		role: '',
 		profilePicture: ''
 	});
-	React.useEffect(() => {
-		setStaff({
-			name: {
-				first: osas.staff.name.first,
-				middle: osas.staff.name.middle,
-				last: osas.staff.name.last
-			},
-			role: osas.staff.role,
-			profilePicture: osas.staff.profilePicture || '/Placeholder Image.svg'
-		});
+	React.useLayoutEffect(() => {
+		if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(osas.staff.role)) {
+			localStorage.removeItem('CustomApp');
+			notification.error({
+				message: 'Unauthorized',
+				description: 'You are not authorized to access this resource.'
+			});
+			navigate('/unauthorized', { replace: true });
+		};
+		setStaff(osas.staff);
 	}, [osas.staff]);
 
 	const [Header, setHeader] = React.useState({

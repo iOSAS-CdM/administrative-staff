@@ -1,5 +1,7 @@
 import supabase from './supabase';
 
+import { notification } from 'antd';
+
 /**
  * A fetch wrapper that includes the user's access token in the Authorization header.
  * If a 403 Forbidden response is received, it signs the user out and navigates to SignUp.
@@ -32,8 +34,12 @@ const authFetch = async (...args) => {
 	const response = await originalFetch(...args);
 
 	// If we have a session but get a 403 Forbidden response, sign out
-	if (session && response.status === 403) {
-		await supabase.auth.signOut();
+	if (session && response.status === 403 || response.status === 401) {
+		localStorage.removeItem('CustomApp');
+		notification.error({
+			message: 'Unauthorized',
+			description: 'You are not authorized to access this resource.'
+		});
 		window.location.href = '/unauthorized';
 	};
 
