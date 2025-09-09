@@ -34,25 +34,28 @@ import {
 	SolutionOutlined
 } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesContext, OSASContext } from '../main';
+import { MobileContext, DisplayThemeContext, API_Route } from '../main';
 
-import Home from '../pages/dashboard/Home';
-import Profiles from '../pages/dashboard/Students/Profiles';
-import Profile from '../pages/dashboard/Students/Profile';
-import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
-import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
-import Organizations from '../pages/dashboard/Students/Organizations';
-import Organization from '../pages/dashboard/Students/Organization';
-import CalendarPage from '../pages/dashboard/Utilities/Calendar';
-import FAQsPage from '../pages/dashboard/Utilities/FAQs';
-import Announcements from '../pages/dashboard/Utilities/Announements';
-import NewAnnouncement from '../pages/dashboard/Utilities/NewAnnouncement';
-import Repository from '../pages/dashboard/Utilities/Repository';
-import Helpbot from '../pages/dashboard/Utilities/Helpbot';
+// import Home from '../pages/dashboard/Home';
+// import Profiles from '../pages/dashboard/Students/Profiles';
+// import Profile from '../pages/dashboard/Students/Profile';
+// import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
+// import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
+// import Organizations from '../pages/dashboard/Students/Organizations';
+// import Organization from '../pages/dashboard/Students/Organization';
+// import CalendarPage from '../pages/dashboard/Utilities/Calendar';
+// import FAQsPage from '../pages/dashboard/Utilities/FAQs';
+// import Announcements from '../pages/dashboard/Utilities/Announements';
+// import NewAnnouncement from '../pages/dashboard/Utilities/NewAnnouncement';
+// import Repository from '../pages/dashboard/Utilities/Repository';
+// import Helpbot from '../pages/dashboard/Utilities/Helpbot';
 
 const { Text, Title } = Typography;
 
 import '../styles/pages/Dashboard.css';
+
+import { useCache } from '../contexts/CacheContext';
+import authFetch from '../utils/authFetch';
 
 /**
  * @typedef {{
@@ -93,8 +96,6 @@ const ReloadButton = ({ setSeed }) => {
 				onClick={() => {
 					if (shiftPressed)
 						location.reload();
-					else
-						setSeed(prev => prev + 1);
 				}}
 			/>
 		</Badge>
@@ -105,38 +106,67 @@ const Menubar = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
+	const { cache, updateCache } = useCache();
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
-	const { setSeed } = React.useContext(SyncSeedContext);
-	const { loadingStates } = React.useContext(LoadingStatesContext);
-	const { osas } = React.useContext(OSASContext);
 
 	const { notification } = App.useApp();
 
-	const [staff, setStaff] = React.useState({
-		name: {
-			first: '',
-			middle: '',
-			last: ''
-		},
-		role: '',
-		profilePicture: ''
-	});
 	React.useLayoutEffect(() => {
-		if (!osas.staff || !osas.staff.role) return;
-		if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(osas.staff.role)) {
-			localStorage.removeItem('CustomApp');
-			console.warn('Unauthorized access attempt detected. Redirecting to unauthorized page.');
-			console.error('User Role:', osas.staff.role);
-			notification.error({
-				message: 'Unauthorized',
-				description: 'You are not authorized to access this resource.'
-			});
-			navigate('/unauthorized', { replace: true });
+		if (cache.staff?.id) return;
+		const controller = new AbortController();
+		const getStaff = async () => {
+			const request = await authFetch(`${API_Route}/auth/me`, { signal: controller.signal });
+			if (!request.ok) {
+				notification.error({
+					message: 'Error',
+					description: 'Failed to fetch user data. Please sign in again.',
+					duration: 5
+				});
+				supabase.auth.signOut()
+					.then(() => {
+						window.location.href = '/authentication';
+					})
+					.catch((error) => {
+						console.error('Sign Out Error:', error);
+					});
+				return;
+			};
+			/** @type {import('../classes/Staff').StaffProps} */
+			const staff = await request.json();
+			if (!staff || !staff.id) {
+				notification.error({
+					message: 'Error',
+					description: 'Failed to fetch user data. Please sign in again.',
+					duration: 5
+				});
+				supabase.auth.signOut()
+					.then(() => {
+						window.location.href = '/authentication';
+					})
+					.catch((error) => {
+						console.error('Sign Out Error:', error);
+					});
+				return;
+			};
+			if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(staff.role)) {
+				supabase.auth.signOut()
+					.then(() => {
+						window.location.href = '/unauthorized';
+					})
+					.catch((error) => {
+						console.error('Sign Out Error:', error);
+					});
+			};
+			updateCache('staff', staff);
 		};
-		setStaff(osas.staff);
-	}, [osas.staff]);
+		getStaff();
+
+		return () => {
+			controller.abort();
+		};
+	}, [cache.staff]);
 
 	const [Header, setHeader] = React.useState({
 		title: 'Dashboard',
@@ -147,7 +177,7 @@ const Menubar = () => {
 		setHeader,
 		setSelectedKeys,
 		mobile,
-		staff,
+		staff: cache.staff,
 		setMobile,
 		displayTheme,
 		setDisplayTheme,
@@ -155,61 +185,62 @@ const Menubar = () => {
 	};
 
 	const routes = useRoutes([
-		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
-		{ path: '/home', element: <Home {...props} /> },
-		{ path: '/notifications', element: <p>Notifications</p> },
+		// { path: '/*', element: <Navigate to='/dashboard/home' replace /> },
+		{ path: '/', element: <p>Dashboard</p> },
+		// { path: '/home', element: <Home {...props} /> },
+		// { path: '/notifications', element: <p>Notifications</p> },
 
-		{
-			path: '/students/profiles/*',
-			element: <Profiles {...props} />,
-			children: [
-				{ path: 'active', element: <Profiles {...props} /> },
-				{ path: 'ics', element: <Profiles {...props} /> },
-				{ path: 'ite', element: <Profiles {...props} /> },
-				{ path: 'ibe', element: <Profiles {...props} /> },
-				{ path: 'restricted', element: <Profiles {...props} /> },
-				{ path: 'archived', element: <Profiles {...props} /> }
-			]
-		},
-		{ path: '/students/profile/:id', element: <Profile {...props} /> },
+		// {
+		// 	path: '/students/profiles/*',
+		// 	element: <Profiles {...props} />,
+		// 	children: [
+		// 		{ path: 'active', element: <Profiles {...props} /> },
+		// 		{ path: 'ics', element: <Profiles {...props} /> },
+		// 		{ path: 'ite', element: <Profiles {...props} /> },
+		// 		{ path: 'ibe', element: <Profiles {...props} /> },
+		// 		{ path: 'restricted', element: <Profiles {...props} /> },
+		// 		{ path: 'archived', element: <Profiles {...props} /> }
+		// 	]
+		// },
+		// { path: '/students/profile/:id', element: <Profile {...props} /> },
 
-		{ path: '/students/unverified/*', element: <p>Unverified</p> },
+		// { path: '/students/unverified/*', element: <p>Unverified</p> },
 
-		{
-			path: '/students/organizations/*',
-			element: <Organizations {...props} />,
-			children: [
-				{ path: 'active', element: <Organizations {...props} /> },
-				{ path: 'college-wide', element: <Organizations {...props} /> },
-				{ path: 'institute-wide', element: <Organizations {...props} /> },
-				{ path: 'restricted', element: <Organizations {...props} /> },
-				{ path: 'archived', element: <Organizations {...props} /> }
-			]
-		},
-		{ path: '/students/organization/:id', element: <Organization {...props} /> },
+		// {
+		// 	path: '/students/organizations/*',
+		// 	element: <Organizations {...props} />,
+		// 	children: [
+		// 		{ path: 'active', element: <Organizations {...props} /> },
+		// 		{ path: 'college-wide', element: <Organizations {...props} /> },
+		// 		{ path: 'institute-wide', element: <Organizations {...props} /> },
+		// 		{ path: 'restricted', element: <Organizations {...props} /> },
+		// 		{ path: 'archived', element: <Organizations {...props} /> }
+		// 	]
+		// },
+		// { path: '/students/organization/:id', element: <Organization {...props} /> },
 
-		{
-			path: '/discipline/records/*',
-			element: <DisciplinaryRecords {...props} />,
-			children: [
-				{ path: 'active', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
-			]
-		},
-		{ path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
+		// {
+		// 	path: '/discipline/records/*',
+		// 	element: <DisciplinaryRecords {...props} />,
+		// 	children: [
+		// 		{ path: 'active', element: <DisciplinaryRecords {...props} /> },
+		// 		{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
+		// 		{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
+		// 		{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
+		// 	]
+		// },
+		// { path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
 
-		{ path: '/discipline/reports/*', element: <p>Reports</p> },
+		// { path: '/discipline/reports/*', element: <p>Reports</p> },
 
-		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
-		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
+		// { path: '/utilities/calendar', element: <CalendarPage {...props} /> },
+		// { path: '/utilities/faqs', element: <FAQsPage {...props} /> },
 
-		{ path: '/utilities/announcements', element: <Announcements {...props} /> },
-		{ path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
+		// { path: '/utilities/announcements', element: <Announcements {...props} /> },
+		// { path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
 
-		{ path: '/utilities/repository', element: <Repository {...props} /> },
-		{ path: '/helpbot', element: <Helpbot {...props} /> }
+		// { path: '/utilities/repository', element: <Repository {...props} /> },
+		// { path: '/helpbot', element: <Helpbot {...props} /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
@@ -246,11 +277,11 @@ const Menubar = () => {
 			key: 'staff',
 			label: (
 				<Flex justify='space-between' align='center' style={{ width: '100%' }}>
-					<div style={{ flez: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-						{loadingStates.staff ? (
+					<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+						{cache.staff ? (
 							<Flex vertical>
-								<Title level={5} style={{ color: 'currentColor' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
-								<Text type='secondary' style={{ color: 'currentColor' }}>{staff.role}</Text>
+								<Title level={5} style={{ color: 'currentColor' }}>{cache.staff?.name.first} {cache.staff?.name.middle} {cache.staff?.name.last}</Title>
+								<Text type='secondary' style={{ color: 'currentColor' }}>{cache.staff?.role}</Text>
 							</Flex>
 						) : (
 							<Skeleton.Node
@@ -276,9 +307,9 @@ const Menubar = () => {
 			icon: (
 				minimized ?
 					<UserOutlined /> :
-					loadingStates.staff ? (
+					cache.staff ? (
 						<Avatar
-							src={staff.profilePicture}
+							src={cache.staff?.profilePicture}
 							shape='square'
 							size={minimized ? 'small' : 'large'}
 							className='anticon ant-menu-item-icon'
@@ -511,7 +542,7 @@ const Menubar = () => {
 						<Title level={4}>{Header.title}</Title>
 						{!mobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-								<ReloadButton setSeed={setSeed} />
+								<ReloadButton setSeed={null} />
 								{Header.actions && Header.actions.map((action, index) =>
 									React.cloneElement(action, { key: index })
 								)}
@@ -519,7 +550,7 @@ const Menubar = () => {
 						) : (
 							Header.actions && Header.actions.length > 1 ? (
 								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-									<ReloadButton setSeed={setSeed} />
+										<ReloadButton setSeed={null} />
 									<Popover
 										trigger={['click']}
 										placement='bottom'
@@ -539,9 +570,7 @@ const Menubar = () => {
 									<Button
 										type='default'
 										icon={<SyncOutlined />}
-										onClick={() => {
-											setSeed(prev => prev + 1);
-										}}
+												onClick={() => { }}
 									/>
 									{Header.actions && Header.actions.map((action, index) => (
 										{
