@@ -181,7 +181,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		const controller = new AbortController();
 		const fetchStudents = async () => {
-			if (cache.peers?.length > 0) return; // Already fetched
+			if (cache?.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student').length > 0) return;
 
 			// Fetch students from the backend
 			const request = await authFetch(`${API_Route}/users/students`, { signal: controller.signal });
@@ -195,7 +195,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		fetchStudents();
 
 		return () => controller.abort();
-	}, [cache.peers]);
+	}, [cache?.peers]);
 
 	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -220,7 +220,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		const filtered = [];
 
 		// Filter by year and program
-		for (const student of cache.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student')) {
+		for (const student of cache?.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student')) {
 			if (filter.years.length > 0 && !filter.years.includes(student.year))
 				continue;
 			if (filter.programs.length > 0 && !filter.programs.includes(student.program))
@@ -244,7 +244,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		};
 
 		return filtered;
-	}, [cache.peers, filter, search]);
+	}, [cache?.peers, filter, search]);
 	/**
 	 * @type {{
 	 * 	ics: Student[];
@@ -460,7 +460,6 @@ const StudentCard = ({ student, loading, navigate }) => {
 const CategoryPage = ({ institutionalizedStudents }) => {
 	const navigate = useNavigate();
 	const { mobile } = React.useContext(MobileContext);
-	// const { osas } = React.useContext(OSASContext);
 	const { cache } = useCache();
 	return (
 		<>
@@ -488,7 +487,7 @@ const CategoryPage = ({ institutionalizedStudents }) => {
 				</Row>
 			) : (
 				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-						{cache.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student').length !== 0 ? (
+						{cache?.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student').length !== 0 ? (
 						<Spin />
 					) : (
 						<Empty description='No profiles found' />

@@ -34,9 +34,11 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
-import { RecordCard } from '../Discipline/Records';
+// import { RecordCard } from '../Discipline/Records';
 
-import { MobileContext, OSASContext } from '../../../main';
+import { MobileContext, API_Route } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
+import authFetch from '../../../utils/authFetch';
 
 const Calendar = ({ events }) => {
 	const [value, setValue] = React.useState(moment());
@@ -199,7 +201,8 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
 	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	// const { osas } = React.useContext(OSASContext);
+	const { cache, getFromCache, pushToCache } = useCache();
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -233,41 +236,59 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		email: ''
 	});
 	React.useEffect(() => {
-		if (!id) return;
-		const student = osas.students.find(s => s.id === id);
-		if (student)
-			setThisStudent(student);
-	}, [id, osas.students]);
+		const controller = new AbortController();
+		if (id) {
+			// Try to get student from cache first
+			const cachedStudent = getFromCache('peers', 'id', id);
+			if (cachedStudent) {
+				setThisStudent(cachedStudent);
+			} else {
+				const fetchStudent = async () => {
+					// Fetch student from the backend
+					const request = await authFetch(`${API_Route}/users/student/${id}`, { signal: controller.signal });
+					if (!request.ok) return;
+		
+					/** @type {import('../../../types').Student} */
+					const data = await request.json();
+					if (!data || !data.id) return;
+					pushToCache('peers', data, true);
+					setThisStudent(data);
+				};
+				fetchStudent();
+			};
+		};
+		return () => controller.abort();
+	}, [id, getFromCache]);
 
 	const [organizations, setOrganizations] = React.useState([]);
-	React.useEffect(() => {
-		if (!thisStudent || !thisStudent.id) return;
-		// Find organizations for the student that match the student id
-		const fetchedOrganizations = osas.organizations.filter(org => org.members.some(member => member.student.id === thisStudent.id));
-		setOrganizations(fetchedOrganizations);
-	}, [thisStudent, osas.organizations]);
+	// React.useEffect(() => {
+	// 	if (!thisStudent || !thisStudent.id) return;
+	// 	// Find organizations for the student that match the student id
+	// 	const fetchedOrganizations = osas.organizations.filter(org => org.members.some(member => member.student.id === thisStudent.id));
+	// 	setOrganizations(fetchedOrganizations);
+	// }, [thisStudent, osas.organizations]);
 
 	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
 	const [events, setEvents] = React.useState([]);
-	React.useEffect(() => {
-		if (!thisStudent || !thisStudent.id) return;
-		// Filter events that are related to the student
-		const studentEvents = [];
-		for (const day of osas.events) {
-			const eventsOnDay = day.events.filter(event =>
-				event.type === 'disciplinary' && (
-					event.content.complainants.some(c => c.id === thisStudent.id)
-					|| event.content.complainees.some(c => c.student.id === thisStudent.id)
-				)
-			);
-			if (eventsOnDay.length > 0)
-				studentEvents.push({
-					date: day.date,
-					events: eventsOnDay
-				});
-		};
-		setEvents(studentEvents);
-	}, [thisStudent, osas.events]);
+	// React.useEffect(() => {
+	// 	if (!thisStudent || !thisStudent.id) return;
+	// 	// Filter events that are related to the student
+	// 	const studentEvents = [];
+	// 	for (const day of osas.events) {
+	// 		const eventsOnDay = day.events.filter(event =>
+	// 			event.type === 'disciplinary' && (
+	// 				event.content.complainants.some(c => c.id === thisStudent.id)
+	// 				|| event.content.complainees.some(c => c.student.id === thisStudent.id)
+	// 			)
+	// 		);
+	// 		if (eventsOnDay.length > 0)
+	// 			studentEvents.push({
+	// 				date: day.date,
+	// 				events: eventsOnDay
+	// 			});
+	// 	};
+	// 	setEvents(studentEvents);
+	// }, [thisStudent, osas.events]);
 
 	const app = App.useApp();
 	const Modal = app.modal;

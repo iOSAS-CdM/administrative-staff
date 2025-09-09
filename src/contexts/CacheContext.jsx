@@ -18,6 +18,9 @@ const CacheContext = React.createContext();
  */
 /** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
 /** @typedef {(key: keyof Cache, data: Any, single: Boolean) => Void} PushToCache */
+/** @typedef {(key: keyof Cache, idKey: String, idValue: String) => Void} GetFromCache */
+/** @typedef {(key: keyof Cache, idKey: String, idValue: String) => Void} RemoveFromCache */
+/** @typedef {(key: keyof Cache, idKey: String, idValue: String, data: Any) => Void} UpdateCacheItem */
 
 // This is the custom hook that components will use to access the cache
 /**
@@ -25,6 +28,9 @@ const CacheContext = React.createContext();
  * 	cache: Cache;
  * 	updateCache: UpdateCache;
  * 	pushToCache: PushToCache;
+ * 	getFromCache: GetFromCache;
+ * 	removeFromCache: RemoveFromCache;
+ * 	updateCacheItem: UpdateCacheItem;
  * }}
  */
 const useCache = () => {
@@ -69,11 +75,36 @@ export const CacheProvider = ({ children }) => {
 			[key]: single ? [data, ...prevCache[key]] : [...prevCache[key], ...data]
 		}));
 
+	/** @type {GetFromCache} */
+	const getFromCache = (key, idKey, idValue) => {
+		const item = cache[key].find(item => item[idKey] === idValue);
+		return item || null;
+	};
+
+	/** @type {RemoveFromCache} */
+	const removeFromCache = (key, idKey, idValue) =>
+		setCache(prevCache => ({
+			...prevCache,
+			[key]: prevCache[key].filter(item => item[idKey] !== idValue)
+		}));
+
+	/** @type {UpdateCacheItem} */
+	const updateCacheItem = (key, idKey, idValue, data) =>
+		setCache(prevCache => ({
+			...prevCache,
+			[key]: prevCache[key].map(item =>
+				item[idKey] === idValue ? { ...item, ...data } : item
+			)
+		}));
+
 	// Memoize the value to prevent unnecessary re-renders
 	const value = React.useMemo(() => ({
 		cache,
 		updateCache,
-		pushToCache
+		pushToCache,
+		getFromCache,
+		removeFromCache,
+		updateCacheItem
 	}), [cache]);
 
 	return (

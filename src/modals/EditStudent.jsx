@@ -180,8 +180,8 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 			sm: 512, // 2^9
 			md: 512, // 2^9
 			lg: 512, // 2^9
-			xl: 512 * 1.5, // 2^10
-			xxl: 1024 // 2^10
+			xl: 512, // 2^9
+			xxl: 512 // 2^9
 		},
 		footer: (_, { CancelBtn, OkBtn }) => (
 			<Flex justify='flex-end' align='center' gap={16}>

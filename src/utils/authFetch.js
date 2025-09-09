@@ -10,7 +10,7 @@ import { notification } from 'antd';
  */
 const authFetch = async (...args) => {
 	const originalFetch = window.fetch;
-	const session = (await supabase.auth.getSession()).data.session;
+	const session = JSON.parse(localStorage.getItem('CustomApp')) || null;
 	// Only add headers if we have a session with access token
 	if (session?.access_token) {
 		// First arg is the resource/URL, second arg is options

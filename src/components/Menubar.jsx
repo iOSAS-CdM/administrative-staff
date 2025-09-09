@@ -38,7 +38,7 @@ import { MobileContext, DisplayThemeContext, API_Route } from '../main';
 
 // import Home from '../pages/dashboard/Home';
 import Profiles from '../pages/dashboard/Students/Profiles';
-// import Profile from '../pages/dashboard/Students/Profile';
+import Profile from '../pages/dashboard/Students/Profile';
 // import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
 // import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
 // import Organizations from '../pages/dashboard/Students/Organizations';
@@ -114,7 +114,7 @@ const Menubar = () => {
 	const { notification } = App.useApp();
 
 	React.useLayoutEffect(() => {
-		if (cache.staff?.id) return;
+		if (cache?.staff?.id) return;
 		const controller = new AbortController();
 		const getStaff = async () => {
 			const request = await authFetch(`${API_Route}/auth/me`, { signal: controller.signal });
@@ -165,7 +165,7 @@ const Menubar = () => {
 		getStaff();
 
 		return () => controller.abort();
-	}, [cache.staff]);
+	}, [cache?.staff]);
 
 	const [Header, setHeader] = React.useState({
 		title: 'Dashboard',
@@ -176,7 +176,7 @@ const Menubar = () => {
 		setHeader,
 		setSelectedKeys,
 		mobile,
-		staff: cache.staff,
+		staff: cache?.staff,
 		setMobile,
 		displayTheme,
 		setDisplayTheme,
@@ -201,7 +201,7 @@ const Menubar = () => {
 				{ path: 'archived', element: <Profiles {...props} /> }
 			]
 		},
-		// { path: '/students/profile/:id', element: <Profile {...props} /> },
+		{ path: '/students/profile/:id', element: <Profile {...props} /> },
 
 		// { path: '/students/unverified/*', element: <p>Unverified</p> },
 
@@ -278,15 +278,15 @@ const Menubar = () => {
 				label: (
 					<Flex justify='space-between' align='center' style={{ width: '100%' }}>
 						<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-							{cache.staff ? (
+							{cache?.staff ? (
 								<Flex vertical>
-									<Title level={5} style={{ color: 'currentColor' }}>{cache.staff?.name.first} {cache.staff?.name.last}</Title>
+									<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
 									<Text type='secondary' style={{ color: 'currentColor' }}>{{
 										'head': 'Head',
 										'guidance': 'Guidance Officer',
 										'prefect': 'Prefect of Discipline Officer',
 										'student-affairs': 'Student Affairs Officer'
-									}[cache.staff?.role]}</Text>
+									}[cache?.staff?.role]}</Text>
 								</Flex>
 							) : (
 								<Skeleton.Node
@@ -308,9 +308,9 @@ const Menubar = () => {
 					</Flex>
 				),
 				icon: (
-					cache.staff ? (
+					cache?.staff ? (
 						<Avatar
-							src={cache.staff?.profilePicture}
+							src={cache?.staff?.profilePicture}
 							shape='square'
 							size='large'
 							className='anticon ant-menu-item-icon'
@@ -466,9 +466,9 @@ const Menubar = () => {
 									onClick={() => setMinimized(!minimized)}
 									style={{ width: '100%' }}
 								/>
-								{cache.staff ? (
+								{cache?.staff ? (
 									<Avatar
-										src={cache.staff?.profilePicture}
+										src={cache?.staff?.profilePicture}
 										shape='square'
 										size='small'
 										className='anticon ant-menu-item-icon'
