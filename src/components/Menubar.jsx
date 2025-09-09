@@ -460,6 +460,7 @@ const Menubar = () => {
 									type='default'
 									icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
 									onClick={() => setMinimized(!minimized)}
+									style={{ width: '100%' }}
 								/>
 								{cache.staff ? (
 									<Avatar
