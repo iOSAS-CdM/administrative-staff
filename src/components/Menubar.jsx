@@ -280,7 +280,7 @@ const Menubar = () => {
 					<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
 						{cache.staff ? (
 							<Flex vertical>
-								<Title level={5} style={{ color: 'currentColor' }}>{cache.staff?.name.first} {cache.staff?.name.middle} {cache.staff?.name.last}</Title>
+								<Title level={5} style={{ color: 'currentColor' }}>{cache.staff?.name.first} {cache.staff?.name.last}</Title>
 								<Text type='secondary' style={{ color: 'currentColor' }}>{cache.staff?.role}</Text>
 							</Flex>
 						) : (
