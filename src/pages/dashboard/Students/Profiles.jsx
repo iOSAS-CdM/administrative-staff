@@ -35,9 +35,11 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext, OSASContext } from '../../../main';
+import { API_Route, MobileContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
 
 import Student from '../../../classes/Student';
+import authFetch from '../../../utils/authFetch';
 
 const Filters = ({ setFilter, category, mobile }) => (
 	<Flex vertical gap={8}>
@@ -174,11 +176,30 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
 	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	const { cache, pushToCache } = useCache();
+
+	React.useEffect(() => {
+		const controller = new AbortController();
+		const fetchStudents = async () => {
+			if (cache.peers?.length > 0) return; // Already fetched
+
+			// Fetch students from the backend
+			const request = await authFetch(`${API_Route}/users/students`, { signal: controller.signal });
+			if (!request.ok) return;
+
+			/** @type {import('../../../types').Student[]} */
+			const data = await request.json();
+			if (!data || !Array.isArray(data)) return;
+			pushToCache('peers', data, false);
+		};
+		fetchStudents();
+
+		return () => controller.abort();
+	}, [cache.peers]);
 
 	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
+	const category = location.pathname.split('/').pop();
 	/**
 	 * @typedef {{
 	 * 		years: Number[],
@@ -199,7 +220,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		const filtered = [];
 
 		// Filter by year and program
-		for (const student of osas.students) {
+		for (const student of cache.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student')) {
 			if (filter.years.length > 0 && !filter.years.includes(student.year))
 				continue;
 			if (filter.programs.length > 0 && !filter.programs.includes(student.program))
@@ -223,7 +244,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		};
 
 		return filtered;
-	}, [osas.students, filter, search]);
+	}, [cache.peers, filter, search]);
 	/**
 	 * @type {{
 	 * 	ics: Student[];
@@ -439,7 +460,8 @@ const StudentCard = ({ student, loading, navigate }) => {
 const CategoryPage = ({ institutionalizedStudents }) => {
 	const navigate = useNavigate();
 	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	// const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 	return (
 		<>
 			{institutionalizedStudents.length > 0 ? (
@@ -466,7 +488,7 @@ const CategoryPage = ({ institutionalizedStudents }) => {
 				</Row>
 			) : (
 				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{osas.students.length !== 0 ? (
+						{cache.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student').length !== 0 ? (
 						<Spin />
 					) : (
 						<Empty description='No profiles found' />

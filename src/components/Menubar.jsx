@@ -37,7 +37,7 @@ import {
 import { MobileContext, DisplayThemeContext, API_Route } from '../main';
 
 // import Home from '../pages/dashboard/Home';
-// import Profiles from '../pages/dashboard/Students/Profiles';
+import Profiles from '../pages/dashboard/Students/Profiles';
 // import Profile from '../pages/dashboard/Students/Profile';
 // import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
 // import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
@@ -160,13 +160,11 @@ const Menubar = () => {
 					});
 			};
 			updateCache('staff', staff);
-			pushToCache('peers', staff);
+			pushToCache('peers', staff, true);
 		};
 		getStaff();
 
-		return () => {
-			controller.abort();
-		};
+		return () => controller.abort();
 	}, [cache.staff]);
 
 	const [Header, setHeader] = React.useState({
@@ -191,18 +189,18 @@ const Menubar = () => {
 		// { path: '/home', element: <Home {...props} /> },
 		// { path: '/notifications', element: <p>Notifications</p> },
 
-		// {
-		// 	path: '/students/profiles/*',
-		// 	element: <Profiles {...props} />,
-		// 	children: [
-		// 		{ path: 'active', element: <Profiles {...props} /> },
-		// 		{ path: 'ics', element: <Profiles {...props} /> },
-		// 		{ path: 'ite', element: <Profiles {...props} /> },
-		// 		{ path: 'ibe', element: <Profiles {...props} /> },
-		// 		{ path: 'restricted', element: <Profiles {...props} /> },
-		// 		{ path: 'archived', element: <Profiles {...props} /> }
-		// 	]
-		// },
+		{
+			path: '/students/profiles/*',
+			element: <Profiles {...props} />,
+			children: [
+				{ path: 'active', element: <Profiles {...props} /> },
+				{ path: 'ics', element: <Profiles {...props} /> },
+				{ path: 'ite', element: <Profiles {...props} /> },
+				{ path: 'ibe', element: <Profiles {...props} /> },
+				{ path: 'restricted', element: <Profiles {...props} /> },
+				{ path: 'archived', element: <Profiles {...props} /> }
+			]
+		},
 		// { path: '/students/profile/:id', element: <Profile {...props} /> },
 
 		// { path: '/students/unverified/*', element: <p>Unverified</p> },

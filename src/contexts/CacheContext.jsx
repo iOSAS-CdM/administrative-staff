@@ -17,7 +17,7 @@ const CacheContext = React.createContext();
  * }} Cache
  */
 /** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
-/** @typedef {(key: keyof Cache, data: Any) => Void} PushToCache */
+/** @typedef {(key: keyof Cache, data: Any, single: Boolean) => Void} PushToCache */
 
 // This is the custom hook that components will use to access the cache
 /**
@@ -63,10 +63,10 @@ export const CacheProvider = ({ children }) => {
 		}));
 
 	/** @type {PushToCache} */
-	const pushToCache = (key, data) =>
+	const pushToCache = (key, data, single) =>
 		setCache(prevCache => ({
 			...prevCache,
-			[key]: [...prevCache[key], data]
+			[key]: single ? [data, ...prevCache[key]] : [...prevCache[key], ...data]
 		}));
 
 	// Memoize the value to prevent unnecessary re-renders

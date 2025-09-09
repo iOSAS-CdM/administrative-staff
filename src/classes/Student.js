@@ -11,7 +11,7 @@
  * 		middle: String,
  * 		last: String
  * 	},
- * 	role: 'student',
+ * 	role: 'student' | 'unverified-student',
  * 	email: String,
  * 	phone: String,
  * 	id: String,
