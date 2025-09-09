@@ -106,7 +106,7 @@ const Menubar = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
-	const { cache, updateCache } = useCache();
+	const { cache, updateCache, pushToCache } = useCache();
 
 	const { mobile, setMobile } = React.useContext(MobileContext);
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
@@ -160,6 +160,7 @@ const Menubar = () => {
 					});
 			};
 			updateCache('staff', staff);
+			pushToCache('peers', staff);
 		};
 		getStaff();
 
@@ -282,7 +283,12 @@ const Menubar = () => {
 							{cache.staff ? (
 								<Flex vertical>
 									<Title level={5} style={{ color: 'currentColor' }}>{cache.staff?.name.first} {cache.staff?.name.last}</Title>
-									<Text type='secondary' style={{ color: 'currentColor' }}>{cache.staff?.role}</Text>
+									<Text type='secondary' style={{ color: 'currentColor' }}>{{
+										'head': 'Head',
+										'guidance': 'Guidance Officer',
+										'prefect': 'Prefect of Discipline Officer',
+										'student-affairs': 'Student Affairs Officer'
+									}[cache.staff?.role]}</Text>
 								</Flex>
 							) : (
 								<Skeleton.Node

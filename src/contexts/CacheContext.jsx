@@ -24,6 +24,7 @@ const CacheContext = React.createContext();
  * @type {() => {
  * 	cache: Cache;
  * 	updateCache: UpdateCache;
+ * 	pushToCache: PushToCache;
  * }}
  */
 const useCache = () => {
