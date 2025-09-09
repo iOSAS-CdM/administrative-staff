@@ -124,8 +124,11 @@ const Menubar = () => {
 		profilePicture: ''
 	});
 	React.useLayoutEffect(() => {
+		if (!osas.staff || !osas.staff.role) return;
 		if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(osas.staff.role)) {
 			localStorage.removeItem('CustomApp');
+			console.warn('Unauthorized access attempt detected. Redirecting to unauthorized page.');
+			console.error('User Role:', osas.staff.role);
 			notification.error({
 				message: 'Unauthorized',
 				description: 'You are not authorized to access this resource.'

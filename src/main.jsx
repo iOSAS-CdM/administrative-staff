@@ -150,6 +150,7 @@ const OSAS = () => {
 	});
 	React.useLayoutEffect(() => {
 		if (!sessionChecked || !session) return;
+		const controller = new AbortController();
 		setLoadingStates({
 			staff: false,
 			students: false,
@@ -175,7 +176,7 @@ const OSAS = () => {
 			events: []
 		});
 
-		authFetch(`${API_Route}/auth/me`)
+		authFetch(`${API_Route}/auth/me`, { signal: controller.signal })
 			.then(response => response.json())
 			.then(data => {
 				console.log(data);
@@ -208,6 +209,10 @@ const OSAS = () => {
 					description: 'Failed to fetch staff data. Please try again later.'
 				});
 			});
+
+		return () => {
+			controller.abort();
+		};
 	}, [seed, session, sessionChecked]);
 
 	const themeConfig = React.useMemo(() => ({
