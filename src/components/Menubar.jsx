@@ -273,68 +273,66 @@ const Menubar = () => {
 	 * @type {import('antd').MenuProps['items']}
 	 */
 	const menuItems = [
-		{
-			key: 'staff',
-			label: (
-				<Flex justify='space-between' align='center' style={{ width: '100%' }}>
-					<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-						{cache.staff ? (
-							<Flex vertical>
-								<Title level={5} style={{ color: 'currentColor' }}>{cache.staff?.name.first} {cache.staff?.name.last}</Title>
-								<Text type='secondary' style={{ color: 'currentColor' }}>{cache.staff?.role}</Text>
-							</Flex>
-						) : (
-							<Skeleton.Node
-								active
-								shape='square'
+		...minimized ? [] : [
+			{
+				key: 'staff',
+				label: (
+					<Flex justify='space-between' align='center' style={{ width: '100%' }}>
+						<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+							{cache.staff ? (
+								<Flex vertical>
+									<Title level={5} style={{ color: 'currentColor' }}>{cache.staff?.name.first} {cache.staff?.name.last}</Title>
+									<Text type='secondary' style={{ color: 'currentColor' }}>{cache.staff?.role}</Text>
+								</Flex>
+							) : (
+								<Skeleton.Node
+									active
+									shape='square'
 									style={{ width: '100%' }}
-							/>
-						)}
-					</div>
+								/>
+							)}
+						</div>
 
-					{!minimized && (
 						<div style={{ width: 32 }}>
 							<Button
 								type='default'
-								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+								icon={<DoubleLeftOutlined />}
 								onClick={() => setMinimized(!minimized)}
-								style={{ minWidth: '128x !important', height: 32 }}
+								style={{ minWidth: '128px !important', height: 32 }}
 							/>
 						</div>
-					)}
-				</Flex>
-			),
-			icon: (
-				minimized ?
-					<UserOutlined /> :
+					</Flex>
+				),
+				icon: (
 					cache.staff ? (
 						<Avatar
 							src={cache.staff?.profilePicture}
 							shape='square'
-							size={minimized ? 'small' : 'large'}
+							size='large'
 							className='anticon ant-menu-item-icon'
 						/>
 					) : (
 						<Skeleton.Avatar
 							active
 							shape='square'
-							size={minimized ? 'small' : 'large'}
+								size='large'
 							className='anticon ant-menu-item-icon'
 						/>
 					)
-			),
-			onClick: () => { },
-			style: {
-				height: 32
+				),
+				onClick: () => { },
+				style: {
+					height: 32
+				}
+			},
+			{
+				key: 'divider',
+				type: 'divider',
+				style: {
+					margin: '16px 0'
+				}
 			}
-		},
-		{
-			key: 'divider',
-			type: 'divider',
-			style: {
-				margin: '16px 0'
-			}
-		},
+		],
 		{
 			key: 'home',
 			label: 'Home',
@@ -451,11 +449,34 @@ const Menubar = () => {
 						style={{ width: '100%', minHeight: '100%' }}
 					>
 						{minimized && (
-							<Button
-								type='default'
-								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
-								onClick={() => setMinimized(!minimized)}
-							/>
+							<Flex
+								vertical
+								justify='center'
+								align='center'
+								gap={16}
+								style={{ width: '100%' }}
+							>
+								<Button
+									type='default'
+									icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+									onClick={() => setMinimized(!minimized)}
+								/>
+								{cache.staff ? (
+									<Avatar
+										src={cache.staff?.profilePicture}
+										shape='square'
+										size='small'
+										className='anticon ant-menu-item-icon'
+									/>
+								) : (
+									<Skeleton.Avatar
+										active
+										shape='square'
+										size='small'
+										className='anticon ant-menu-item-icon'
+									/>
+								)}
+							</Flex>
 						)}
 						<Flex
 							vertical
