@@ -187,7 +187,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 			const request = await authFetch(`${API_Route}/users/students`, { signal: controller.signal });
 			if (!request.ok) return;
 
-			/** @type {import('../../../types').Student[]} */
+			/** @type {import('../../../classes/Student').StudentProps[]} */
 			const data = await request.json();
 			if (!data || !Array.isArray(data)) return;
 			pushToCache('peers', data, false);
