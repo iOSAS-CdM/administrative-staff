@@ -183,7 +183,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		const controller = new AbortController();
 		const fetchStudents = async () => {
-			if (cache?.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student').length > 0) return;
+			if (cache?.peers?.filter(peer => peer.role === 'unverified-student').length > 0) return;
 
 			// Fetch students from the backend
 			const request = await authFetch(`${API_Route}/users/unverified-students`, { signal: controller.signal });
