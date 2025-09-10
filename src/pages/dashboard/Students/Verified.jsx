@@ -170,7 +170,7 @@ const Filters = ({ setFilter, category, mobile }) => (
  */
 const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
-		setSelectedKeys(['profiles']);
+		setSelectedKeys(['verified']);
 	}, [setSelectedKeys]);
 
 	const location = useLocation();
