@@ -82,7 +82,7 @@ const Authentication = () => {
 		});
 
 		await start({
-			ports: [8000],
+			ports: [8000, 8001, 8002, 8003, 8004],
 			response: `<script>window.location.href = 'http://${window.location.hostname}:${window.location.port}/auth-return';</script>`,
 		})
 			.then(async (p) => {
