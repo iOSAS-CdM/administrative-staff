@@ -41,6 +41,8 @@ import { useCache } from '../../../contexts/CacheContext';
 import Student from '../../../classes/Student';
 import authFetch from '../../../utils/authFetch';
 
+import { StudentCard, CategoryPage } from './Verified';
+
 const Filters = ({ setFilter, category, mobile }) => (
 	<Flex vertical gap={8}>
 		<Divider>
@@ -168,9 +170,9 @@ const Filters = ({ setFilter, category, mobile }) => (
  * @param {import('../../../components/Menubar').PageProps} props
  * @returns {JSX.Element}
  */
-const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
+const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
-		setSelectedKeys(['profiles']);
+		setSelectedKeys(['unverified']);
 	}, [setSelectedKeys]);
 
 	const location = useLocation();
@@ -184,7 +186,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 			if (cache?.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student').length > 0) return;
 
 			// Fetch students from the backend
-			const request = await authFetch(`${API_Route}/users/students`, { signal: controller.signal });
+			const request = await authFetch(`${API_Route}/users/unverified-students`, { signal: controller.signal });
 			if (!request.ok) return;
 
 			/** @type {import('../../../types').Student[]} */
@@ -220,7 +222,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 		const filtered = [];
 
 		// Filter by year and program
-		for (const student of cache?.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student')) {
+		for (const student of cache?.peers?.filter(peer => peer.role === 'unverified-student')) {
 			if (filter.years.length > 0 && !filter.years.includes(student.year))
 				continue;
 			if (filter.programs.length > 0 && !filter.programs.includes(student.program))
@@ -285,7 +287,7 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: 'Verified Profiles',
+			title: 'Unverified Profiles',
 			actions: [
 				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
 					<Input.Search
@@ -351,149 +353,4 @@ const Profiles = ({ setHeader, setSelectedKeys, navigate }) => {
 	);
 };
 
-export default Profiles;
-
-/**
- * @param {{
- * 	student: Student,
- * 	loading: Boolean,
- * 	navigate: ReturnType<typeof useNavigate>
- * }} props 
- * @returns {JSX.Element}
- */
-const StudentCard = ({ student, loading, navigate }) => {
-	/** @type {[Student, React.Dispatch<React.SetStateAction<Student[]>>]} */
-	const [thisStudent, setThisStudent] = React.useState(student);
-
-	React.useEffect(() => {
-		if (student)
-			setThisStudent(student);
-	}, [student]);
-
-	const app = App.useApp();
-	const Modal = app.modal;
-
-	return (
-		<ItemCard
-			loading={loading}
-
-			status={
-				student.status === 'archived' ? 'archived' :
-				student.status === 'restricted' && 'restricted'
-			}
-
-			onClick={(e) => {
-				if (thisStudent.placeholder)
-					Modal.error({
-						title: 'Error',
-						content: 'This is a placeholder student profile. Please try again later.',
-						centered: true
-					});
-				else
-					navigate(`/dashboard/students/profile/${thisStudent.id}`);
-			}}
-		>
-			<Flex justify='flex-start' align='center' gap={16} style={{ width: '100%' }}>
-				<Avatar
-					src={thisStudent.profilePicture}
-					size='large'
-					style={{ width: 64, height: 64 }}
-				/>
-				<Flex vertical justify='flex-start' align='flex-start' style={{ flex: 1 }}>
-					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.id}</Text></Title>
-					<Text>{
-						thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
-							thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
-								thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
-					}</Text>
-				</Flex>
-				<Dropdown
-					arrow
-					placement='bottom'
-					menu={{
-						items: [
-							{
-								key: 'edit',
-								icon: <EditOutlined />,
-								label: <Text>Edit</Text>
-							},
-							{
-								key: 'restrict',
-								icon: <LockOutlined />,
-								label: <Text>Restrict</Text>
-							}
-						],
-						onClick: (e) => {
-							e.stopPropagation?.();
-							e.domEvent.stopPropagation();
-							if (thisStudent.placeholder)
-								Modal.error({
-									title: 'Error',
-									content: 'This is a placeholder student profile. Please try again later.',
-									centered: true
-								});
-							else if (e.key === 'edit')
-								EditStudent(Modal, thisStudent, setThisStudent);
-							else if (e.key === 'restrict')
-								RestrictStudent(Modal, thisStudent, setThisStudent);
-						}
-					}}
-					onClick={(e) => e.stopPropagation()}
-				>
-					<Button
-						type='default'
-						icon={<EllipsisOutlined />}
-						onClick={(e) => e.stopPropagation()}
-					/>
-				</Dropdown>
-			</Flex>
-		</ItemCard>
-	);
-};
-
-/**
- * @param {{
- * 	institutionalizedStudents: Student[];
- * }} props
- * @returns {JSX.Element}
- */
-const CategoryPage = ({ institutionalizedStudents }) => {
-	const navigate = useNavigate();
-	const { mobile } = React.useContext(MobileContext);
-	const { cache } = useCache();
-	return (
-		<>
-			{institutionalizedStudents.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					<AnimatePresence mode='popLayout'>
-						{institutionalizedStudents.map((student, index) => (
-							<Col key={student.id} span={!mobile ? 12 : 24}>
-								<motion.div
-									key={index}
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-									transition={{ duration: 0.3, delay: index * 0.05 }}
-								>
-									<StudentCard
-										student={student}
-										loading={student.placeholder}
-										navigate={navigate}
-									/>
-								</motion.div>
-							</Col>
-						))}
-					</AnimatePresence>
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-						{cache?.peers?.filter(peer => peer.role === 'student' || peer.role === 'unverified-student').length !== 0 ? (
-						<Spin />
-					) : (
-						<Empty description='No profiles found' />
-					)}
-				</div>
-			)}
-		</>
-	);
-};
+export default Unverified;

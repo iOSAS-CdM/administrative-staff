@@ -70,8 +70,6 @@ const OSAS = () => {
 			window.__TAURI_INTERNALS__.invoke('set_theme', { theme: displayTheme });
 	}, [displayTheme]);
 
-	const [seed, setSeed] = React.useState(0);
-
 	const [session, setSession] = React.useState(null);
 	const [sessionChecked, setSessionChecked] = React.useState(false);
 

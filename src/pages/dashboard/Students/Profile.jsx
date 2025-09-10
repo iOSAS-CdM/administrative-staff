@@ -201,7 +201,6 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	const location = useLocation();
 
 	const { mobile } = React.useContext(MobileContext);
-	// const { osas } = React.useContext(OSASContext);
 	const { cache, getFromCache, pushToCache } = useCache();
 
 	React.useLayoutEffect(() => {
@@ -218,9 +217,6 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 			]
 		});
 	}, [setHeader]);
-	React.useEffect(() => {
-		setSelectedKeys(['profiles']);
-	}, [setSelectedKeys]);
 
 	const { id } = useParams();
 
@@ -259,6 +255,12 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		};
 		return () => controller.abort();
 	}, [id, getFromCache]);
+	React.useEffect(() => {
+		if (thisStudent.role === 'student')
+			setSelectedKeys(['verified'])
+		else
+			setSelectedKeys(['unverified']);
+	}, [thisStudent]);
 
 	const [organizations, setOrganizations] = React.useState([]);
 
@@ -270,108 +272,109 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	return (
 		<Flex vertical gap={16}>
-			<Card size='small' style={{ width: '100%' }}>
-				<Flex vertical={mobile} gap={32} align='center' style={{ position: 'relative', width: '100%' }}>
-					<Image
-						preview={false}
-						src={thisStudent.profilePicture || '/Placeholder Image.svg'}
-						alt='Profile Picture'
-						shape='square'
-						style={{
-							width: 256,
-							height: 256,
-							border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)',
-							objectFit: 'cover'
-						}}
-					/>
-
-					<Flex
-						vertical
-						gap={8}
-						justify='center'
-						align={mobile ? 'center' : ''}
-						style={{ height: '100%' }}
-					>
-						<Title level={1}>
-							{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}> {thisStudent.id} </Text>
-						</Title>
-						<Text>
-							{
-								thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
-									thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
-										thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
-							}
-						</Text>
-
-						<Flex gap={16}>
-							<Button
-								type='link'
-								icon={<MailOutlined />}
-								style={{ padding: 0 }}
-							>
-								{thisStudent.email}
-							</Button>
-
-							{thisStudent.phone &&
+			<Badge.Ribbon
+				text={thisStudent.role === 'unverified-student' && 'Unverified'}
+				color='orange'
+				style={{ display: thisStudent.role === 'unverified-student' ? '' : 'none' }}
+			>
+				<Card size='small' style={{ width: '100%' }}>
+					<Flex vertical={mobile} gap={32} align='center' style={{ position: 'relative', width: '100%' }}>
+						<Image
+							preview={false}
+							src={thisStudent.profilePicture || '/Placeholder Image.svg'}
+							alt='Profile Picture'
+							shape='square'
+							style={{
+								width: 256,
+								height: 256,
+								border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)',
+								objectFit: 'cover'
+							}}
+						/>
+						<Flex
+							vertical
+							gap={8}
+							justify='center'
+							align={mobile ? 'center' : ''}
+							style={{ height: '100%' }}
+						>
+							<Title level={1}>
+								{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}> {thisStudent.id} </Text>
+							</Title>
+							<Text>
+								{
+									thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
+										thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
+											thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
+								}
+							</Text>
+							<Flex gap={16}>
 								<Button
 									type='link'
-									icon={<PhoneOutlined />}
+									icon={<MailOutlined />}
 									style={{ padding: 0 }}
 								>
-									{thisStudent.phone}
+									{thisStudent.email}
 								</Button>
-							}
-						</Flex>
-
-						<Divider />
-
-						<Flex justify='flex-start' align='stretch' gap={16}>
-							<Button
-								type='primary'
-								icon={<EditOutlined />}
-								onClick={() => {
-									if (thisStudent.placeholder) {
-										Modal.error({
-											title: 'Error',
-											content: 'This is a placeholder student profile. Please try again later.',
-											centered: true
-										});
-									} else {
-										EditStudent(Modal, thisStudent, setThisStudent);
-									};
-								}}
-							>
-								Edit
-							</Button>
-							<Button
-								type='primary'
-								icon={<FileOutlined />}
-								onClick={() => { }}
-							>
-								Generate Clearance
-							</Button>
-							<Button
-								type='primary'
-								danger
-								icon={<LockOutlined />}
-								onClick={() => {
-									if (thisStudent.placeholder) {
-										Modal.error({
-											title: 'Error',
-											content: 'This is a placeholder student profile. Please try again later.',
-											centered: true
-										});
-									} else {
-										RestrictStudent(Modal, thisStudent);
-									}
-								}}
-							>
-								Restrict
-							</Button>
+								{thisStudent.phone &&
+									<Button
+										type='link'
+										icon={<PhoneOutlined />}
+										style={{ padding: 0 }}
+									>
+										{thisStudent.phone}
+									</Button>
+								}
+							</Flex>
+							<Divider />
+							<Flex justify='flex-start' align='stretch' gap={16}>
+								<Button
+									type='primary'
+									icon={<EditOutlined />}
+									onClick={() => {
+										if (thisStudent.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content: 'This is a placeholder student profile. Please try again later.',
+												centered: true
+											});
+										} else {
+											EditStudent(Modal, thisStudent, setThisStudent);
+										};
+									}}
+								>
+									Edit
+								</Button>
+								<Button
+									type='primary'
+									icon={<FileOutlined />}
+									onClick={() => { }}
+								>
+									Generate Clearance
+								</Button>
+								<Button
+									type='primary'
+									danger
+									icon={<LockOutlined />}
+									onClick={() => {
+										if (thisStudent.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content: 'This is a placeholder student profile. Please try again later.',
+												centered: true
+											});
+										} else {
+											RestrictStudent(Modal, thisStudent);
+										};
+									}}
+								>
+									Restrict
+								</Button>
+							</Flex>
 						</Flex>
 					</Flex>
-				</Flex>
-			</Card>
+				</Card>
+			</Badge.Ribbon>
 			<Flex vertical={mobile} align='stretch' gap={16} style={{ position: 'relative', width: '100%' }}>
 				<div style={{ flex: 0 }}>
 					<Flex vertical gap={16} style={{ position: 'sticky', top: 0 }}>

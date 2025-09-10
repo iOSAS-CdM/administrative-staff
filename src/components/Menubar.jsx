@@ -37,8 +37,9 @@ import {
 import { MobileContext, DisplayThemeContext, API_Route } from '../main';
 
 // import Home from '../pages/dashboard/Home';
-import Profiles from '../pages/dashboard/Students/Profiles';
+import Verified from '../pages/dashboard/Students/Verified';
 import Profile from '../pages/dashboard/Students/Profile';
+import Unverified from '../pages/dashboard/Students/Unverified';
 // import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
 // import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
 // import Organizations from '../pages/dashboard/Students/Organizations';
@@ -191,19 +192,19 @@ const Menubar = () => {
 
 		{
 			path: '/students/profiles/*',
-			element: <Profiles {...props} />,
+			element: <Verified {...props} />,
 			children: [
-				{ path: 'active', element: <Profiles {...props} /> },
-				{ path: 'ics', element: <Profiles {...props} /> },
-				{ path: 'ite', element: <Profiles {...props} /> },
-				{ path: 'ibe', element: <Profiles {...props} /> },
-				{ path: 'restricted', element: <Profiles {...props} /> },
-				{ path: 'archived', element: <Profiles {...props} /> }
+				{ path: 'active', element: <Verified {...props} /> },
+				{ path: 'ics', element: <Verified {...props} /> },
+				{ path: 'ite', element: <Verified {...props} /> },
+				{ path: 'ibe', element: <Verified {...props} /> },
+				{ path: 'restricted', element: <Verified {...props} /> },
+				{ path: 'archived', element: <Verified {...props} /> }
 			]
 		},
 		{ path: '/students/profile/:id', element: <Profile {...props} /> },
 
-		// { path: '/students/unverified/*', element: <p>Unverified</p> },
+		{ path: '/students/unverified/*', element: <Unverified {...props} /> },
 
 		// {
 		// 	path: '/students/organizations/*',
@@ -355,13 +356,13 @@ const Menubar = () => {
 			icon: <SmileOutlined />,
 			children: [
 				{
-					key: 'profiles',
-					label: 'Profiles',
+					key: 'verified',
+					label: 'Verified',
 					onClick: () => navigate('/dashboard/students/profiles/active', { replace: true })
 				},
 				{
 					key: 'unverified',
-					label: 'Unverified Profiles',
+					label: 'Unverified',
 					onClick: () => navigate('/dashboard/students/unverified/active', { replace: true })
 				},
 				{
