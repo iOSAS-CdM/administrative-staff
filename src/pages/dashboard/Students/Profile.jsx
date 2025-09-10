@@ -261,34 +261,9 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [id, getFromCache]);
 
 	const [organizations, setOrganizations] = React.useState([]);
-	// React.useEffect(() => {
-	// 	if (!thisStudent || !thisStudent.id) return;
-	// 	// Find organizations for the student that match the student id
-	// 	const fetchedOrganizations = osas.organizations.filter(org => org.members.some(member => member.student.id === thisStudent.id));
-	// 	setOrganizations(fetchedOrganizations);
-	// }, [thisStudent, osas.organizations]);
 
 	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
 	const [events, setEvents] = React.useState([]);
-	// React.useEffect(() => {
-	// 	if (!thisStudent || !thisStudent.id) return;
-	// 	// Filter events that are related to the student
-	// 	const studentEvents = [];
-	// 	for (const day of osas.events) {
-	// 		const eventsOnDay = day.events.filter(event =>
-	// 			event.type === 'disciplinary' && (
-	// 				event.content.complainants.some(c => c.id === thisStudent.id)
-	// 				|| event.content.complainees.some(c => c.student.id === thisStudent.id)
-	// 			)
-	// 		);
-	// 		if (eventsOnDay.length > 0)
-	// 			studentEvents.push({
-	// 				date: day.date,
-	// 				events: eventsOnDay
-	// 			});
-	// 	};
-	// 	setEvents(studentEvents);
-	// }, [thisStudent, osas.events]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -305,7 +280,8 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 						style={{
 							width: 256,
 							height: 256,
-							border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
+							border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)',
+							objectFit: 'cover'
 						}}
 					/>
 

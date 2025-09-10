@@ -234,6 +234,7 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 			return new Promise((resolve, reject) => {
 				EditStudentForm.current.validateFields()
 					.then(async (values) => {
+						delete values.role;
 						// Submit the form values to the backend
 						const request = await authFetch(`${API_Route}/users/student/${student.id}`, {
 							method: 'PUT',
