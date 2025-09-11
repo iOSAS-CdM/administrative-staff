@@ -55,32 +55,42 @@ const Calendar = ({ events }) => {
 			onPanelChange={(date) => setValue(date)}
 			onSelect={(date, info) => {
 				if (info.source === 'date') {
-					const eventsForDate = events.find(event =>
-						event.date.getDate() === date.date()
-						&& event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
-					)?.events || [];
+					const eventsForDate =
+						events.find(
+							(event) =>
+								event.date.getDate() === date.date() &&
+								event.date.getMonth() === date.month() &&
+								event.date.getFullYear() === date.year()
+						)?.events || [];
 					const modal = Modal.info({
 						title: `Events for ${date.format('MMMM D, YYYY')}`,
 						centered: true,
 						closable: { 'aria-label': 'Close' },
 						content: (
 							<>
-								{
-									eventsForDate.length !== 0 ? (
-										<Row gutter={[16, 16]}>
-											{eventsForDate.map((event, index) => (
-												event.type === 'disciplinary' ? (
-													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-														<RecordCard record={event.content} loading={false} navigate={navigate} />
-													</Col>
-												) : null
-											))}
-										</Row>
-									) : (
-										<Empty description='No events found' />
-									)
-								}
+								{eventsForDate.length !== 0 ? (
+									<Row gutter={[16, 16]}>
+										{eventsForDate.map((event, index) =>
+											event.type === 'disciplinary' ? (
+												<Col
+													key={event.id}
+													span={!mobile ? 12 : 12}
+													onClick={() =>
+														modal.destroy()
+													}
+												>
+													<RecordCard
+														record={event.content}
+														loading={false}
+														navigate={navigate}
+													/>
+												</Col>
+											) : null
+										)}
+									</Row>
+								) : (
+									<Empty description='No events found' />
+								)}
 							</>
 						),
 						width: {
@@ -93,31 +103,43 @@ const Calendar = ({ events }) => {
 						}
 					});
 				} else {
-					const eventsForMonth = events.filter(event =>
-						event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
-					).flatMap(day => day.events).sort((a, b) => a.content.date - b.content.date);
+					const eventsForMonth = events
+						.filter(
+							(event) =>
+								event.date.getMonth() === date.month() &&
+								event.date.getFullYear() === date.year()
+						)
+						.flatMap((day) => day.events)
+						.sort((a, b) => a.content.date - b.content.date);
 					const modal = Modal.info({
 						title: `Events for ${date.format('MMMM YYYY')}`,
 						centered: true,
 						closable: { 'aria-label': 'Close' },
 						content: (
 							<>
-								{
-									eventsForMonth.length !== 0 ? (
-										<Row gutter={[16, 16]}>
-											{eventsForMonth.map((event, index) => (
-												event.type === 'disciplinary' ? (
-													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-														<RecordCard record={event.content} loading={false} navigate={navigate} />
-													</Col>
-												) : null
-											))}
-										</Row>
-									) : (
-										<Empty description='No events found' />
-									)
-								}
+								{eventsForMonth.length !== 0 ? (
+									<Row gutter={[16, 16]}>
+										{eventsForMonth.map((event, index) =>
+											event.type === 'disciplinary' ? (
+												<Col
+													key={event.id}
+													span={!mobile ? 12 : 12}
+													onClick={() =>
+														modal.destroy()
+													}
+												>
+													<RecordCard
+														record={event.content}
+														loading={false}
+														navigate={navigate}
+													/>
+												</Col>
+											) : null
+										)}
+									</Row>
+								) : (
+									<Empty description='No events found' />
+								)}
 							</>
 						),
 						width: {
@@ -129,37 +151,51 @@ const Calendar = ({ events }) => {
 							xxl: 1024 // 2^10
 						}
 					});
-				};
+				}
 			}}
 			fullCellRender={(date, info) => {
 				if (info.type === 'date') {
-					const eventsForDate = events.find(event =>
-						event.date.getDate() === date.date()
-						&& event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
-					)?.events || [];
+					const eventsForDate =
+						events.find(
+							(event) =>
+								event.date.getDate() === date.date() &&
+								event.date.getMonth() === date.month() &&
+								event.date.getFullYear() === date.year()
+						)?.events || [];
 					return (
 						<Badge
 							color={
-								date.month() === value.month()
-									&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
+								date.month() === value.month() &&
+								date.year() === value.year()
+									? ['yellow', 'orange', 'red'][
+											eventsForDate.length - 1
+									  ] || 'red'
+									: 'grey'
 							}
 							size='small'
 							count={eventsForDate.length}
 							style={{
-								opacity: date.month() === value.month()
-									&& date.year() === value.year() ? 1 : 0.5
+								opacity:
+									date.month() === value.month() &&
+									date.year() === value.year()
+										? 1
+										: 0.5
 							}}
 						>
 							<Button
 								type={
-									date.date() === value.date()
-										&& date.month() === value.month()
-										&& date.year() === value.year() ? 'primary' : 'text'
+									date.date() === value.date() &&
+									date.month() === value.month() &&
+									date.year() === value.year()
+										? 'primary'
+										: 'text'
 								}
 								style={{
-									opacity: date.month() === value.month()
-										&& date.year() === value.year() ? 1 : 0.5
+									opacity:
+										date.month() === value.month() &&
+										date.year() === value.year()
+											? 1
+											: 0.5
 								}}
 								size='small'
 							>
@@ -168,29 +204,43 @@ const Calendar = ({ events }) => {
 						</Badge>
 					);
 				} else {
-					const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+					const months = [
+						'Jan',
+						'Feb',
+						'Mar',
+						'Apr',
+						'May',
+						'Jun',
+						'Jul',
+						'Aug',
+						'Sep',
+						'Oct',
+						'Nov',
+						'Dec'
+					];
 					let eventCount = 0;
-					const eventsForMonth = events.filter(event =>
-						event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
+					const eventsForMonth = events.filter(
+						(event) =>
+							event.date.getMonth() === date.month() &&
+							event.date.getFullYear() === date.year()
 					);
 					for (const day of eventsForMonth)
 						eventCount += day.events.length;
 					return (
-						<Badge
-							count={eventCount}
-						>
+						<Badge count={eventCount}>
 							<Button
 								type={
-									date.month() === value.month()
-										&& date.year() === value.year() ? 'primary' : 'text'
+									date.month() === value.month() &&
+									date.year() === value.year()
+										? 'primary'
+										: 'text'
 								}
 							>
 								{months[date.month()]}
 							</Button>
 						</Badge>
 					);
-				};
+				}
 			}}
 			style={{ minWidth: 256 }}
 		/>
@@ -235,15 +285,18 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		const controller = new AbortController();
 		if (id) {
 			// Try to get student from cache first
-			const cachedStudent = getFromCache('peers', id);
+			const cachedStudent = getFromCache('peers', 'id', id);
 			if (cachedStudent) {
 				setThisStudent(cachedStudent);
 			} else {
 				const fetchStudent = async () => {
 					// Fetch student from the backend
-					const request = await authFetch(`${API_Route}/users/student/${id}`, { signal: controller.signal });
+					const request = await authFetch(
+						`${API_Route}/users/student/${id}`,
+						{ signal: controller.signal }
+					);
 					if (!request.ok) return;
-		
+
 					/** @type {import('../../../types').Student} */
 					const data = await request.json();
 					if (!data || !data.id) return;
@@ -251,15 +304,13 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 					setThisStudent(data);
 				};
 				fetchStudent();
-			};
-		};
+			}
+		}
 		return () => controller.abort('Clear Memory');
 	}, [id, getFromCache]);
 	React.useEffect(() => {
-		if (thisStudent.role === 'student')
-			setSelectedKeys(['verified'])
-		else
-			setSelectedKeys(['unverified']);
+		if (thisStudent.role === 'student') setSelectedKeys(['verified']);
+		else setSelectedKeys(['unverified']);
 	}, [thisStudent]);
 
 	const [organizations, setOrganizations] = React.useState([]);
@@ -275,13 +326,24 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 			<Badge.Ribbon
 				text={thisStudent.role === 'unverified-student' && 'Unverified'}
 				color='orange'
-				style={{ display: thisStudent.role === 'unverified-student' ? '' : 'none' }}
+				style={{
+					display:
+						thisStudent.role === 'unverified-student' ? '' : 'none'
+				}}
 			>
 				<Card size='small' style={{ width: '100%' }}>
-					<Flex vertical={mobile} gap={32} align='center' style={{ position: 'relative', width: '100%' }}>
+					<Flex
+						vertical={mobile}
+						gap={32}
+						align='center'
+						style={{ position: 'relative', width: '100%' }}
+					>
 						<Image
 							preview={false}
-							src={thisStudent.profilePicture || '/Placeholder Image.svg'}
+							src={
+								thisStudent.profilePicture ||
+								'/Placeholder Image.svg'
+							}
 							alt='Profile Picture'
 							shape='square'
 							style={{
@@ -299,32 +361,41 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 							style={{ height: '100%' }}
 						>
 							<Title level={1}>
-								{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}> {thisStudent.id} </Text>
+								{thisStudent.name.first}{' '}
+								{thisStudent.name.middle}{' '}
+								{thisStudent.name.last}
 							</Title>
-							<Text>
-								{
-									thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
-										thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
-											thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
-								}
-							</Text>
-							<Flex gap={16}>
-								<Button
-									type='link'
-									icon={<MailOutlined />}
-									style={{ padding: 0 }}
+							<Flex align='center' gap={8} wrap>
+								<Tag>{thisStudent.id}</Tag>
+								<Tag
+									color={
+										thisStudent.institute === 'ics'
+											? 'orange'
+											: thisStudent.institute === 'ite'
+											? 'blue'
+											: thisStudent.institute === 'ibe'
+											? 'yellow'
+											: 'gray'
+									}
 								>
+									{thisStudent.institute === 'ics'
+										? 'Institute of Computing Studies'
+										: thisStudent.institute === 'ite'
+										? 'Institute of Teacher Education'
+										: thisStudent.institute === 'ibe'
+										? 'Institute of Business Entrepreneurship'
+										: ''}
+								</Tag>
+							</Flex>
+							<Flex gap={16}>
+								<Tag icon={<MailOutlined />} color='green'>
 									{thisStudent.email}
-								</Button>
-								{thisStudent.phone &&
-									<Button
-										type='link'
-										icon={<PhoneOutlined />}
-										style={{ padding: 0 }}
-									>
+								</Tag>
+								{thisStudent.phone && (
+									<Tag icon={<PhoneOutlined />} color='green'>
 										{thisStudent.phone}
-									</Button>
-								}
+									</Tag>
+								)}
 							</Flex>
 							<Divider />
 							<Flex justify='flex-start' align='stretch' gap={16}>
@@ -335,12 +406,17 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 										if (thisStudent.placeholder) {
 											Modal.error({
 												title: 'Error',
-												content: 'This is a placeholder student profile. Please try again later.',
+												content:
+													'This is a placeholder student profile. Please try again later.',
 												centered: true
 											});
 										} else {
-											EditStudent(Modal, thisStudent, setThisStudent);
-										};
+											EditStudent(
+												Modal,
+												thisStudent,
+												setThisStudent
+											);
+										}
 									}}
 								>
 									Edit
@@ -348,7 +424,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 								<Button
 									type='primary'
 									icon={<FileOutlined />}
-									onClick={() => { }}
+									onClick={() => {}}
 								>
 									Generate Clearance
 								</Button>
@@ -360,12 +436,13 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 										if (thisStudent.placeholder) {
 											Modal.error({
 												title: 'Error',
-												content: 'This is a placeholder student profile. Please try again later.',
+												content:
+													'This is a placeholder student profile. Please try again later.',
 												centered: true
 											});
 										} else {
 											RestrictStudent(Modal, thisStudent);
-										};
+										}
 									}}
 								>
 									Restrict
@@ -375,73 +452,159 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 					</Flex>
 				</Card>
 			</Badge.Ribbon>
-			<Flex vertical={mobile} align='stretch' gap={16} style={{ position: 'relative', width: '100%' }}>
+			<Flex
+				vertical={mobile}
+				align='stretch'
+				gap={16}
+				style={{ position: 'relative', width: '100%' }}
+			>
 				<div style={{ flex: 0 }}>
-					<Flex vertical gap={16} style={{ position: 'sticky', top: 0 }}>
+					<Flex
+						vertical
+						gap={16}
+						style={{ position: 'sticky', top: 0 }}
+					>
 						<PanelCard title='Calendar'>
 							<Calendar events={events} />
 						</PanelCard>
 
 						<PanelCard title='Organizations'>
 							{organizations.length > 0 && (
-								<Flex vertical gap={16} style={{ maxHeight: 'calc(var(--space-XL) * 20)' }}>
-									{organizations.map((organization, index) => (
-										<Card
-											key={index}
-											size='small'
-											hoverable
-											onClick={() => {
-												navigate(`/dashboard/students/organization/${organization.id}`, {
-													state: { id: organization.id }
-												});
-											}}
-										>
-											<Flex justify='flex-start' align='center' gap={16}>
-												<Avatar src={organization.logo} size='large' />
-												<Flex vertical>
-													<Text strong>{organization.shortName}</Text>
-													<Text type='secondary'>{organization.members.find(member => member.student.id === thisStudent.id).role}</Text>
+								<Flex
+									vertical
+									gap={16}
+									style={{
+										maxHeight: 'calc(var(--space-XL) * 20)'
+									}}
+								>
+									{organizations.map(
+										(organization, index) => (
+											<Card
+												key={index}
+												size='small'
+												hoverable
+												onClick={() => {
+													navigate(
+														`/dashboard/students/organization/${organization.id}`,
+														{
+															state: {
+																id: organization.id
+															}
+														}
+													);
+												}}
+											>
+												<Flex
+													justify='flex-start'
+													align='center'
+													gap={16}
+												>
+													<Avatar
+														src={organization.logo}
+														size='large'
+													/>
+													<Flex vertical>
+														<Text strong>
+															{
+																organization.shortName
+															}
+														</Text>
+														<Text type='secondary'>
+															{
+																organization.members.find(
+																	(member) =>
+																		member
+																			.student
+																			.id ===
+																		thisStudent.id
+																).role
+															}
+														</Text>
+													</Flex>
 												</Flex>
-											</Flex>
-										</Card>
-									))}
+											</Card>
+										)
+									)}
 								</Flex>
 							)}
 						</PanelCard>
 					</Flex>
 				</div>
 				<Flex style={{ width: '100%', flex: 1 }}>
-					<PanelCard title='Disciplinary Events' style={{ width: '100%' }}>
-						{events.length > 0 && (
+					<PanelCard
+						title='Disciplinary Events'
+						style={{ width: '100%' }}
+					>
+						{events.length > 0 &&
 							events.map((event, index) => (
 								<Flex key={index} vertical gap={8}>
-									<Text strong>{moment(event.date).format('MMMM D, YYYY')}</Text>
+									<Text strong>
+										{moment(event.date).format(
+											'MMMM D, YYYY'
+										)}
+									</Text>
 									{event.events.map((e, idx) => (
 										<Flex
 											key={idx}
 											justify='flex-start'
 											align='flex-start'
-											style={{ cursor: 'pointer', width: '100%' }}
+											style={{
+												cursor: 'pointer',
+												width: '100%'
+											}}
 											onClick={() => {
-												navigate(`/dashboard/discipline/record/${e.id}`, {
-													state: { id: e.id }
-												});
+												navigate(
+													`/dashboard/discipline/record/${e.id}`,
+													{
+														state: { id: e.id }
+													}
+												);
 											}}
 										>
 											<Badge
-												color={['yellow', 'orange', 'red'][e.content.complainees.find(c => c.student.id === thisStudent.id)?.occurrence - 1] || 'red'}
+												color={
+													['yellow', 'orange', 'red'][
+														e.content.complainees.find(
+															(c) =>
+																c.student.id ===
+																thisStudent.id
+														)?.occurrence - 1
+													] || 'red'
+												}
 												size='small'
-												count={e.content.complainees.some(c => c.student.id === thisStudent.id) ? e.content.complainees.find(c => c.student.id === thisStudent.id).occurrence : 0}
+												count={
+													e.content.complainees.some(
+														(c) =>
+															c.student.id ===
+															thisStudent.id
+													)
+														? e.content.complainees.find(
+																(c) =>
+																	c.student
+																		.id ===
+																	thisStudent.id
+														  ).occurrence
+														: 0
+												}
 												offset={[-8, 0]}
 											>
-												<Tag color={e.content.tags.status === 'ongoing' ? 'yellow' : 'var(--primary)'}>{e.content.tags.status}</Tag>
+												<Tag
+													color={
+														e.content.tags
+															.status ===
+														'ongoing'
+															? 'yellow'
+															: 'var(--primary)'
+													}
+												>
+													{e.content.tags.status}
+												</Tag>
 											</Badge>
 											<Text>{e.content.violation}</Text>
 										</Flex>
 									))}
 								</Flex>
-							))
-						)}
+							))}
 					</PanelCard>
 				</Flex>
 			</Flex>
@@ -450,4 +613,3 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 };
 
 export default Profile;
-

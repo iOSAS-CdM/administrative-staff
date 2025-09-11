@@ -75,26 +75,18 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 			<StudentPage students={thisStudents} loading={loading} />
 			{!loading && thisStudents && thisStudents.length > 0 && (
 				<Flex justify='center' style={{ width: '100%' }}>
-					<div
-						onClick={() => {
+					<Pagination
+						current={page + 1}
+						pageSize={20}
+						onChange={(page) => {
+							setPage(page - 1);
 							const pageContent = document.getElementById('page-content');
 							if (pageContent)
 								pageContent.scrollTo({ top: 0, behavior: 'smooth' });
 						}}
-					>
-						<Pagination
-							current={page + 1}
-							pageSize={20}
-							onChange={(page) => {
-								setPage(page - 1);
-								const pageContent = document.getElementById('page-content');
-								if (pageContent)
-									pageContent.scrollTo({ top: 0, behavior: 'smooth' });
-							}}
-							showSizeChanger={false}
-							total={cache.peers ? cache.peers.length : 0}
-						/>
-					</div>
+						showSizeChanger={false}
+						total={cache.peers ? cache.peers.length : 0}
+					/>
 				</Flex>
 			)}
 		</Flex>
