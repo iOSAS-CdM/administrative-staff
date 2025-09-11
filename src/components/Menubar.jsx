@@ -191,9 +191,8 @@ const Menubar = () => {
 		// { path: '/notifications', element: <p>Notifications</p> },
 
 		{ path: '/students/verified/*', element: <Verified {...props} /> },
-		{ path: '/students/profile/:id', element: <Profile {...props} /> },
-
 		{ path: '/students/unverified/*', element: <Unverified {...props} /> },
+		{ path: '/students/profile/:id', element: <Profile {...props} /> },
 
 		// {
 		// 	path: '/students/organizations/*',
