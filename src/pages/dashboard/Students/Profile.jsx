@@ -253,7 +253,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 				fetchStudent();
 			};
 		};
-		return () => controller.abort();
+		return () => controller.abort('Clear Memory');
 	}, [id, getFromCache]);
 	React.useEffect(() => {
 		if (thisStudent.role === 'student')

@@ -165,7 +165,7 @@ const Menubar = () => {
 		};
 		getStaff();
 
-		return () => controller.abort();
+		return () => controller.abort('Clear Memory');
 	}, [cache?.staff]);
 
 	const [Header, setHeader] = React.useState({

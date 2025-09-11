@@ -194,7 +194,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 		};
 		fetchStudents();
 
-		return () => controller.abort();
+		return () => controller.abort('Clear Memory');
 	}, [page]);
 
 	React.useLayoutEffect(() => {
@@ -223,14 +223,14 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 		<Flex vertical gap={32} style={{ width: '100%' }}>
 			<StudentPage students={thisStudents} loading={loading} />
 			{!loading && thisStudents && thisStudents.length > 0 && (
-				<div
-					onClick={() => {
-						const pageContent = document.getElementById('page-content');
-						if (pageContent)
-							pageContent.scrollTo({ top: 0, behavior: 'smooth' });
-					}}
-				>
-					<Flex justify='center' style={{ width: '100%' }}>
+				<Flex justify='center' style={{ width: '100%' }}>
+					<div
+						onClick={() => {
+							const pageContent = document.getElementById('page-content');
+							if (pageContent)
+								pageContent.scrollTo({ top: 0, behavior: 'smooth' });
+						}}
+					>
 						<Pagination
 							current={page + 1}
 							pageSize={20}
@@ -243,8 +243,8 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 							showSizeChanger={false}
 							total={cache.peers ? cache.peers.length : 0}
 						/>
-					</Flex>
-				</div>
+					</div>
+				</Flex>
 			)}
 		</Flex>
 	);
