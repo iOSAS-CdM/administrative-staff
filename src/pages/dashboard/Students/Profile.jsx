@@ -235,7 +235,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 		const controller = new AbortController();
 		if (id) {
 			// Try to get student from cache first
-			const cachedStudent = getFromCache('peers', 'id', id);
+			const cachedStudent = getFromCache('peers', id);
 			if (cachedStudent) {
 				setThisStudent(cachedStudent);
 			} else {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate, useRoutes, Navigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
@@ -7,8 +7,7 @@ import {
 	Input,
 	Tooltip,
 	Button,
-	Segmented,
-	Popover,
+	Tag,
 	Flex,
 	Spin,
 	Empty,
@@ -18,11 +17,11 @@ import {
 	Col,
 	Dropdown,
 	Avatar,
-	Typography
+	Typography,
+	Pagination
 } from 'antd';
 
 import {
-	FilterOutlined,
 	EditOutlined,
 	LockOutlined,
 	EllipsisOutlined
@@ -173,115 +172,30 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 		setSelectedKeys(['verified']);
 	}, [setSelectedKeys]);
 
-	const location = useLocation();
-
 	const { mobile } = React.useContext(MobileContext);
 	const { cache, pushToCache } = useCache();
+	const [loading, setLoading] = React.useState(true);
+	const [page, setPage] = React.useState(0);
+	const [thisStudents, setThisStudents] = React.useState([]);
 
 	React.useEffect(() => {
 		const controller = new AbortController();
 		const fetchStudents = async () => {
-			if (cache?.peers?.filter(peer => peer.role === 'student').length > 0) return;
-
 			// Fetch students from the backend
-			const request = await authFetch(`${API_Route}/users/students`, { signal: controller.signal });
+			const request = await authFetch(`${API_Route}/users/students/?limit=20&offset=${page * 20}`, { signal: controller.signal });
+			setLoading(false);
 			if (!request.ok) return;
 
-			/** @type {import('../../../classes/Student').StudentProps[]} */
+			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
 			const data = await request.json();
-			if (!data || !Array.isArray(data)) return;
-			pushToCache('peers', data, false);
+			if (!data || !Array.isArray(data.students)) return;
+			pushToCache('peers', data.students, false);
+			setThisStudents(data.students);
 		};
 		fetchStudents();
 
 		return () => controller.abort();
-	}, [cache?.peers]);
-
-	/** @typedef {'ics' | 'ite' | 'ibe' | 'active' | 'restricted'} Category */
-	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const category = location.pathname.split('/').pop();
-	/**
-	 * @typedef {{
-	 * 		years: Number[],
-	 * 		programs: String[]
-	 * 	}} Filter
-	 */
-	/** @type {[Filter, React.Dispatch<React.SetStateAction<Filter>>]} */
-	const [filter, setFilter] = React.useState({
-		years: [],
-		programs: []
-	});
-	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
-	const [search, setSearch] = React.useState('');
-
-	/** @type {Student[]} */
-	const filteredStudents = React.useMemo(() => {
-		/** @type {Student[]} */
-		const filtered = [];
-
-		// Filter by year and program
-		for (const student of cache?.peers?.filter(peer => peer.role === 'student')) {
-			if (filter.years.length > 0 && !filter.years.includes(student.year))
-				continue;
-			if (filter.programs.length > 0 && !filter.programs.includes(student.program))
-				continue;
-			filtered.push(student);
-		};
-
-		if (search.trim() !== '') {
-			const searchTerm = search.toLowerCase().trim();
-			return filtered.filter(student => {
-				return (
-					student.name.first.toLowerCase().includes(searchTerm) ||
-					student.name.middle.toLowerCase().includes(searchTerm) ||
-					student.name.last.toLowerCase().includes(searchTerm) ||
-					`${student.name.first} ${student.name.middle} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
-					`${student.name.first} ${student.name.last}`.toLowerCase().includes(searchTerm) ||
-					student.id.toLowerCase().includes(searchTerm) ||
-					student.email.toLowerCase().includes(searchTerm)
-				);
-			});
-		};
-
-		return filtered;
-	}, [cache?.peers, filter, search]);
-	/**
-	 * @type {{
-	 * 	ics: Student[];
-	 * 	ite: Student[];
-	 * 	ibe: Student[];
-	 * 	active: Student[];
-	 * 	restricted: Student[];
-	 * 	archived: Student[];
-	 * }}
-	 */
-	const categorizedStudents = React.useMemo(() => {
-		const categorized = {
-			ics: [],
-			ite: [],
-			ibe: [],
-			active: [],
-			restricted: [],
-			archived: []
-		};
-
-		for (const student of filteredStudents) {
-			if (student.institute === 'ics' && student.status === 'active')
-				categorized.ics.push(student);
-			if (student.institute === 'ite' && student.status === 'active')
-				categorized.ite.push(student);
-			if (student.institute === 'ibe' && student.status === 'active')
-				categorized.ibe.push(student);
-			if (student.status === 'active')
-				categorized.active.push(student);
-			if (student.status === 'restricted')
-				categorized.restricted.push(student);
-			if (student.status === 'archived')
-				categorized.archived.push(student);
-		};
-
-		return categorized;
-	}, [filteredStudents]);
+	}, [page]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -301,52 +215,37 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 						}}
 						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
 					/>
-				</Flex>,
-				<Segmented
-					options={[
-						{ label: 'Active', value: 'active' },
-						{ label: 'ICS', value: 'ics' },
-						{ label: 'ITE', value: 'ite' },
-						{ label: 'IBE', value: 'ibe' },
-						{ label: 'Restricted', value: 'restricted' },
-						{ label: 'Archived', value: 'archived' }
-					]}
-					value={category}
-					onChange={(value) => {
-						navigate(`/dashboard/students/profiles/${value}`);
-					}}
-				/>,
-				<>
-					{!mobile ? (
-						<Popover
-							trigger={['click']}
-							placement='bottom'
-							arrow
-							content={(menu) => <Filters setFilter={setFilter} category={category} mobile={mobile} />}
-						>
-							<Button
-								icon={<FilterOutlined />}
-								onClick={(e) => e.stopPropagation()}
-							/>
-						</Popover>
-					) : <Filters setFilter={setFilter} category={category} mobile={mobile} />}
-				</>
+				</Flex>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
-
-	const routes = useRoutes([
-		{ path: '/active', element: <CategoryPage institutionalizedStudents={categorizedStudents.active} /> },
-		{ path: '/ics', element: <CategoryPage institutionalizedStudents={categorizedStudents.ics} /> },
-		{ path: '/ite', element: <CategoryPage institutionalizedStudents={categorizedStudents.ite} /> },
-		{ path: '/ibe', element: <CategoryPage institutionalizedStudents={categorizedStudents.ibe} /> },
-		{ path: '/restricted', element: <CategoryPage institutionalizedStudents={categorizedStudents.restricted} /> },
-		{ path: '/archived', element: <CategoryPage institutionalizedStudents={categorizedStudents.archived} /> }
-	]);
-
+	}, [setHeader, setSelectedKeys, mobile]);
 	return (
-		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{routes}
+		<Flex vertical gap={32} style={{ width: '100%' }}>
+			<StudentPage students={thisStudents} loading={loading} />
+			{!loading && thisStudents && thisStudents.length > 0 && (
+				<div
+					onClick={() => {
+						const pageContent = document.getElementById('page-content');
+						if (pageContent)
+							pageContent.scrollTo({ top: 0, behavior: 'smooth' });
+					}}
+				>
+					<Flex justify='center' style={{ width: '100%' }}>
+						<Pagination
+							current={page + 1}
+							pageSize={20}
+							onChange={(page) => {
+								setPage(page - 1);
+								const pageContent = document.getElementById('page-content');
+								if (pageContent)
+									pageContent.scrollTo({ top: 0, behavior: 'smooth' });
+							}}
+							showSizeChanger={false}
+							total={cache.peers ? cache.peers.length : 0}
+						/>
+					</Flex>
+				</div>
+			)}
 		</Flex>
 	);
 };
@@ -374,12 +273,10 @@ const StudentCard = ({ student, loading, navigate }) => {
 	return (
 		<ItemCard
 			loading={loading}
-
 			status={
 				student.status === 'archived' ? 'archived' :
 				student.status === 'restricted' && 'restricted'
 			}
-
 			onClick={(e) => {
 				if (thisStudent.placeholder)
 					Modal.error({
@@ -397,13 +294,12 @@ const StudentCard = ({ student, loading, navigate }) => {
 					size='large'
 					style={{ width: 64, height: 64 }}
 				/>
-				<Flex vertical justify='flex-start' align='flex-start' style={{ flex: 1 }}>
-					<Title level={4}>{thisStudent.name.first} {thisStudent.name.middle} {thisStudent.name.last} <Text type='secondary' style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.id}</Text></Title>
-					<Text>{
-						thisStudent.institute === 'ics' ? 'Institute of Computing Studies' :
-							thisStudent.institute === 'ite' ? 'Institute of Teacher Education' :
-								thisStudent.institute === 'ibe' ? 'Institute of Business Entrepreneurship' : ''
-					}</Text>
+				<Flex vertical justify='flex-start' align='flex-start' gap={8} style={{ flex: 1 }}>
+					<Title level={3}>{thisStudent.name.first} {thisStudent.name.last}</Title>
+					<Flex align='center' gap={8} wrap>
+						<Tag><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.id}</Text></Tag>
+						<Tag color={thisStudent.institute === 'ics' ? 'orange' : thisStudent.institute === 'ite' ? 'blue' : thisStudent.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.institute.toUpperCase()}</Text></Tag>
+					</Flex>
 				</Flex>
 				<Dropdown
 					arrow
@@ -451,20 +347,21 @@ const StudentCard = ({ student, loading, navigate }) => {
 
 /**
  * @param {{
- * 	institutionalizedStudents: Student[];
+ * 	students: Student[];
+ * 	loading: Boolean;
  * }} props
  * @returns {JSX.Element}
  */
-const CategoryPage = ({ institutionalizedStudents }) => {
+const StudentPage = ({ students, loading }) => {
 	const navigate = useNavigate();
 	const { mobile } = React.useContext(MobileContext);
-	const { cache } = useCache();
+
 	return (
 		<>
-			{institutionalizedStudents.length > 0 ? (
+			{students.length > 0 ? (
 				<Row gutter={[16, 16]}>
 					<AnimatePresence mode='popLayout'>
-						{institutionalizedStudents.map((student, index) => (
+						{students.map((student, index) => (
 							<Col key={student.id} span={!mobile ? 12 : 24}>
 								<motion.div
 									key={index}
@@ -485,7 +382,7 @@ const CategoryPage = ({ institutionalizedStudents }) => {
 				</Row>
 			) : (
 				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-						{cache?.peers?.filter(peer => peer.role === 'student').length !== 0 ? (
+						{loading ? (
 						<Spin />
 					) : (
 						<Empty description='No profiles found' />
@@ -497,4 +394,4 @@ const CategoryPage = ({ institutionalizedStudents }) => {
 };
 
 export default Verified;
-export { StudentCard, CategoryPage };
+export { StudentCard, StudentPage };

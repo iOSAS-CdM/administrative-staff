@@ -190,18 +190,7 @@ const Menubar = () => {
 		// { path: '/home', element: <Home {...props} /> },
 		// { path: '/notifications', element: <p>Notifications</p> },
 
-		{
-			path: '/students/profiles/*',
-			element: <Verified {...props} />,
-			children: [
-				{ path: 'active', element: <Verified {...props} /> },
-				{ path: 'ics', element: <Verified {...props} /> },
-				{ path: 'ite', element: <Verified {...props} /> },
-				{ path: 'ibe', element: <Verified {...props} /> },
-				{ path: 'restricted', element: <Verified {...props} /> },
-				{ path: 'archived', element: <Verified {...props} /> }
-			]
-		},
+		{ path: '/students/verified/*', element: <Verified {...props} /> },
 		{ path: '/students/profile/:id', element: <Profile {...props} /> },
 
 		{ path: '/students/unverified/*', element: <Unverified {...props} /> },
@@ -244,30 +233,6 @@ const Menubar = () => {
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
-
-	// Reference to store timeout ID
-	const timeoutRef = React.useRef(null);
-
-	const handleMouseEnter = () => {
-		if (minimized) {
-			timeoutRef.current = setTimeout(() => {
-				setMinimized(false);
-			}, 1024); // 2^10
-		};
-	};
-	const handleMouseLeave = () => {
-		if (timeoutRef.current) {
-			clearTimeout(timeoutRef.current);
-			timeoutRef.current = null;
-		};
-	};
-
-	React.useEffect(() => {
-		return () => {
-			if (timeoutRef.current)
-				clearTimeout(timeoutRef.current);
-		};
-	}, []);
 
 	/**
 	 * @type {import('antd').MenuProps['items']}
@@ -358,12 +323,12 @@ const Menubar = () => {
 				{
 					key: 'verified',
 					label: 'Verified',
-					onClick: () => navigate('/dashboard/students/profiles/active', { replace: true })
+					onClick: () => navigate('/dashboard/students/verified', { replace: true })
 				},
 				{
 					key: 'unverified',
 					label: 'Unverified',
-					onClick: () => navigate('/dashboard/students/unverified/active', { replace: true })
+					onClick: () => navigate('/dashboard/students/unverified', { replace: true })
 				},
 				{
 					key: 'organizations',
@@ -443,8 +408,6 @@ const Menubar = () => {
 						padding: 0,
 						borderRadius: 0
 					}}
-					onMouseEnter={handleMouseEnter}
-					onMouseLeave={handleMouseLeave}
 					className='scrollable-content'
 				>
 					<Flex
@@ -613,6 +576,7 @@ const Menubar = () => {
 
 				{/*************************** Page Content ***************************/}
 				<div
+					id='page-content'
 					className='scrollable-content'
 					style={{
 						width: '100%',

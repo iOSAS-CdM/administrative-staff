@@ -18,9 +18,9 @@ const CacheContext = React.createContext();
  */
 /** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
 /** @typedef {(key: keyof Cache, data: Any, single: Boolean) => Void} PushToCache */
-/** @typedef {(key: keyof Cache, idKey: String, idValue: String) => Void} GetFromCache */
-/** @typedef {(key: keyof Cache, idKey: String, idValue: String) => Void} RemoveFromCache */
-/** @typedef {(key: keyof Cache, idKey: String, idValue: String, data: Any) => Void} UpdateCacheItem */
+/** @typedef {(key: keyof Cache, favorKey: String, favorValue: String) => Void} GetFromCache */
+/** @typedef {(key: keyof Cache, favorKey: String, favorValue: String) => Void} RemoveFromCache */
+/** @typedef {(key: keyof Cache, favorKey: String, favorValue: String, data: Any) => Void} UpdateCacheItem */
 
 // This is the custom hook that components will use to access the cache
 /**
@@ -70,30 +70,45 @@ export const CacheProvider = ({ children }) => {
 
 	/** @type {PushToCache} */
 	const pushToCache = (key, data, single) =>
-		setCache(prevCache => ({
-			...prevCache,
-			[key]: single ? [data, ...prevCache[key]] : [...prevCache[key], ...data]
-		}));
+		setCache(prevCache => {
+			const existingItems = prevCache[key];
+			const newItems = single ? [data] : data;
+
+			// Avoid duplicates by checking for matching 'id' property
+			const merged = [
+				...newItems,
+				...existingItems.filter(
+					item =>
+						!newItems.some(
+							newItem => newItem.id !== undefined && item.id === newItem.id
+						)
+				)
+			];
+			return {
+				...prevCache,
+				[key]: merged
+			};
+		});
 
 	/** @type {GetFromCache} */
-	const getFromCache = (key, idKey, idValue) => {
-		const item = cache[key].find(item => item[idKey] === idValue);
+	const getFromCache = (key, favorKey, favorValue) => {
+		const item = cache[key].find(item => item[favorKey] === favorValue);
 		return item || null;
 	};
 
 	/** @type {RemoveFromCache} */
-	const removeFromCache = (key, idKey, idValue) =>
+	const removeFromCache = (key, favorKey, favorValue) =>
 		setCache(prevCache => ({
 			...prevCache,
-			[key]: prevCache[key].filter(item => item[idKey] !== idValue)
+			[key]: prevCache[key].filter(item => item[favorKey] !== favorValue)
 		}));
 
 	/** @type {UpdateCacheItem} */
-	const updateCacheItem = (key, idKey, idValue, data) =>
+	const updateCacheItem = (key, favorKey, favorValue, data) =>
 		setCache(prevCache => ({
 			...prevCache,
 			[key]: prevCache[key].map(item =>
-				item[idKey] === idValue ? { ...item, ...data } : item
+				item[favorKey] === favorValue ? { ...item, ...data } : item
 			)
 		}));
 
