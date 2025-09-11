@@ -20,6 +20,7 @@ import {
 } from 'antd';
 
 import {
+	CheckOutlined,
 	FileOutlined,
 	EditOutlined,
 	LockOutlined,
@@ -400,7 +401,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 							<Divider />
 							<Flex justify='flex-start' align='stretch' gap={16}>
 								<Button
-									type='primary'
+									type={thisStudent.role === 'student' ? 'primary' : 'default'}
 									icon={<EditOutlined />}
 									onClick={() => {
 										if (thisStudent.placeholder) {
@@ -421,15 +422,78 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 								>
 									Edit
 								</Button>
+								{thisStudent.role === 'unverified-student' &&
+									<Button
+										type='primary'
+										icon={<CheckOutlined />}
+										onClick={async () => {
+											if (thisStudent.placeholder) {
+												Modal.error({
+													title: 'Error',
+													content:
+														'This is a placeholder student profile. Please try again later.',
+													centered: true
+												});
+												return;
+											};
+
+											const confirm = await Modal.confirm({
+												title: 'Are you sure you want to verify this student?',
+												content: 'This action cannot be undone.',
+												centered: true,
+												okText: 'Yes, Verify',
+												okType: 'primary',
+												cancelText: 'Cancel'
+											});
+											if (!confirm) return;
+
+											const request = await authFetch(
+												`${API_Route}/users/student/${thisStudent.id}/verify`,
+												{
+													method: 'POST'
+												}
+											);
+											if (!request.ok) {
+												Modal.error({
+													title: 'Error',
+													content:
+														'Failed to verify student. Please try again later.',
+													centered: true
+												});
+												return;
+											};
+											const data = await request.json();
+											if (!data || !data.id) {
+												Modal.error({
+													title: 'Error',
+													content:
+														'Failed to verify student. Please try again later.',
+													centered: true
+												});
+												return;
+											};
+											pushToCache('peers', data, true);
+											setThisStudent(data);
+											Modal.success({
+												title: 'Success',
+												content:
+													'Student has been verified successfully.',
+												centered: true
+											});
+										}}
+									>
+										Verify
+									</Button>
+								}
 								<Button
-									type='primary'
+									type={thisStudent.role === 'student' ? 'primary' : 'default'}
 									icon={<FileOutlined />}
 									onClick={() => {}}
 								>
 									Generate Clearance
 								</Button>
 								<Button
-									type='primary'
+									type={thisStudent.role === 'student' ? 'primary' : 'default'}
 									danger
 									icon={<LockOutlined />}
 									onClick={() => {
