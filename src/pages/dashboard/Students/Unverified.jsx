@@ -85,7 +85,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 								pageContent.scrollTo({ top: 0, behavior: 'smooth' });
 						}}
 						showSizeChanger={false}
-						total={cache.peers ? cache.peers.length : 0}
+						total={cache.peers ? cache.peers.filter((s) => s.role === 'unverified-student').length : 0}
 					/>
 				</Flex>
 			)}
