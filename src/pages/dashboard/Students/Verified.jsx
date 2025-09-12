@@ -185,7 +185,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 			// Fetch students from the backend
 			const request = await authFetch(`${API_Route}/users/students/?limit=20&offset=${page * 20}`, { signal: controller.signal });
 			setLoading(false);
-			if (!request.ok) return;
+			if (!request?.ok) return;
 
 			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
 			const data = await request.json();
@@ -213,7 +213,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 			// Fetch students from the backend
 			setSearching(true);
 			const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(search)}`, { signal: controller.signal });
-			if (!request.ok) return;
+			if (!request?.ok) return;
 
 			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
 			const data = await request.json();
@@ -402,7 +402,7 @@ const StudentCard = ({ student, loading, navigate }) => {
 										const request = await authFetch(`${API_Route}/users/student/${thisStudent.id}/verify`, {
 											method: 'POST'
 										});
-										if (!request.ok) {
+										if (!request?.ok) {
 											Modal.error({
 												title: 'Error',
 												content: 'An error occurred while trying to verify this student. Please try again later.',

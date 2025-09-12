@@ -296,7 +296,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 						`${API_Route}/users/student/${id}`,
 						{ signal: controller.signal }
 					);
-					if (!request.ok) return;
+					if (!request?.ok) return;
 
 					/** @type {import('../../../types').Student} */
 					const data = await request.json();
@@ -451,7 +451,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 													method: 'POST'
 												}
 											);
-											if (!request.ok) {
+											if (!request?.ok) {
 												Modal.error({
 													title: 'Error',
 													content:

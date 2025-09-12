@@ -10,7 +10,7 @@ import {
 	Typography,
 	Button,
 	Image,
-	Space,
+	Spin,
 	DatePicker
 } from 'antd';
 
@@ -25,69 +25,48 @@ const { Title, Text, Paragraph } = Typography;
 
 const NewCaseForm = React.createRef();
 
+import { API_Route } from '../main';
+import { useCache, CacheContext } from '../contexts/CacheContext';
+
+import authFetch from '../utils/authFetch';
+
 const CaseForm = () => {
-	/** @type {import('../classes/Student').StudentProps[]} */
-	const [students, setStudents] = React.useState([]);
+	const { pushToCache } = useCache();
 
-	/** @typedef {[(import('../classes/Student').StudentProps & { disabled: Boolean })[], React.Dispatch<React.SetStateAction<(import('../classes/Student').StudentProps & { disabled: Boolean })[]>>]} StudentsState */
-
-	/** @type {StudentsState} */
-	const [complainantOptionStudents, setComplainantOptionStudents] = React.useState([]);
-	/** @type {StudentsState} */
-	const [complaineeOptionStudents, setComplaineeOptionStudents] = React.useState([]);
+	const [search, setSearch] = React.useState('');
+	const [searchResults, setSearchResults] = React.useState([]);
+	const [searching, setSearchingComplainant] = React.useState(false);
 
 	React.useEffect(() => {
-		fetch('https://randomuser.me/api/?results=100&inc=name,email,phone,login,picture')
-			.then(response => response.json())
-			.then(data => {
-				/** @type {import('../classes/Student').StudentProps[]} */
-				const fetchedStudents = [];
+		const controller = new AbortController();
+		const fetchSearchResults = async () => {
+			if (search.length === 0) {
+				setSearchResults([]);
+				return;
+			};
 
-				for (let i = 0; i < data.results.length; i++) {
-					const user = data.results[i];
-					const institute = ['ics', 'ite', 'ibe'][Math.floor(Math.random() * 3)];
-					const programs = {
-						'ics': ['BSCpE', 'BSIT'],
-						'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
-						'ibe': ['BSBA-HRM', 'BSE']
-					};
+			// Fetch students from the backend
+			setSearchingComplainant(true);
+			const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(search)}`, { signal: controller.signal });
+			if (!request?.ok) return;
 
-					fetchedStudents.push({
-						id: i + 1,
-						name: {
-							first: user.name.first,
-							middle: user.name.middle || '',
-							last: user.name.last
-						},
-						email: user.email,
-						phone: user.phone,
-						id: (() => {
-							let id;
-							do {
-								id = `25-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`;
-							} while (fetchedStudents.some(student => student.id === id));
-							return id;
-						})(),
-						institute: institute,
-						program: programs[institute][Math.floor(Math.random() * programs[institute].length)],
-						year: Math.floor(Math.random() * 4) + 1,
-						profilePicture: user.picture.large,
-						placeholder: false,
-						status: ['active', 'restricted', 'archived'][Math.floor(Math.random() * 3)]
-					});
-				};
-				setStudents(fetchedStudents);
-			})
-			.catch(error => console.error('Error fetching student data:', error));
-	}, []);
+			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
+			const data = await request.json();
+			if (!data || !Array.isArray(data.students)) return;
+			setSearchResults(data.students);
+			setSearchingComplainant(false);
+			pushToCache('peers', data.students, false);
+		};
+		fetchSearchResults();
 
-	React.useEffect(() => {
-		setComplainantOptionStudents(students.filter(student => student.status === 'active' || student.status === 'restricted'));
-		setComplaineeOptionStudents(students.filter(student => student.status === 'active' || student.status === 'restricted'));
-	}, [students]);
+		return () => controller.abort();
+	}, [search]);
 
 	const [file, setFile] = React.useState(null);
 	const [severity, setSeverity] = React.useState('minor'); // 'minor', 'major', 'severe'
+
+	const [complainants, setComplainants] = React.useState([]);
+	const [complainees, setComplainees] = React.useState([]);
 
 	return (
 		<Form
@@ -112,6 +91,17 @@ const CaseForm = () => {
 			<Flex gap={32}>
 				<Flex vertical style={{ flex: 1 }}>
 					<Form.Item
+						name='title'
+						label='Title'
+						rules={[{ required: true, message: 'Please enter a title!' }]}
+					>
+						<Input
+							placeholder='Enter a brief title for the case'
+							style={{ width: '100%' }}
+							maxLength={100}
+						/>
+					</Form.Item>
+					<Form.Item
 						name='violation'
 						label='Violation'
 						rules={[{ required: true, message: 'Please enter a violation!' }]}
@@ -122,7 +112,9 @@ const CaseForm = () => {
 								{ label: 'Cheating', value: 'cheating' },
 								{ label: 'Plagiarism', value: 'plagiarism' },
 								{ label: 'Disruptive Behavior', value: 'disruptive_behavior' },
-								{ label: 'Harassment', value: 'harassment' }
+								{ label: 'Harassment', value: 'harassment' },
+								{ label: 'Vandalism', value: 'vandalism' },
+								{ label: 'Other', value: 'other' }
 							]}
 							style={{ width: '100%' }}
 							showSearch
@@ -178,25 +170,24 @@ const CaseForm = () => {
 						<Select
 							mode='tags'
 							placeholder='Select complainants'
-							options={complainantOptionStudents.map(student => ({
+							options={searchResults.filter(student => !complainees.includes(student.id)).map(student => ({
 								label: `${student.name.first} ${student.name.last} (${student.id})`,
-								value: student.id,
-								disabled: student.disabled
+								value: student.id
 							}))}
+							suffixIcon={searching ? <Spin size='small' /> : null}
 							onChange={(value) => {
-								// Disable selected students from the complainee options
-								const selectedStudents = new Set(value);
-								const updatedComplaineeOptions = complaineeOptionStudents.map(student => ({
-									...student,
-									disabled: selectedStudents.has(student.id)
-								}));
-								setComplaineeOptionStudents(updatedComplaineeOptions);
+								setComplainants(value);
+								setSearchResults([]);
+							}}
+							onSearch={(value) => {
+								setSearch(value);
 							}}
 							style={{ width: '100%' }}
 							showSearch
-							filterOption={(input, option) =>
-								option.label.toLowerCase().includes(input.toLowerCase())
-							}
+							filterOption={(input, option) => {
+								if (complainants.includes(option.value) || complainees.includes(option.value)) return false;
+								return option.label.toLowerCase().includes(input.toLowerCase());
+							}}
 						/>
 					</Form.Item>
 					<Form.Item
@@ -207,25 +198,24 @@ const CaseForm = () => {
 						<Select
 							mode='tags'
 							placeholder='Select complainees'
-							options={complaineeOptionStudents.map(student => ({
+							options={searchResults.filter(student => !complainants.includes(student.id)).map(student => ({
 								label: `${student.name.first} ${student.name.last} (${student.id})`,
-								value: student.id,
-								disabled: student.disabled
+								value: student.id
 							}))}
+							suffixIcon={searching ? <Spin size='small' /> : null}
 							onChange={(value) => {
-								// Disable selected students from the complainant options
-								const selectedStudents = new Set(value);
-								const updatedComplainantOptions = complainantOptionStudents.map(student => ({
-									...student,
-									disabled: selectedStudents.has(student.id)
-								}));
-								setComplainantOptionStudents(updatedComplainantOptions);
+								setComplainees(value);
+								setSearchResults([]);
+							}}
+							onSearch={(value) => {
+								setSearch(value);
 							}}
 							style={{ width: '100%' }}
 							showSearch
-							filterOption={(input, option) =>
-								option.label.toLowerCase().includes(input.toLowerCase())
-							}
+							filterOption={(input, option) => {
+								if (complainants.includes(option.value) || complainees.includes(option.value)) return false;
+								return option.label.toLowerCase().includes(input.toLowerCase());
+							}}
 						/>
 					</Form.Item>
 					<Form.Item
@@ -330,14 +320,16 @@ const NewCase = async (Modal) => {
 		centered: true,
 		closable: { 'aria-label': 'Close' },
 		content: (
-			<CaseForm />
+			<CacheContext.Provider value={{}}>
+				<CaseForm />
+			</CacheContext.Provider>
 		),
 		icon: <BankOutlined />,
 		width: {
 			xs: '100%',
 			sm: '100%',
 			md: '100%',
-			lg: 512, // 2^9
+			lg: '100%', // 2^9
 			xl: 1024, // 2^10
 			xxl: 1024 // 2^10
 		},

@@ -21,7 +21,6 @@ import {
 } from 'antd';
 
 import {
-	SearchOutlined,
 	FilterOutlined,
 	BankOutlined,
 	ExclamationCircleOutlined,
@@ -32,7 +31,7 @@ const { Title, Text, Paragraph } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { API_Route, MobileContext } from '../../../main';
+import { MobileContext } from '../../../main';
 import { useCache } from '../../../contexts/CacheContext';
 
 import Record from '../../../classes/Record';
@@ -167,10 +166,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 			title: 'Disciplinary Records',
 			actions: [
 				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
-					<Input
+					<Input.Search
 						placeholder='Search'
 						allowClear
-						prefix={<SearchOutlined />}
 						onChange={(e) => {
 							const value = e.target.value;
 							clearTimeout(window.recordDebounceTimer);

@@ -243,7 +243,7 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 							},
 							body: JSON.stringify(values)
 						});
-						if (!request.ok) {
+						if (!request?.ok) {
 							const errorData = await request.json();
 							reject(new Error(errorData.message || 'Failed to update student'));
 							return;

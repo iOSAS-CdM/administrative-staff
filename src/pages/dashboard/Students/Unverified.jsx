@@ -40,7 +40,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 			// Fetch students from the backend
 			const request = await authFetch(`${API_Route}/users/unverified-students/?limit=20&offset=${page * 20}`, { signal: controller.signal });
 			setLoading(false);
-			if (!request.ok) return;
+			if (!request?.ok) return;
 
 			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
 			const data = await request.json();
@@ -68,7 +68,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 			// Fetch students from the backend
 			setSearching(true);
 			const request = await authFetch(`${API_Route}/users/search/unverified-students/?q=${encodeURIComponent(search)}`, { signal: controller.signal });
-			if (!request.ok) return;
+			if (!request?.ok) return;
 
 			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
 			const data = await request.json();

@@ -119,21 +119,8 @@ const Menubar = () => {
 		const controller = new AbortController();
 		const getStaff = async () => {
 			const request = await authFetch(`${API_Route}/auth/me`, { signal: controller.signal });
-			if (!request.ok) {
-				notification.error({
-					message: 'Error',
-					description: 'Failed to fetch user data. Please sign in again.',
-					duration: 5
-				});
-				supabase.auth.signOut()
-					.then(() => {
-						window.location.href = '/authentication';
-					})
-					.catch((error) => {
-						console.error('Sign Out Error:', error);
-					});
-				return;
-			};
+			if (!request?.ok) return;
+
 			/** @type {import('../classes/Staff').StaffProps} */
 			const staff = await request.json();
 			if (!staff || !staff.id) {

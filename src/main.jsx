@@ -73,6 +73,7 @@ const OSAS = () => {
 	const [session, setSession] = React.useState(null);
 	const [sessionChecked, setSessionChecked] = React.useState(false);
 
+	/** @type {import('antd').ConfigProviderProps['theme']} */
 	const themeConfig = React.useMemo(() => ({
 		algorithm: [
 			DesignTheme.defaultAlgorithm,
@@ -110,7 +111,7 @@ const OSAS = () => {
 
 	return (
 		<React.StrictMode>
-			<DesignConfig theme={themeConfig}>
+			<DesignConfig theme={themeConfig} variant='outlined' virtual>
 				<App>
 					<BrowserRouter>
 						<MobileContext.Provider value={{ mobile, setMobile }}>

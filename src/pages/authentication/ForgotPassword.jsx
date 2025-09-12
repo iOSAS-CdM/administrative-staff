@@ -59,7 +59,7 @@ const ForgotPassword = ({ navigate }) => {
 			console.error('Error sending OTP:', error);
 		});
 
-		if (!request.ok) {
+		if (!request?.ok) {
 			const errorData = await request.json();
 			StaffInfoForm.current.setFields([
 				{
@@ -95,7 +95,7 @@ const ForgotPassword = ({ navigate }) => {
 			console.error('Error verifying OTP:', error);
 		});
 
-		if (!request.ok) {
+		if (!request?.ok) {
 			OTPForm.current.setFields([
 				{
 					name: 'otp',
@@ -124,7 +124,7 @@ const ForgotPassword = ({ navigate }) => {
 			console.error('Error resetting password:', error);
 		});
 
-		if (!request.ok) {
+		if (!request?.ok) {
 			const errorData = await request.json();
 			ResetPasswordForm.current.setFields([
 				{

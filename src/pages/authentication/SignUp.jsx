@@ -48,7 +48,7 @@ const SignUp = ({ navigate }) => {
 			body: JSON.stringify({ id, email, password })
 		});
 
-		if (!request.ok) {
+		if (!request?.ok) {
 			const error = await request.json();
 			SignUpForm.current.setFields([
 				{
