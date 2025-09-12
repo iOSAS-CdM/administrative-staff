@@ -662,7 +662,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 													{e.content.tags.status}
 												</Tag>
 											</Badge>
-											<Text>{e.content.violation}</Text>
+											<Text>{e.content.violations}</Text>
 										</Flex>
 									))}
 								</Flex>

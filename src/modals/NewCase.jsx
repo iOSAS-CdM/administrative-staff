@@ -74,7 +74,7 @@ const CaseForm = () => {
 			ref={NewCaseForm}
 			onFinish={(values) => { }}
 			initialValues={{
-				violation: '',
+				violations: [],
 				date: dayjs(new Date()),
 				tags: {
 					severity: '', // 'minor', 'major', 'severe'
@@ -102,19 +102,25 @@ const CaseForm = () => {
 						/>
 					</Form.Item>
 					<Form.Item
-						name='violation'
-						label='Violation'
-						rules={[{ required: true, message: 'Please enter a violation!' }]}
+						name='violations'
+						label='Violations'
+						rules={[{ required: true, message: 'Please enter a violations!' }]}
 					>
 						<Select
-							placeholder='Select a violation'
+							placeholder='Select a violations'
 							options={[
+								{ label: 'Bullying', value: 'bullying' },
 								{ label: 'Cheating', value: 'cheating' },
-								{ label: 'Plagiarism', value: 'plagiarism' },
 								{ label: 'Disruptive Behavior', value: 'disruptive_behavior' },
+								{ label: 'Fraud', value: 'fraud' },
+								{ label: 'Gambling', value: 'gambling' },
 								{ label: 'Harassment', value: 'harassment' },
+								{ label: 'Improper Uniform', value: 'improper_uniform' },
+								{ label: 'Litering', value: 'littering' },
+								{ label: 'Plagiarism', value: 'plagiarism' },
+								{ label: 'Possession of Prohibited Items', value: 'prohibited_items' },
 								{ label: 'Vandalism', value: 'vandalism' },
-								{ label: 'Other', value: 'other' }
+								{ label: 'Other', value: 'other' },
 							]}
 							style={{ width: '100%' }}
 							showSearch

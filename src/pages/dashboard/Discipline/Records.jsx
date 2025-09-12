@@ -117,8 +117,9 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 			const searchTerm = search.toLowerCase().trim();
 			return filtered.filter(record => {
 				return (
-					record.violation.toLowerCase().includes(searchTerm) ||
-					record.description.toLowerCase().includes(searchTerm)
+					record.title.toLowerCase().includes(searchTerm) ||
+					record.description.toLowerCase().includes(searchTerm) ||
+					record.violations.some(violation => violation.toLowerCase().includes(searchTerm))
 				);
 			});
 		};
@@ -337,10 +338,10 @@ const RecordCard = ({ record, loading, navigate }) => {
 							{
 								{
 									minor: null,
-									major: <WarningOutlined style={{ color: 'orange' }} title='Major Violation' />,
-									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe Violation' />
+									major: <WarningOutlined style={{ color: 'orange' }} title='Major violations' />,
+									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violations' />
 								}[thisRecord.tags.severity.toLowerCase()] || ''
-							} {thisRecord.violation}
+							} {thisRecord.violations}
 						</Title>
 						<Paragraph>{thisRecord.description}</Paragraph>
 					</Flex>

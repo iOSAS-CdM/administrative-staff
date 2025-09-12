@@ -43,7 +43,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						items: searchedEvents.map(event => ({
 							key: event.id,
 							label: {
-								disciplinary: event.content.violation
+								disciplinary: event.content.violations
 							}[event.type],
 							onClick: () => navigate(`/dashboard/discipline/record/${event.id}`)
 						}))
@@ -110,14 +110,14 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		const events = osas.events.filter(day => {
 			return day.events.some(event => {
 				if (event.type === 'disciplinary')
-					return event.content.violation.toLowerCase().includes(searchTerm);
+					return event.content.title.toLowerCase().includes(searchTerm);
 				return false;
 			});
 		});
 		for (const day of events) {
 			day.events = day.events.filter(event => {
 				if (event.type === 'disciplinary')
-					return event.content.violation.toLowerCase().includes(searchTerm);
+					return event.content.title.toLowerCase().includes(searchTerm);
 				return false;
 			});
 		};
@@ -268,7 +268,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									{eventsForDate.map((event, index) => (
 										event.type === 'disciplinary' ? (
 											<Text key={index}>
-												{event.content.violation}
+												{event.content.violations}
 											</Text>
 										) : null
 									))}
@@ -284,7 +284,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									{eventsForMonth.map((event, index) => (
 										event.type === 'disciplinary' ? (
 											<Text key={index}>
-												{event.content.violation}
+												{event.content.violations}
 											</Text>
 										) : null
 									))}
