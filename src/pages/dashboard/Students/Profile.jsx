@@ -307,7 +307,7 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 				fetchStudent();
 			}
 		}
-		return () => controller.abort('Clear Memory');
+		return () => controller.abort();
 	}, [id, getFromCache]);
 	React.useEffect(() => {
 		if (thisStudent.role === 'student') setSelectedKeys(['verified']);

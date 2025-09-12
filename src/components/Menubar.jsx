@@ -40,7 +40,7 @@ import { MobileContext, DisplayThemeContext, API_Route } from '../main';
 import Verified from '../pages/dashboard/Students/Verified';
 import Profile from '../pages/dashboard/Students/Profile';
 import Unverified from '../pages/dashboard/Students/Unverified';
-// import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
+import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
 // import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
 // import Organizations from '../pages/dashboard/Students/Organizations';
 // import Organization from '../pages/dashboard/Students/Organization';
@@ -165,7 +165,7 @@ const Menubar = () => {
 		};
 		getStaff();
 
-		return () => controller.abort('Clear Memory');
+		return () => controller.abort();
 	}, [cache?.staff]);
 
 	const [Header, setHeader] = React.useState({
@@ -207,16 +207,16 @@ const Menubar = () => {
 		// },
 		// { path: '/students/organization/:id', element: <Organization {...props} /> },
 
-		// {
-		// 	path: '/discipline/records/*',
-		// 	element: <DisciplinaryRecords {...props} />,
-		// 	children: [
-		// 		{ path: 'active', element: <DisciplinaryRecords {...props} /> },
-		// 		{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
-		// 		{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
-		// 		{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
-		// 	]
-		// },
+		{
+			path: '/discipline/records/*',
+			element: <DisciplinaryRecords {...props} />,
+			children: [
+				{ path: 'active', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
+				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
+			]
+		},
 		// { path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
 
 		// { path: '/discipline/reports/*', element: <p>Reports</p> },

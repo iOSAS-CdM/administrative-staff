@@ -31,10 +31,13 @@ const authFetch = async (...args) => {
 		};
 	};
 
-	const request = await originalFetch(...args);
+	const request = await originalFetch(...args).catch((error) => {
+		if (error.name === 'AbortError') return;
+		throw error;
+	});
 
 	// If we have a session but get a 403 Forbidden request, sign out
-	if (session && request.status === 403 || request.status === 401) {
+	if (session && (request?.status === 403 || request?.status === 401)) {
 		localStorage.removeItem('CustomApp');
 		notification.error({
 			message: 'Unauthorized',

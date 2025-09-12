@@ -32,11 +32,13 @@ const { Title, Text, Paragraph } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext, OSASContext } from '../../../main';
-
-import NewCase from '../../../modals/NewCase';
+import { API_Route, MobileContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
 
 import Record from '../../../classes/Record';
+import authFetch from '../../../utils/authFetch';
+
+import NewCase from '../../../modals/NewCase';
 
 const Filters = ({ filter, setFilter }) => (
 	<Flex vertical gap={8}>
@@ -83,7 +85,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	const { cache, pushToCache } = useCache();
 
 	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -106,7 +108,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		const filtered = [];
 
 		// Filter by severity
-		for (const record of osas.records) {
+		for (const record of cache?.records) {
 			if (filter.severity.length > 0 && !filter.severity.includes(record.tags.severity.toLowerCase())) continue; // Skip if severity does not match
 
 			filtered.push(record);
@@ -123,7 +125,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		};
 
 		return filtered;
-	}, [osas.records, filter, search]);
+	}, [cache.records, filter, search]);
 
 	/**
 	 * @type {{
@@ -222,7 +224,7 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{routes}
+			{/* {routes} */}
 		</Flex>
 	);
 };

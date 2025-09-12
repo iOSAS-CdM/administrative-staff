@@ -172,7 +172,7 @@ const StudentForm = ({ student }) => {
 					<Form.Item
 						name='program'
 						rules={[{ required: true, message: 'Please select the program!' }]}
-						style={{ width: '100%' }}
+						style={{ width: 'calc(100% - 64px)' }}
 					>
 						<Select
 							placeholder='Select Institute *'
@@ -185,9 +185,10 @@ const StudentForm = ({ student }) => {
 					</Form.Item>
 					<Form.Item
 						name='year'
-						rules={[{ required: true, message: 'Please input the year!' }]}
+						rules={[{ required: true, message: 'Please input the year!' }, { type: 'number', min: 1, max: 4, message: 'Year must be between 1 and 4' }]}
+						style={{ width: 64 }}
 					>
-						<InputNumber placeholder='Year *' min={1} max={4} />
+						<InputNumber placeholder='Year *' min={1} max={4} style={{ width: '100%' }} />
 					</Form.Item>
 				</Space.Compact>
 			</Flex>
