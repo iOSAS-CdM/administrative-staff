@@ -369,13 +369,13 @@ const StudentCard = ({ student, loading, navigate }) => {
 								icon: <EditOutlined />,
 								label: <Text>Edit</Text>
 							},
-							...thisStudent.role === 'unverified-student' && [
+							...thisStudent?.role === 'unverified-student' ? [
 								{
 									key: 'verify',
 									icon: <CheckOutlined />,
 									label: <Text>Verify</Text>
 								}
-							],
+							] : [],
 							{
 								key: 'restrict',
 								icon: <LockOutlined />,
