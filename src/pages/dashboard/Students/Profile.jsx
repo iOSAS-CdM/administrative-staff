@@ -341,10 +341,8 @@ const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
 					>
 						<Image
 							preview={false}
-							src={
-								thisStudent.profilePicture ||
-								'/Placeholder Image.svg'
-							}
+							src={thisStudent.profilePicture}
+							fallback='/Placeholder Image.svg'
 							alt='Profile Picture'
 							shape='square'
 							style={{

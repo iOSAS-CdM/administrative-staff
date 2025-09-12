@@ -234,7 +234,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 								pageContent.scrollTo({ top: 0, behavior: 'smooth' });
 						}}
 						showSizeChanger={false}
-						total={cache.peers ? cache.peers.filter((s) => s.role === 'student').length : 0}
+						total={cache.peers ? cache.peers.filter((s) => s.role === 'student').length + 1 : 0}
 					/>
 				</Flex>
 			)}
