@@ -24,7 +24,8 @@ import {
 import {
 	EditOutlined,
 	LockOutlined,
-	EllipsisOutlined
+	EllipsisOutlined,
+	CheckOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -224,7 +225,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 		fetchSearchResults();
 
 		return () => controller.abort();
-	}, [search, thisStudents]);
+	}, [search]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -368,6 +369,13 @@ const StudentCard = ({ student, loading, navigate }) => {
 								icon: <EditOutlined />,
 								label: <Text>Edit</Text>
 							},
+							...thisStudent.role === 'unverified-student' && [
+								{
+									key: 'verify',
+									icon: <CheckOutlined />,
+									label: <Text>Verify</Text>
+								}
+							],
 							{
 								key: 'restrict',
 								icon: <LockOutlined />,
@@ -385,6 +393,32 @@ const StudentCard = ({ student, loading, navigate }) => {
 								});
 							else if (e.key === 'edit')
 								EditStudent(Modal, thisStudent, setThisStudent);
+							else if (e.key === 'verify')
+								Modal.confirm({
+									title: 'Verify Student',
+									content: `Are you sure you want to verify ${thisStudent.name.first} ${thisStudent.name.last}'s profile? This action cannot be undone.`,
+									centered: true,
+									onOk: async () => {
+										const request = await authFetch(`${API_Route}/users/student/${thisStudent.id}/verify`, {
+											method: 'POST'
+										});
+										if (!request.ok) {
+											Modal.error({
+												title: 'Error',
+												content: 'An error occurred while trying to verify this student. Please try again later.',
+												centered: true
+											});
+											return;
+										};
+										navigate(`/dashboard/students/profile/${thisStudent.id}`);
+
+										Modal.success({
+											title: 'Success',
+											content: `${thisStudent.name.first} ${thisStudent.name.last}'s profile has been verified.`,
+											centered: true
+										});
+									}
+								});
 							else if (e.key === 'restrict')
 								RestrictStudent(Modal, thisStudent, setThisStudent);
 						}

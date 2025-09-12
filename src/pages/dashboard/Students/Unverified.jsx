@@ -80,7 +80,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 		fetchSearchResults();
 
 		return () => controller.abort();
-	}, [search, thisStudents]);
+	}, [search]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
