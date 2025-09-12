@@ -75,6 +75,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 			if (!data || !Array.isArray(data.students)) return;
 			setSearchResults(data.students);
 			setSearching(false);
+			pushToCache('peers', data.students, false);
 		};
 		fetchSearchResults();
 
