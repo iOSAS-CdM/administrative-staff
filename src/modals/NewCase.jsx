@@ -82,7 +82,7 @@ const CaseForm = () => {
 				complainants: [],
 				complainees: [],
 				description: '',
-				repository: []
+				files: []
 			}}
 			style={{ width: '100%' }}
 			labelCol={{ span: 24 }}
@@ -107,6 +107,7 @@ const CaseForm = () => {
 						rules={[{ required: true, message: 'Please enter a violations!' }]}
 					>
 						<Select
+							mode='multiple'
 							placeholder='Select a violations'
 							options={[
 								{ label: 'Bullying', value: 'bullying' },
@@ -120,7 +121,7 @@ const CaseForm = () => {
 								{ label: 'Plagiarism', value: 'plagiarism' },
 								{ label: 'Possession of Prohibited Items', value: 'prohibited_items' },
 								{ label: 'Vandalism', value: 'vandalism' },
-								{ label: 'Other', value: 'other' },
+								{ label: 'Other', value: 'other' }
 							]}
 							style={{ width: '100%' }}
 							showSearch
@@ -142,7 +143,7 @@ const CaseForm = () => {
 						/>
 					</Form.Item>
 					<Form.Item
-						name={['tags', 'severity']}
+						name='severity'
 						label='Severity'
 						rules={[{ required: true, message: 'Please select a severity!' }]}
 						style={{ flex: 1 }}
@@ -171,10 +172,9 @@ const CaseForm = () => {
 					<Form.Item
 						name='complainants'
 						label='Complainants'
-						rules={[{ required: true, message: 'Please enter complainants!' }]}
 					>
 						<Select
-							mode='tags'
+							mode='multiple'
 							placeholder='Select complainants'
 							options={searchResults.filter(student => !complainees.includes(student.id)).map(student => ({
 								label: `${student.name.first} ${student.name.last} (${student.id})`,
@@ -199,10 +199,9 @@ const CaseForm = () => {
 					<Form.Item
 						name='complainees'
 						label='Complainees'
-						rules={[{ required: true, message: 'Please enter complainees!' }]}
 					>
 						<Select
-							mode='tags'
+							mode='multiple'
 							placeholder='Select complainees'
 							options={searchResults.filter(student => !complainants.includes(student.id)).map(student => ({
 								label: `${student.name.first} ${student.name.last} (${student.id})`,
@@ -240,58 +239,61 @@ const CaseForm = () => {
 				</Flex>
 
 				<Flex vertical={!!file} gap={16}>
-					<Upload.Dragger
-						listType='picture'
-						beforeUpload={(file) => {
-							if (FileReader && file) {
-								const reader = new FileReader();
-								reader.onload = (e) => {
-									setFile(e.target.result);
-									NewCaseForm.current.setFieldsValue({
-										repository: [e.target.result]
-									});
+					<Form.Item name='files' label='Case Image'>
+						<Upload.Dragger
+							listType='picture'
+							action='/upload.do'
+							beforeUpload={(file) => {
+								if (FileReader && file) {
+									const reader = new FileReader();
+									reader.onload = (e) => {
+										setFile(e.target.result);
+										NewCaseForm.current.setFieldsValue({
+											files: [e.target.result]
+										});
+									};
+									reader.readAsDataURL(file);
 								};
-								reader.readAsDataURL(file);
-							};
-							return false;
-						}} // Prevent auto upload
-						showUploadList={false}
-						style={{
-							position: 'relative',
-							width: 256,
-							height: '100%'
-						}}
-						accept='.jpg,.jpeg,.png'
-					>
-						<Flex vertical justify='center' align='center' style={{ width: '100%', height: '100%' }} gap={8}>
-							{file ? (
-								<>
-									<Image
-										src={file}
-										alt='Uploaded file preview'
-										preview={false}
-										style={{
-											width: '100%',
-											height: '100%',
-											objectFit: 'cover',
-											borderRadius: 'var(--border-radius)'
-										}}
-									/>
-								</>
-							) : (
-								<>
-									<UploadOutlined style={{ fontSize: 32 }} />
-									<Title level={5} style={{ margin: 0 }}>
-										Upload Case Image
-									</Title>
-									<Paragraph type='secondary' style={{ textAlign: 'center' }}>
-										Open your Mobile App<br />
-										or drag and drop a file here.
-									</Paragraph>
-								</>
-							)}
-						</Flex>
-					</Upload.Dragger>
+								return false;
+							}} // Prevent auto upload
+							showUploadList={false}
+							style={{
+								position: 'relative',
+								width: 256,
+								height: '100%'
+							}}
+							accept='.jpg,.jpeg,.png'
+						>
+							<Flex vertical justify='center' align='center' style={{ width: '100%', height: '100%' }} gap={8}>
+								{file ? (
+									<>
+										<Image
+											src={file}
+											alt='Uploaded file preview'
+											preview={false}
+											style={{
+												width: '100%',
+												height: '100%',
+												objectFit: 'cover',
+												borderRadius: 'var(--border-radius)'
+											}}
+										/>
+									</>
+								) : (
+									<>
+										<UploadOutlined style={{ fontSize: 32 }} />
+										<Title level={5} style={{ margin: 0 }}>
+											Upload Case Image
+										</Title>
+										<Paragraph type='secondary' style={{ textAlign: 'center' }}>
+											Open your Mobile App<br />
+											or drag and drop a file here.
+										</Paragraph>
+									</>
+								)}
+							</Flex>
+						</Upload.Dragger>
+					</Form.Item>
 
 					{file && (
 						<Flex justify='space-between' align='center' gap={8} style={{ width: '100%' }}>
@@ -355,9 +357,25 @@ const NewCase = async (Modal) => {
 		onOk: () => {
 			return new Promise((resolve, reject) => {
 				NewCaseForm.current.validateFields()
-					.then((values) => {
+					.then(async (values) => {
 						// Process the form values here
 						console.log('Form Values:', values);
+						const request = await authFetch(`${API_Route}/records`, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({
+								...values,
+								date: values.date.toDate()
+							})
+						});
+						if (!request?.ok) {
+							reject(new Error('Failed to submit the form. Please try again.'));
+							return;
+						};
+
+						// Reset the form after successful submission
 						NewCaseForm.current.resetFields();
 						resolve();
 					})

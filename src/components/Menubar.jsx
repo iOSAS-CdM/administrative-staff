@@ -264,15 +264,15 @@ const Menubar = () => {
 						<Avatar
 							src={cache?.staff?.profilePicture}
 							shape='square'
-							size='large'
-							className='anticon ant-menu-item-icon'
+							size='small'
+							style={{ width: 32, height: 32 }}
 						/>
 					) : (
 						<Skeleton.Avatar
 							active
 							shape='square'
-								size='large'
-							className='anticon ant-menu-item-icon'
+							size='small'
+							style={{ width: 32, height: 32 }}
 						/>
 					)
 				),
@@ -421,14 +421,14 @@ const Menubar = () => {
 										src={cache?.staff?.profilePicture}
 										shape='square'
 										size='small'
-										className='anticon ant-menu-item-icon'
+										style={{ width: 32, height: 32 }}
 									/>
 								) : (
 									<Skeleton.Avatar
 										active
 										shape='square'
 										size='small'
-										className='anticon ant-menu-item-icon'
+										style={{ width: 32, height: 32 }}
 									/>
 								)}
 							</Flex>
