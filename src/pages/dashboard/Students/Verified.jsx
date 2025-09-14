@@ -179,10 +179,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 	React.useEffect(() => {
 		const controller = new AbortController();
 		const fetchSearchResults = async () => {
-			if (search.length === 0) {
-				setSearchResults([]);
-				return;
-			};
+			if (search.length === 0) return setSearchResults([]);
 
 			// Fetch students from the backend
 			setSearching(true);
