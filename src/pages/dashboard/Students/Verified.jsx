@@ -1,7 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { motion, AnimatePresence } from 'framer-motion';
-
 import {
 	App,
 	Input,
@@ -10,16 +8,14 @@ import {
 	Tag,
 	Flex,
 	Spin,
-	Empty,
 	Checkbox,
 	Divider,
-	Row,
-	Col,
 	Dropdown,
 	Avatar,
-	Typography,
-	Pagination
+	Typography
 } from 'antd';
+
+import ContentPage from '../../../components/ContentPage';
 
 import {
 	EditOutlined,
@@ -174,33 +170,11 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { mobile } = React.useContext(MobileContext);
-	const { cache, pushToCache } = useCache();
-	const [loading, setLoading] = React.useState(true);
-	const [page, setPage] = React.useState(0);
-	const [thisStudents, setThisStudents] = React.useState([]);
-
-	React.useEffect(() => {
-		const controller = new AbortController();
-		const fetchStudents = async () => {
-			// Fetch students from the backend
-			const request = await authFetch(`${API_Route}/users/students/?limit=20&offset=${page * 20}`, { signal: controller.signal });
-			setLoading(false);
-			if (!request?.ok) return;
-
-			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
-			const data = await request.json();
-			if (!data || !Array.isArray(data.students)) return;
-			pushToCache('peers', data.students, false);
-			setThisStudents(data.students);
-		};
-		fetchStudents();
-
-		return () => controller.abort();
-	}, [page]);
-
 	const [search, setSearch] = React.useState('');
 	const [searchResults, setSearchResults] = React.useState([]);
 	const [searching, setSearching] = React.useState(false);
+
+	const { cache } = useCache();
 
 	React.useEffect(() => {
 		const controller = new AbortController();
@@ -286,25 +260,20 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 		});
 	}, [setHeader, setSelectedKeys, mobile, search, searchResults, searching]);
 	return (
-		<Flex vertical gap={32} style={{ width: '100%' }}>
-			<StudentPage students={thisStudents} loading={loading} />
-			{!loading && thisStudents && thisStudents.length > 0 && (
-				<Flex justify='center' style={{ width: '100%' }}>
-					<Pagination
-						current={page + 1}
-						pageSize={20}
-						onChange={(page) => {
-							setPage(page - 1);
-							const pageContent = document.getElementById('page-content');
-							if (pageContent)
-								pageContent.scrollTo({ top: 0, behavior: 'smooth' });
-						}}
-						showSizeChanger={false}
-						total={cache.peers ? cache.peers.filter((s) => s.role === 'student').length + 1 : 0}
-					/>
-				</Flex>
+		<ContentPage
+			fetchUrl={`${API_Route}/users/students/`}
+			emptyText='No profiles found'
+			cacheKey='peers'
+			transformData={(data) => data.students || []}
+			totalItems={cache.peers?.filter(student => student.role === 'student').length + 1 || 0}
+			renderItem={(student) => (
+				<StudentCard
+					student={student}
+					loading={student.placeholder}
+					navigate={navigate}
+				/>
 			)}
-		</Flex>
+		/>
 	);
 };
 
@@ -443,44 +412,23 @@ const StudentCard = ({ student, loading, navigate }) => {
  * }} props
  * @returns {JSX.Element}
  */
-const StudentPage = ({ students, loading }) => {
+const StudentPage = () => {
 	const navigate = useNavigate();
-	const { mobile } = React.useContext(MobileContext);
 
 	return (
-		<>
-			{students.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					<AnimatePresence mode='popLayout'>
-						{students.map((student, index) => (
-							<Col key={student.id} span={!mobile ? 12 : 24}>
-								<motion.div
-									key={index}
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-									transition={{ duration: 0.3, delay: index * 0.05 }}
-								>
-									<StudentCard
-										student={student}
-										loading={student.placeholder}
-										navigate={navigate}
-									/>
-								</motion.div>
-							</Col>
-						))}
-					</AnimatePresence>
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-						{loading ? (
-						<Spin />
-					) : (
-						<Empty description='No profiles found' />
-					)}
-				</div>
+		<ContentPage
+			fetchUrl={`${API_Route}/users/students/`}
+			emptyText='No profiles found'
+			cacheKey='peers'
+			transformData={(data) => data.students || []}
+			renderItem={(student) => (
+				<StudentCard
+					student={student}
+					loading={student.placeholder}
+					navigate={navigate}
+				/>
 			)}
-		</>
+		/>
 	);
 };
 

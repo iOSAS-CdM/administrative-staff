@@ -6,16 +6,15 @@ import {
 	Spin,
 	Dropdown,
 	Avatar,
-	Typography,
-	Pagination
+	Typography
 } from 'antd';
 
 import { API_Route, MobileContext } from '../../../main';
 import { useCache } from '../../../contexts/CacheContext';
 
 import authFetch from '../../../utils/authFetch';
-
-import { StudentPage } from './Verified';
+import ContentPage from '../../../components/ContentPage';
+import { StudentCard } from './Verified';
 
 const { Text } = Typography;
 
@@ -29,30 +28,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { mobile } = React.useContext(MobileContext);
-	const { cache, pushToCache } = useCache();
-	const [loading, setLoading] = React.useState(true);
-	const [page, setPage] = React.useState(0);
-	const [thisStudents, setThisStudents] = React.useState([]);
-
-	React.useEffect(() => {
-		const controller = new AbortController();
-		const fetchStudents = async () => {
-			// Fetch students from the backend
-			const request = await authFetch(`${API_Route}/users/unverified-students/?limit=20&offset=${page * 20}`, { signal: controller.signal });
-			setLoading(false);
-			if (!request?.ok) return;
-
-			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
-			const data = await request.json();
-			if (!data || !Array.isArray(data.students)) return;
-			pushToCache('peers', data.students, false);
-			setThisStudents(data.students);
-		};
-		fetchStudents();
-
-		return () => controller.abort();
-	}, [page]);
-
+	const { cache } = useCache();
 	const [search, setSearch] = React.useState('');
 	const [searchResults, setSearchResults] = React.useState([]);
 	const [searching, setSearching] = React.useState(false);
@@ -140,25 +116,20 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 		});
 	}, [setHeader, setSelectedKeys, mobile, search, searchResults, searching]);
 	return (
-		<Flex vertical gap={32} style={{ width: '100%' }}>
-			<StudentPage students={thisStudents} loading={loading} />
-			{!loading && thisStudents && thisStudents.length > 0 && (
-				<Flex justify='center' style={{ width: '100%' }}>
-					<Pagination
-						current={page + 1}
-						pageSize={20}
-						onChange={(page) => {
-							setPage(page - 1);
-							const pageContent = document.getElementById('page-content');
-							if (pageContent)
-								pageContent.scrollTo({ top: 0, behavior: 'smooth' });
-						}}
-						showSizeChanger={false}
-						total={cache.peers ? cache.peers.filter((s) => s.role === 'unverified-student').length + 1 : 0}
-					/>
-				</Flex>
+		<ContentPage
+			fetchUrl={`${API_Route}/users/unverified-students/`}
+			emptyText='No profiles found'
+			cacheKey='peers'
+			transformData={(data) => data.students || []}
+			totalItems={cache.peers?.filter(student => student.role === 'unverified-student').length + 1 || 0}
+			renderItem={(student) => (
+				<StudentCard
+					student={student}
+					loading={student.placeholder}
+					navigate={navigate}
+				/>
 			)}
-		</Flex>
+		/>
 	);
 };
 
