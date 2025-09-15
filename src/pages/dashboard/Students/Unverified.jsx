@@ -40,7 +40,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 
 			// Fetch students from the backend
 			setSearching(true);
-			const request = await authFetch(`${API_Route}/users/search/unverified-students/?q=${encodeURIComponent(search)}`, { signal: controller.signal });
+			const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(search)}`, { signal: controller.signal });
 			if (!request?.ok) return;
 
 			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
