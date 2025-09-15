@@ -6,7 +6,8 @@ import {
 	Spin,
 	Dropdown,
 	Avatar,
-	Typography
+	Typography,
+	Tag
 } from 'antd';
 
 import { API_Route, MobileContext } from '../../../main';
@@ -28,7 +29,7 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setSelectedKeys]);
 
 	const { mobile } = React.useContext(MobileContext);
-	const { cache } = useCache();
+	const { cache, pushToCache } = useCache();
 	const [search, setSearch] = React.useState('');
 	const [searchResults, setSearchResults] = React.useState([]);
 	const [searching, setSearching] = React.useState(false);
@@ -71,14 +72,11 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 								label: (
 									<div
 										style={{ width: '100%' }}
-										onClick={() => {
-											setSearch('');
-											navigate(`/dashboard/students/profile/${student.id}`);
-										}}
 									>
 										<Flex align='center' gap={8}>
 											<Avatar src={student.profilePicture} size='small' />
-											<Text>{student.name.first} {student.name.last} ({student.id})</Text>
+											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
+											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute.toUpperCase()}</Text></Tag>
 										</Flex>
 									</div>
 								)
@@ -88,9 +86,11 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 								disabled: true
 							}],
 							placement: 'bottomRight',
-							style: { width: mobile ? '100%' : 300, maxHeight: 400, overflowY: 'auto' },
-							emptyText: 'No results found',
-							onClick: (e) => e.domEvent.stopPropagation()
+							style: { width: mobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
+							onClick: (e) => {
+								setSearch('');
+								navigate(`/dashboard/students/profile/${e.key}`);
+							}
 						}}
 					>
 						<Input.Search

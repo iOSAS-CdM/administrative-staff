@@ -14,7 +14,9 @@ import {
 	Checkbox,
 	Tag,
 	Badge,
-	Divider
+	Divider,
+	Dropdown,
+	Spin
 } from 'antd';
 
 import ContentPage from '../../../components/ContentPage';
@@ -89,8 +91,33 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	/** @typedef {'ongoing' | 'resolved' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
 	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
-	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
+
 	const [search, setSearch] = React.useState('');
+	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
+	const [searchResults, setSearchResults] = React.useState([]);
+	const [searching, setSearching] = React.useState(false);
+	
+	React.useEffect(() => {
+		const controller = new AbortController();
+		const fetchSearchResults = async () => {
+			if (search.length === 0) return setSearchResults([]);
+
+			// Fetch records from the backend
+			setSearching(true);
+			const request = await authFetch(`${API_Route}/records/search?q=${encodeURIComponent(search)}`, { signal: controller.signal });
+			if (!request?.ok) return;
+
+			/** @type {{records: import('../../../classes/Record').RecordProps[], length: Number}} */
+			const data = await request.json();
+			if (!data || !Array.isArray(data.records)) return;
+			setSearchResults(data.records);
+			setSearching(false);
+			pushToCache('records', data.records, false);
+		};
+		fetchSearchResults();
+
+		return () => controller.abort();
+	}, [search]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -100,19 +127,53 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 			title: 'Disciplinary Records',
 			actions: [
 				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
-					<Input.Search
-						placeholder='Search'
-						allowClear
-						onChange={(e) => {
-							const value = e.target.value;
-							clearTimeout(window.recordDebounceTimer);
-							const debounceTimer = setTimeout(() => {
-								setSearch(value);
-							}, 8); // 2^3
-							window.recordDebounceTimer = debounceTimer;
+					<Dropdown
+						showArrow={false}
+						open={search.length > 0}
+						position='bottomRight'
+						placement='bottomRight'
+						menu={{
+							items: searchResults.length > 0 ? searchResults.map((record) => ({
+								key: record.id,
+								label: (
+									<div
+										style={{ width: '100%' }}
+									>
+										<Flex justify='space-between' align='center' gap={8}>
+											<Text>{record.title}</Text>
+											<Tag color={record.tags.status === 'ongoing' ? 'blue' : record.tags.status === 'resolved' ? 'var(--primary)' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}</Text></Tag>
+										</Flex>
+									</div>
+								)
+							})) : [{
+								key: 'no-results',
+								label: <Text>No results found</Text>,
+								disabled: true
+							}],
+							placement: 'bottomRight',
+							style: { width: mobile ? '100%' : 300, maxHeight: 400, overflowY: 'auto' },
+							emptyText: 'No results found',
+							onClick: (e) => {
+								setSearch('');
+								navigate(`/dashboard/discipline/record/${e.key}`);
+							}
 						}}
-						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
-					/>
+					>
+						<Input.Search
+							placeholder='Search'
+							allowClear
+							suffix={searching ? <Spin size='small' /> : null}
+							onChange={(e) => {
+								const value = e.target.value;
+								clearTimeout(window.recordDebounceTimer);
+								const debounceTimer = setTimeout(() => {
+									setSearch(value);
+								}, 512);
+								window.recordDebounceTimer = debounceTimer;
+							}}
+							style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
+						/>
+					</Dropdown>
 				</Flex>,
 				<Segmented
 					options={[

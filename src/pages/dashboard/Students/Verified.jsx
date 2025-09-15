@@ -174,7 +174,7 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 	const [searchResults, setSearchResults] = React.useState([]);
 	const [searching, setSearching] = React.useState(false);
 
-	const { cache } = useCache();
+	const { cache, pushToCache } = useCache();
 
 	React.useEffect(() => {
 		const controller = new AbortController();
@@ -214,10 +214,6 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 								label: (
 									<div
 										style={{ width: '100%' }}
-										onClick={() => {
-											setSearch('');
-											navigate(`/dashboard/students/profile/${student.id}`);
-										}}
 									>
 										<Flex align='center' gap={8}>
 											<Avatar src={student.profilePicture} size='small' />
@@ -232,9 +228,11 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 								disabled: true
 							}],
 							placement: 'bottomRight',
-							style: { width: mobile ? '100%' : 300, maxHeight: 400, overflowY: 'auto' },
-							emptyText: 'No results found',
-							onClick: (e) => e.domEvent.stopPropagation()
+							style: { width: mobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
+							onClick: (e) => {
+								setSearch('');
+								navigate(`/dashboard/students/profile/${e.key}`);
+							}
 						}}
 					>
 						<Input.Search
