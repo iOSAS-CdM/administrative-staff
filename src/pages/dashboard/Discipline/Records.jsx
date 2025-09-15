@@ -23,7 +23,8 @@ import {
 	FilterOutlined,
 	BankOutlined,
 	ExclamationCircleOutlined,
-	WarningOutlined
+	WarningOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -85,78 +86,11 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	const { mobile } = React.useContext(MobileContext);
 	const { cache, pushToCache } = useCache();
 
-	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
+	/** @typedef {'ongoing' | 'resolved' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
 	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
-	/**
-	 * @typedef {{
-	 * 		severity: import('../../../classes/Record').RecordSeverity[]
-	 * 	}} Filter
-	 */
-	/** @type {[Filter, React.Dispatch<React.SetStateAction<Filter>>]} */
-	const [filter, setFilter] = React.useState({
-		severity: []
-	});
 	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
 	const [search, setSearch] = React.useState('');
-
-	/** @type {RecordsState} */
-	const filteredRecords = React.useMemo(() => {
-		/** @type {Record[]} */
-		const filtered = [];
-
-		// Filter by severity
-		for (const record of cache?.records) {
-			if (filter.severity.length > 0 && !filter.severity.includes(record.tags.severity.toLowerCase())) continue; // Skip if severity does not match
-
-			filtered.push(record);
-		};
-
-		if (search.trim() !== '') {
-			const searchTerm = search.toLowerCase().trim();
-			return filtered.filter(record => {
-				return (
-					record.title.toLowerCase().includes(searchTerm) ||
-					record.description.toLowerCase().includes(searchTerm) ||
-					record.violations.some(violation => violation.toLowerCase().includes(searchTerm))
-				);
-			});
-		};
-
-		return filtered;
-	}, [cache.records, filter, search]);
-
-	/**
-	 * @type {{
-	 * 	active: Record[],
-	 * 	ongoing: Record[],
-	 * 	resolved: Record[],
-	 * 	archived: Record[]
-	 * }}
-	 */
-	const categorizedRecords = React.useMemo(() => {
-		const categorized = {
-			active: [],
-			ongoing: [],
-			resolved: [],
-			archived: []
-		};
-
-		for (const record of filteredRecords) {
-			categorized[record.tags.status].push(record);
-			if (record.tags.status !== 'archived')
-				categorized.active.push(record);
-		};
-
-		return categorized;
-	}, [filteredRecords]);
-
-	// const routes = useRoutes([
-	// 	{ path: '/active', element: <CategoryPage categorizedRecords={categorizedRecords.active} /> },
-	// 	{ path: '/ongoing', element: <CategoryPage categorizedRecords={categorizedRecords.ongoing} /> },
-	// 	{ path: '/resolved', element: <CategoryPage categorizedRecords={categorizedRecords.resolved} /> },
-	// 	{ path: '/archived', element: <CategoryPage categorizedRecords={categorizedRecords.archived} /> }
-	// ]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -182,31 +116,15 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Flex>,
 				<Segmented
 					options={[
-						{ label: 'Active', value: 'active' },
 						{ label: 'Ongoing', value: 'ongoing' },
 						{ label: 'Resolved', value: 'resolved' },
 						{ label: 'Archived', value: 'archived' }
 					]}
 					value={category}
 					onChange={(value) => {
-						navigate(`/dashboard/discipline/records/${value}`);
+						setCategory(value);
 					}}
 				/>,
-				<>
-					{!mobile ? (
-						<Popover
-							trigger={['click']}
-							placement='bottomRight'
-							arrow
-							content={<Filters filter={filter} setFilter={setFilter} />}
-						>
-							<Button
-								icon={<FilterOutlined />}
-								onClick={(e) => e.stopPropagation()}
-							/>
-						</Popover>
-					) : <Filters filter={filter} setFilter={setFilter} />}
-				</>,
 				<Button
 					type='primary'
 					icon={<BankOutlined />}
@@ -218,11 +136,11 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Button>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
+	}, [setHeader, setSelectedKeys, category, search, mobile]);
 
 	return (
 		<ContentPage
-			fetchUrl={`${API_Route}/records/`}
+			fetchUrl={`${API_Route}/records?status=${category}`}
 			emptyText='No records found'
 			cacheKey='records'
 			transformData={(data) => data.records || []}
@@ -263,41 +181,49 @@ const RecordCard = ({ record, loading, navigate }) => {
 	const app = App.useApp();
 	const Modal = app.modal;
 
+	/** @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]} */
+	const [unfetchedParticipants, setUnfetchedParticipants] = React.useState([]);
 	/** @type {[import('../../../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps[]>>]} */
 	const [participants, setParticipants] = React.useState([]);
 	React.useEffect(() => {
-		const fetchedParticipants = [];
-		for (const participant of [...thisRecord.complainants, ...thisRecord.complainees]) {
-			if (cache.peers.find(peer => peer.id === participant)) {
-				fetchedParticipants.push(cache.peers.find(peer => peer.id === participant));
+		const currentUnfechedParticipants = [...thisRecord.complainants, ...thisRecord.complainees.map(part => part.id)];
+		const currentParticipants = [];
+		for (const participantId of currentUnfechedParticipants) {
+			// Check if the participant is already in the cache
+			const cachedParticipant = cache.peers.find(peer => peer.id === participantId);
+			if (cachedParticipant) {
+				currentParticipants.push(cachedParticipant);
+				currentUnfechedParticipants.splice(currentUnfechedParticipants.indexOf(participantId), 1);
 				continue;
 			};
 		};
+		setParticipants(currentParticipants);
+		setUnfetchedParticipants(currentUnfechedParticipants);
+		if (currentUnfechedParticipants.length === 0) return;
+		const controller = new AbortController();
 
-		const controllers = [];
+		// Fetch remaining participants from the backend
 		const fetchParticipants = async () => {
-			for (const participant of [...thisRecord.complainants, ...thisRecord.complainees]) {
-				if (fetchedParticipants.find(peer => peer.id === participant)) continue;
+			const request = await authFetch(`${API_Route}/users/students/batch?ids=${currentUnfechedParticipants.join('&ids=')}`, { signal: controller.signal });
+			if (!request?.ok) return;
 
-				const controller = new AbortController();
-				controllers.push(controller);
-				const request = await authFetch(`${API_Route}/users/student/${participant}/`, { signal: controller.signal });
-				if (!request?.ok) continue;
+			/** @type {{students: import('../../../classes/Student').StudentProps[]}} */
+			const data = await request.json();
+			if (!data || !Array.isArray(data.students)) return;
 
-				/** @type {import('../../../classes/Student').StudentProps} */
-				const data = await request.json();
-				if (!data) continue;
-
-				fetchedParticipants.push(data);
-				pushToCache('peers', [data], true);
+			for (const student of data.students) {
+				if (!student || !student.id) continue;
+				currentParticipants.push(student);
+				currentUnfechedParticipants.splice(currentUnfechedParticipants.indexOf(student.id), 1);
 			};
-
-			setParticipants(fetchedParticipants);
+			setParticipants([...currentParticipants]);
+			setUnfetchedParticipants([...currentUnfechedParticipants]);
+			pushToCache('peers', data.students, false);
 		};
 		fetchParticipants();
-
-		return () => controllers.forEach(controller => controller.abort());
-	}, [thisRecord]);
+	
+		return () => controller.abort();
+	}, []);
 
 	return (
 		<Badge.Ribbon
@@ -325,15 +251,32 @@ const RecordCard = ({ record, loading, navigate }) => {
 								}}
 							>
 								{participants.map((complainant, index) => (
-									<Avatar
+									<Popover
+										key={complainant.id || index}
+										content={<Text>{complainant?.name.first} {complainant?.name.last}</Text>}
+										placement='top'
+									>
+										<Avatar
+											src={complainant?.profilePicture}
+											style={{ cursor: 'pointer' }}
+											onClick={(e) => {
+												e.stopPropagation();
+												navigate(`/dashboard/students/profile/${complainant?.id}`);
+											}}
+										/>
+									</Popover>
+								))}
+								{unfetchedParticipants.map((participant, index) => (
+									<Popover
 										key={index}
-										src={complainant?.profilePicture}
-										style={{ cursor: 'pointer' }}
-										onClick={(e) => {
-											e.stopPropagation();
-											navigate(`/dashboard/students/profile/${complainant?.id}`);
-										}}
-									/>
+										content={<Text>{participant}</Text>}
+										placement='top'
+									>
+										<Avatar
+											onClick={(e) => { }}
+											icon={<UserOutlined />}
+										/>
+									</Popover>
 								))}
 							</Avatar.Group>
 						)
@@ -369,21 +312,16 @@ const RecordCard = ({ record, loading, navigate }) => {
 							{
 								{
 									minor: null,
-									major: <WarningOutlined style={{ color: 'orange' }} title='Major violations' />,
-									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violations' />
+									major: <WarningOutlined style={{ color: 'orange' }} title='Major violation' />,
+									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violation' />
 								}[thisRecord.tags.severity.toLowerCase()] || ''
 							} {thisRecord.title}
 						</Title>
 						<Paragraph>{thisRecord.description}</Paragraph>
 						<Flex wrap gap={8}>
-							{thisRecord.violations.map((violation, index) => (
-								<Tag
-									key={index}
-									style={{ color: 'white' }}
-								>
-									{violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-								</Tag>
-							))}
+							<Tag>
+								{thisRecord.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+							</Tag>
 						</Flex>
 					</Flex>
 				)}

@@ -40,7 +40,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 
 	const [thisRecord, setThisRecord] = React.useState({
 		id: '',
-		violations: [],
+		violation: '',
 		description: '',
 		tags: {
 			status: '',
@@ -125,7 +125,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 				<Flex vertical gap={16} style={{ width: '100%' }}>
 					<Card>
 						<Flex vertical gap={8}>
-							<Title level={1}>{thisRecord.violations}</Title>
+							<Title level={1}>{thisRecord.violation}</Title>
 							<Flex align='center' gap={8}>
 								<Text>
 									{thisRecord.date.toLocaleDateString('en-US', {

@@ -74,7 +74,7 @@ const CaseForm = () => {
 			ref={NewCaseForm}
 			onFinish={(values) => { }}
 			initialValues={{
-				violations: [],
+				violation: '',
 				date: dayjs(new Date()),
 				tags: {
 					severity: '', // 'minor', 'major', 'severe'
@@ -102,13 +102,12 @@ const CaseForm = () => {
 						/>
 					</Form.Item>
 					<Form.Item
-						name='violations'
-						label='Violations'
-						rules={[{ required: true, message: 'Please enter a violations!' }]}
+						name='violation'
+						label='Violation'
+						rules={[{ required: true, message: 'Please enter a violation!' }]}
 					>
 						<Select
-							mode='multiple'
-							placeholder='Select a violations'
+							placeholder='Select a violation'
 							options={[
 								{ label: 'Bullying', value: 'bullying' },
 								{ label: 'Cheating', value: 'cheating' },

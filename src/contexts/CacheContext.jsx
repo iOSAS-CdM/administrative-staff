@@ -17,7 +17,7 @@ const CacheContext = React.createContext();
  * }} Cache
  */
 /** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
-/** @typedef {(key: keyof Cache, data: Any, single: Boolean) => Void} PushToCache */
+/** @typedef {(key: keyof Cache, data: Any | Any[], single: Boolean) => Void} PushToCache */
 /** @typedef {(key: keyof Cache, favorKey: String, favorValue: String) => Void} GetFromCache */
 /** @typedef {(key: keyof Cache, favorKey: String, favorValue: String) => Void} RemoveFromCache */
 /** @typedef {(key: keyof Cache, favorKey: String, favorValue: String, data: Any) => Void} UpdateCacheItem */
