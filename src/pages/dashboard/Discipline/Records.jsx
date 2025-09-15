@@ -9,16 +9,15 @@ import {
 	Segmented,
 	Popover,
 	Flex,
-	Empty,
-	Row,
-	Col,
 	Avatar,
 	Typography,
 	Checkbox,
-	Spin,
+	Tag,
 	Badge,
 	Divider
 } from 'antd';
+
+import ContentPage from '../../../components/ContentPage';
 
 import {
 	FilterOutlined,
@@ -31,7 +30,7 @@ const { Title, Text, Paragraph } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext } from '../../../main';
+import { API_Route, MobileContext } from '../../../main';
 import { useCache } from '../../../contexts/CacheContext';
 
 import Record from '../../../classes/Record';
@@ -152,12 +151,12 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		return categorized;
 	}, [filteredRecords]);
 
-	const routes = useRoutes([
-		{ path: '/active', element: <CategoryPage categorizedRecords={categorizedRecords.active} /> },
-		{ path: '/ongoing', element: <CategoryPage categorizedRecords={categorizedRecords.ongoing} /> },
-		{ path: '/resolved', element: <CategoryPage categorizedRecords={categorizedRecords.resolved} /> },
-		{ path: '/archived', element: <CategoryPage categorizedRecords={categorizedRecords.archived} /> }
-	]);
+	// const routes = useRoutes([
+	// 	{ path: '/active', element: <CategoryPage categorizedRecords={categorizedRecords.active} /> },
+	// 	{ path: '/ongoing', element: <CategoryPage categorizedRecords={categorizedRecords.ongoing} /> },
+	// 	{ path: '/resolved', element: <CategoryPage categorizedRecords={categorizedRecords.resolved} /> },
+	// 	{ path: '/archived', element: <CategoryPage categorizedRecords={categorizedRecords.archived} /> }
+	// ]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -222,9 +221,20 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
 
 	return (
-		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{/* {routes} */}
-		</Flex>
+		<ContentPage
+			fetchUrl={`${API_Route}/records/`}
+			emptyText='No records found'
+			cacheKey='records'
+			transformData={(data) => data.records || []}
+			totalItems={cache.records?.filter(record => record.tags.status === 'ongoing').length + 1 || 0}
+			renderItem={(record) => (
+				<RecordCard
+					record={record}
+					loading={record.placeholder}
+					navigate={navigate}
+				/>
+			)}
+		/>
 	);
 };
 
@@ -242,6 +252,8 @@ const RecordCard = ({ record, loading, navigate }) => {
 	/** @type {[Record, React.Dispatch<React.SetStateAction<Record[]>>]} */
 	const [thisRecord, setThisRecord] = React.useState(record);
 
+	const { cache, pushToCache } = useCache();
+
 	React.useEffect(() => {
 		if (record) {
 			setThisRecord(record);
@@ -250,6 +262,42 @@ const RecordCard = ({ record, loading, navigate }) => {
 
 	const app = App.useApp();
 	const Modal = app.modal;
+
+	/** @type {[import('../../../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps[]>>]} */
+	const [participants, setParticipants] = React.useState([]);
+	React.useEffect(() => {
+		const fetchedParticipants = [];
+		for (const participant of [...thisRecord.complainants, ...thisRecord.complainees]) {
+			if (cache.peers.find(peer => peer.id === participant)) {
+				fetchedParticipants.push(cache.peers.find(peer => peer.id === participant));
+				continue;
+			};
+		};
+
+		const controllers = [];
+		const fetchParticipants = async () => {
+			for (const participant of [...thisRecord.complainants, ...thisRecord.complainees]) {
+				if (fetchedParticipants.find(peer => peer.id === participant)) continue;
+
+				const controller = new AbortController();
+				controllers.push(controller);
+				const request = await authFetch(`${API_Route}/users/student/${participant}/`, { signal: controller.signal });
+				if (!request?.ok) continue;
+
+				/** @type {import('../../../classes/Student').StudentProps} */
+				const data = await request.json();
+				if (!data) continue;
+
+				fetchedParticipants.push(data);
+				pushToCache('peers', [data], true);
+			};
+
+			setParticipants(fetchedParticipants);
+		};
+		fetchParticipants();
+
+		return () => controllers.forEach(controller => controller.abort());
+	}, [thisRecord]);
 
 	return (
 		<Badge.Ribbon
@@ -276,33 +324,16 @@ const RecordCard = ({ record, loading, navigate }) => {
 									count: 3
 								}}
 							>
-								{thisRecord.complainants.map((complainant, index) => (
+								{participants.map((complainant, index) => (
 									<Avatar
 										key={index}
-										src={complainant.profilePicture}
+										src={complainant?.profilePicture}
 										style={{ cursor: 'pointer' }}
 										onClick={(e) => {
 											e.stopPropagation();
-											navigate(`/dashboard/students/profile/${complainant.id}`);
+											navigate(`/dashboard/students/profile/${complainant?.id}`);
 										}}
 									/>
-								))}
-								{thisRecord.complainees.map((complainee, index) => (
-									<Badge
-										key={index}
-										title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
-										count={complainee.occurrence}
-										color={['yellow', 'orange', 'red'][complainee.occurrence - 1] || 'red'}
-									>
-										<Avatar
-											src={complainee.student.profilePicture}
-											style={{ cursor: 'pointer' }}
-											onClick={(e) => {
-												e.stopPropagation();
-												navigate(`/dashboard/students/profile/${complainee.student.id}`);
-											}}
-										/>
-									</Badge>
 								))}
 							</Avatar.Group>
 						)
@@ -310,7 +341,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 					{
 						content: (
 							<Text>
-								{thisRecord.date.toLocaleDateString('en-US', {
+								{new Date(thisRecord.date).toLocaleDateString('en-US', {
 									year: 'numeric',
 									month: 'long',
 									day: 'numeric'
@@ -341,9 +372,19 @@ const RecordCard = ({ record, loading, navigate }) => {
 									major: <WarningOutlined style={{ color: 'orange' }} title='Major violations' />,
 									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violations' />
 								}[thisRecord.tags.severity.toLowerCase()] || ''
-							} {thisRecord.violations}
+							} {thisRecord.title}
 						</Title>
 						<Paragraph>{thisRecord.description}</Paragraph>
+						<Flex wrap gap={8}>
+							{thisRecord.violations.map((violation, index) => (
+								<Tag
+									key={index}
+									style={{ color: 'white' }}
+								>
+									{violation.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+								</Tag>
+							))}
+						</Flex>
 					</Flex>
 				)}
 			</ItemCard>
@@ -352,50 +393,3 @@ const RecordCard = ({ record, loading, navigate }) => {
 };
 
 export { RecordCard };
-
-/**
- * @param {{
- * 	categorizedRecords: Record[];
- * }} props
- * @returns {JSX.Element}
- */
-const CategoryPage = ({ categorizedRecords }) => {
-	const navigate = useNavigate();
-	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
-	return (
-		<>
-			{categorizedRecords.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					<AnimatePresence mode='popLayout'>
-						{categorizedRecords.map((record, index) => (
-							<Col key={record.id} span={!mobile ? 12 : 24}>
-								<motion.div
-									key={index}
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-									transition={{ duration: 0.3, delay: index * 0.05 }}
-								>
-									<RecordCard
-										record={record}
-										loading={record.placeholder}
-										navigate={navigate}
-									/>
-								</motion.div>
-							</Col>
-						))}
-					</AnimatePresence>
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{osas.records.length !== 0 ? (
-						<Spin />
-					) : (
-						<Empty description='No records found' />
-					)}
-				</div>
-			)}
-		</>
-	);
-};

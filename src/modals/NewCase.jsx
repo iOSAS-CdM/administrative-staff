@@ -174,7 +174,7 @@ const CaseForm = () => {
 						label='Complainants'
 					>
 						<Select
-							mode='multiple'
+							mode='tags'
 							placeholder='Select complainants'
 							options={searchResults.filter(student => !complainees.includes(student.id)).map(student => ({
 								label: `${student.name.first} ${student.name.last} (${student.id})`,
@@ -201,7 +201,7 @@ const CaseForm = () => {
 						label='Complainees'
 					>
 						<Select
-							mode='multiple'
+							mode='tags'
 							placeholder='Select complainees'
 							options={searchResults.filter(student => !complainants.includes(student.id)).map(student => ({
 								label: `${student.name.first} ${student.name.last} (${student.id})`,
