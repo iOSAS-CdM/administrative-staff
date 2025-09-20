@@ -125,8 +125,8 @@ const OSAS = () => {
 										element={session ? <CacheProvider children={<Menubar />} /> : <Navigate to='/authentication' replace />}
 									/>
 
-									<Route path="/unauthorized" element={<Unauthorized />} />
-									<Route path="/auth-return" element={<AuthReturn />} />
+									<Route path='/unauthorized' element={<Unauthorized />} />
+									<Route path='/auth-return' element={<AuthReturn />} />
 								</Routes>
 							</DisplayThemeContext.Provider>
 						</MobileContext.Provider>
