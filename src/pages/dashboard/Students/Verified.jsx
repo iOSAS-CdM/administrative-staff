@@ -404,27 +404,5 @@ const StudentCard = ({ student, loading }) => {
 	);
 };
 
-/**
- * @type {React.FC<>}
- */
-const StudentPage = () => {
-	const navigate = useNavigate();
-
-	return (
-		<ContentPage
-			fetchUrl={`${API_Route}/users/students/`}
-			emptyText='No profiles found'
-			cacheKey='peers'
-			transformData={(data) => data.students || []}
-			renderItem={(student) => (
-				<StudentCard
-					student={student}
-					loading={student.placeholder}
-				/>
-			)}
-		/>
-	);
-};
-
 export default Verified;
-export { StudentCard, StudentPage };
+export { StudentCard };
