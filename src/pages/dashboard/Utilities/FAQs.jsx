@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Card,
@@ -17,10 +18,16 @@ import {
 } from '@ant-design/icons';
 
 import ItemCard from '../../../components/ItemCard';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 const { Paragraph, Title } = Typography;
 
-const FAQsPage = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC}
+ */
+const FAQsPage = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
+	const navigate = useNavigate();
 	React.useEffect(() => {
 		setHeader({
 			title: 'Frequently Asked Questions',

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -36,7 +37,9 @@ import { marked } from 'marked';
 
 const { Text, Paragraph, Title } = Typography;
 
-import { OSASContext, MobileContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
+import { useMobile } from '../../../contexts/MobileContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 /**
  * @typedef {{
@@ -48,7 +51,12 @@ import { OSASContext, MobileContext } from '../../../main';
  * }} Announcement
  */
 
-const NewAnnouncement = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC}
+ */
+const NewAnnouncement = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
+	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Create a new Announcement',
@@ -68,8 +76,8 @@ const NewAnnouncement = ({ setHeader, setSelectedKeys, navigate }) => {
 		setSelectedKeys(['announcements']);
 	}, [setSelectedKeys]);
 
-	const { osas } = React.useContext(OSASContext);
-	const { mobile } = React.useContext(MobileContext);
+	const { cache } = useCache();
+	const isMobile = useMobile();
 	const Modal = App.useApp().modal;
 
 	const AnnouncementForm = React.useRef(null);

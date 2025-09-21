@@ -1,10 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import { Button } from 'antd';
 
 import { FileAddOutlined } from '@ant-design/icons';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
-const Repository = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC}
+ */
+const Repository = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
+	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Public Form Repository',

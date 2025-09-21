@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate, useRoutes } from 'react-router';
+import { useNavigate, useRoutes } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -24,21 +24,27 @@ const { Title, Text } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext, OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
+import { useMobile } from '../../../contexts/MobileContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import Organization from '../../../classes/Organization';
 
 /** @typedef {[Organization[], React.Dispatch<React.SetStateAction<Organization[]>>]} OrganizationsState */
 
-const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC}
+ */
+const Organizations = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	React.useEffect(() => {
 		setSelectedKeys(['organizations']);
 	}, [setSelectedKeys]);
 
-	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	const isMobile = useMobile();
+	const { cache } = useCache();
 
-	const location = useLocation();
+	const navigate = useNavigate();
 
 	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -64,7 +70,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 			archived: []
 		};
 
-		for (const organization of osas.organizations) {
+		for (const organization of (cache.organizations || [])) {
 			categorized[organization.status].push(organization);
 
 			if (organization.status === 'active')
@@ -72,7 +78,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		};
 
 		return categorized;
-	}, [osas.organizations, category]);
+	}, [cache.organizations, category]);
 
 	const routes = useRoutes([
 		{ path: '/active', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['active']} /> },
@@ -86,7 +92,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 		setHeader({
 			title: 'Student Organizations',
 			actions: [
-				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
+				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
 					<Input
 						placeholder='Search'
 						allowClear
@@ -99,11 +105,11 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 							}, 8); // 2^3
 							window.profileDebounceTimer = debounceTimer;
 						}}
-						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
+						style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
 					/>
 				</Flex>,
 				<Segmented
-					vertical={mobile}
+					vertical={isMobile}
 					options={[
 						{ label: 'Active', value: 'active' },
 						{ label: 'College-wide', value: 'college-wide' },
@@ -118,7 +124,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 				/>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, mobile]);
+	}, [setHeader, setSelectedKeys, category, isMobile]);
 	const app = App.useApp();
 	const Modal = app.modal;
 
@@ -132,16 +138,15 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 export default Organizations;
 
 /**
- * @param {{
+ * @type {React.FC<{
  * 	organization: import('../../../classes/Organization').Organization,
- * 	loading: Boolean,
- * 	navigate: ReturnType<typeof useNavigate>
- * }} props
- * @returns {JSX.Element}
+ * 	loading: Boolean
+ * }>}
  */
-const OrganizationCard = ({ organization, loading, navigate }) => {
+const OrganizationCard = ({ organization, loading }) => {
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization').Organization>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState(organization);
+	const navigate = useNavigate();
 
 	React.useEffect(() => {
 		if (organization)
@@ -240,15 +245,15 @@ const OrganizationCard = ({ organization, loading, navigate }) => {
  */
 const CategoryPage = ({ categorizedOrganizations }) => {
 	const navigate = useNavigate();
-	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	const isMobile = useMobile();
+	const { cache } = useCache();
 	return (
 		<>
 			{categorizedOrganizations.length > 0 ? (
 				<Row gutter={[16, 16]}>
 					<AnimatePresence mode='popLayout'>
 						{categorizedOrganizations.map((organization, index) => (
-							<Col key={organization.id} span={!mobile ? 12 : 24}>
+							<Col key={organization.id} span={!isMobile ? 12 : 24}>
 								<motion.div
 									key={index}
 									initial={{ opacity: 0, y: 20 }}
@@ -259,7 +264,6 @@ const CategoryPage = ({ categorizedOrganizations }) => {
 									<OrganizationCard
 										organization={organization}
 										loading={organization.placeholder}
-										navigate={navigate}
 									/>
 								</motion.div>
 							</Col>
@@ -268,7 +272,7 @@ const CategoryPage = ({ categorizedOrganizations }) => {
 				</Row>
 			) : (
 				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{osas.organizations.length !== 0 ? (
+						{(cache.organizations || []).length !== 0 ? (
 						<Spin />
 					) : (
 						<Empty description='No organizations found' />

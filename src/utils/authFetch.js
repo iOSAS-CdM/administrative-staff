@@ -10,7 +10,7 @@ import { notification } from 'antd';
  */
 const authFetch = async (...args) => {
 	const originalFetch = window.fetch;
-	const session = (await supabase.auth.getSession()).data.session;
+	const session = JSON.parse(localStorage.getItem('CustomApp')) || null;
 	// Only add headers if we have a session with access token
 	if (session?.access_token) {
 		// First arg is the resource/URL, second arg is options
@@ -31,10 +31,13 @@ const authFetch = async (...args) => {
 		};
 	};
 
-	const response = await originalFetch(...args);
+	const request = await originalFetch(...args).catch((error) => {
+		if (error.name === 'AbortError') return;
+		throw error;
+	});
 
-	// If we have a session but get a 403 Forbidden response, sign out
-	if (session && response.status === 403 || response.status === 401) {
+	// If we have a session but get a 403 Forbidden request, sign out
+	if (session && (request?.status === 403 || request?.status === 401)) {
 		localStorage.removeItem('CustomApp');
 		notification.error({
 			message: 'Unauthorized',
@@ -43,7 +46,7 @@ const authFetch = async (...args) => {
 		window.location.href = '/unauthorized';
 	};
 
-	return response;
+	return request;
 };
 
 export default authFetch;

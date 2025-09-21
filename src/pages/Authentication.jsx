@@ -19,7 +19,8 @@ import {
 
 import { GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext } from '../main';
+import { DisplayThemeContext } from '../main';
+import { useMobile } from '../contexts/MobileContext';
 
 const { Text, Title, Link } = Typography;
 
@@ -32,7 +33,7 @@ import '../styles/pages/Authentication.css';
 const Authentication = () => {
 	const [version, setVersion] = React.useState('');
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
 	const [signingIn, setSigningIn] = React.useState(false);
 
@@ -48,10 +49,10 @@ const Authentication = () => {
 	}, []);
 
 	const routes = useRoutes([
-		{ path: '/', element: <SignIn navigate={navigate} /> },
-		{ path: '/sign-in', element: <SignIn navigate={navigate} /> },
-		{ path: '/sign-up', element: <SignUp navigate={navigate} /> },
-		{ path: '/forgot-password', element: <ForgotPassword navigate={navigate} /> }
+		{ path: '/', element: <SignIn /> },
+		{ path: '/sign-in', element: <SignIn /> },
+		{ path: '/sign-up', element: <SignUp /> },
+		{ path: '/forgot-password', element: <ForgotPassword /> }
 	]);
 
 	const signInWithGoogle = React.useCallback(async () => {
@@ -82,7 +83,7 @@ const Authentication = () => {
 		});
 
 		await start({
-			ports: [8000],
+			ports: [8000, 8001, 8002, 8003, 8004],
 			response: `<script>window.location.href = 'http://${window.location.hostname}:${window.location.port}/auth-return';</script>`,
 		})
 			.then(async (p) => {
@@ -211,7 +212,7 @@ const Authentication = () => {
 				layout='vertical'
 				justify='center'
 				align='center'
-				className={`page-container${mobile ? ' mobile' : ''}`}
+				className={`page-container${isMobile ? ' mobile' : ''}`}
 				style={{
 					minHeight: '100vh',
 					height: '100%',
@@ -258,7 +259,7 @@ const Authentication = () => {
 				</Card>
 			</Flex>
 
-			<Flex vertical id='version-info-panel' className={`${displayTheme}${mobile ? ' mobile' : ''}`} justify='center' align='flex-start'>
+			<Flex vertical id='version-info-panel' className={`${displayTheme}${isMobile ? ' mobile' : ''}`} justify='center' align='flex-start'>
 				<Text>
 					Version {version}
 				</Text>

@@ -1,6 +1,5 @@
 import React from 'react';
-import { useNavigate, useRoutes } from 'react-router';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router';
 
 import {
 	App,
@@ -9,34 +8,39 @@ import {
 	Segmented,
 	Popover,
 	Flex,
-	Empty,
-	Row,
-	Col,
 	Avatar,
 	Typography,
 	Checkbox,
-	Spin,
+	Tag,
 	Badge,
-	Divider
+	Divider,
+	Dropdown,
+	Spin
 } from 'antd';
 
+import ContentPage from '../../../components/ContentPage';
+
 import {
-	SearchOutlined,
 	FilterOutlined,
 	BankOutlined,
 	ExclamationCircleOutlined,
-	WarningOutlined
+	WarningOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext, OSASContext } from '../../../main';
-
-import NewCase from '../../../modals/NewCase';
+import { API_Route } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
+import { useCache } from '../../../contexts/CacheContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import Record from '../../../classes/Record';
+import authFetch from '../../../utils/authFetch';
+
+import NewCase from '../../../modals/NewCase';
 
 const Filters = ({ filter, setFilter }) => (
 	<Flex vertical gap={8}>
@@ -77,85 +81,49 @@ const Filters = ({ filter, setFilter }) => (
 
 /** @typedef {Record[], React.Dispatch<React.SetStateAction<Record[]>>} RecordsState */
 
-const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC}
+ */
+const DisciplinaryRecords = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
+	const navigate = useNavigate();
 	React.useEffect(() => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
 
-	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	const isMobile = useMobile();
+	const { cache, pushToCache } = useCache();
 
-	/** @typedef {'ongoing' | 'resolved' | 'active' | 'archived'} Category */
+	/** @typedef {'ongoing' | 'resolved' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
 	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
-	/**
-	 * @typedef {{
-	 * 		severity: import('../../../classes/Record').RecordSeverity[]
-	 * 	}} Filter
-	 */
-	/** @type {[Filter, React.Dispatch<React.SetStateAction<Filter>>]} */
-	const [filter, setFilter] = React.useState({
-		severity: []
-	});
-	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
+
 	const [search, setSearch] = React.useState('');
+	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
+	const [searchResults, setSearchResults] = React.useState([]);
+	const [searching, setSearching] = React.useState(false);
+	
+	React.useEffect(() => {
+		const controller = new AbortController();
+		const fetchSearchResults = async () => {
+			if (search.length === 0) return setSearchResults([]);
 
-	/** @type {RecordsState} */
-	const filteredRecords = React.useMemo(() => {
-		/** @type {Record[]} */
-		const filtered = [];
+			// Fetch records from the backend
+			setSearching(true);
+			const request = await authFetch(`${API_Route}/records/search?q=${encodeURIComponent(search)}`, { signal: controller.signal });
+			if (!request?.ok) return;
 
-		// Filter by severity
-		for (const record of osas.records) {
-			if (filter.severity.length > 0 && !filter.severity.includes(record.tags.severity.toLowerCase())) continue; // Skip if severity does not match
-
-			filtered.push(record);
+			/** @type {{records: import('../../../classes/Record').RecordProps[], length: Number}} */
+			const data = await request.json();
+			if (!data || !Array.isArray(data.records)) return;
+			setSearchResults(data.records);
+			setSearching(false);
+			pushToCache('records', data.records, false);
 		};
+		fetchSearchResults();
 
-		if (search.trim() !== '') {
-			const searchTerm = search.toLowerCase().trim();
-			return filtered.filter(record => {
-				return (
-					record.violation.toLowerCase().includes(searchTerm) ||
-					record.description.toLowerCase().includes(searchTerm)
-				);
-			});
-		};
-
-		return filtered;
-	}, [osas.records, filter, search]);
-
-	/**
-	 * @type {{
-	 * 	active: Record[],
-	 * 	ongoing: Record[],
-	 * 	resolved: Record[],
-	 * 	archived: Record[]
-	 * }}
-	 */
-	const categorizedRecords = React.useMemo(() => {
-		const categorized = {
-			active: [],
-			ongoing: [],
-			resolved: [],
-			archived: []
-		};
-
-		for (const record of filteredRecords) {
-			categorized[record.tags.status].push(record);
-			if (record.tags.status !== 'archived')
-				categorized.active.push(record);
-		};
-
-		return categorized;
-	}, [filteredRecords]);
-
-	const routes = useRoutes([
-		{ path: '/active', element: <CategoryPage categorizedRecords={categorizedRecords.active} /> },
-		{ path: '/ongoing', element: <CategoryPage categorizedRecords={categorizedRecords.ongoing} /> },
-		{ path: '/resolved', element: <CategoryPage categorizedRecords={categorizedRecords.resolved} /> },
-		{ path: '/archived', element: <CategoryPage categorizedRecords={categorizedRecords.archived} /> }
-	]);
+		return () => controller.abort();
+	}, [search]);
 
 	const app = App.useApp();
 	const Modal = app.modal;
@@ -164,49 +132,66 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 		setHeader({
 			title: 'Disciplinary Records',
 			actions: [
-				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
-					<Input
-						placeholder='Search'
-						allowClear
-						prefix={<SearchOutlined />}
-						onChange={(e) => {
-							const value = e.target.value;
-							clearTimeout(window.recordDebounceTimer);
-							const debounceTimer = setTimeout(() => {
-								setSearch(value);
-							}, 8); // 2^3
-							window.recordDebounceTimer = debounceTimer;
+				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
+					<Dropdown
+						showArrow={false}
+						open={search.length > 0}
+						position='bottomRight'
+						placement='bottomRight'
+						menu={{
+							items: searchResults.length > 0 ? searchResults.map((record) => ({
+								key: record.id,
+								label: (
+									<div
+										style={{ width: '100%' }}
+									>
+										<Flex justify='space-between' align='center' gap={8}>
+											<Text>{record.title}</Text>
+											<Tag color={record.tags.status === 'ongoing' ? 'blue' : record.tags.status === 'resolved' ? 'var(--primary)' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}</Text></Tag>
+										</Flex>
+									</div>
+								)
+							})) : [{
+								key: 'no-results',
+								label: <Text>No results found</Text>,
+								disabled: true
+							}],
+							placement: 'bottomRight',
+							style: { width: isMobile ? '100%' : 300, maxHeight: 400, overflowY: 'auto' },
+							emptyText: 'No results found',
+							onClick: (e) => {
+								setSearch('');
+								navigate(`/dashboard/discipline/record/${e.key}`);
+							}
 						}}
-						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
-					/>
+					>
+						<Input.Search
+							placeholder='Search'
+							allowClear
+							suffix={searching ? <Spin size='small' /> : null}
+							onChange={(e) => {
+								const value = e.target.value;
+								clearTimeout(window.recordDebounceTimer);
+								const debounceTimer = setTimeout(() => {
+									setSearch(value);
+								}, 512);
+								window.recordDebounceTimer = debounceTimer;
+							}}
+							style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
+						/>
+					</Dropdown>
 				</Flex>,
 				<Segmented
 					options={[
-						{ label: 'Active', value: 'active' },
 						{ label: 'Ongoing', value: 'ongoing' },
 						{ label: 'Resolved', value: 'resolved' },
 						{ label: 'Archived', value: 'archived' }
 					]}
 					value={category}
 					onChange={(value) => {
-						navigate(`/dashboard/discipline/records/${value}`);
+						setCategory(value);
 					}}
 				/>,
-				<>
-					{!mobile ? (
-						<Popover
-							trigger={['click']}
-							placement='bottomRight'
-							arrow
-							content={<Filters filter={filter} setFilter={setFilter} />}
-						>
-							<Button
-								icon={<FilterOutlined />}
-								onClick={(e) => e.stopPropagation()}
-							/>
-						</Popover>
-					) : <Filters filter={filter} setFilter={setFilter} />}
-				</>,
 				<Button
 					type='primary'
 					icon={<BankOutlined />}
@@ -218,28 +203,39 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				</Button>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, filter, search, mobile]);
+	}, [setHeader, setSelectedKeys, category, search, isMobile]);
 
 	return (
-		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{routes}
-		</Flex>
+		<ContentPage
+			fetchUrl={`${API_Route}/records?status=${category}`}
+			emptyText='No records found'
+			cacheKey='records'
+			transformData={(data) => data.records || []}
+			totalItems={cache.records?.filter(record => record.tags.status === 'ongoing').length + 1 || 0}
+			renderItem={(record) => (
+				<RecordCard
+					record={record}
+					loading={record.placeholder}
+				/>
+			)}
+		/>
 	);
 };
 
 export default DisciplinaryRecords;
 
 /**
- * @param {{
+ * @type {React.FC<{
  * 	record: Record,
- * 	loading: Boolean,
- * 	navigate: ReturnType<typeof useNavigate>
- * }} props
- * @returns 
+ * 	loading: Boolean
+ * }>}
  */
-const RecordCard = ({ record, loading, navigate }) => {
+const RecordCard = ({ record, loading }) => {
 	/** @type {[Record, React.Dispatch<React.SetStateAction<Record[]>>]} */
 	const [thisRecord, setThisRecord] = React.useState(record);
+	const navigate = useNavigate();
+
+	const { cache, pushToCache } = useCache();
 
 	React.useEffect(() => {
 		if (record) {
@@ -249,6 +245,50 @@ const RecordCard = ({ record, loading, navigate }) => {
 
 	const app = App.useApp();
 	const Modal = app.modal;
+
+	/** @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]} */
+	const [unfetchedParticipants, setUnfetchedParticipants] = React.useState([]);
+	/** @type {[import('../../../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps[]>>]} */
+	const [participants, setParticipants] = React.useState([]);
+	React.useEffect(() => {
+		const currentUnfechedParticipants = [...thisRecord.complainants, ...thisRecord.complainees.map(part => part.id)];
+		const currentParticipants = [];
+		for (const participantId of currentUnfechedParticipants) {
+			// Check if the participant is already in the cache
+			const cachedParticipant = cache.peers.find(peer => peer.id === participantId);
+			if (cachedParticipant) {
+				currentParticipants.push(cachedParticipant);
+				currentUnfechedParticipants.splice(currentUnfechedParticipants.indexOf(participantId), 1);
+				continue;
+			};
+		};
+		setParticipants(currentParticipants);
+		setUnfetchedParticipants(currentUnfechedParticipants);
+		if (currentUnfechedParticipants.length === 0) return;
+		const controller = new AbortController();
+
+		// Fetch remaining participants from the backend
+		const fetchParticipants = async () => {
+			const request = await authFetch(`${API_Route}/users/students/batch?ids=${currentUnfechedParticipants.join('&ids=')}`, { signal: controller.signal });
+			if (!request?.ok) return;
+
+			/** @type {{students: import('../../../classes/Student').StudentProps[]}} */
+			const data = await request.json();
+			if (!data || !Array.isArray(data.students)) return;
+
+			for (const student of data.students) {
+				if (!student || !student.id) continue;
+				currentParticipants.push(student);
+				currentUnfechedParticipants.splice(currentUnfechedParticipants.indexOf(student.id), 1);
+			};
+			setParticipants([...currentParticipants]);
+			setUnfetchedParticipants([...currentUnfechedParticipants]);
+			pushToCache('peers', data.students, false);
+		};
+		fetchParticipants();
+	
+		return () => controller.abort();
+	}, []);
 
 	return (
 		<Badge.Ribbon
@@ -275,33 +315,33 @@ const RecordCard = ({ record, loading, navigate }) => {
 									count: 3
 								}}
 							>
-								{thisRecord.complainants.map((complainant, index) => (
-									<Avatar
-										key={index}
-										src={complainant.profilePicture}
-										style={{ cursor: 'pointer' }}
-										onClick={(e) => {
-											e.stopPropagation();
-											navigate(`/dashboard/students/profile/${complainant.id}`);
-										}}
-									/>
-								))}
-								{thisRecord.complainees.map((complainee, index) => (
-									<Badge
-										key={index}
-										title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
-										count={complainee.occurrence}
-										color={['yellow', 'orange', 'red'][complainee.occurrence - 1] || 'red'}
+								{participants.map((complainant, index) => (
+									<Popover
+										key={complainant.id || index}
+										content={<Text>{complainant?.name.first} {complainant?.name.last}</Text>}
+										placement='top'
 									>
 										<Avatar
-											src={complainee.student.profilePicture}
+											src={complainant?.profilePicture}
 											style={{ cursor: 'pointer' }}
 											onClick={(e) => {
 												e.stopPropagation();
-												navigate(`/dashboard/students/profile/${complainee.student.id}`);
+												navigate(`/dashboard/students/profile/${complainant?.id}`);
 											}}
 										/>
-									</Badge>
+									</Popover>
+								))}
+								{unfetchedParticipants.map((participant, index) => (
+									<Popover
+										key={index}
+										content={<Text>{participant}</Text>}
+										placement='top'
+									>
+										<Avatar
+											onClick={(e) => { }}
+											icon={<UserOutlined />}
+										/>
+									</Popover>
 								))}
 							</Avatar.Group>
 						)
@@ -309,7 +349,7 @@ const RecordCard = ({ record, loading, navigate }) => {
 					{
 						content: (
 							<Text>
-								{thisRecord.date.toLocaleDateString('en-US', {
+								{new Date(thisRecord.date).toLocaleDateString('en-US', {
 									year: 'numeric',
 									month: 'long',
 									day: 'numeric'
@@ -337,12 +377,17 @@ const RecordCard = ({ record, loading, navigate }) => {
 							{
 								{
 									minor: null,
-									major: <WarningOutlined style={{ color: 'orange' }} title='Major Violation' />,
-									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe Violation' />
+									major: <WarningOutlined style={{ color: 'orange' }} title='Major violation' />,
+									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violation' />
 								}[thisRecord.tags.severity.toLowerCase()] || ''
-							} {thisRecord.violation}
+							} {thisRecord.title}
 						</Title>
 						<Paragraph>{thisRecord.description}</Paragraph>
+						<Flex wrap gap={8}>
+							<Tag>
+								{thisRecord.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+							</Tag>
+						</Flex>
 					</Flex>
 				)}
 			</ItemCard>
@@ -351,50 +396,3 @@ const RecordCard = ({ record, loading, navigate }) => {
 };
 
 export { RecordCard };
-
-/**
- * @param {{
- * 	categorizedRecords: Record[];
- * }} props
- * @returns {JSX.Element}
- */
-const CategoryPage = ({ categorizedRecords }) => {
-	const navigate = useNavigate();
-	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
-	return (
-		<>
-			{categorizedRecords.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					<AnimatePresence mode='popLayout'>
-						{categorizedRecords.map((record, index) => (
-							<Col key={record.id} span={!mobile ? 12 : 24}>
-								<motion.div
-									key={index}
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-									transition={{ duration: 0.3, delay: index * 0.05 }}
-								>
-									<RecordCard
-										record={record}
-										loading={record.placeholder}
-										navigate={navigate}
-									/>
-								</motion.div>
-							</Col>
-						))}
-					</AnimatePresence>
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{osas.records.length !== 0 ? (
-						<Spin />
-					) : (
-						<Empty description='No records found' />
-					)}
-				</div>
-			)}
-		</>
-	);
-};

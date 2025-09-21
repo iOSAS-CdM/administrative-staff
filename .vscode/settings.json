@@ -1,5 +1,6 @@
 {
     "files.autoSave": "afterDelay",
+	"files.autoSaveDelay": 2000,
     "files.refactoring.autoSave": true,
     "editor.tabSize": 4,
     "editor.insertSpaces": false,

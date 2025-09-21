@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import {
 	Card,
@@ -25,13 +25,19 @@ const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
 
-import { MobileContext, OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
+import { useMobile } from '../../../contexts/MobileContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
-const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
-	const location = useLocation();
+/**
+ * @type {React.FC}
+ */
+const Organization = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
+	const navigate = useNavigate();
 
-	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	const isMobile = useMobile();
+	const { cache } = useCache();
 
 	const { id } = useParams();
 
@@ -51,10 +57,10 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 	});
 	React.useEffect(() => {
 		if (!id) return;
-		const organization = osas.organizations.find(o => o.id === id);
+		const organization = (cache.organizations || []).find(o => o.id === id);
 		if (organization)
 			setThisOrganization(organization);
-	}, [id, osas.organizations]);
+	}, [id, cache.organizations]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -123,11 +129,11 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 							<Image
 								src={thisOrganization.cover || '/Placeholder Image.svg'}
 								alt={`${thisOrganization.shortName} Cover`}
-								style={{ borderRadius: 'var(--ant-border-radius-outer)', aspectRatio: mobile ? '2/1' : '6/1', objectFit: 'cover', overflow: 'hidden' }}
+								style={{ borderRadius: 'var(--ant-border-radius-outer)', aspectRatio: isMobile ? '2/1' : '6/1', objectFit: 'cover', overflow: 'hidden' }}
 							/>
 						}
 					>
-						{!mobile ? (
+						{!isMobile ? (
 							<Flex justify='flex-start' align='flex-end' gap={16} style={{ width: '100%' }}>
 								<Flex
 									style={{
@@ -218,9 +224,9 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 							</Flex>
 						)}
 					</Card>
-					<Flex vertical={mobile} gap={16} style={{ width: '100%', height: '100%' }}>
+					<Flex vertical={isMobile} gap={16} style={{ width: '100%', height: '100%' }}>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '2' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '2' : '' }}
 						>
 							<PanelCard
 								title='Members'
@@ -276,7 +282,7 @@ const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
 							</PanelCard>
 						</div>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '1' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '1' : '' }}
 						>
 							<PanelCard title='Calendar' style={{ position: 'sticky', top: 0 }}>
 								<Calendar

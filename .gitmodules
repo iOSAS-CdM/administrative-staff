@@ -1,0 +1,3 @@
+[submodule "src/classes"]
+	path = src/classes
+	url = https://github.com/iOSAS-CdM/classes

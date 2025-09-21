@@ -34,11 +34,14 @@ import {
 	SolutionOutlined
 } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext, SyncSeedContext, LoadingStatesContext, OSASContext } from '../main';
+import { DisplayThemeContext, API_Route } from '../main';
+import { useMobile } from '../contexts/MobileContext';
+import { PagePropsProvider } from '../contexts/PagePropsContext';
 
 import Home from '../pages/dashboard/Home';
-import Profiles from '../pages/dashboard/Students/Profiles';
+import Verified from '../pages/dashboard/Students/Verified';
 import Profile from '../pages/dashboard/Students/Profile';
+import Unverified from '../pages/dashboard/Students/Unverified';
 import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
 import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
 import Organizations from '../pages/dashboard/Students/Organizations';
@@ -54,19 +57,14 @@ const { Text, Title } = Typography;
 
 import '../styles/pages/Dashboard.css';
 
-/**
- * @typedef {{
- * 	setHeader: React.Dispatch<React.SetStateAction<Header>>,
- * 	setSelectedKeys: React.Dispatch<React.SetStateAction<string[]>>,
- * 	mobile: boolean,
- * 	staff: Staff,
- * 	setMobile: React.Dispatch<React.SetStateAction<boolean>>,
- * 	displayTheme: 'light' | 'dark',
- * 	setDisplayTheme: React.Dispatch<React.SetStateAction<'light' | 'dark'>>,
- * 	navigate: (path: string) => void
- * }} PageProps
- */
+import { useCache } from '../contexts/CacheContext';
+import authFetch from '../utils/authFetch';
 
+/**
+ * @type {React.FC<{
+ * 	setSeed: (seed: number) => void
+ * }>}
+ */
 const ReloadButton = ({ setSeed }) => {
 	const [shiftPressed, setShiftPressed] = React.useState(false);
 	React.useEffect(() => {
@@ -93,217 +91,198 @@ const ReloadButton = ({ setSeed }) => {
 				onClick={() => {
 					if (shiftPressed)
 						location.reload();
-					else
-						setSeed(prev => prev + 1);
 				}}
 			/>
 		</Badge>
 	);
 };
 
+/**
+ * @type {React.FC<>}
+ */
 const Menubar = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
+	const { cache, updateCache, pushToCache } = useCache();
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
-	const { setSeed } = React.useContext(SyncSeedContext);
-	const { loadingStates } = React.useContext(LoadingStatesContext);
-	const { osas } = React.useContext(OSASContext);
 
 	const { notification } = App.useApp();
 
-	const [staff, setStaff] = React.useState({
-		name: {
-			first: '',
-			middle: '',
-			last: ''
-		},
-		role: '',
-		profilePicture: ''
-	});
 	React.useLayoutEffect(() => {
-		if (!osas.staff || !osas.staff.role) return;
-		if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(osas.staff.role)) {
-			localStorage.removeItem('CustomApp');
-			console.warn('Unauthorized access attempt detected. Redirecting to unauthorized page.');
-			console.error('User Role:', osas.staff.role);
-			notification.error({
-				message: 'Unauthorized',
-				description: 'You are not authorized to access this resource.'
-			});
-			navigate('/unauthorized', { replace: true });
+		if (cache?.staff?.id) return;
+		const controller = new AbortController();
+		const getStaff = async () => {
+			const request = await authFetch(`${API_Route}/auth/me`, { signal: controller.signal });
+			if (!request?.ok) return;
+
+			/** @type {import('../classes/Staff').StaffProps} */
+			const staff = await request.json();
+			if (!staff || !staff.id) {
+				notification.error({
+					message: 'Error',
+					description: 'Failed to fetch user data. Please sign in again.',
+					duration: 5
+				});
+				supabase.auth.signOut()
+					.then(() => {
+						window.location.href = '/authentication';
+					})
+					.catch((error) => {
+						console.error('Sign Out Error:', error);
+					});
+				return;
+			};
+			if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(staff.role)) {
+				supabase.auth.signOut()
+					.then(() => {
+						window.location.href = '/unauthorized';
+					})
+					.catch((error) => {
+						console.error('Sign Out Error:', error);
+					});
+			};
+			updateCache('staff', staff);
+			pushToCache('peers', staff, true);
 		};
-		setStaff(osas.staff);
-	}, [osas.staff]);
+		getStaff();
+
+		return () => controller.abort();
+	}, [cache?.staff]);
 
 	const [Header, setHeader] = React.useState({
 		title: 'Dashboard',
 		actions: []
 	});
 
-	const props = {
+	const pageProps = {
 		setHeader,
 		setSelectedKeys,
-		mobile,
-		staff,
-		setMobile,
+		staff: cache?.staff,
 		displayTheme,
-		setDisplayTheme,
-		navigate
+		setDisplayTheme
 	};
 
 	const routes = useRoutes([
 		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
-		{ path: '/home', element: <Home {...props} /> },
+		{ path: '/', element: <p>Dashboard</p> },
+		{ path: '/home', element: <Home /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
 
-		{
-			path: '/students/profiles/*',
-			element: <Profiles {...props} />,
-			children: [
-				{ path: 'active', element: <Profiles {...props} /> },
-				{ path: 'ics', element: <Profiles {...props} /> },
-				{ path: 'ite', element: <Profiles {...props} /> },
-				{ path: 'ibe', element: <Profiles {...props} /> },
-				{ path: 'restricted', element: <Profiles {...props} /> },
-				{ path: 'archived', element: <Profiles {...props} /> }
-			]
-		},
-		{ path: '/students/profile/:id', element: <Profile {...props} /> },
-
-		{ path: '/students/unverified/*', element: <p>Unverified</p> },
+		{ path: '/students/verified/*', element: <Verified /> },
+		{ path: '/students/unverified/*', element: <Unverified /> },
+		{ path: '/students/profile/:id', element: <Profile /> },
 
 		{
 			path: '/students/organizations/*',
-			element: <Organizations {...props} />,
+			element: <Organizations />,
 			children: [
-				{ path: 'active', element: <Organizations {...props} /> },
-				{ path: 'college-wide', element: <Organizations {...props} /> },
-				{ path: 'institute-wide', element: <Organizations {...props} /> },
-				{ path: 'restricted', element: <Organizations {...props} /> },
-				{ path: 'archived', element: <Organizations {...props} /> }
+				{ path: 'active', element: <Organizations /> },
+				{ path: 'college-wide', element: <Organizations /> },
+				{ path: 'institute-wide', element: <Organizations /> },
+				{ path: 'restricted', element: <Organizations /> },
+				{ path: 'archived', element: <Organizations /> }
 			]
 		},
-		{ path: '/students/organization/:id', element: <Organization {...props} /> },
+		{ path: '/students/organization/:id', element: <Organization /> },
 
 		{
 			path: '/discipline/records/*',
-			element: <DisciplinaryRecords {...props} />,
+			element: <DisciplinaryRecords />,
 			children: [
-				{ path: 'active', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
+				{ path: 'active', element: <DisciplinaryRecords /> },
+				{ path: 'ongoing', element: <DisciplinaryRecords /> },
+				{ path: 'resolved', element: <DisciplinaryRecords /> },
+				{ path: 'archived', element: <DisciplinaryRecords /> }
 			]
 		},
-		{ path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
+		{ path: '/discipline/record/:id', element: <DisciplinaryRecord /> },
 
 		{ path: '/discipline/reports/*', element: <p>Reports</p> },
 
-		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
-		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
+		{ path: '/utilities/calendar', element: <CalendarPage /> },
+		{ path: '/utilities/faqs', element: <FAQsPage /> },
 
-		{ path: '/utilities/announcements', element: <Announcements {...props} /> },
-		{ path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
+		{ path: '/utilities/announcements', element: <Announcements /> },
+		{ path: '/utilities/announcements/new', element: <NewAnnouncement /> },
 
-		{ path: '/utilities/repository', element: <Repository {...props} /> },
-		{ path: '/helpbot', element: <Helpbot {...props} /> }
+		{ path: '/utilities/repository', element: <Repository /> },
+		{ path: '/helpbot', element: <Helpbot /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
-
-	// Reference to store timeout ID
-	const timeoutRef = React.useRef(null);
-
-	const handleMouseEnter = () => {
-		if (minimized) {
-			timeoutRef.current = setTimeout(() => {
-				setMinimized(false);
-			}, 1024); // 2^10
-		};
-	};
-	const handleMouseLeave = () => {
-		if (timeoutRef.current) {
-			clearTimeout(timeoutRef.current);
-			timeoutRef.current = null;
-		};
-	};
-
-	React.useEffect(() => {
-		return () => {
-			if (timeoutRef.current)
-				clearTimeout(timeoutRef.current);
-		};
-	}, []);
 
 	/**
 	 * @type {import('antd').MenuProps['items']}
 	 */
 	const menuItems = [
-		{
-			key: 'staff',
-			label: (
-				<Flex justify='space-between' align='center' style={{ width: '100%' }}>
-					<div style={{ flez: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-						{loadingStates.staff ? (
-							<Flex vertical>
-								<Title level={5} style={{ color: 'currentColor' }}>{staff.name.first} {staff.name.middle} {staff.name.last}</Title>
-								<Text type='secondary' style={{ color: 'currentColor' }}>{staff.role}</Text>
-							</Flex>
-						) : (
-							<Skeleton.Node
-								active
-								shape='square'
+		...minimized ? [] : [
+			{
+				key: 'staff',
+				label: (
+					<Flex justify='space-between' align='center' style={{ width: '100%' }}>
+						<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+							{cache?.staff ? (
+								<Flex vertical>
+									<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
+									<Text type='secondary' style={{ color: 'currentColor' }}>{{
+										'head': 'Head',
+										'guidance': 'Guidance Officer',
+										'prefect': 'Prefect of Discipline Officer',
+										'student-affairs': 'Student Affairs Officer'
+									}[cache?.staff?.role]}</Text>
+								</Flex>
+							) : (
+								<Skeleton.Node
+									active
+									shape='square'
 									style={{ width: '100%' }}
-							/>
-						)}
-					</div>
+								/>
+							)}
+						</div>
 
-					{!minimized && (
 						<div style={{ width: 32 }}>
 							<Button
 								type='default'
-								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+								icon={<DoubleLeftOutlined />}
 								onClick={() => setMinimized(!minimized)}
-								style={{ minWidth: '128x !important', height: 32 }}
+								style={{ minWidth: '128px !important', height: 32 }}
 							/>
 						</div>
-					)}
-				</Flex>
-			),
-			icon: (
-				minimized ?
-					<UserOutlined /> :
-					loadingStates.staff ? (
+					</Flex>
+				),
+				icon: (
+					cache?.staff ? (
 						<Avatar
-							src={staff.profilePicture}
+							src={cache?.staff?.profilePicture}
 							shape='square'
-							size={minimized ? 'small' : 'large'}
-							className='anticon ant-menu-item-icon'
+							size='small'
+							style={{ width: 32, height: 32 }}
 						/>
 					) : (
 						<Skeleton.Avatar
 							active
 							shape='square'
-							size={minimized ? 'small' : 'large'}
-							className='anticon ant-menu-item-icon'
+							size='small'
+							style={{ width: 32, height: 32 }}
 						/>
 					)
-			),
-			onClick: () => { },
-			style: {
-				height: 32
+				),
+				onClick: () => { },
+				style: {
+					height: 32
+				}
+			},
+			{
+				key: 'divider',
+				type: 'divider',
+				style: {
+					margin: '16px 0'
+				}
 			}
-		},
-		{
-			key: 'divider',
-			type: 'divider',
-			style: {
-				margin: '16px 0'
-			}
-		},
+		],
 		{
 			key: 'home',
 			label: 'Home',
@@ -322,14 +301,14 @@ const Menubar = () => {
 			icon: <SmileOutlined />,
 			children: [
 				{
-					key: 'profiles',
-					label: 'Profiles',
-					onClick: () => navigate('/dashboard/students/profiles/active', { replace: true })
+					key: 'verified',
+					label: 'Verified',
+					onClick: () => navigate('/dashboard/students/verified', { replace: true })
 				},
 				{
 					key: 'unverified',
-					label: 'Unverified Profiles',
-					onClick: () => navigate('/dashboard/students/unverified/active', { replace: true })
+					label: 'Unverified',
+					onClick: () => navigate('/dashboard/students/unverified', { replace: true })
 				},
 				{
 					key: 'organizations',
@@ -409,8 +388,6 @@ const Menubar = () => {
 						padding: 0,
 						borderRadius: 0
 					}}
-					onMouseEnter={handleMouseEnter}
-					onMouseLeave={handleMouseLeave}
 					className='scrollable-content'
 				>
 					<Flex
@@ -420,11 +397,35 @@ const Menubar = () => {
 						style={{ width: '100%', minHeight: '100%' }}
 					>
 						{minimized && (
-							<Button
-								type='default'
-								icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
-								onClick={() => setMinimized(!minimized)}
-							/>
+							<Flex
+								vertical
+								justify='center'
+								align='center'
+								gap={16}
+								style={{ width: '100%' }}
+							>
+								<Button
+									type='default'
+									icon={minimized ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+									onClick={() => setMinimized(!minimized)}
+									style={{ width: '100%' }}
+								/>
+								{cache?.staff ? (
+									<Avatar
+										src={cache?.staff?.profilePicture}
+										shape='square'
+										size='small'
+										style={{ width: 32, height: 32 }}
+									/>
+								) : (
+									<Skeleton.Avatar
+										active
+										shape='square'
+										size='small'
+										style={{ width: 32, height: 32 }}
+									/>
+								)}
+							</Flex>
 						)}
 						<Flex
 							vertical
@@ -505,13 +506,13 @@ const Menubar = () => {
 					<Flex
 						justify='space-between'
 						align='center'
-						gap={mobile ? 16 : 32}
+						gap={isMobile ? 16 : 32}
 						style={{ width: '100%', height: '100%' }}
 					>
 						<Title level={4}>{Header.title}</Title>
-						{!mobile ? (
+						{!isMobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-								<ReloadButton setSeed={setSeed} />
+								<ReloadButton setSeed={null} />
 								{Header.actions && Header.actions.map((action, index) =>
 									React.cloneElement(action, { key: index })
 								)}
@@ -519,7 +520,7 @@ const Menubar = () => {
 						) : (
 							Header.actions && Header.actions.length > 1 ? (
 								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-									<ReloadButton setSeed={setSeed} />
+										<ReloadButton setSeed={null} />
 									<Popover
 										trigger={['click']}
 										placement='bottom'
@@ -539,9 +540,7 @@ const Menubar = () => {
 									<Button
 										type='default'
 										icon={<SyncOutlined />}
-										onClick={() => {
-											setSeed(prev => prev + 1);
-										}}
+												onClick={() => { }}
 									/>
 									{Header.actions && Header.actions.map((action, index) => (
 										{
@@ -557,6 +556,7 @@ const Menubar = () => {
 
 				{/*************************** Page Content ***************************/}
 				<div
+					id='page-content'
 					className='scrollable-content'
 					style={{
 						width: '100%',
@@ -572,7 +572,9 @@ const Menubar = () => {
 							exit={{ opacity: 0, x: -20 }}
 							style={{ width: '100%', minHeight: '100%' }}
 						>
-							{routes}
+							<PagePropsProvider value={pageProps}>
+								{routes}
+							</PagePropsProvider>
 						</motion.div>
 					</AnimatePresence>
 				</div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Form,
@@ -23,15 +24,13 @@ import '../../styles/pages/Authentication.css';
 import { API_Route } from '../../main';
 
 /**
- * @param {{
- * 		navigate: import('react-router').NavigateFunction
- * }} props
- * @returns {JSX.Element}
+ * @type {React.FC<>}
  */
-const ForgotPassword = ({ navigate }) => {
+const ForgotPassword = () => {
 	const [sending, setSending] = React.useState(false);
 	const [verifying, setVerifying] = React.useState(false);
 	const [resetting, setResetting] = React.useState(false);
+	const navigate = useNavigate();
 
 	const StaffInfoForm = React.useRef(null);
 	const OTPForm = React.useRef(null);
@@ -59,7 +58,7 @@ const ForgotPassword = ({ navigate }) => {
 			console.error('Error sending OTP:', error);
 		});
 
-		if (!request.ok) {
+		if (!request?.ok) {
 			const errorData = await request.json();
 			StaffInfoForm.current.setFields([
 				{
@@ -95,7 +94,7 @@ const ForgotPassword = ({ navigate }) => {
 			console.error('Error verifying OTP:', error);
 		});
 
-		if (!request.ok) {
+		if (!request?.ok) {
 			OTPForm.current.setFields([
 				{
 					name: 'otp',
@@ -124,7 +123,7 @@ const ForgotPassword = ({ navigate }) => {
 			console.error('Error resetting password:', error);
 		});
 
-		if (!request.ok) {
+		if (!request?.ok) {
 			const errorData = await request.json();
 			ResetPasswordForm.current.setFields([
 				{

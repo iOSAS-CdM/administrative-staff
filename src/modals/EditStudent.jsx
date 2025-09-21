@@ -3,7 +3,7 @@ import React from 'react';
 import {
 	Form,
 	Input,
-	Button,
+	InputNumber,
 	Select,
 	Upload,
 	Avatar,
@@ -24,14 +24,34 @@ const { Text } = Typography;
 
 const EditStudentForm = React.createRef();
 
+import { API_Route } from '../main';
+import authFetch from '../utils/authFetch';
+
 /**
- * @param {{
+ * @type {React.FC<{
  * 	student: import('../classes/Student').StudentProps
- * }} props
- * @returns {JSX.Element}
+ * }>}
  */
 const StudentForm = ({ student }) => {
 	const [ProfilePicture, setProfilePicture] = React.useState(student.profilePicture || '');
+
+	const [institute, setInstitute] = React.useState(student.institute);
+	const programsPerInstitute = {
+		'ics': ['BSCpE', 'BSIT'],
+		'ite': ['BSEd-SCI', 'BEEd-GEN', 'BEEd-ECED', 'BTLEd-ICT', 'TCP'],
+		'ibe': ['BSBA-HRM', 'BSE']
+	};
+	const programs = {
+		'BSCpE': 'Bachelor of Science in Computer Engineering',
+		'BSIT': 'Bachelor of Science in Information Technology',
+		'BSEd-SCI': 'Bachelor of Secondary Education major in Science',
+		'BEEd-GEN': 'Bachelor of Elementary Education - Generalist',
+		'BEEd-ECED': 'Bachelor of Early Childhood Education',
+		'BTLEd-ICT': 'Bachelor of Technology and Livelihood Education major in Information and Communication Technology',
+		'TCP': 'Teacher Certificate Program',
+		'BSBA-HRM': 'Bachelor of Science in Business Administration Major in Human Resource Management',
+		'BSE': 'Bachelor of Science in Entrepreneurship'
+	};
 
 	return (
 		<Form
@@ -118,42 +138,57 @@ const StudentForm = ({ student }) => {
 					>
 						<Input placeholder='Email *' type='email' />
 					</Form.Item>
-					<Space.Compact style={{ width: '100%' }}>
-						<Form.Item
-							name='id'
-							rules={[{ required: true, message: 'Please input the employee ID!' }]}
-							style={{ width: '100%' }}
-						>
-							<Input placeholder='Employee ID *' />
-						</Form.Item>
-						<Button
-							type='primary'
-							icon={<SwapOutlined />}
-							style={{ width: 'fit-content' }}
-							onClick={() => {
-								EditStudentForm.current.setFieldsValue({
-									id: `${String((new Date()).getFullYear()).slice(1)}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
-								});
-							}}
-						>
-							Generate ID
-						</Button>
-					</Space.Compact>
 					<Form.Item
-						name='institute'
-						rules={[{ required: true, message: 'Please select the institute!' }]}
+						name='id'
+						rules={[{ required: true, message: 'Please input the Student ID!' }]}
+						style={{ width: '100%' }}
+					>
+						<Input placeholder='Student ID *' />
+					</Form.Item>
+				</Flex>
+			</Flex>
+			<Flex vertical>
+				<Form.Item
+					name='institute'
+					rules={[{ required: true, message: 'Please select the institute!' }]}
+				>
+					<Select
+						placeholder='Select Institute *'
+						options={[
+							{ label: 'Institute of Computing Studies', value: 'ics' },
+							{ label: 'Institute of Teacher Education', value: 'ite' },
+							{ label: 'Institute of Business Entrepreneurship', value: 'ibe' }
+						]}
+						onChange={(value) => {
+							setInstitute(value);
+							EditStudentForm.current.setFieldsValue({ program: programsPerInstitute[value][0] });
+						}}
+						style={{ width: '100%' }}
+					/>
+				</Form.Item>
+				<Space.Compact style={{ width: '100%' }} block>
+					<Form.Item
+						name='program'
+						rules={[{ required: true, message: 'Please select the program!' }]}
+						style={{ width: 'calc(100% - 64px)' }}
 					>
 						<Select
 							placeholder='Select Institute *'
-							options={[
-								{ label: 'Institute of Computing Studies', value: 'ics' },
-								{ label: 'Institute of Teacher Education', value: 'ite' },
-								{ label: 'Institute of Business Entrepreneurship', value: 'ibe' }
-							]}
+							options={(institute ? programsPerInstitute[institute] : []).map(prog => ({
+								label: programs[prog],
+								value: prog
+							}))}
 							style={{ width: '100%' }}
 						/>
 					</Form.Item>
-				</Flex>
+					<Form.Item
+						name='year'
+						rules={[{ required: true, message: 'Please input the year!' }, { type: 'number', min: 1, max: 4, message: 'Year must be between 1 and 4' }]}
+						style={{ width: 64 }}
+					>
+						<InputNumber placeholder='Year *' min={1} max={4} style={{ width: '100%' }} />
+					</Form.Item>
+				</Space.Compact>
 			</Flex>
 		</Form>
 	);
@@ -167,7 +202,8 @@ const StudentForm = ({ student }) => {
  * @returns {Promise<void>}
  */
 const EditStudent = async (Modal, student, setThisStudent) => {
-	Modal.info({
+	console.log(student);
+	await Modal.info({
 		title: 'Edit Student',
 		centered: true,
 		closable: { 'aria-label': 'Close' },
@@ -180,8 +216,8 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 			sm: 512, // 2^9
 			md: 512, // 2^9
 			lg: 512, // 2^9
-			xl: 512 * 1.5, // 2^10
-			xxl: 1024 // 2^10
+			xl: 512, // 2^9
+			xxl: 512 // 2^9
 		},
 		footer: (_, { CancelBtn, OkBtn }) => (
 			<Flex justify='flex-end' align='center' gap={16}>
@@ -196,8 +232,23 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 		onOk: () => {
 			return new Promise((resolve, reject) => {
 				EditStudentForm.current.validateFields()
-					.then((values) => {
-						setThisStudent(values);
+					.then(async (values) => {
+						delete values.role;
+						// Submit the form values to the backend
+						const request = await authFetch(`${API_Route}/users/student/${student.id}`, {
+							method: 'PUT',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify(values)
+						});
+						if (!request?.ok) {
+							const errorData = await request.json();
+							reject(new Error(errorData.message || 'Failed to update student'));
+							return;
+						};
+						const data = await request.json();
+						setThisStudent(data);
 						resolve();
 					})
 					.catch((errorInfo) => {

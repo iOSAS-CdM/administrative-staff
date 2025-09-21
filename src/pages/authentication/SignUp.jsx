@@ -18,16 +18,13 @@ const { Text, Title, Link } = Typography;
 import '../../styles/pages/Authentication.css';
 
 import { API_Route } from '../../main';
-import { i } from 'framer-motion/client';
 
 /**
- * @param {{
- * 		navigate: import('react-router').NavigateFunction
- * }} props
- * @returns {JSX.Element}
+ * @type {React.FC<>}
  */
-const SignUp = ({ navigate }) => {
+const SignUp = () => {
 	const [signingUp, setSigningUp] = React.useState(false);
+	const navigate = useNavigate();
 
 	const [showPassword, setShowPassword] = React.useState(false);
 
@@ -40,7 +37,7 @@ const SignUp = ({ navigate }) => {
 
 		const { id, email, password } = values;
 
-		const response = await fetch(`${API_Route}/auth/staff/sign-up`, {
+		const request = await fetch(`${API_Route}/auth/staff/sign-up`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -48,8 +45,8 @@ const SignUp = ({ navigate }) => {
 			body: JSON.stringify({ id, email, password })
 		});
 
-		if (!response.ok) {
-			const error = await response.json();
+		if (!request?.ok) {
+			const error = await request.json();
 			SignUpForm.current.setFields([
 				{
 					name: 'id',

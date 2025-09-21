@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import moment from 'moment';
 
 import {
@@ -20,14 +21,22 @@ import {
 	CalendarOutlined
 } from '@ant-design/icons';
 
-import { LoadingStatesContext, OSASContext } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
+import { useCache } from '../../../contexts/CacheContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import NewCase from '../../../modals/NewCase';
 import { RecordCard } from '../Discipline/Records';
 
 const { Text } = Typography;
 
-const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+/**
+ * @type {React.FC}
+ */
+const CalendarPage = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
+	const navigate = useNavigate();
+	const isMobile = useMobile();
 	const [search, setSearch] = React.useState('');
 	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [searchedEvents, setSearchedEvents] = React.useState([]);
@@ -43,7 +52,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						items: searchedEvents.map(event => ({
 							key: event.id,
 							label: {
-								disciplinary: event.content.violation
+								disciplinary: event.content.violations
 							}[event.type],
 							onClick: () => navigate(`/dashboard/discipline/record/${event.id}`)
 						}))
@@ -88,16 +97,13 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 		setSelectedKeys(['calendar']);
 	}, [setSelectedKeys]);
 
-	const { loadingStates } = React.useContext(LoadingStatesContext);
+	const { cache } = useCache();
 
-	/** @type {{ osas: import('../../../main').OSASData }} */
-	const { osas } = React.useContext(OSASContext);
-
-	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
+	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
-		setEvents(osas.events);
-	}, [osas.events]);
+		setEvents(cache.events || []);
+	}, [cache.events]);
 
 	React.useEffect(() => {
 		const searchTerm = search.toLowerCase();
@@ -106,18 +112,18 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 			return;
 		};
 
-		/** @type {import('../../../main').OSASData['events']} */
-		const events = osas.events.filter(day => {
+		/** @type {import('../../../classes/Event').EventProps[]} */
+		const events = (cache.events || []).filter(day => {
 			return day.events.some(event => {
 				if (event.type === 'disciplinary')
-					return event.content.violation.toLowerCase().includes(searchTerm);
+					return event.content.title.toLowerCase().includes(searchTerm);
 				return false;
 			});
 		});
 		for (const day of events) {
 			day.events = day.events.filter(event => {
 				if (event.type === 'disciplinary')
-					return event.content.violation.toLowerCase().includes(searchTerm);
+					return event.content.title.toLowerCase().includes(searchTerm);
 				return false;
 			});
 		};
@@ -135,44 +141,9 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 
 	return (
 		<Card>
-			{!loadingStates.events ? (
-				<Flex vertical gap={4}>
-					<Flex justify='flex-end' gap={4}>
-						<Skeleton.Button active />
-						<Skeleton.Button active />
-						<Skeleton.Button active />
-					</Flex>
-					<div
-						style={{
-							display: 'grid',
-							gap: 4,
-							gridTemplateColumns: 'repeat(7, 1fr)'
-						}}
-					>
-						{[...Array(7).keys()].map((_, i) => (
-							<div key={i} style={{ position: 'relative', width: '100%', height: 16 }}>
-								<Skeleton.Node active style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
-							</div>
-						))}
-					</div>
-					<div
-						style={{
-							display: 'grid',
-							gap: 4,
-							gridTemplateColumns: 'repeat(7, 1fr)'
-						}}
-					>
-						{[...Array(35).keys()].map((_, i) => (
-							<div key={i} style={{ position: 'relative', width: '100%', height: 128 }}>
-								<Skeleton.Node active style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
-							</div>
-						))}
-					</div>
-				</Flex>
-			) : (
-				<Calendar
-					onPanelChange={(date) => setValue(date)}
-						onSelect={(date, info) => {
+			<Calendar
+				onPanelChange={(date) => setValue(date)}
+					onSelect={(date, info) => {
 							if (info.source === 'date') {
 								const eventsForDate = events.find(event =>
 									event.date.getDate() === date.date()
@@ -190,8 +161,8 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 													<Row gutter={[16, 16]}>
 														{eventsForDate.map((event, index) => (
 															event.type === 'disciplinary' ? (
-																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-																	<RecordCard record={event.content} loading={false} navigate={navigate} />
+																<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
+																	<RecordCard record={event.content} loading={false} />
 																</Col>
 															) : null
 														))}
@@ -227,8 +198,8 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 													<Row gutter={[16, 16]}>
 														{eventsForMonth.map((event, index) => (
 															event.type === 'disciplinary' ? (
-																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-																	<RecordCard record={event.content} loading={false} navigate={navigate} />
+																<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
+																	<RecordCard record={event.content} loading={false} />
 																</Col>
 															) : null
 														))}
@@ -268,7 +239,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									{eventsForDate.map((event, index) => (
 										event.type === 'disciplinary' ? (
 											<Text key={index}>
-												{event.content.violation}
+												{event.content.violations}
 											</Text>
 										) : null
 									))}
@@ -284,7 +255,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 									{eventsForMonth.map((event, index) => (
 										event.type === 'disciplinary' ? (
 											<Text key={index}>
-												{event.content.violation}
+												{event.content.violations}
 											</Text>
 										) : null
 									))}
@@ -293,7 +264,6 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 						};
 					}}
 				/>
-			)}
 		</Card>
 	);
 };

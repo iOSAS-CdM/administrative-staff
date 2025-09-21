@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import moment from 'moment';
 
 import {
@@ -28,13 +28,19 @@ const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
 
-import { MobileContext, OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
+import { useMobile } from '../../../contexts/MobileContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
-const Record = ({ setHeader, setSelectedKeys, navigate }) => {
-	const location = useLocation();
+/**
+ * @type {React.FC}
+ */
+const Record = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
+	const navigate = useNavigate();
 
-	const { mobile } = React.useContext(MobileContext);
-	const { osas } = React.useContext(OSASContext);
+	const isMobile = useMobile();
+	const { cache } = useCache();
 	
 	const { id } = useParams();
 
@@ -54,10 +60,10 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 	});
 	React.useEffect(() => {
 		if (!id) return;
-		const record = osas.records.find(r => r.id === id);
+		const record = (cache.records || []).find(r => r.id === id);
 		if (record)
 			setThisRecord(record);
-	}, [id, osas.records]);
+	}, [id, cache.records]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -193,9 +199,9 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 							</Flex>
 						</Flex>
 					</Card>
-					<Flex vertical={mobile} gap={16} style={{ width: '100%', height: '100%' }}>
+					<Flex vertical={isMobile} gap={16} style={{ width: '100%', height: '100%' }}>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '2' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '2' : '' }}
 						>
 							<PanelCard
 								title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`}
@@ -253,7 +259,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 							</PanelCard>
 						</div>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '3' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '3' : '' }}
 						>
 							<PanelCard
 								title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`}
@@ -320,7 +326,7 @@ const Record = ({ setHeader, setSelectedKeys, navigate }) => {
 							</PanelCard>
 						</div>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '1' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '1' : '' }}
 						>
 							<PanelCard
 								title='Progress'
