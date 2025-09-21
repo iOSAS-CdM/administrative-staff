@@ -1,13 +1,20 @@
 {
   "name": "osas-staff",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "version:commit": "git add package.json package-lock.json && git commit -m \"chore: bump version to $(node -p 'require(\"./package.json\").version')\"",
+    "release:patch": "npm run version:patch && npm run version:commit",
+    "release:minor": "npm run version:minor && npm run version:commit",
+    "release:major": "npm run version:major && npm run version:commit"
   },
   "dependencies": {
     "@ant-design/charts": "^2.4.0",
