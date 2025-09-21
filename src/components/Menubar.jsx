@@ -37,7 +37,7 @@ import {
 import { DisplayThemeContext, API_Route } from '../main';
 import { useMobile } from '../contexts/MobileContext';
 
-// import Home from '../pages/dashboard/Home';
+import Home from '../pages/dashboard/Home';
 import Verified from '../pages/dashboard/Students/Verified';
 import Profile from '../pages/dashboard/Students/Profile';
 import Unverified from '../pages/dashboard/Students/Unverified';
@@ -175,27 +175,27 @@ const Menubar = () => {
 	};
 
 	const routes = useRoutes([
-		// { path: '/*', element: <Navigate to='/dashboard/home' replace /> },
+		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/', element: <p>Dashboard</p> },
-		// { path: '/home', element: <Home {...props} /> },
-		// { path: '/notifications', element: <p>Notifications</p> },
+		{ path: '/home', element: <Home {...props} /> },
+		{ path: '/notifications', element: <p>Notifications</p> },
 
 		{ path: '/students/verified/*', element: <Verified {...props} /> },
 		{ path: '/students/unverified/*', element: <Unverified {...props} /> },
 		{ path: '/students/profile/:id', element: <Profile {...props} /> },
 
-		// {
-		// 	path: '/students/organizations/*',
-		// 	element: <Organizations {...props} />,
-		// 	children: [
-		// 		{ path: 'active', element: <Organizations {...props} /> },
-		// 		{ path: 'college-wide', element: <Organizations {...props} /> },
-		// 		{ path: 'institute-wide', element: <Organizations {...props} /> },
-		// 		{ path: 'restricted', element: <Organizations {...props} /> },
-		// 		{ path: 'archived', element: <Organizations {...props} /> }
-		// 	]
-		// },
-		// { path: '/students/organization/:id', element: <Organization {...props} /> },
+		{
+			path: '/students/organizations/*',
+			element: <Organizations {...props} />,
+			children: [
+				{ path: 'active', element: <Organizations {...props} /> },
+				{ path: 'college-wide', element: <Organizations {...props} /> },
+				{ path: 'institute-wide', element: <Organizations {...props} /> },
+				{ path: 'restricted', element: <Organizations {...props} /> },
+				{ path: 'archived', element: <Organizations {...props} /> }
+			]
+		},
+		{ path: '/students/organization/:id', element: <Organization {...props} /> },
 
 		{
 			path: '/discipline/records/*',
@@ -207,18 +207,18 @@ const Menubar = () => {
 				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
 			]
 		},
-		// { path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
+		{ path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
 
-		// { path: '/discipline/reports/*', element: <p>Reports</p> },
+		{ path: '/discipline/reports/*', element: <p>Reports</p> },
 
-		// { path: '/utilities/calendar', element: <CalendarPage {...props} /> },
-		// { path: '/utilities/faqs', element: <FAQsPage {...props} /> },
+		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
+		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
 
-		// { path: '/utilities/announcements', element: <Announcements {...props} /> },
-		// { path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
+		{ path: '/utilities/announcements', element: <Announcements {...props} /> },
+		{ path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
 
-		// { path: '/utilities/repository', element: <Repository {...props} /> },
-		// { path: '/helpbot', element: <Helpbot {...props} /> }
+		{ path: '/utilities/repository', element: <Repository {...props} /> },
+		{ path: '/helpbot', element: <Helpbot {...props} /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
