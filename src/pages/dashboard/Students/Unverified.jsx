@@ -11,7 +11,8 @@ import {
 	Tag
 } from 'antd';
 
-import { API_Route, MobileContext } from '../../../main';
+import { API_Route } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
 
 import authFetch from '../../../utils/authFetch';
@@ -32,7 +33,7 @@ const Unverified = ({ setHeader, setSelectedKeys }) => {
 		setSelectedKeys(['unverified']);
 	}, [setSelectedKeys]);
 
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { cache, pushToCache } = useCache();
 	const [search, setSearch] = React.useState('');
 	const [searchResults, setSearchResults] = React.useState([]);
@@ -64,7 +65,7 @@ const Unverified = ({ setHeader, setSelectedKeys }) => {
 		setHeader({
 			title: 'Unverified Profiles',
 			actions: [
-				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
+				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
 					<Dropdown
 						showArrow={false}
 						open={search.length > 0}
@@ -90,7 +91,7 @@ const Unverified = ({ setHeader, setSelectedKeys }) => {
 								disabled: true
 							}],
 							placement: 'bottomRight',
-							style: { width: mobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
+							style: { width: isMobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
 							onClick: (e) => {
 								setSearch('');
 								navigate(`/dashboard/students/profile/${e.key}`);
@@ -109,13 +110,13 @@ const Unverified = ({ setHeader, setSelectedKeys }) => {
 								}, 512);
 								window.profileDebounceTimer = debounceTimer;
 							}}
-							style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
+							style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
 						/>
 					</Dropdown>
 				</Flex>
 			]
 		});
-	}, [setHeader, setSelectedKeys, mobile, search, searchResults, searching]);
+	}, [setHeader, setSelectedKeys, isMobile, search, searchResults, searching]);
 	return (
 		<ContentPage
 			fetchUrl={`${API_Route}/users/unverified-students/`}

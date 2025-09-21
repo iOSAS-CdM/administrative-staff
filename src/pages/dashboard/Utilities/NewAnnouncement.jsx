@@ -37,7 +37,8 @@ import { marked } from 'marked';
 
 const { Text, Paragraph, Title } = Typography;
 
-import { OSASContext, MobileContext } from '../../../main';
+import { OSASContext } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
 
 /**
  * @typedef {{
@@ -77,7 +78,7 @@ const NewAnnouncement = ({ setHeader, setSelectedKeys }) => {
 	}, [setSelectedKeys]);
 
 	const { osas } = React.useContext(OSASContext);
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const Modal = App.useApp().modal;
 
 	const AnnouncementForm = React.useRef(null);

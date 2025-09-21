@@ -34,7 +34,8 @@ import {
 	SolutionOutlined
 } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext, API_Route } from '../main';
+import { DisplayThemeContext, API_Route } from '../main';
+import { useMobile } from '../contexts/MobileContext';
 
 // import Home from '../pages/dashboard/Home';
 import Verified from '../pages/dashboard/Students/Verified';
@@ -62,12 +63,9 @@ import authFetch from '../utils/authFetch';
  * @typedef {{
  * 	setHeader: React.Dispatch<React.SetStateAction<Header>>,
  * 	setSelectedKeys: React.Dispatch<React.SetStateAction<string[]>>,
- * 	mobile: boolean,
  * 	staff: Staff,
- * 	setMobile: React.Dispatch<React.SetStateAction<boolean>>,
  * 	displayTheme: 'light' | 'dark',
  * 	setDisplayTheme: React.Dispatch<React.SetStateAction<'light' | 'dark'>>,
- * 	navigate: (path: string) => void
  * }} PageProps
  */
 
@@ -117,7 +115,7 @@ const Menubar = () => {
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
 	const { cache, updateCache, pushToCache } = useCache();
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
 
 	const { notification } = App.useApp();
@@ -171,12 +169,9 @@ const Menubar = () => {
 	const props = {
 		setHeader,
 		setSelectedKeys,
-		mobile,
 		staff: cache?.staff,
-		setMobile,
 		displayTheme,
-		setDisplayTheme,
-		navigate
+		setDisplayTheme
 	};
 
 	const routes = useRoutes([
@@ -520,11 +515,11 @@ const Menubar = () => {
 					<Flex
 						justify='space-between'
 						align='center'
-						gap={mobile ? 16 : 32}
+						gap={isMobile ? 16 : 32}
 						style={{ width: '100%', height: '100%' }}
 					>
 						<Title level={4}>{Header.title}</Title>
-						{!mobile ? (
+						{!isMobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 								<ReloadButton setSeed={null} />
 								{Header.actions && Header.actions.map((action, index) =>

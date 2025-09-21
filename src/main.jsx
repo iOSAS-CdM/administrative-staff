@@ -24,11 +24,8 @@ import Announcement from './classes/Announcement';
 import Event from './classes/Event';
 
 import { CacheProvider } from './contexts/CacheContext';
+import { MobileProvider } from './contexts/MobileContext';
 
-export const MobileContext = React.createContext({
-	mobile: false,
-	setMobile: () => { }
-});
 export const DisplayThemeContext = React.createContext({
 	displayTheme: 'light',
 	setDisplayTheme: () => { }
@@ -37,19 +34,6 @@ export const DisplayThemeContext = React.createContext({
 const PRIMARY_COLOR = rootToHex('var(--primary)');
 
 const OSAS = () => {
-	const [mobile, setMobile] = React.useState(false);
-	React.useLayoutEffect(() => {
-		const handleResize = () => {
-			setMobile(window.innerWidth < 1024); // 2^10
-		};
-
-		handleResize();
-		window.addEventListener('resize', handleResize);
-
-		return () => {
-			window.removeEventListener('resize', handleResize);
-		};
-	}, []);
 	const [displayTheme, setDisplayTheme] = React.useState(() => {
 		if (typeof window !== 'undefined')
 			return localStorage.getItem('displayTheme') ||
@@ -114,7 +98,7 @@ const OSAS = () => {
 			<DesignConfig theme={themeConfig} variant='outlined' virtual>
 				<App>
 					<BrowserRouter>
-						<MobileContext.Provider value={{ mobile, setMobile }}>
+						<MobileProvider>
 							<DisplayThemeContext.Provider value={{ displayTheme, setDisplayTheme }}>
 								<Routes>
 									<Route path='/' element={<Navigate to='/authentication' replace />} />
@@ -129,7 +113,7 @@ const OSAS = () => {
 									<Route path='/auth-return' element={<AuthReturn />} />
 								</Routes>
 							</DisplayThemeContext.Provider>
-						</MobileContext.Provider>
+						</MobileProvider>
 					</BrowserRouter>
 				</App>
 			</DesignConfig>

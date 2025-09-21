@@ -37,13 +37,14 @@ const { Title, Text } = Typography;
 import PanelCard from '../../../components/PanelCard';
 // import { RecordCard } from '../Discipline/Records';
 
-import { MobileContext, API_Route } from '../../../main';
+import { API_Route } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
 import authFetch from '../../../utils/authFetch';
 
 const Calendar = ({ events }) => {
 	const [value, setValue] = React.useState(moment());
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 
 	const navigate = useNavigate();
 
@@ -75,7 +76,7 @@ const Calendar = ({ events }) => {
 											event.type === 'disciplinary' ? (
 												<Col
 													key={event.id}
-													span={!mobile ? 12 : 12}
+													span={!isMobile ? 12 : 12}
 													onClick={() =>
 														modal.destroy()
 													}
@@ -123,7 +124,7 @@ const Calendar = ({ events }) => {
 											event.type === 'disciplinary' ? (
 												<Col
 													key={event.id}
-													span={!mobile ? 12 : 12}
+													span={!isMobile ? 12 : 12}
 													onClick={() =>
 														modal.destroy()
 													}
@@ -256,7 +257,7 @@ const Profile = ({ setHeader, setSelectedKeys }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
 
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { getFromCache, pushToCache } = useCache();
 
 	React.useLayoutEffect(() => {
@@ -339,7 +340,7 @@ const Profile = ({ setHeader, setSelectedKeys }) => {
 			>
 				<Card size='small' style={{ width: '100%' }}>
 					<Flex
-						vertical={mobile}
+						vertical={isMobile}
 						gap={32}
 						align='center'
 						style={{ position: 'relative', width: '100%' }}
@@ -361,7 +362,7 @@ const Profile = ({ setHeader, setSelectedKeys }) => {
 							vertical
 							gap={8}
 							justify='center'
-							align={mobile ? 'center' : ''}
+							align={isMobile ? 'center' : ''}
 							style={{ height: '100%' }}
 						>
 							<Title level={1}>
@@ -520,7 +521,7 @@ const Profile = ({ setHeader, setSelectedKeys }) => {
 				</Card>
 			</Badge.Ribbon>
 			<Flex
-				vertical={mobile}
+				vertical={isMobile}
 				align='stretch'
 				gap={16}
 				style={{ position: 'relative', width: '100%' }}

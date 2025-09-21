@@ -31,13 +31,16 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 
 import ItemCard from '../../../components/ItemCard';
 
-import { API_Route, MobileContext } from '../../../main';
+import { API_Route } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
 
 import Student from '../../../classes/Student';
 import authFetch from '../../../utils/authFetch';
 
-const Filters = ({ setFilter, category, mobile }) => (
+const Filters = ({ setFilter, category }) => {
+	const isMobile = useMobile();
+	return (
 	<Flex vertical gap={8}>
 		<Divider>
 			<Text strong>Filters</Text>
@@ -76,13 +79,13 @@ const Filters = ({ setFilter, category, mobile }) => (
 						<>
 							<Text type='secondary'>Institute of Computing Studies</Text>
 							<Checkbox value='BSCpE'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Science in Computer Engineering'>BSCpE</Tooltip>
 									: 'Bachelor of Science in Computer Engineering (BSCpE)'
 								}
 							</Checkbox>
 							<Checkbox value='BSIT'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Science in Information Technology'>BSIT</Tooltip>
 									: 'Bachelor of Science in Information Technology (BSIT)'
 								}
@@ -93,31 +96,31 @@ const Filters = ({ setFilter, category, mobile }) => (
 						<>
 							<Text type='secondary'>Institute of Teacher Education</Text>
 							<Checkbox value='BSEd-SCI'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Secondary Education major in Science'>BSEd-SCI</Tooltip>
 									: 'Bachelor of Secondary Education major in Science (BSEd-SCI)'
 								}
 							</Checkbox>
 							<Checkbox value='BEEd-GEN'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Elementary Education - Generalist'>BEEd-GEN</Tooltip>
 									: 'Bachelor of Elementary Education - Generalist (BEEd-GEN)'
 								}
 							</Checkbox>
 							<Checkbox value='BEEd-ECED'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Early Childhood Education'>BEEd-ECED</Tooltip>
 									: 'Bachelor of Early Childhood Education (BEEd-ECED)'
 								}
 							</Checkbox>
 							<Checkbox value='BTLEd-ICT'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Technology and Livelihood Education major in Information and Communication Technology'>BTLEd-ICT</Tooltip>
 									: 'Bachelor of Technology and Livelihood Education major in Information and Communication Technology (BTLEd-ICT)'
 								}
 							</Checkbox>
 							<Checkbox value='TCP'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Teacher Certificate Program'>18 Units-TCP</Tooltip>
 									: 'Teacher Certificate Program (18 Units-TCP)'
 								}
@@ -128,13 +131,13 @@ const Filters = ({ setFilter, category, mobile }) => (
 						<>
 							<Text type='secondary'>Institute of Business Entrepreneurship</Text>
 							<Checkbox value='BSBA-HRM'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Science in Business Administration Major in Human Resource Management'>BSBA-HRM</Tooltip>
 									: 'Bachelor of Science in Business Administration Major in Human Resource Management (BSBA-HRM)'
 								}
 							</Checkbox>
 							<Checkbox value='BSE'>
-								{mobile ?
+									{isMobile ?
 									<Tooltip title='Bachelor of Science in Entrepreneurship'>BSE</Tooltip>
 									: 'Bachelor of Science in Entrepreneurship (BSE)'
 								}
@@ -158,7 +161,8 @@ const Filters = ({ setFilter, category, mobile }) => (
 			Reset
 		</Button>
 	</Flex>
-);
+	);
+};
 
 /**
  * @type {React.FC<{
@@ -172,7 +176,7 @@ const Verified = ({ setHeader, setSelectedKeys }) => {
 		setSelectedKeys(['verified']);
 	}, [setSelectedKeys]);
 
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const [search, setSearch] = React.useState('');
 	const [searchResults, setSearchResults] = React.useState([]);
 	const [searching, setSearching] = React.useState(false);
@@ -205,7 +209,7 @@ const Verified = ({ setHeader, setSelectedKeys }) => {
 		setHeader({
 			title: 'Verified Profiles',
 			actions: [
-				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
+				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
 					<Dropdown
 						showArrow={false}
 						open={search.length > 0}
@@ -231,7 +235,7 @@ const Verified = ({ setHeader, setSelectedKeys }) => {
 								disabled: true
 							}],
 							placement: 'bottomRight',
-							style: { width: mobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
+							style: { width: isMobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
 							onClick: (e) => {
 								setSearch('');
 								navigate(`/dashboard/students/profile/${e.key}`);
@@ -250,13 +254,13 @@ const Verified = ({ setHeader, setSelectedKeys }) => {
 								}, 512);
 								window.profileDebounceTimer = debounceTimer;
 							}}
-							style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
+							style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
 						/>
 					</Dropdown>
 				</Flex>
 			]
 		});
-	}, [setHeader, setSelectedKeys, mobile, search, searchResults, searching]);
+	}, [setHeader, setSelectedKeys, isMobile, search, searchResults, searching]);
 	return (
 		<ContentPage
 			fetchUrl={`${API_Route}/users/students/`}

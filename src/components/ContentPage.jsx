@@ -1,7 +1,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Row, Col, Empty, Spin, Flex, Pagination } from 'antd';
-import { MobileContext } from '../main';
+import { useMobile } from '../contexts/MobileContext';
 import authFetch from '../utils/authFetch';
 import { useCache } from '../contexts/CacheContext';
 
@@ -31,7 +31,7 @@ const ContentPage = ({
 	onDataFetched,
 	transformData = (data) => Array.isArray(data) ? data : []
 }) => {
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { pushToCache } = useCache();
 	const [loading, setLoading] = React.useState(true);
 	const [page, setPage] = React.useState(0);
@@ -74,7 +74,7 @@ const ContentPage = ({
 					<Row gutter={[16, 16]}>
 						<AnimatePresence mode='popLayout'>
 							{items.map((item, index) => (
-								<Col key={item.id || index} span={!mobile ? columnSpan : 24}>
+								<Col key={item.id || index} span={!isMobile ? columnSpan : 24}>
 									<motion.div
 										key={index}
 										initial={{ opacity: 0, y: 20 }}

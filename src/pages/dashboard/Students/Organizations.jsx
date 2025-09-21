@@ -24,7 +24,8 @@ const { Title, Text } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { MobileContext, OSASContext } from '../../../main';
+import { OSASContext } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
 
 import Organization from '../../../classes/Organization';
 
@@ -41,7 +42,7 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 		setSelectedKeys(['organizations']);
 	}, [setSelectedKeys]);
 
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { osas } = React.useContext(OSASContext);
 
 	const navigate = useNavigate();
@@ -92,7 +93,7 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 		setHeader({
 			title: 'Student Organizations',
 			actions: [
-				<Flex style={{ flexGrow: mobile ? 1 : '' }} key='search'>
+				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
 					<Input
 						placeholder='Search'
 						allowClear
@@ -105,11 +106,11 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 							}, 8); // 2^3
 							window.profileDebounceTimer = debounceTimer;
 						}}
-						style={{ width: '100%', minWidth: mobile ? '100%' : 256 }} // 2^8
+						style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
 					/>
 				</Flex>,
 				<Segmented
-					vertical={mobile}
+					vertical={isMobile}
 					options={[
 						{ label: 'Active', value: 'active' },
 						{ label: 'College-wide', value: 'college-wide' },
@@ -124,7 +125,7 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 				/>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, mobile]);
+	}, [setHeader, setSelectedKeys, category, isMobile]);
 	const app = App.useApp();
 	const Modal = app.modal;
 
@@ -245,7 +246,7 @@ const OrganizationCard = ({ organization, loading }) => {
  */
 const CategoryPage = ({ categorizedOrganizations }) => {
 	const navigate = useNavigate();
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { osas } = React.useContext(OSASContext);
 	return (
 		<>
@@ -253,7 +254,7 @@ const CategoryPage = ({ categorizedOrganizations }) => {
 				<Row gutter={[16, 16]}>
 					<AnimatePresence mode='popLayout'>
 						{categorizedOrganizations.map((organization, index) => (
-							<Col key={organization.id} span={!mobile ? 12 : 24}>
+							<Col key={organization.id} span={!isMobile ? 12 : 24}>
 								<motion.div
 									key={index}
 									initial={{ opacity: 0, y: 20 }}

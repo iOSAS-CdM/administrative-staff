@@ -22,6 +22,7 @@ import {
 } from '@ant-design/icons';
 
 import { LoadingStatesContext, OSASContext } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
 
 import NewCase from '../../../modals/NewCase';
 import { RecordCard } from '../Discipline/Records';
@@ -31,12 +32,12 @@ const { Text } = Typography;
 /**
  * @type {React.FC<{
  * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void,
- * 	mobile: boolean
+ * 	setSelectedKeys: (keys: string[]) => void
  * }>}
  */
-const CalendarPage = ({ setHeader, setSelectedKeys, mobile }) => {
+const CalendarPage = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
+	const isMobile = useMobile();
 	const [search, setSearch] = React.useState('');
 	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [searchedEvents, setSearchedEvents] = React.useState([]);
@@ -199,7 +200,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile }) => {
 													<Row gutter={[16, 16]}>
 														{eventsForDate.map((event, index) => (
 															event.type === 'disciplinary' ? (
-																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+																<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
 																	<RecordCard record={event.content} loading={false} />
 																</Col>
 															) : null
@@ -236,7 +237,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile }) => {
 													<Row gutter={[16, 16]}>
 														{eventsForMonth.map((event, index) => (
 															event.type === 'disciplinary' ? (
-																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+																<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
 																	<RecordCard record={event.content} loading={false} />
 																</Col>
 															) : null

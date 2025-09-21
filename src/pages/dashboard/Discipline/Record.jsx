@@ -28,7 +28,8 @@ const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
 
-import { MobileContext, OSASContext } from '../../../main';
+import { OSASContext } from '../../../main';
+import { useMobile } from '../../../contexts/MobileContext';
 
 /**
  * @type {React.FC<{
@@ -39,7 +40,7 @@ import { MobileContext, OSASContext } from '../../../main';
 const Record = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
 
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { osas } = React.useContext(OSASContext);
 	
 	const { id } = useParams();
@@ -199,9 +200,9 @@ const Record = ({ setHeader, setSelectedKeys }) => {
 							</Flex>
 						</Flex>
 					</Card>
-					<Flex vertical={mobile} gap={16} style={{ width: '100%', height: '100%' }}>
+					<Flex vertical={isMobile} gap={16} style={{ width: '100%', height: '100%' }}>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '2' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '2' : '' }}
 						>
 							<PanelCard
 								title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`}
@@ -259,7 +260,7 @@ const Record = ({ setHeader, setSelectedKeys }) => {
 							</PanelCard>
 						</div>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '3' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '3' : '' }}
 						>
 							<PanelCard
 								title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`}
@@ -326,7 +327,7 @@ const Record = ({ setHeader, setSelectedKeys }) => {
 							</PanelCard>
 						</div>
 						<div
-							style={{ width: '100%', height: '100%', order: mobile ? '1' : '' }}
+							style={{ width: '100%', height: '100%', order: isMobile ? '1' : '' }}
 						>
 							<PanelCard
 								title='Progress'

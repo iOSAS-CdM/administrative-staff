@@ -19,7 +19,8 @@ import {
 
 import { GoogleOutlined, LoadingOutlined } from '@ant-design/icons';
 
-import { MobileContext, DisplayThemeContext } from '../main';
+import { DisplayThemeContext } from '../main';
+import { useMobile } from '../contexts/MobileContext';
 
 const { Text, Title, Link } = Typography;
 
@@ -32,7 +33,7 @@ import '../styles/pages/Authentication.css';
 const Authentication = () => {
 	const [version, setVersion] = React.useState('');
 
-	const { mobile, setMobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
 	const [signingIn, setSigningIn] = React.useState(false);
 
@@ -211,7 +212,7 @@ const Authentication = () => {
 				layout='vertical'
 				justify='center'
 				align='center'
-				className={`page-container${mobile ? ' mobile' : ''}`}
+				className={`page-container${isMobile ? ' mobile' : ''}`}
 				style={{
 					minHeight: '100vh',
 					height: '100%',
@@ -258,7 +259,7 @@ const Authentication = () => {
 				</Card>
 			</Flex>
 
-			<Flex vertical id='version-info-panel' className={`${displayTheme}${mobile ? ' mobile' : ''}`} justify='center' align='flex-start'>
+			<Flex vertical id='version-info-panel' className={`${displayTheme}${isMobile ? ' mobile' : ''}`} justify='center' align='flex-start'>
 				<Text>
 					Version {version}
 				</Text>

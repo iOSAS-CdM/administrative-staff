@@ -16,7 +16,8 @@ import {
 	App
 } from 'antd';
 
-import { LoadingStatesContext, OSASContext, MobileContext } from '../../main';
+import { LoadingStatesContext, OSASContext } from '../../main';
+import { useMobile } from '../../contexts/MobileContext';
 
 const { Title, Text } = Typography;
 
@@ -94,7 +95,7 @@ const Timer = () => {
  */
 const Calendar = ({ events }) => {
 	const [value, setValue] = React.useState(moment());
-	const { mobile } = React.useContext(MobileContext);
+	const isMobile = useMobile();
 
 	const navigate = useNavigate();
 
@@ -123,7 +124,7 @@ const Calendar = ({ events }) => {
 										<Row gutter={[16, 16]}>
 											{eventsForDate.map((event, index) => (
 												event.type === 'disciplinary' ? (
-													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+													<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
 														<RecordCard record={event.content} loading={false} />
 													</Col>
 												) : null
@@ -160,7 +161,7 @@ const Calendar = ({ events }) => {
 										<Row gutter={[16, 16]}>
 											{eventsForMonth.map((event, index) => (
 												event.type === 'disciplinary' ? (
-													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
+													<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
 														<RecordCard record={event.content} loading={false} />
 													</Col>
 												) : null
