@@ -28,7 +28,7 @@ const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
 
-import { OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 
 /**
@@ -41,7 +41,7 @@ const Record = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
 
 	const isMobile = useMobile();
-	const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 	
 	const { id } = useParams();
 
@@ -61,10 +61,10 @@ const Record = ({ setHeader, setSelectedKeys }) => {
 	});
 	React.useEffect(() => {
 		if (!id) return;
-		const record = osas.records.find(r => r.id === id);
+		const record = (cache.records || []).find(r => r.id === id);
 		if (record)
 			setThisRecord(record);
-	}, [id, osas.records]);
+	}, [id, cache.records]);
 
 	React.useLayoutEffect(() => {
 		setHeader({

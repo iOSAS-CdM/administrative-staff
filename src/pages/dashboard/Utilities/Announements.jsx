@@ -19,7 +19,7 @@ import ItemCard from '../../../components/ItemCard';
 
 const { Text, Paragraph, Title } = Typography;
 
-import { OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 
 /**
@@ -59,13 +59,13 @@ const Announcements = ({ setHeader, setSelectedKeys }) => {
 		setSelectedKeys(['announcements']);
 	}, [setSelectedKeys]);
 
-	const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 
 	const isMobile = useMobile();
 
 	return (
 		<Row gutter={[16, 16]}>
-			{osas.announcements.map((announcement, index) => (
+			{(cache.announcements || []).map((announcement, index) => (
 				<Col key={index} span={isMobile ? 24 : 12}>
 					<ItemCard
 						cover={

@@ -24,7 +24,7 @@ const { Title, Text } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
-import { OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 
 import Organization from '../../../classes/Organization';
@@ -43,7 +43,7 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 	}, [setSelectedKeys]);
 
 	const isMobile = useMobile();
-	const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 
 	const navigate = useNavigate();
 
@@ -71,7 +71,7 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 			archived: []
 		};
 
-		for (const organization of osas.organizations) {
+		for (const organization of (cache.organizations || [])) {
 			categorized[organization.status].push(organization);
 
 			if (organization.status === 'active')
@@ -79,7 +79,7 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 		};
 
 		return categorized;
-	}, [osas.organizations, category]);
+	}, [cache.organizations, category]);
 
 	const routes = useRoutes([
 		{ path: '/active', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['active']} /> },
@@ -247,7 +247,7 @@ const OrganizationCard = ({ organization, loading }) => {
 const CategoryPage = ({ categorizedOrganizations }) => {
 	const navigate = useNavigate();
 	const isMobile = useMobile();
-	const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 	return (
 		<>
 			{categorizedOrganizations.length > 0 ? (
@@ -273,7 +273,7 @@ const CategoryPage = ({ categorizedOrganizations }) => {
 				</Row>
 			) : (
 				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{osas.organizations.length !== 0 ? (
+						{(cache.organizations || []).length !== 0 ? (
 						<Spin />
 					) : (
 						<Empty description='No organizations found' />

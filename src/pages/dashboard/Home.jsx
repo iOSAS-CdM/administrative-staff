@@ -10,13 +10,12 @@ import {
 	Flex,
 	Row,
 	Col,
-	Skeleton,
 	Badge,
 	Button,
 	App
 } from 'antd';
 
-import { LoadingStatesContext, OSASContext } from '../../main';
+import { useCache } from '../../contexts/CacheContext';
 import { useMobile } from '../../contexts/MobileContext';
 
 const { Title, Text } = Typography;
@@ -283,8 +282,7 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 
 
 
-	const { loadingStates } = React.useContext(LoadingStatesContext);
-	const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 
 	const chartConfig = {
 		height: 200,
@@ -315,13 +313,13 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 		unresolved: 0
 	});
 	React.useEffect(() => {
-		const resolved = osas.records.filter(record => record.tags.status === 'resolved').length;
-		const unresolved = osas.records.filter(record => record.tags.status !== 'resolved').length;
+		const resolved = (cache.records || []).filter(record => record.tags.status === 'resolved').length;
+		const unresolved = (cache.records || []).filter(record => record.tags.status !== 'resolved').length;
 		setCasesRatio({
 			resolved,
 			unresolved
 		});
-	}, [osas.records]);
+	}, [cache.records]);
 
 	const [monthlyCasesTrend, setMonthlyCasesTrend] = React.useState([]);
 	React.useEffect(() => {
@@ -341,23 +339,23 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 			trendData.push({
 				month,
 				type: 'Resolved',
-				cases: osas.records.filter(record => record.tags.status === 'resolved' && record.date.getMonth() === allMonths.indexOf(month)).length
+				cases: (cache.records || []).filter(record => record.tags.status === 'resolved' && record.date.getMonth() === allMonths.indexOf(month)).length
 			});
 			trendData.push({
 				month,
 				type: 'Unresolved',
-				cases: osas.records.filter(record => record.tags.status !== 'ongoing' && record.date.getMonth() === allMonths.indexOf(month)).length
+				cases: (cache.records || []).filter(record => record.tags.status !== 'ongoing' && record.date.getMonth() === allMonths.indexOf(month)).length
 			});
 		});
 
 		setMonthlyCasesTrend(trendData);
-	}, [osas.records]);
+	}, [cache.records]);
 
-	/** @type {[import('../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../main').OSASData['events']>>]} */
+	/** @type {[import('../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
-		setEvents(osas.events);
-	}, [osas.events]);
+		setEvents(cache.events || []);
+	}, [cache.events]);
 
 	return (
 		<Flex
@@ -367,31 +365,14 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 			<Row gutter={[16, 16]}>
 				<Col span={16}>
 					<Card size='small' style={{ height: '100%' }}>
-						<Flex vertical justify='center' gap={!loadingStates.staff && 8} style={{height: '100%'}}>
-							{!loadingStates.staff ? (
-								<>
-									<Skeleton.Node
-										active
-										style={{ width: 128, maxWidth: '100%', height: 8 }}
-									/>
-									<Skeleton.Node
-										active
-										style={{ width: 256, maxWidth: '100%', height: 32 }}
-									/>
-									<Skeleton.Node
-										active
-										style={{ width: 512, maxWidth: '100%', height: 8 }}
-									/>
-								</>
-							) : (
-								<>
-									<Text>Good {timePeriod},</Text>
-									<Title level={1} style={{ color: 'var(--primary)' }}>
-										{staff?.name?.first} {staff?.name?.middle} {staff?.name?.last}
-									</Title>
-									<Text>{staff?.role}, Office of the Student Affairs and Services</Text>
-								</>
-							)}
+						<Flex vertical justify='center' gap={8} style={{height: '100%'}}>
+							<>
+								<Text>Good {timePeriod},</Text>
+								<Title level={1} style={{ color: 'var(--primary)' }}>
+									{staff?.name?.first} {staff?.name?.middle} {staff?.name?.last}
+								</Title>
+								<Text>{staff?.role}, Office of the Student Affairs and Services</Text>
+							</>
 						</Flex>
 					</Card>
 				</Col>
@@ -401,31 +382,13 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 
 				<Col span={8}>
 					<PanelCard title='Monthly Cases Ratio'>
-						{!loadingStates.records ? (
-							<Flex vertical justify='flex-start' align='center'>
-								<Skeleton.Node
-									active
-									style={{ width: 128, height: 128, borderRadius: '100%' }}
-								/>
-								<Flex justify='flex-start' align='flex-start' gap={8} style={{ width: '100%' }}>
-									<Skeleton.Node
-										active
-										style={{ width: 64, maxWidth: '100%', height: 8 }}
-									/>
-									<Skeleton.Node
-										active
-										style={{ width: 64, maxWidth: '100%', height: 8 }}
-									/>
-								</Flex>
-							</Flex>
-						) : (
-								<Pie
-									data={[
-										{
-											type: 'Resolved',
-											value: casesRatio.resolved
-										},
-										{
+						<Pie
+							data={[
+								{
+									type: 'Resolved',
+									value: casesRatio.resolved
+								},
+								{
 											type: 'Unresolved',
 											value: casesRatio.unresolved
 										}
@@ -436,39 +399,24 @@ const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 									animate={null}
 									{...chartConfig}
 								/>
-						)}
 					</PanelCard>
 				</Col>
 				<Col span={16}>
 					<PanelCard title='Monthly Cases Trend'>
-						{!loadingStates.records ? (
-							<Skeleton.Node
-								active
-								style={{ width: '100%', height: 128 }}
-							/>
-						) : (
-								<Line
-									data={monthlyCasesTrend}
-									xField='month'
-									yField='cases'
-									colorField='type'
-									seriesField='type'
-									{...chartConfig}
-								/>
-						)}
+						<Line
+							data={monthlyCasesTrend}
+							xField='month'
+							yField='cases'
+							colorField='type'
+							seriesField='type'
+							{...chartConfig}
+						/>
 					</PanelCard>
 				</Col>
 
 				<Col span={16}>
 					<PanelCard title='Calendar'>
-						{!loadingStates.events ? (
-							<Skeleton.Node
-								active
-								style={{ width: '100%', height: 152 }}
-							/>
-						) : (
-							<Calendar events={events} />
-						)}
+						<Calendar events={events} />
 					</PanelCard>
 				</Col>
 

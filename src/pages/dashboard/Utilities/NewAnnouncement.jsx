@@ -37,7 +37,7 @@ import { marked } from 'marked';
 
 const { Text, Paragraph, Title } = Typography;
 
-import { OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 
 /**
@@ -77,7 +77,7 @@ const NewAnnouncement = ({ setHeader, setSelectedKeys }) => {
 		setSelectedKeys(['announcements']);
 	}, [setSelectedKeys]);
 
-	const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 	const isMobile = useMobile();
 	const Modal = App.useApp().modal;
 

@@ -322,7 +322,7 @@ const Profile = ({ setHeader, setSelectedKeys }) => {
 
 	const [organizations, setOrganizations] = React.useState([]);
 
-	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
+	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
 
 	const app = App.useApp();

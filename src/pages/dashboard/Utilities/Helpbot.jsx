@@ -6,7 +6,7 @@ import { Flex, Button, Card, Avatar, Input, Form } from 'antd';
 
 import { ClearOutlined, UserOutlined, RobotOutlined, SendOutlined } from '@ant-design/icons';
 
-import { OSASContext } from '../../../main';
+import { useCache } from '../../../contexts/CacheContext';
 
 /**
  * @typedef {{
@@ -40,7 +40,7 @@ const Helpbot = ({ setHeader, setSelectedKeys }) => {
 		setSelectedKeys(['helpbot']);
 	}, [setSelectedKeys]);
 
-	const { osas } = React.useContext(OSASContext);
+	const { cache } = useCache();
 
 	/** @type {[Message[], React.Dispatch<React.SetStateAction<Message[]>>]} */
 	const [messages, setMessages] = React.useState([]);
@@ -90,8 +90,8 @@ You may now modify it as you please by editing its main description, adding comp
 							<p dangerouslySetInnerHTML={{ __html: marked(message.content) }} />
 						</Card>
 						{message.sender === 'user' && (
-							osas.staff?.profilePicture ?
-								<Avatar src={osas.staff.profilePicture} style={{ backgroundColor: 'var(--primary)' }} />
+							cache.staff?.profilePicture ?
+								<Avatar src={cache.staff.profilePicture} style={{ backgroundColor: 'var(--primary)' }} />
 								: <Avatar icon={<UserOutlined />} style={{ backgroundColor: 'var(--primary)' }} />
 						)}
 					</Flex>

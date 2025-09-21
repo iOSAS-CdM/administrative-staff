@@ -21,8 +21,8 @@ import {
 	CalendarOutlined
 } from '@ant-design/icons';
 
-import { LoadingStatesContext, OSASContext } from '../../../main';
 import { useMobile } from '../../../contexts/MobileContext';
+import { useCache } from '../../../contexts/CacheContext';
 
 import NewCase from '../../../modals/NewCase';
 import { RecordCard } from '../Discipline/Records';
@@ -98,16 +98,13 @@ const CalendarPage = ({ setHeader, setSelectedKeys }) => {
 		setSelectedKeys(['calendar']);
 	}, [setSelectedKeys]);
 
-	const { loadingStates } = React.useContext(LoadingStatesContext);
+	const { cache } = useCache();
 
-	/** @type {{ osas: import('../../../main').OSASData }} */
-	const { osas } = React.useContext(OSASContext);
-
-	/** @type {[import('../../../main').OSASData['events'], React.Dispatch<React.SetStateAction<import('../../../main').OSASData['events']>>]} */
+	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
-		setEvents(osas.events);
-	}, [osas.events]);
+		setEvents(cache.events || []);
+	}, [cache.events]);
 
 	React.useEffect(() => {
 		const searchTerm = search.toLowerCase();
@@ -116,8 +113,8 @@ const CalendarPage = ({ setHeader, setSelectedKeys }) => {
 			return;
 		};
 
-		/** @type {import('../../../main').OSASData['events']} */
-		const events = osas.events.filter(day => {
+		/** @type {import('../../../classes/Event').EventProps[]} */
+		const events = (cache.events || []).filter(day => {
 			return day.events.some(event => {
 				if (event.type === 'disciplinary')
 					return event.content.title.toLowerCase().includes(searchTerm);
@@ -145,44 +142,9 @@ const CalendarPage = ({ setHeader, setSelectedKeys }) => {
 
 	return (
 		<Card>
-			{!loadingStates.events ? (
-				<Flex vertical gap={4}>
-					<Flex justify='flex-end' gap={4}>
-						<Skeleton.Button active />
-						<Skeleton.Button active />
-						<Skeleton.Button active />
-					</Flex>
-					<div
-						style={{
-							display: 'grid',
-							gap: 4,
-							gridTemplateColumns: 'repeat(7, 1fr)'
-						}}
-					>
-						{[...Array(7).keys()].map((_, i) => (
-							<div key={i} style={{ position: 'relative', width: '100%', height: 16 }}>
-								<Skeleton.Node active style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
-							</div>
-						))}
-					</div>
-					<div
-						style={{
-							display: 'grid',
-							gap: 4,
-							gridTemplateColumns: 'repeat(7, 1fr)'
-						}}
-					>
-						{[...Array(35).keys()].map((_, i) => (
-							<div key={i} style={{ position: 'relative', width: '100%', height: 128 }}>
-								<Skeleton.Node active style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
-							</div>
-						))}
-					</div>
-				</Flex>
-			) : (
-				<Calendar
-					onPanelChange={(date) => setValue(date)}
-						onSelect={(date, info) => {
+			<Calendar
+				onPanelChange={(date) => setValue(date)}
+					onSelect={(date, info) => {
 							if (info.source === 'date') {
 								const eventsForDate = events.find(event =>
 									event.date.getDate() === date.date()
@@ -303,7 +265,6 @@ const CalendarPage = ({ setHeader, setSelectedKeys }) => {
 						};
 					}}
 				/>
-			)}
 		</Card>
 	);
 };

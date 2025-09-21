@@ -42,15 +42,15 @@ import Verified from '../pages/dashboard/Students/Verified';
 import Profile from '../pages/dashboard/Students/Profile';
 import Unverified from '../pages/dashboard/Students/Unverified';
 import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
-// import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
-// import Organizations from '../pages/dashboard/Students/Organizations';
-// import Organization from '../pages/dashboard/Students/Organization';
-// import CalendarPage from '../pages/dashboard/Utilities/Calendar';
-// import FAQsPage from '../pages/dashboard/Utilities/FAQs';
-// import Announcements from '../pages/dashboard/Utilities/Announements';
-// import NewAnnouncement from '../pages/dashboard/Utilities/NewAnnouncement';
-// import Repository from '../pages/dashboard/Utilities/Repository';
-// import Helpbot from '../pages/dashboard/Utilities/Helpbot';
+import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
+import Organizations from '../pages/dashboard/Students/Organizations';
+import Organization from '../pages/dashboard/Students/Organization';
+import CalendarPage from '../pages/dashboard/Utilities/Calendar';
+import FAQsPage from '../pages/dashboard/Utilities/FAQs';
+import Announcements from '../pages/dashboard/Utilities/Announements';
+import NewAnnouncement from '../pages/dashboard/Utilities/NewAnnouncement';
+import Repository from '../pages/dashboard/Utilities/Repository';
+import Helpbot from '../pages/dashboard/Utilities/Helpbot';
 
 const { Text, Title } = Typography;
 
