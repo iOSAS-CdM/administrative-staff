@@ -48,10 +48,10 @@ const Authentication = () => {
 	}, []);
 
 	const routes = useRoutes([
-		{ path: '/', element: <SignIn navigate={navigate} /> },
-		{ path: '/sign-in', element: <SignIn navigate={navigate} /> },
-		{ path: '/sign-up', element: <SignUp navigate={navigate} /> },
-		{ path: '/forgot-password', element: <ForgotPassword navigate={navigate} /> }
+		{ path: '/', element: <SignIn /> },
+		{ path: '/sign-in', element: <SignIn /> },
+		{ path: '/sign-up', element: <SignUp /> },
+		{ path: '/forgot-password', element: <ForgotPassword /> }
 	]);
 
 	const signInWithGoogle = React.useCallback(async () => {

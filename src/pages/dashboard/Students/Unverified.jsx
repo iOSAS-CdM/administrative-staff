@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Input,
@@ -20,10 +21,10 @@ import { StudentCard } from './Verified';
 const { Text } = Typography;
 
 /**
- * @param {import('../../../components/Menubar').PageProps} props
- * @returns {JSX.Element}
+ * @type {React.FC<>}
  */
-const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
+const Unverified = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 	React.useEffect(() => {
 		setSelectedKeys(['unverified']);
 	}, [setSelectedKeys]);
@@ -123,7 +124,6 @@ const Unverified = ({ setHeader, setSelectedKeys, navigate }) => {
 				<StudentCard
 					student={student}
 					loading={student.placeholder}
-					navigate={navigate}
 				/>
 			)}
 		/>

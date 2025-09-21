@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Avatar,
@@ -30,7 +31,8 @@ import { OSASContext, MobileContext } from '../../../main';
  * }} Announcement
  */
 
-const Announcements = ({ setHeader, setSelectedKeys, navigate }) => {
+const Announcements = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Announcements',

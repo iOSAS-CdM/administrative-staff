@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate, useRoutes } from 'react-router';
+import { useNavigate, useRoutes } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -30,7 +30,10 @@ import Organization from '../../../classes/Organization';
 
 /** @typedef {[Organization[], React.Dispatch<React.SetStateAction<Organization[]>>]} OrganizationsState */
 
-const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC<>}
+ */
+const Organizations = ({ setHeader, setSelectedKeys }) => {
 	React.useEffect(() => {
 		setSelectedKeys(['organizations']);
 	}, [setSelectedKeys]);
@@ -38,7 +41,7 @@ const Organizations = ({ setHeader, setSelectedKeys, navigate }) => {
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);
 
-	const location = useLocation();
+	const navigate = useNavigate();
 
 	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'archived'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -134,14 +137,14 @@ export default Organizations;
 /**
  * @param {{
  * 	organization: import('../../../classes/Organization').Organization,
- * 	loading: Boolean,
- * 	navigate: ReturnType<typeof useNavigate>
+ * 	loading: Boolean
  * }} props
  * @returns {JSX.Element}
  */
-const OrganizationCard = ({ organization, loading, navigate }) => {
+const OrganizationCard = ({ organization, loading }) => {
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization').Organization>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState(organization);
+	const navigate = useNavigate();
 
 	React.useEffect(() => {
 		if (organization)
@@ -259,7 +262,6 @@ const CategoryPage = ({ categorizedOrganizations }) => {
 									<OrganizationCard
 										organization={organization}
 										loading={organization.placeholder}
-										navigate={navigate}
 									/>
 								</motion.div>
 							</Col>

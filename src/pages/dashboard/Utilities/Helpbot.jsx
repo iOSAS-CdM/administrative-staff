@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { marked } from 'marked';
 
 import { Flex, Button, Card, Avatar, Input, Form } from 'antd';
@@ -14,7 +15,8 @@ import { OSASContext } from '../../../main';
  * }} Message
  */
 
-const Helpbot = ({ setHeader, setSelectedKeys, navigate }) => {
+const Helpbot = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Helpbot',

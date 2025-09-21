@@ -18,16 +18,13 @@ const { Text, Title, Link } = Typography;
 import '../../styles/pages/Authentication.css';
 
 import { API_Route } from '../../main';
-import { i } from 'framer-motion/client';
 
 /**
- * @param {{
- * 		navigate: import('react-router').NavigateFunction
- * }} props
- * @returns {JSX.Element}
+ * @type {React.FC<>}
  */
-const SignUp = ({ navigate }) => {
+const SignUp = () => {
 	const [signingUp, setSigningUp] = React.useState(false);
+	const navigate = useNavigate();
 
 	const [showPassword, setShowPassword] = React.useState(false);
 

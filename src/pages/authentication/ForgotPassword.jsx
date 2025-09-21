@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Form,
@@ -23,15 +24,13 @@ import '../../styles/pages/Authentication.css';
 import { API_Route } from '../../main';
 
 /**
- * @param {{
- * 		navigate: import('react-router').NavigateFunction
- * }} props
- * @returns {JSX.Element}
+ * @type {React.FC<>}
  */
-const ForgotPassword = ({ navigate }) => {
+const ForgotPassword = () => {
 	const [sending, setSending] = React.useState(false);
 	const [verifying, setVerifying] = React.useState(false);
 	const [resetting, setResetting] = React.useState(false);
+	const navigate = useNavigate();
 
 	const StaffInfoForm = React.useRef(null);
 	const OTPForm = React.useRef(null);

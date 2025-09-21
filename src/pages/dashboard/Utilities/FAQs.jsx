@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import {
 	Card,
@@ -20,7 +21,8 @@ import ItemCard from '../../../components/ItemCard';
 
 const { Paragraph, Title } = Typography;
 
-const FAQsPage = ({ setHeader, setSelectedKeys, navigate }) => {
+const FAQsPage = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 	React.useEffect(() => {
 		setHeader({
 			title: 'Frequently Asked Questions',

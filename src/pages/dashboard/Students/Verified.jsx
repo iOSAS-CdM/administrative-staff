@@ -164,7 +164,8 @@ const Filters = ({ setFilter, category, mobile }) => (
  * @param {import('../../../components/Menubar').PageProps} props
  * @returns {JSX.Element}
  */
-const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
+const Verified = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 	React.useEffect(() => {
 		setSelectedKeys(['verified']);
 	}, [setSelectedKeys]);
@@ -265,7 +266,6 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 				<StudentCard
 					student={student}
 					loading={student.placeholder}
-					navigate={navigate}
 				/>
 			)}
 		/>
@@ -275,14 +275,14 @@ const Verified = ({ setHeader, setSelectedKeys, navigate }) => {
 /**
  * @param {{
  * 	student: Student,
- * 	loading: Boolean,
- * 	navigate: ReturnType<typeof useNavigate>
+ * 	loading: Boolean
  * }} props 
  * @returns {JSX.Element}
  */
-const StudentCard = ({ student, loading, navigate }) => {
+const StudentCard = ({ student, loading }) => {
 	/** @type {[Student, React.Dispatch<React.SetStateAction<Student[]>>]} */
 	const [thisStudent, setThisStudent] = React.useState(student);
+	const navigate = useNavigate();
 
 	React.useEffect(() => {
 		if (student)
@@ -420,7 +420,6 @@ const StudentPage = () => {
 				<StudentCard
 					student={student}
 					loading={student.placeholder}
-					navigate={navigate}
 				/>
 			)}
 		/>

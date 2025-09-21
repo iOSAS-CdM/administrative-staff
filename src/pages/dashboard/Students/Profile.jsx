@@ -83,7 +83,6 @@ const Calendar = ({ events }) => {
 													<RecordCard
 														record={event.content}
 														loading={false}
-														navigate={navigate}
 													/>
 												</Col>
 											) : null
@@ -132,7 +131,6 @@ const Calendar = ({ events }) => {
 													<RecordCard
 														record={event.content}
 														loading={false}
-														navigate={navigate}
 													/>
 												</Col>
 											) : null
@@ -248,11 +246,15 @@ const Calendar = ({ events }) => {
 	);
 };
 
-const Profile = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC<>}
+ */
+const Profile = ({ setHeader, setSelectedKeys }) => {
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const { mobile } = React.useContext(MobileContext);
-	const { cache, getFromCache, pushToCache } = useCache();
+	const { getFromCache, pushToCache } = useCache();
 
 	React.useLayoutEffect(() => {
 		setHeader({

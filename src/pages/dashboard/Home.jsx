@@ -119,7 +119,7 @@ const Calendar = ({ events }) => {
 											{eventsForDate.map((event, index) => (
 												event.type === 'disciplinary' ? (
 													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-														<RecordCard record={event.content} loading={false} navigate={navigate} />
+														<RecordCard record={event.content} loading={false} />
 													</Col>
 												) : null
 											))}
@@ -156,7 +156,7 @@ const Calendar = ({ events }) => {
 											{eventsForMonth.map((event, index) => (
 												event.type === 'disciplinary' ? (
 													<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-														<RecordCard record={event.content} loading={false} navigate={navigate} />
+														<RecordCard record={event.content} loading={false} />
 													</Col>
 												) : null
 											))}

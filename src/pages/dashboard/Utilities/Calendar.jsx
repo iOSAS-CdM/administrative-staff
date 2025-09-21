@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import moment from 'moment';
 
 import {
@@ -27,7 +28,8 @@ import { RecordCard } from '../Discipline/Records';
 
 const { Text } = Typography;
 
-const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
+const CalendarPage = ({ setHeader, setSelectedKeys, mobile }) => {
+	const navigate = useNavigate();
 	const [search, setSearch] = React.useState('');
 	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [searchedEvents, setSearchedEvents] = React.useState([]);
@@ -191,7 +193,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 														{eventsForDate.map((event, index) => (
 															event.type === 'disciplinary' ? (
 																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-																	<RecordCard record={event.content} loading={false} navigate={navigate} />
+																	<RecordCard record={event.content} loading={false} />
 																</Col>
 															) : null
 														))}
@@ -228,7 +230,7 @@ const CalendarPage = ({ setHeader, setSelectedKeys, mobile, navigate }) => {
 														{eventsForMonth.map((event, index) => (
 															event.type === 'disciplinary' ? (
 																<Col key={event.id} span={!mobile ? 12 : 12} onClick={() => modal.destroy()}>
-																	<RecordCard record={event.content} loading={false} navigate={navigate} />
+																	<RecordCard record={event.content} loading={false} />
 																</Col>
 															) : null
 														))}

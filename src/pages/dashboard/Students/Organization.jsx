@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import {
 	Card,
@@ -27,8 +27,11 @@ import PanelCard from '../../../components/PanelCard';
 
 import { MobileContext, OSASContext } from '../../../main';
 
-const Organization = ({ setHeader, setSelectedKeys, navigate }) => {
-	const location = useLocation();
+/**
+ * @type {React.FC<>}
+ */
+const Organization = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);

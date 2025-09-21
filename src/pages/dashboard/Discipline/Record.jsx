@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import moment from 'moment';
 
 import {
@@ -30,8 +30,11 @@ import PanelCard from '../../../components/PanelCard';
 
 import { MobileContext, OSASContext } from '../../../main';
 
-const Record = ({ setHeader, setSelectedKeys, navigate }) => {
-	const location = useLocation();
+/**
+ * @type {React.FC<>}
+ */
+const Record = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 
 	const { mobile } = React.useContext(MobileContext);
 	const { osas } = React.useContext(OSASContext);

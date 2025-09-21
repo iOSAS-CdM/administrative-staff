@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import {
@@ -48,7 +49,8 @@ import { OSASContext, MobileContext } from '../../../main';
  * }} Announcement
  */
 
-const NewAnnouncement = ({ setHeader, setSelectedKeys, navigate }) => {
+const NewAnnouncement = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Create a new Announcement',

@@ -1,6 +1,5 @@
 import React from 'react';
-import { useNavigate, useRoutes } from 'react-router';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router';
 
 import {
 	App,
@@ -80,7 +79,11 @@ const Filters = ({ filter, setFilter }) => (
 
 /** @typedef {Record[], React.Dispatch<React.SetStateAction<Record[]>>} RecordsState */
 
-const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
+/**
+ * @type {React.FC<>}
+ */
+const DisciplinaryRecords = ({ setHeader, setSelectedKeys }) => {
+	const navigate = useNavigate();
 	React.useEffect(() => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
@@ -210,7 +213,6 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys, navigate }) => {
 				<RecordCard
 					record={record}
 					loading={record.placeholder}
-					navigate={navigate}
 				/>
 			)}
 		/>
@@ -222,14 +224,14 @@ export default DisciplinaryRecords;
 /**
  * @param {{
  * 	record: Record,
- * 	loading: Boolean,
- * 	navigate: ReturnType<typeof useNavigate>
+ * 	loading: Boolean
  * }} props
  * @returns 
  */
-const RecordCard = ({ record, loading, navigate }) => {
+const RecordCard = ({ record, loading }) => {
 	/** @type {[Record, React.Dispatch<React.SetStateAction<Record[]>>]} */
 	const [thisRecord, setThisRecord] = React.useState(record);
+	const navigate = useNavigate();
 
 	const { cache, pushToCache } = useCache();
 

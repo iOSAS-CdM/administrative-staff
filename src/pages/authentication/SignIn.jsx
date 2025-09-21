@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import supabase from '../../utils/supabase';
 
 import {
@@ -14,13 +15,11 @@ import { LoginOutlined, LoadingOutlined } from '@ant-design/icons';
 const { Text, Title, Link } = Typography;
 
 /**
- * @param {{
- * 		navigate: import('react-router').NavigateFunction
- * }} props
- * @returns {JSX.Element}
+ * @type {React.FC<>}
  */
-const SignIn = ({ navigate }) => {
+const SignIn = () => {
 	const [signingIn, setSigningIn] = React.useState(false);
+	const navigate = useNavigate();
 
 	const SignInForm = React.useRef(null);
 	const signIn = async (values) => {
