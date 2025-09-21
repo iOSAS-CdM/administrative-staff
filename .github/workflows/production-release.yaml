@@ -56,10 +56,6 @@ jobs:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: "Administrative Staff v__VERSION__"
           releaseBody: |
-            ## What's Changed
-
-            This release includes the latest updates and improvements to the Administrative Staff application.
-
             ### Download Instructions
             - **Windows**: Download the `.msi` installer for easy installation
             - **macOS**: Download the `.dmg` file for drag-and-drop installation
