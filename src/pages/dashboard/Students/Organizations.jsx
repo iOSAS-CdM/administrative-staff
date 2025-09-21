@@ -26,18 +26,17 @@ import ItemCard from '../../../components/ItemCard';
 
 import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import Organization from '../../../classes/Organization';
 
 /** @typedef {[Organization[], React.Dispatch<React.SetStateAction<Organization[]>>]} OrganizationsState */
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const Organizations = ({ setHeader, setSelectedKeys }) => {
+const Organizations = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	React.useEffect(() => {
 		setSelectedKeys(['organizations']);
 	}, [setSelectedKeys]);

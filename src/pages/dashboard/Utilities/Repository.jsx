@@ -4,14 +4,13 @@ import { useNavigate } from 'react-router';
 import { Button } from 'antd';
 
 import { FileAddOutlined } from '@ant-design/icons';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const Repository = ({ setHeader, setSelectedKeys }) => {
+const Repository = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({

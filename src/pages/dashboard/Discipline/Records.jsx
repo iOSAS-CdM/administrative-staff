@@ -35,6 +35,7 @@ import ItemCard from '../../../components/ItemCard';
 import { API_Route } from '../../../main';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import Record from '../../../classes/Record';
 import authFetch from '../../../utils/authFetch';
@@ -81,12 +82,10 @@ const Filters = ({ filter, setFilter }) => (
 /** @typedef {Record[], React.Dispatch<React.SetStateAction<Record[]>>} RecordsState */
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const DisciplinaryRecords = ({ setHeader, setSelectedKeys }) => {
+const DisciplinaryRecords = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useEffect(() => {
 		setSelectedKeys(['records']);

@@ -39,6 +39,7 @@ const { Text, Paragraph, Title } = Typography;
 
 import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 /**
  * @typedef {{
@@ -51,12 +52,10 @@ import { useMobile } from '../../../contexts/MobileContext';
  */
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const NewAnnouncement = ({ setHeader, setSelectedKeys }) => {
+const NewAnnouncement = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({

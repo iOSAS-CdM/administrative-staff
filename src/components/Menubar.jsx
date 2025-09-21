@@ -36,6 +36,7 @@ import {
 
 import { DisplayThemeContext, API_Route } from '../main';
 import { useMobile } from '../contexts/MobileContext';
+import { PagePropsProvider } from '../contexts/PagePropsContext';
 
 import Home from '../pages/dashboard/Home';
 import Verified from '../pages/dashboard/Students/Verified';
@@ -58,16 +59,6 @@ import '../styles/pages/Dashboard.css';
 
 import { useCache } from '../contexts/CacheContext';
 import authFetch from '../utils/authFetch';
-
-/**
- * @typedef {{
- * 	setHeader: React.Dispatch<React.SetStateAction<Header>>,
- * 	setSelectedKeys: React.Dispatch<React.SetStateAction<string[]>>,
- * 	staff: Staff,
- * 	displayTheme: 'light' | 'dark',
- * 	setDisplayTheme: React.Dispatch<React.SetStateAction<'light' | 'dark'>>,
- * }} PageProps
- */
 
 /**
  * @type {React.FC<{
@@ -166,7 +157,7 @@ const Menubar = () => {
 		actions: []
 	});
 
-	const props = {
+	const pageProps = {
 		setHeader,
 		setSelectedKeys,
 		staff: cache?.staff,
@@ -177,48 +168,48 @@ const Menubar = () => {
 	const routes = useRoutes([
 		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/', element: <p>Dashboard</p> },
-		{ path: '/home', element: <Home {...props} /> },
+		{ path: '/home', element: <Home /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
 
-		{ path: '/students/verified/*', element: <Verified {...props} /> },
-		{ path: '/students/unverified/*', element: <Unverified {...props} /> },
-		{ path: '/students/profile/:id', element: <Profile {...props} /> },
+		{ path: '/students/verified/*', element: <Verified /> },
+		{ path: '/students/unverified/*', element: <Unverified /> },
+		{ path: '/students/profile/:id', element: <Profile /> },
 
 		{
 			path: '/students/organizations/*',
-			element: <Organizations {...props} />,
+			element: <Organizations />,
 			children: [
-				{ path: 'active', element: <Organizations {...props} /> },
-				{ path: 'college-wide', element: <Organizations {...props} /> },
-				{ path: 'institute-wide', element: <Organizations {...props} /> },
-				{ path: 'restricted', element: <Organizations {...props} /> },
-				{ path: 'archived', element: <Organizations {...props} /> }
+				{ path: 'active', element: <Organizations /> },
+				{ path: 'college-wide', element: <Organizations /> },
+				{ path: 'institute-wide', element: <Organizations /> },
+				{ path: 'restricted', element: <Organizations /> },
+				{ path: 'archived', element: <Organizations /> }
 			]
 		},
-		{ path: '/students/organization/:id', element: <Organization {...props} /> },
+		{ path: '/students/organization/:id', element: <Organization /> },
 
 		{
 			path: '/discipline/records/*',
-			element: <DisciplinaryRecords {...props} />,
+			element: <DisciplinaryRecords />,
 			children: [
-				{ path: 'active', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'ongoing', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'resolved', element: <DisciplinaryRecords {...props} /> },
-				{ path: 'archived', element: <DisciplinaryRecords {...props} /> }
+				{ path: 'active', element: <DisciplinaryRecords /> },
+				{ path: 'ongoing', element: <DisciplinaryRecords /> },
+				{ path: 'resolved', element: <DisciplinaryRecords /> },
+				{ path: 'archived', element: <DisciplinaryRecords /> }
 			]
 		},
-		{ path: '/discipline/record/:id', element: <DisciplinaryRecord {...props} /> },
+		{ path: '/discipline/record/:id', element: <DisciplinaryRecord /> },
 
 		{ path: '/discipline/reports/*', element: <p>Reports</p> },
 
-		{ path: '/utilities/calendar', element: <CalendarPage {...props} /> },
-		{ path: '/utilities/faqs', element: <FAQsPage {...props} /> },
+		{ path: '/utilities/calendar', element: <CalendarPage /> },
+		{ path: '/utilities/faqs', element: <FAQsPage /> },
 
-		{ path: '/utilities/announcements', element: <Announcements {...props} /> },
-		{ path: '/utilities/announcements/new', element: <NewAnnouncement {...props} /> },
+		{ path: '/utilities/announcements', element: <Announcements /> },
+		{ path: '/utilities/announcements/new', element: <NewAnnouncement /> },
 
-		{ path: '/utilities/repository', element: <Repository {...props} /> },
-		{ path: '/helpbot', element: <Helpbot {...props} /> }
+		{ path: '/utilities/repository', element: <Repository /> },
+		{ path: '/helpbot', element: <Helpbot /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
@@ -581,7 +572,9 @@ const Menubar = () => {
 							exit={{ opacity: 0, x: -20 }}
 							style={{ width: '100%', minHeight: '100%' }}
 						>
-							{routes}
+							<PagePropsProvider value={pageProps}>
+								{routes}
+							</PagePropsProvider>
 						</motion.div>
 					</AnimatePresence>
 				</div>

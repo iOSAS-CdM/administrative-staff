@@ -17,6 +17,7 @@ import {
 
 import { useCache } from '../../contexts/CacheContext';
 import { useMobile } from '../../contexts/MobileContext';
+import { usePageProps } from '../../contexts/PagePropsContext';
 
 const { Title, Text } = Typography;
 
@@ -250,14 +251,10 @@ const Calendar = ({ events }) => {
 };
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void,
- * 	displayTheme: string,
- * 	staff: any
- * }>}
+ * @type {React.FC}
  */
-const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
+const Home = () => {
+	const { setHeader, setSelectedKeys, displayTheme, staff } = usePageProps();
 	React.useEffect(() => {
 		if (setHeader)
 			setHeader({

@@ -23,6 +23,7 @@ import {
 
 import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import NewCase from '../../../modals/NewCase';
 import { RecordCard } from '../Discipline/Records';
@@ -30,12 +31,10 @@ import { RecordCard } from '../Discipline/Records';
 const { Text } = Typography;
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const CalendarPage = ({ setHeader, setSelectedKeys }) => {
+const CalendarPage = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	const isMobile = useMobile();
 	const [search, setSearch] = React.useState('');

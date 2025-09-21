@@ -7,6 +7,7 @@ import { Flex, Button, Card, Avatar, Input, Form } from 'antd';
 import { ClearOutlined, UserOutlined, RobotOutlined, SendOutlined } from '@ant-design/icons';
 
 import { useCache } from '../../../contexts/CacheContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 /**
  * @typedef {{
@@ -16,12 +17,10 @@ import { useCache } from '../../../contexts/CacheContext';
  */
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const Helpbot = ({ setHeader, setSelectedKeys }) => {
+const Helpbot = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
 		setHeader({

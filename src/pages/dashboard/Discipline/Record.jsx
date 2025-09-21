@@ -30,14 +30,13 @@ import PanelCard from '../../../components/PanelCard';
 
 import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const Record = ({ setHeader, setSelectedKeys }) => {
+const Record = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 
 	const isMobile = useMobile();

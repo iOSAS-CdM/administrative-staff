@@ -14,6 +14,7 @@ import {
 import { API_Route } from '../../../main';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import authFetch from '../../../utils/authFetch';
 import ContentPage from '../../../components/ContentPage';
@@ -22,12 +23,10 @@ import { StudentCard } from './Verified';
 const { Text } = Typography;
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const Unverified = ({ setHeader, setSelectedKeys }) => {
+const Unverified = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useEffect(() => {
 		setSelectedKeys(['unverified']);

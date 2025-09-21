@@ -18,16 +18,15 @@ import {
 } from '@ant-design/icons';
 
 import ItemCard from '../../../components/ItemCard';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 const { Paragraph, Title } = Typography;
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const FAQsPage = ({ setHeader, setSelectedKeys }) => {
+const FAQsPage = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useEffect(() => {
 		setHeader({

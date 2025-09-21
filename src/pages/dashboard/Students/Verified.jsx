@@ -16,6 +16,7 @@ import {
 } from 'antd';
 
 import ContentPage from '../../../components/ContentPage';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import {
 	EditOutlined,
@@ -165,12 +166,10 @@ const Filters = ({ setFilter, category }) => {
 };
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const Verified = ({ setHeader, setSelectedKeys }) => {
+const Verified = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useEffect(() => {
 		setSelectedKeys(['verified']);

@@ -40,6 +40,7 @@ import PanelCard from '../../../components/PanelCard';
 import { API_Route } from '../../../main';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
+import { usePageProps } from '../../../contexts/PagePropsContext';
 import authFetch from '../../../utils/authFetch';
 
 const Calendar = ({ events }) => {
@@ -248,12 +249,10 @@ const Calendar = ({ events }) => {
 };
 
 /**
- * @type {React.FC<{
- * 	setHeader: (header: any) => void,
- * 	setSelectedKeys: (keys: string[]) => void
- * }>}
+ * @type {React.FC}
  */
-const Profile = ({ setHeader, setSelectedKeys }) => {
+const Profile = () => {
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const location = useLocation();
 	const navigate = useNavigate();
 
