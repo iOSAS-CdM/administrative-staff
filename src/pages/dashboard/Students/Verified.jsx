@@ -161,8 +161,10 @@ const Filters = ({ setFilter, category, mobile }) => (
 );
 
 /**
- * @param {import('../../../components/Menubar').PageProps} props
- * @returns {JSX.Element}
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
  */
 const Verified = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
@@ -273,11 +275,10 @@ const Verified = ({ setHeader, setSelectedKeys }) => {
 };
 
 /**
- * @param {{
+ * @type {React.FC<{
  * 	student: Student,
  * 	loading: Boolean
- * }} props 
- * @returns {JSX.Element}
+ * }>}
  */
 const StudentCard = ({ student, loading }) => {
 	/** @type {[Student, React.Dispatch<React.SetStateAction<Student[]>>]} */
@@ -401,11 +402,7 @@ const StudentCard = ({ student, loading }) => {
 };
 
 /**
- * @param {{
- * 	students: Student[];
- * 	loading: Boolean;
- * }} props
- * @returns {JSX.Element}
+ * @type {React.FC<>}
  */
 const StudentPage = () => {
 	const navigate = useNavigate();

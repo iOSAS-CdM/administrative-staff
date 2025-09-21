@@ -40,6 +40,11 @@ const useCache = () => {
 	return context;
 };
 
+/**
+ * @type {React.FC<{
+ * 	children: React.ReactNode
+ * }>}
+ */
 export const CacheProvider = ({ children }) => {
 	// Use a single state object to hold all your cached data
 	const [cache, setCache] = React.useState({

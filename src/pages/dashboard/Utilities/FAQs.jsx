@@ -21,6 +21,12 @@ import ItemCard from '../../../components/ItemCard';
 
 const { Paragraph, Title } = Typography;
 
+/**
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
+ */
 const FAQsPage = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
 	React.useEffect(() => {

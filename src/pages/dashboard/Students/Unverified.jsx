@@ -21,7 +21,10 @@ import { StudentCard } from './Verified';
 const { Text } = Typography;
 
 /**
- * @type {React.FC<>}
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
  */
 const Unverified = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();

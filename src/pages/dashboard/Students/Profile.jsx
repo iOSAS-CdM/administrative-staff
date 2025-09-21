@@ -247,7 +247,10 @@ const Calendar = ({ events }) => {
 };
 
 /**
- * @type {React.FC<>}
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
  */
 const Profile = ({ setHeader, setSelectedKeys }) => {
 	const location = useLocation();

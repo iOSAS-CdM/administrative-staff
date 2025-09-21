@@ -80,7 +80,10 @@ const Filters = ({ filter, setFilter }) => (
 /** @typedef {Record[], React.Dispatch<React.SetStateAction<Record[]>>} RecordsState */
 
 /**
- * @type {React.FC<>}
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
  */
 const DisciplinaryRecords = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
@@ -222,11 +225,10 @@ const DisciplinaryRecords = ({ setHeader, setSelectedKeys }) => {
 export default DisciplinaryRecords;
 
 /**
- * @param {{
+ * @type {React.FC<{
  * 	record: Record,
  * 	loading: Boolean
- * }} props
- * @returns 
+ * }>}
  */
 const RecordCard = ({ record, loading }) => {
 	/** @type {[Record, React.Dispatch<React.SetStateAction<Record[]>>]} */

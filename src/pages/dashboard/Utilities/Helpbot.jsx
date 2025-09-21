@@ -15,6 +15,12 @@ import { OSASContext } from '../../../main';
  * }} Message
  */
 
+/**
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
+ */
 const Helpbot = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
 	React.useLayoutEffect(() => {

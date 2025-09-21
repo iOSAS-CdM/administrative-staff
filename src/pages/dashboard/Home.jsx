@@ -87,6 +87,11 @@ const Timer = () => {
 	);
 };
 
+/**
+ * @type {React.FC<{
+ * 	events: any[]
+ * }>}
+ */
 const Calendar = ({ events }) => {
 	const [value, setValue] = React.useState(moment());
 	const { mobile } = React.useContext(MobileContext);
@@ -244,6 +249,14 @@ const Calendar = ({ events }) => {
 	);
 };
 
+/**
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void,
+ * 	displayTheme: string,
+ * 	staff: any
+ * }>}
+ */
 const Home = ({ setHeader, setSelectedKeys, displayTheme, staff }) => {
 	React.useEffect(() => {
 		if (setHeader)

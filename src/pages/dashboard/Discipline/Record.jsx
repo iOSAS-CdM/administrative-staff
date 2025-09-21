@@ -31,7 +31,10 @@ import PanelCard from '../../../components/PanelCard';
 import { MobileContext, OSASContext } from '../../../main';
 
 /**
- * @type {React.FC<>}
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
  */
 const Record = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();

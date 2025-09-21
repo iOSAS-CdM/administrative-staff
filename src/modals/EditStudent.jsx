@@ -28,10 +28,9 @@ import { API_Route } from '../main';
 import authFetch from '../utils/authFetch';
 
 /**
- * @param {{
+ * @type {React.FC<{
  * 	student: import('../classes/Student').StudentProps
- * }} props
- * @returns {JSX.Element}
+ * }>}
  */
 const StudentForm = ({ student }) => {
 	const [ProfilePicture, setProfilePicture] = React.useState(student.profilePicture || '');

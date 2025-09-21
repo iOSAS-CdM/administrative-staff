@@ -31,7 +31,10 @@ import Organization from '../../../classes/Organization';
 /** @typedef {[Organization[], React.Dispatch<React.SetStateAction<Organization[]>>]} OrganizationsState */
 
 /**
- * @type {React.FC<>}
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
  */
 const Organizations = ({ setHeader, setSelectedKeys }) => {
 	React.useEffect(() => {
@@ -135,11 +138,10 @@ const Organizations = ({ setHeader, setSelectedKeys }) => {
 export default Organizations;
 
 /**
- * @param {{
+ * @type {React.FC<{
  * 	organization: import('../../../classes/Organization').Organization,
  * 	loading: Boolean
- * }} props
- * @returns {JSX.Element}
+ * }>}
  */
 const OrganizationCard = ({ organization, loading }) => {
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization').Organization>>]} */

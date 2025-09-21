@@ -49,6 +49,12 @@ import { OSASContext, MobileContext } from '../../../main';
  * }} Announcement
  */
 
+/**
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
+ */
 const NewAnnouncement = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
 	React.useLayoutEffect(() => {

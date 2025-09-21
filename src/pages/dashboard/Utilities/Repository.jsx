@@ -5,6 +5,12 @@ import { Button } from 'antd';
 
 import { FileAddOutlined } from '@ant-design/icons';
 
+/**
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void
+ * }>}
+ */
 const Repository = ({ setHeader, setSelectedKeys }) => {
 	const navigate = useNavigate();
 	React.useLayoutEffect(() => {

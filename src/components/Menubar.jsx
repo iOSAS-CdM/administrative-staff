@@ -71,6 +71,11 @@ import authFetch from '../utils/authFetch';
  * }} PageProps
  */
 
+/**
+ * @type {React.FC<{
+ * 	setSeed: (seed: number) => void
+ * }>}
+ */
 const ReloadButton = ({ setSeed }) => {
 	const [shiftPressed, setShiftPressed] = React.useState(false);
 	React.useEffect(() => {
@@ -103,6 +108,9 @@ const ReloadButton = ({ setSeed }) => {
 	);
 };
 
+/**
+ * @type {React.FC<>}
+ */
 const Menubar = () => {
 	const navigate = useNavigate();
 	const location = useLocation();

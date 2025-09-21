@@ -28,6 +28,13 @@ import { RecordCard } from '../Discipline/Records';
 
 const { Text } = Typography;
 
+/**
+ * @type {React.FC<{
+ * 	setHeader: (header: any) => void,
+ * 	setSelectedKeys: (keys: string[]) => void,
+ * 	mobile: boolean
+ * }>}
+ */
 const CalendarPage = ({ setHeader, setSelectedKeys, mobile }) => {
 	const navigate = useNavigate();
 	const [search, setSearch] = React.useState('');
