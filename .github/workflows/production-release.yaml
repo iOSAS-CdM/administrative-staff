@@ -54,8 +54,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: "App v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
-          releaseDraft: true
+          releaseName: "Administrative Staff v__VERSION__"
+          releaseBody: |
+            ## What's Changed
+
+            This release includes the latest updates and improvements to the Administrative Staff application.
+
+            ### Download Instructions
+            - **Windows**: Download the `.msi` installer for easy installation
+            - **macOS**: Download the `.dmg` file for drag-and-drop installation
+            - **Linux**: Download the `.AppImage` for portable execution or `.deb` for system installation
+
+            ### Installation Notes
+            - Please ensure you have the latest version of your operating system
+            - For first-time installations, you may need to allow the application in your security settings
+
+            **Full Changelog**: https://github.com/${{ github.repository }}/commits/release
+          releaseDraft: false
           prerelease: false
+          includeRelease: true
+          includeUpdaterJson: true
           args: ${{ matrix.args }}
