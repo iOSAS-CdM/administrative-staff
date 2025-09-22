@@ -318,7 +318,7 @@ const StudentCard = ({ student, loading }) => {
 				<Avatar
 					src={thisStudent.profilePicture}
 					size='large'
-					style={{ width: 64, height: 64 }}
+					style={{ width: 64, height: 64, filter: thisStudent.role === 'unverified-student' ? 'grayscale(100%)' : 'none' }}
 				/>
 				<Flex vertical justify='flex-start' align='flex-start' gap={8} style={{ flex: 1 }}>
 					<Title level={3}>{thisStudent.name.first} {thisStudent.name.last}</Title>
