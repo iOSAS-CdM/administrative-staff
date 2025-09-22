@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to bump version in package.json and sync to tauri.conf.json
+# Script to bump version in package.json only
 # Usage: ./bump-version.sh [patch|minor|major]
 # Default: patch
 
@@ -60,20 +60,5 @@ pkg.version = '$NEW_VERSION';
 fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 console.log('✅ package.json updated');
 "
-
-# Update tauri.conf.json
-echo -e "${YELLOW}📝 Updating tauri.conf.json...${NC}"
-if [ -f "src-tauri/tauri.conf.json" ]; then
-    node -e "
-    const fs = require('fs');
-    const config = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
-    config.version = '$NEW_VERSION';
-    fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(config, null, 2) + '\n');
-    console.log('✅ tauri.conf.json updated');
-    "
-else
-    echo -e "${RED}❌ Error: src-tauri/tauri.conf.json not found${NC}"
-    exit 1
-fi
 
 echo -e "${GREEN}✅ Version bumped successfully from $CURRENT_VERSION to $NEW_VERSION${NC}"
