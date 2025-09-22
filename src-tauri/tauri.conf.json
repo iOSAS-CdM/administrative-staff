@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
 	"productName": "osas-staff",
-	"version": "../package.json",
+	"version": "0.2.0",
 	"identifier": "com.danieljohnbyns.osas-staff",
 	"build": {
 		"beforeDevCommand": "npm run dev",
@@ -44,6 +44,13 @@
 					"osas-administrative-staff"
 				]
 			}
+		},
+		"updater": {
+			"endpoints": [
+				"https://api.github.com/repos/iOSAS-CdM/administrative-staff/releases/latest"
+			],
+			"dialog": true,
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIxNEVGNzcwM0VENDZBOEUKUldTT2F0UStjUGRPSWJYYkhKYitnYkNtK2oyeGFRa1FFeHh4d"
 		}
 	}
 }

@@ -10,7 +10,6 @@ import {
 	Typography,
 	Button,
 	Menu,
-	Badge,
 	Skeleton,
 	Popover,
 	Segmented,
@@ -26,9 +25,7 @@ import {
 	SmileOutlined,
 	ToolOutlined,
 	RobotOutlined,
-	UserOutlined,
 	MenuOutlined,
-	SyncOutlined,
 	MoonOutlined,
 	SunOutlined,
 	SolutionOutlined
@@ -59,43 +56,6 @@ import '../styles/pages/Dashboard.css';
 
 import { useCache } from '../contexts/CacheContext';
 import authFetch from '../utils/authFetch';
-
-/**
- * @type {React.FC<{
- * 	setSeed: (seed: number) => void
- * }>}
- */
-const ReloadButton = ({ setSeed }) => {
-	const [shiftPressed, setShiftPressed] = React.useState(false);
-	React.useEffect(() => {
-		const handleKeyDown = (event) => {
-			if (event.key === 'Shift' || event.key === 'Control')
-				setShiftPressed(true);
-		};
-		const handleKeyUp = (event) => {
-			if (event.key === 'Shift' || event.key === 'Control')
-				setShiftPressed(false);
-		};
-		window.addEventListener('keydown', handleKeyDown);
-		window.addEventListener('keyup', handleKeyUp);
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-			window.removeEventListener('keyup', handleKeyUp);
-		};
-	}, []);
-	return (
-		<Badge color='blue' dot={shiftPressed}>
-			<Button
-				type='default'
-				icon={<SyncOutlined />}
-				onClick={() => {
-					if (shiftPressed)
-						location.reload();
-				}}
-			/>
-		</Badge>
-	);
-};
 
 /**
  * @type {React.FC<>}
@@ -512,15 +472,13 @@ const Menubar = () => {
 						<Title level={4}>{Header.title}</Title>
 						{!isMobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-								<ReloadButton setSeed={null} />
 								{Header.actions && Header.actions.map((action, index) =>
 									React.cloneElement(action, { key: index })
 								)}
 							</Flex>
 						) : (
 							Header.actions && Header.actions.length > 1 ? (
-								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-										<ReloadButton setSeed={null} />
+									<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 									<Popover
 										trigger={['click']}
 										placement='bottom'
@@ -536,12 +494,7 @@ const Menubar = () => {
 									</Popover>
 								</Flex>
 							) : (
-								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-									<Button
-										type='default'
-										icon={<SyncOutlined />}
-												onClick={() => { }}
-									/>
+										<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 									{Header.actions && Header.actions.map((action, index) => (
 										{
 											...action,

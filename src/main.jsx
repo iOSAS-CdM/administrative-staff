@@ -25,6 +25,7 @@ import Event from './classes/Event';
 
 import { CacheProvider } from './contexts/CacheContext';
 import { MobileProvider } from './contexts/MobileContext';
+import UpdateNotification from './components/UpdateNotification';
 
 export const DisplayThemeContext = React.createContext({
 	displayTheme: 'light',
@@ -100,6 +101,8 @@ const OSAS = () => {
 					<BrowserRouter>
 						<MobileProvider>
 							<DisplayThemeContext.Provider value={{ displayTheme, setDisplayTheme }}>
+								{/* Add UpdateNotification for automatic update checking */}
+								{session && <UpdateNotification />}
 								<Routes>
 									<Route path='/' element={<Navigate to='/authentication' replace />} />
 									<Route path='/authentication/*' element={!session ? <Authentication /> : <Navigate to='/dashboard' replace />} />
