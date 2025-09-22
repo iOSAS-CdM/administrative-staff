@@ -33,7 +33,15 @@ const UpdateNotification = () => {
 			// Remove the success message for "latest version" since this is automatic
 		} catch (error) {
 			console.error('Error checking for updates:', error);
-			// Only show error message if it's a real error, not just "no updates"
+			// Handle specific signature errors
+			if (error.message && error.message.includes('signature')) {
+				console.warn('Update signature verification failed. This may indicate an unsigned release.');
+				// Don't show error for signature issues in development
+				if (import.meta.env.DEV) {
+					console.warn('Signature verification disabled in development mode');
+				}
+			}
+			// Only show error message if it's a real error, not just "no updates" or signature issues
 		} finally {
 			setCheckingForUpdate(false);
 		}
