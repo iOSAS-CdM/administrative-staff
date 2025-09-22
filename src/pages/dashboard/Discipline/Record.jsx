@@ -42,6 +42,9 @@ const Record = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 
+	const app = App.useApp();
+	const Modal = app.modal;
+
 	const isMobile = useMobile();
 	const { cache, pushToCache } = useCache();
 
@@ -74,6 +77,12 @@ const Record = () => {
 			const response = await authFetch(`${API_Route}/records/${id}`, { signal: controller.signal });
 			if (!response || !response.ok) {
 				console.error('Failed to fetch record:', response?.statusText || response);
+				Modal.error({
+					title: 'Error',
+					content: 'Failed to fetch record. Please try again later.',
+					centered: true,
+					onOk: () => navigate(-1)
+				});
 				return;
 			};
 			const data = await response.json();
@@ -149,9 +158,6 @@ const Record = () => {
 			]);
 		};
 	}, [thisRecord]);
-
-	const app = App.useApp();
-	const Modal = app.modal;
 
 	return (
 		<Flex
