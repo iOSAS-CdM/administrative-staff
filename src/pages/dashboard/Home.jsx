@@ -26,6 +26,9 @@ import rootToHex from '../../utils/rootToHex';
 import PanelCard from '../../components/PanelCard';
 import { RecordCard } from './Discipline/Records';
 
+import authFetch from '../../utils/authFetch';
+import { API_Route } from '../../main';
+
 const Timer = () => {
 	const [time, setTime] = React.useState({
 		hours: new Date().getHours() % 12 || 12,
@@ -305,48 +308,88 @@ const Home = () => {
 		}
 	};
 
-	const [casesRatio, setCasesRatio] = React.useState({
-		resolved: 0,
-		unresolved: 0
-	});
-	React.useEffect(() => {
-		const resolved = (cache.records || []).filter(record => record.tags.status === 'resolved').length;
-		const unresolved = (cache.records || []).filter(record => record.tags.status !== 'ongoing').length;
-		setCasesRatio({
-			resolved,
-			unresolved
-		});
-	}, [cache.records]);
+	const [studentsRatio, setStudentsRatio] = React.useState([
+		{ type: 'Verified', value: 1 },
+		{ type: 'Unverified', value: 1 }
+	]);
+	React.useLayoutEffect(() => {
+		const controller = new AbortController();
+		const fetchData = async () => {
+			const response = await authFetch(`${API_Route}/statistics`, { signal: controller.signal });
+			if (!response || !response.ok) {
+				console.error('Failed to fetch statistics:', response);
+				return;
+			};
+			/**
+			 * @type {{
+			 *	records: {
+			 *		total: number,
+			 *		resolved: number,
+			 *		ongoing: number
+			 *	},
+			 *	students: {
+			 *		total: number,
+			 *		verified: number,
+			 *		unverified: number
+			 *	}
+			 * }}
+			 */
+			const data = await response.json();
+			
+			setStudentsRatio([
+				{ type: 'Verified', value: data.students.verified },
+				{ type: 'Unverified', value: data.students.unverified }
+			]);
+		};
+		fetchData();
+		return () => controller.abort();
+	}, []);
 
 	const [monthlyCasesTrend, setMonthlyCasesTrend] = React.useState([]);
 	React.useEffect(() => {
-		const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		const months = [...allMonths];
-		const currentMonth = new Date().getMonth();
-		const workingMonths = JSON.parse(JSON.stringify(months));
-		workingMonths.splice(currentMonth + 1, workingMonths.length);
-		months.splice(0, currentMonth + 1);
-		for (const month of months.reverse()) {
-			workingMonths.unshift(month);
+		const controller = new AbortController();
+		const fetchData = async () => {
+			const response = await authFetch(`${API_Route}/statistics/trend`, { signal: controller.signal });
+			if (!response || !response.ok) {
+				console.error('Failed to fetch trend data:', response);
+				return;
+			};
+			/**
+			 * @type {{
+			 *	records: {
+			 *		month: string, // YYYY-MM
+			 *		total: number,
+			 *		resolved: number,
+			 *		ongoing: number
+			 *	}[],
+			 *	students: {
+			 *		month: string, // YYYY-MM
+			 *		total: number,
+			 *		verified: number,
+			 *		unverified: number
+			 *	}[]
+			 * }}
+			 */
+			const data = await response.json();
+			// Transform data for the chart
+			const recordsTrend = data.records.map(item => ({
+				month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
+				cases: item.total,
+				type: 'Total Cases'
+			})).concat(data.records.map(item => ({
+				month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
+				cases: item.resolved,
+				type: 'Resolved Cases'
+			}))).concat(data.records.map(item => ({
+				month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
+				cases: item.ongoing,
+				type: 'Ongoing Cases'
+			})));
+			setMonthlyCasesTrend(recordsTrend);
 		};
-
-		const trendData = [];
-
-		workingMonths.forEach(month => {
-			trendData.push({
-				month,
-				type: 'Resolved',
-				cases: (cache.records || []).filter(record => record.tags.status === 'resolved' && (new Date(record.date)).getMonth() === allMonths.indexOf(month)).length
-			});
-			trendData.push({
-				month,
-				type: 'Unresolved',
-				cases: (cache.records || []).filter(record => record.tags.status !== 'ongoing' && (new Date(record.date)).getMonth() === allMonths.indexOf(month)).length
-			});
-		});
-
-		setMonthlyCasesTrend(trendData);
-	}, [cache.records]);
+		fetchData();
+		return () => controller.abort();
+	}, []);
 
 	/** @type {[import('../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
@@ -380,22 +423,13 @@ const Home = () => {
 				<Col span={8}>
 					<PanelCard title='Monthly Cases Ratio'>
 						<Pie
-							data={[
-								{
-									type: 'Resolved',
-									value: casesRatio.resolved
-								},
-								{
-											type: 'Unresolved',
-											value: casesRatio.unresolved
-										}
-									]}
-									innerRadius={0.6}
-									angleField='value'
-									colorField='type'
-									animate={null}
-									{...chartConfig}
-								/>
+							data={studentsRatio}
+							angleField='value'
+							colorField='type'
+							innerRadius={0.6}
+							animate={null}
+							{...chartConfig}
+						/>
 					</PanelCard>
 				</Col>
 				<Col span={16}>
