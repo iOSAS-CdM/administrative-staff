@@ -43,7 +43,7 @@ const Record = () => {
 	const navigate = useNavigate();
 
 	const isMobile = useMobile();
-	const { cache } = useCache();
+	const { cache, pushToCache } = useCache();
 
 	const { id } = useParams();
 
@@ -81,6 +81,7 @@ const Record = () => {
 			if (data) {
 				setThisRecord(data);
 				setStep(data.tags.progress || 0);
+				pushToCache('records', data, true);
 			};
 		};
 		loadRecord();
@@ -93,10 +94,9 @@ const Record = () => {
 		if (!thisRecord) return;
 		setThisComplainants(thisRecord.complainants);
 		setThisComplainees(thisRecord.complainees);
-	}, [thisRecord, cache.students]);
-
-	React.useEffect(() => {
-	}, [thisRecord, cache.students]);
+		pushToCache('students', thisRecord.complainants, false);
+		pushToCache('students', thisRecord.complainees.map(c => c.student), false);
+	}, [thisRecord]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
