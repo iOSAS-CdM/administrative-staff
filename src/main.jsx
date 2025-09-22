@@ -128,7 +128,6 @@ export const API_Route = import.meta.env.DEV ? 'http://localhost:3001' : 'http:/
 
 // Create root only once to avoid React DOM warnings
 const container = document.getElementById('root');
-if (!container._reactRoot) {
+if (!container._reactRoot)
 	container._reactRoot = ReactDOM.createRoot(container);
-}
 container._reactRoot.render(<OSAS />);
