@@ -52,8 +52,6 @@ import Helpbot from '../pages/dashboard/Utilities/Helpbot';
 
 const { Text, Title } = Typography;
 
-import '../styles/pages/Dashboard.css';
-
 import { useCache } from '../contexts/CacheContext';
 import authFetch from '../utils/authFetch';
 

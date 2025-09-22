@@ -17,7 +17,7 @@ const PanelCard = ({
 	title,
 	footer,
 	children,
-	contentMaxHeight,
+	contentMaxHeight = 512,
 	...props
 }) => {
 	const [collapsed, setColapsed] = React.useState(false);
@@ -37,25 +37,31 @@ const PanelCard = ({
 			}
 			{...props}
 			style={{
+				position: 'relative',
 				flex: 1,
 				display: 'flex',
-				maxHeight: collapsed ? 32 : 1024,
+				maxHeight: collapsed ? 32 : contentMaxHeight,
 				overflowY: 'hidden',
+				transition: 'max-height var(--transition)',
 				...props.style
+			}}
+			styles={{
+				body: {
+					overflowY: 'auto'
+				}
 			}}
 			onClick={(e) => {
 				if (e.target.classList.contains('ant-card-head') || e.target.classList.contains('ant-card-head-title'))
 					setColapsed(!collapsed);
 			}}
+			actions={[footer]}
 		>
 			<Flex vertical gap={8} style={{ position: 'relative' }}>
-				<Flex vertical gap={8} style={{ flex: 1, minHeight: 128 }}>
+				<Flex vertical gap={8} style={{ flex: 1, minHeight: 128, overflowY: 'auto' }}>
 					{children || (
 						<Empty description='Empty' style={{ position: 'absolute', height: 128, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
 					)}
 				</Flex>
-
-				{footer}
 			</Flex>
 		</Card>
 	);
