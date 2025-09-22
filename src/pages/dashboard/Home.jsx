@@ -311,7 +311,7 @@ const Home = () => {
 	});
 	React.useEffect(() => {
 		const resolved = (cache.records || []).filter(record => record.tags.status === 'resolved').length;
-		const unresolved = (cache.records || []).filter(record => record.tags.status !== 'resolved').length;
+		const unresolved = (cache.records || []).filter(record => record.tags.status !== 'ongoing').length;
 		setCasesRatio({
 			resolved,
 			unresolved
@@ -336,12 +336,12 @@ const Home = () => {
 			trendData.push({
 				month,
 				type: 'Resolved',
-				cases: (cache.records || []).filter(record => record.tags.status === 'resolved' && record.date.getMonth() === allMonths.indexOf(month)).length
+				cases: (cache.records || []).filter(record => record.tags.status === 'resolved' && (new Date(record.date)).getMonth() === allMonths.indexOf(month)).length
 			});
 			trendData.push({
 				month,
 				type: 'Unresolved',
-				cases: (cache.records || []).filter(record => record.tags.status !== 'ongoing' && record.date.getMonth() === allMonths.indexOf(month)).length
+				cases: (cache.records || []).filter(record => record.tags.status !== 'ongoing' && (new Date(record.date)).getMonth() === allMonths.indexOf(month)).length
 			});
 		});
 

@@ -64,6 +64,9 @@ export const CacheProvider = ({ children }) => {
 		events: [],
 		peers: []
 	});
+	React.useEffect(() => {
+		window.cache = cache;
+	}, [cache]);
 
 	// A function to update the cache with new data
 	/** @type {UpdateCache} */
