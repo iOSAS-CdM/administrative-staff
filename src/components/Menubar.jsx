@@ -127,7 +127,7 @@ const Menubar = () => {
 
 	const routes = useRoutes([
 		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
-		{ path: '/', element: <p>Dashboard</p> },
+		{ path: '/', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/home', element: <Home /> },
 		{ path: '/notifications', element: <p>Notifications</p> },
 
