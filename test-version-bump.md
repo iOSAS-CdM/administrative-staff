@@ -1,2 +1,2 @@
 # Testing auto version bump
-This is a test file to verify the pre-commit hook automatically bumps versions.
+This is a test file to verify the pre-commit hook automatically bumps versions.# Testing feature commit
