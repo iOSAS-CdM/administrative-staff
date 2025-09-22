@@ -335,7 +335,7 @@ const Home = () => {
 			 * }}
 			 */
 			const data = await response.json();
-			
+
 			setStudentsRatio([
 				{ type: 'Verified', value: data.students.verified },
 				{ type: 'Unverified', value: data.students.unverified }

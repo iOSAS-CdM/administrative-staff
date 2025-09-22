@@ -102,7 +102,7 @@ const DisciplinaryRecords = () => {
 	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
 	const [searchResults, setSearchResults] = React.useState([]);
 	const [searching, setSearching] = React.useState(false);
-	
+
 	React.useEffect(() => {
 		const controller = new AbortController();
 		const fetchSearchResults = async () => {
@@ -286,7 +286,7 @@ const RecordCard = ({ record, loading }) => {
 			pushToCache('peers', data.students, false);
 		};
 		fetchParticipants();
-	
+
 		return () => controller.abort();
 	}, []);
 

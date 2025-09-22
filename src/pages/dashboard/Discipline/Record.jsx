@@ -41,7 +41,7 @@ const Record = () => {
 
 	const isMobile = useMobile();
 	const { cache } = useCache();
-	
+
 	const { id } = useParams();
 
 	const [thisRecord, setThisRecord] = React.useState({
