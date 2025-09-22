@@ -95,32 +95,30 @@ const OSAS = () => {
 	if (!sessionChecked) return null;
 
 	return (
-		<React.StrictMode>
-			<DesignConfig theme={themeConfig} variant='outlined' virtual>
-				<App>
-					<BrowserRouter>
-						<MobileProvider>
-							<DisplayThemeContext.Provider value={{ displayTheme, setDisplayTheme }}>
-								{/* Add UpdateNotification for automatic update checking */}
-								{session && <UpdateNotification />}
-								<Routes>
-									<Route path='/' element={<Navigate to='/authentication' replace />} />
-									<Route path='/authentication/*' element={!session ? <Authentication /> : <Navigate to='/dashboard' replace />} />
+		<DesignConfig theme={themeConfig} variant='outlined' virtual>
+			<App>
+				<BrowserRouter>
+					<MobileProvider>
+						<DisplayThemeContext.Provider value={{ displayTheme, setDisplayTheme }}>
+							{/* Add UpdateNotification for automatic update checking */}
+							{session && <UpdateNotification />}
+							<Routes>
+								<Route path='/' element={<Navigate to='/authentication' replace />} />
+								<Route path='/authentication/*' element={!session ? <Authentication /> : <Navigate to='/dashboard' replace />} />
 
-									<Route
-										path='/dashboard/*'
-										element={session ? <CacheProvider children={<Menubar />} /> : <Navigate to='/authentication' replace />}
-									/>
+								<Route
+									path='/dashboard/*'
+									element={session ? <CacheProvider children={<Menubar />} /> : <Navigate to='/authentication' replace />}
+								/>
 
-									<Route path='/unauthorized' element={<Unauthorized />} />
-									<Route path='/auth-return' element={<AuthReturn />} />
-								</Routes>
-							</DisplayThemeContext.Provider>
-						</MobileProvider>
-					</BrowserRouter>
-				</App>
-			</DesignConfig>
-		</React.StrictMode>
+								<Route path='/unauthorized' element={<Unauthorized />} />
+								<Route path='/auth-return' element={<AuthReturn />} />
+							</Routes>
+						</DisplayThemeContext.Provider>
+					</MobileProvider>
+				</BrowserRouter>
+			</App>
+		</DesignConfig>
 	);
 };
 

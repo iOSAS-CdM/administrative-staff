@@ -255,6 +255,7 @@ const Profile = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const location = useLocation();
 	const navigate = useNavigate();
+	const Modal = App.useApp().modal;
 
 	const isMobile = useMobile();
 	const { getFromCache, pushToCache } = useCache();
@@ -287,7 +288,7 @@ const Profile = () => {
 		id: '',
 		email: ''
 	});
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		const controller = new AbortController();
 		if (id) {
 			// Try to get student from cache first
@@ -301,7 +302,16 @@ const Profile = () => {
 						`${API_Route}/users/student/${id}`,
 						{ signal: controller.signal }
 					);
-					if (!request?.ok) return;
+					if (!request?.ok) {
+						Modal.error({
+							title: 'Error',
+							content:
+								'Failed to fetch student. Please try again later.',
+							centered: true,
+							onOk: () => navigate(-1)
+						});
+						return;
+					};
 
 					/** @type {import('../../../types').Student} */
 					const data = await request.json();
@@ -310,10 +320,10 @@ const Profile = () => {
 					setThisStudent(data);
 				};
 				fetchStudent();
-			}
-		}
+			};
+		};
 		return () => controller.abort();
-	}, [id, getFromCache]);
+	}, [id]);
 	React.useEffect(() => {
 		if (thisStudent.role === 'student') setSelectedKeys(['verified']);
 		else setSelectedKeys(['unverified']);
@@ -323,9 +333,6 @@ const Profile = () => {
 
 	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
-
-	const app = App.useApp();
-	const Modal = app.modal;
 
 	return (
 		<Flex vertical gap={16}>
@@ -635,7 +642,7 @@ const Profile = () => {
 															(c) =>
 																c.student.id ===
 																thisStudent.id
-														)?.occurrence - 1
+													)?.occurrences - 1
 													] || 'red'
 												}
 												size='small'
@@ -650,7 +657,7 @@ const Profile = () => {
 																	c.student
 																		.id ===
 																	thisStudent.id
-														  ).occurrence
+														).occurrences
 														: 0
 												}
 												offset={[-8, 0]}

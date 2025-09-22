@@ -32,6 +32,9 @@ import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
 
+import authFetch from '../../../utils/authFetch';
+import { API_Route } from '../../../main';
+
 /**
  * @type {React.FC}
  */
@@ -56,18 +59,48 @@ const Record = () => {
 		complainants: [],
 		complainees: [],
 		placeholder: true,
-		date: new Date()
+		date: ''
 	});
+
+	const [step, setStep] = React.useState(0);
 	React.useEffect(() => {
 		if (!id) return;
 		const record = (cache.records || []).find(r => r.id === id);
 		if (record)
-			setThisRecord(record);
+			return setThisRecord(record);
+
+		const controller = new AbortController();
+		const loadRecord = async () => {
+			const response = await authFetch(`${API_Route}/records/${id}`, { signal: controller.signal });
+			if (!response || !response.ok) {
+				console.error('Failed to fetch record:', response?.statusText || response);
+				return;
+			};
+			const data = await response.json();
+			console.log('Fetched record:', data);
+			if (data) {
+				setThisRecord(data);
+				setStep(data.tags.progress || 0);
+			};
+		};
+		loadRecord();
+		return () => controller.abort();
 	}, [id, cache.records]);
+
+	const [thisComplainants, setThisComplainants] = React.useState([]);
+	const [thisComplainees, setThisComplainees] = React.useState([]);
+	React.useEffect(() => {
+		if (!thisRecord) return;
+		setThisComplainants(thisRecord.complainants);
+		setThisComplainees(thisRecord.complainees);
+	}, [thisRecord, cache.students]);
+
+	React.useEffect(() => {
+	}, [thisRecord, cache.students]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: `Disciplinary Case ${thisRecord.id || ''}`,
+			title: `Disciplinary Case ${thisRecord?.id || ''}`,
 			actions: [
 				<Button
 					type='primary'
@@ -85,7 +118,7 @@ const Record = () => {
 
 	const [repository, setRepository] = React.useState([]);
 	React.useEffect(() => {
-		if (thisRecord.placeholder) {
+		if (thisRecord?.placeholder) {
 			setRepository([]);
 		} else {
 			setRepository([
@@ -120,8 +153,6 @@ const Record = () => {
 	const app = App.useApp();
 	const Modal = app.modal;
 
-	const [step, setStep] = React.useState(thisRecord.tags.progress);
-
 	return (
 		<Flex
 			vertical
@@ -131,10 +162,10 @@ const Record = () => {
 				<Flex vertical gap={16} style={{ width: '100%' }}>
 					<Card>
 						<Flex vertical gap={8}>
-							<Title level={1}>{thisRecord.violation}</Title>
+							<Title level={1}>{thisRecord?.violation}</Title>
 							<Flex align='center' gap={8}>
 								<Text>
-									{thisRecord.date.toLocaleDateString('en-US', {
+									{(thisRecord?.date ? new Date(thisRecord?.date) : new Date()).toLocaleDateString('en-US', {
 										year: 'numeric',
 										month: 'long',
 										day: 'numeric'
@@ -146,28 +177,28 @@ const Record = () => {
 											minor: 'blue',
 											major: 'orange',
 											severe: 'red'
-										}[thisRecord.tags.severity.toLowerCase()] || 'default'
+										}[thisRecord?.tags.severity.toLowerCase()] || 'default'
 									}>
-										{thisRecord.tags.severity.charAt(0).toUpperCase() + thisRecord.tags.severity.slice(1)}
+										{thisRecord?.tags.severity.charAt(0).toUpperCase() + thisRecord?.tags.severity.slice(1)}
 									</Tag>
 									<Tag color={
 										{
 											ongoing: 'blue',
 											resolved: 'var(--primary)',
 											archived: 'grey'
-										}[thisRecord.tags.status] || 'default'
+										}[thisRecord?.tags.status] || 'default'
 									}>
-										{thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
+										{thisRecord?.tags.status.charAt(0).toUpperCase() + thisRecord?.tags.status.slice(1)}
 									</Tag>
 								</div>
 							</Flex>
-							<Text>{thisRecord.description}</Text>
+							<Text>{thisRecord?.description}</Text>
 							<Flex gap={8}>
 								<Button
 									type='primary'
 									icon={<EditOutlined />}
 									onClick={() => {
-										if (thisRecord.placeholder) {
+										if (thisRecord?.placeholder) {
 											Modal.error({
 												title: 'Error',
 												content: 'This is a placeholder disciplinary record. Please try again later.',
@@ -184,7 +215,7 @@ const Record = () => {
 									danger
 									icon={<InboxOutlined />}
 									onClick={() => {
-										if (thisRecord.placeholder) {
+										if (thisRecord?.placeholder) {
 											Modal.error({
 												title: 'Error',
 												content: 'This is a placeholder disciplinary record. Please try again later.',
@@ -204,7 +235,7 @@ const Record = () => {
 							style={{ width: '100%', height: '100%', order: isMobile ? '2' : '' }}
 						>
 							<PanelCard
-								title={`Complainant${thisRecord.complainants.length > 1 ? 's' : ''}`}
+								title={`Complainant${thisComplainants?.length > 1 ? 's' : ''}`}
 								style={{ position: 'sticky', top: 0 }}
 								footer={
 									<Flex justify='flex-end' align='center' gap={8}>
@@ -227,7 +258,7 @@ const Record = () => {
 									</Flex>
 								}
 							>
-								{thisRecord.complainants.length > 0 && thisRecord.complainants.map((complainant, i) => (
+								{thisComplainants?.length > 0 && thisComplainants?.map((complainant, i) => (
 									<Card
 										key={complainant.id || i}
 										size='small'
@@ -262,7 +293,7 @@ const Record = () => {
 							style={{ width: '100%', height: '100%', order: isMobile ? '3' : '' }}
 						>
 							<PanelCard
-								title={`Complainee${thisRecord.complainees.length > 1 ? 's' : ''}`}
+								title={`Complainee${thisComplainees?.length > 1 ? 's' : ''}`}
 								style={{ position: 'sticky', top: 0 }}
 								footer={
 									<Flex justify='flex-end' align='center' gap={8}>
@@ -285,7 +316,7 @@ const Record = () => {
 									</Flex>
 								}
 							>
-								{thisRecord.complainees.length > 0 && thisRecord.complainees.map((complainee, i) => (
+								{thisComplainees?.length > 0 && thisComplainees?.map((complainee, i) => (
 									<Card
 										key={complainee.student.id || i}
 										size='small'
@@ -306,11 +337,12 @@ const Record = () => {
 										}}
 									>
 										<Badge
-											title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrence] || `${complainee.occurrence}th`} Offense`}
-											count={complainee.occurrence}
-											color={['yellow', 'orange', 'red'][complainee.occurrence - 1] || 'red'}
+											title={`${{ 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' }[complainee.occurrences] || `${complainee.occurrences}th`} Offense`}
+											count={complainee.occurrences}
+											color={['yellow', 'orange', 'red'][complainee.occurrences - 1] || 'red'}
 											styles={{
-												root: { position: 'absolute', top: 0, right: 0 }
+												root: { position: 'absolute', top: 0, right: 0 },
+												indicator: { color: 'black' }
 											}}
 											offset={[-8, 8]}
 										/>
@@ -370,7 +402,7 @@ const Record = () => {
 									direction='vertical'
 									style={{ width: '100%' }}
 								>
-									<Steps.Step title='Case Opened' description={moment(thisRecord.date).format('MMMM Do YYYY')} />
+									<Steps.Step title='Case Opened' description={moment(thisRecord?.date ? new Date(thisRecord?.date) : new Date()).format('MMMM Do YYYY')} />
 									<Steps.Step title='Initial Interview' description='Interview with the complaining party opening the case.' />
 									<Steps.Step title='Respondent Interview' description='Interview with the complainant party.' />
 									<Steps.Step title='Resolution' description='Resolution of the case.' />

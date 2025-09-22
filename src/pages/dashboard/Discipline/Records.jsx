@@ -246,49 +246,14 @@ const RecordCard = ({ record, loading }) => {
 	const app = App.useApp();
 	const Modal = app.modal;
 
-	/** @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]} */
-	const [unfetchedParticipants, setUnfetchedParticipants] = React.useState([]);
 	/** @type {[import('../../../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Student').StudentProps[]>>]} */
 	const [participants, setParticipants] = React.useState([]);
+
 	React.useEffect(() => {
-		const currentUnfechedParticipants = [...thisRecord.complainants, ...thisRecord.complainees.map(part => part.id)];
-		const currentParticipants = [];
-		for (const participantId of currentUnfechedParticipants) {
-			// Check if the participant is already in the cache
-			const cachedParticipant = cache.peers.find(peer => peer.id === participantId);
-			if (cachedParticipant) {
-				currentParticipants.push(cachedParticipant);
-				currentUnfechedParticipants.splice(currentUnfechedParticipants.indexOf(participantId), 1);
-				continue;
-			};
-		};
-		setParticipants(currentParticipants);
-		setUnfetchedParticipants(currentUnfechedParticipants);
-		if (currentUnfechedParticipants.length === 0) return;
-		const controller = new AbortController();
-
-		// Fetch remaining participants from the backend
-		const fetchParticipants = async () => {
-			const request = await authFetch(`${API_Route}/users/students/batch?ids=${currentUnfechedParticipants.join('&ids=')}`, { signal: controller.signal });
-			if (!request?.ok) return;
-
-			/** @type {{students: import('../../../classes/Student').StudentProps[]}} */
-			const data = await request.json();
-			if (!data || !Array.isArray(data.students)) return;
-
-			for (const student of data.students) {
-				if (!student || !student.id) continue;
-				currentParticipants.push(student);
-				currentUnfechedParticipants.splice(currentUnfechedParticipants.indexOf(student.id), 1);
-			};
-			setParticipants([...currentParticipants]);
-			setUnfetchedParticipants([...currentUnfechedParticipants]);
-			pushToCache('peers', data.students, false);
-		};
-		fetchParticipants();
-
-		return () => controller.abort();
-	}, []);
+		if (!thisRecord) return;
+		// Set the complainants and complainees. Expect objects
+		setParticipants([...thisRecord.complainants, ...thisRecord.complainees.map(c => c.student)]);
+	}, [thisRecord]);
 
 	return (
 		<Badge.Ribbon
@@ -328,18 +293,6 @@ const RecordCard = ({ record, loading }) => {
 												e.stopPropagation();
 												navigate(`/dashboard/students/profile/${complainant?.id}`);
 											}}
-										/>
-									</Popover>
-								))}
-								{unfetchedParticipants.map((participant, index) => (
-									<Popover
-										key={index}
-										content={<Text>{participant}</Text>}
-										placement='top'
-									>
-										<Avatar
-											onClick={(e) => { }}
-											icon={<UserOutlined />}
 										/>
 									</Popover>
 								))}
