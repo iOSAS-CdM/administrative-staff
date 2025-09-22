@@ -44,6 +44,7 @@ const Record = () => {
 
 	const app = App.useApp();
 	const Modal = app.modal;
+	const notification = app.notification;
 
 	const isMobile = useMobile();
 	const { cache, pushToCache } = useCache();
@@ -375,8 +376,24 @@ const Record = () => {
 											type='default'
 											icon={<LeftOutlined />}
 											disabled={step === 0}
-											onClick={() => { setStep(step - 1); }}
 											style={{ flexGrow: 1 }}
+											onClick={async () => {
+												setStep(step - 1);
+												const response = await authFetch(`${API_Route}/records/${id}/degress`, { method: 'PATCH' }).catch((() => null));
+												if (!response?.ok) {
+													setStep(thisRecord.tags.progress);
+													notification.error({
+														message: 'Error changing progress.'
+													});
+													return;
+												};
+
+												/** @type {import('../../../classes/Record.js').RecordProps} */
+												const data = await response.json();
+												const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
+												setThisRecord(newRecord);
+												pushToCache('records', newRecord, true);
+											}}
 										>
 											Return
 										</Button>
@@ -385,9 +402,25 @@ const Record = () => {
 												type='primary'
 												icon={<RightOutlined />}
 												iconPosition='end'
-												disabled={step === 6}
-												onClick={() => { setStep(step + 1); }}
+												disabled={step === 5}
 												style={{ flexGrow: 1 }}
+												onClick={async () => {
+													setStep(step + 1);
+													const response = await authFetch(`${API_Route}/records/${id}/progress`, { method: 'PATCH' }).catch((() => null));
+													if (!response?.ok) {
+														setStep(thisRecord.tags.progress);
+														notification.error({
+															message: 'Error changing progress.'
+														});
+														return;
+													};
+
+													/** @type {import('../../../classes/Record.js').RecordProps} */
+													const data = await response.json();
+													const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
+													setThisRecord(newRecord);
+													pushToCache('records', newRecord, true);
+												}}
 											>
 												Proceed
 											</Button>
