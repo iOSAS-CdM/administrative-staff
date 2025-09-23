@@ -7,7 +7,7 @@ import authFetch from './utils/authFetch';
 import { ConfigProvider as DesignConfig, App, theme as DesignTheme, notification } from 'antd';
 
 import Authentication from './pages/Authentication';
-import Menubar from './components/Menubar';
+import Dashboard from './pages/Dashboard';
 import Unauthorized from './pages/Unauthorized';
 import AuthReturn from './pages/AuthReturn';
 
@@ -15,13 +15,6 @@ import rootToHex from './utils/rootToHex';
 
 import 'antd/dist/reset.css';
 import './styles/index.css';
-
-import Staff from './classes/Staff';
-import Student from './classes/Student';
-import Record from './classes/Record';
-import Organization from './classes/Organization';
-import Announcement from './classes/Announcement';
-import Event from './classes/Event';
 
 import { CacheProvider } from './contexts/CacheContext';
 import { MobileProvider } from './contexts/MobileContext';
@@ -108,7 +101,7 @@ const OSAS = () => {
 
 								<Route
 									path='/dashboard/*'
-									element={session ? <CacheProvider children={<Menubar />} /> : <Navigate to='/authentication' replace />}
+									element={session ? <CacheProvider children={<Dashboard />} /> : <Navigate to='/authentication' replace />}
 								/>
 
 								<Route path='/unauthorized' element={<Unauthorized />} />

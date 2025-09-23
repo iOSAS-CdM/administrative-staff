@@ -35,20 +35,20 @@ import { DisplayThemeContext, API_Route } from '../main';
 import { useMobile } from '../contexts/MobileContext';
 import { PagePropsProvider } from '../contexts/PagePropsContext';
 
-import Home from '../pages/dashboard/Home';
-import Verified from '../pages/dashboard/Students/Verified';
-import Profile from '../pages/dashboard/Students/Profile';
-import Unverified from '../pages/dashboard/Students/Unverified';
-import DisciplinaryRecords from '../pages/dashboard/Discipline/Records';
-import DisciplinaryRecord from '../pages/dashboard/Discipline/Record';
-import Organizations from '../pages/dashboard/Students/Organizations';
-import Organization from '../pages/dashboard/Students/Organization';
-import CalendarPage from '../pages/dashboard/Utilities/Calendar';
-import FAQsPage from '../pages/dashboard/Utilities/FAQs';
-import Announcements from '../pages/dashboard/Utilities/Announements';
-import NewAnnouncement from '../pages/dashboard/Utilities/NewAnnouncement';
-import Repository from '../pages/dashboard/Utilities/Repository';
-import Helpbot from '../pages/dashboard/Utilities/Helpbot';
+import Home from './dashboard/Home';
+import Verified from './dashboard/Students/Verified';
+import Profile from './dashboard/Students/Profile';
+import Unverified from './dashboard/Students/Unverified';
+import DisciplinaryRecords from './dashboard/Discipline/Records';
+import DisciplinaryRecord from './dashboard/Discipline/Record';
+import Organizations from './dashboard/Students/Organizations';
+import Organization from './dashboard/Students/Organization';
+import CalendarPage from './dashboard/Utilities/Calendar';
+import FAQsPage from './dashboard/Utilities/FAQs';
+import Announcements from './dashboard/Utilities/Announements';
+import NewAnnouncement from './dashboard/Utilities/NewAnnouncement';
+import Repository from './dashboard/Utilities/Repository';
+import Helpbot from './dashboard/Utilities/Helpbot';
 
 const { Text, Title } = Typography;
 
@@ -58,7 +58,7 @@ import authFetch from '../utils/authFetch';
 /**
  * @type {React.FC<>}
  */
-const Menubar = () => {
+const Dashboard = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
@@ -476,7 +476,7 @@ const Menubar = () => {
 							</Flex>
 						) : (
 							Header.actions && Header.actions.length > 1 ? (
-									<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 									<Popover
 										trigger={['click']}
 										placement='bottom'
@@ -492,7 +492,7 @@ const Menubar = () => {
 									</Popover>
 								</Flex>
 							) : (
-										<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+								<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
 									{Header.actions && Header.actions.map((action, index) => (
 										{
 											...action,
@@ -534,4 +534,4 @@ const Menubar = () => {
 	);
 };
 
-export default Menubar;
+export default Dashboard;
