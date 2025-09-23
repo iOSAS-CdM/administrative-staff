@@ -11,8 +11,8 @@ import {
 	Tag,
 	Badge,
 	App,
-	Alert,
-	Steps
+	Steps,
+	Image
 } from 'antd';
 
 import {
@@ -21,7 +21,8 @@ import {
 	LeftOutlined,
 	RightOutlined,
 	PlusOutlined,
-	FileAddOutlined
+	FileAddOutlined,
+	FileOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -130,39 +131,29 @@ const Record = () => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
 
+	/** @type {[import('../../../classes/Repository').RepositoryProps, React.Dispatch<React.SetStateAction<import('../../../classes/Repository').RepositoryProps>>]} */
 	const [repository, setRepository] = React.useState([]);
 	React.useEffect(() => {
-		if (thisRecord?.placeholder) {
-			setRepository([]);
-		} else {
-			setRepository([
-				{
-					name: 'Document 1',
-					extension: 'pdf',
-					id: 'doc-1',
-					thumbnail: '/Placeholder Image.svg'
-				},
-				{
-					name: 'Document 2',
-					extension: 'pdf',
-					id: 'doc-2',
-					thumbnail: '/Placeholder Image.svg'
-				},
-				{
-					name: 'Image 1',
-					extension: 'jpg',
-					id: 'img-1',
-					thumbnail: '/Placeholder Image.svg'
-				},
-				{
-					name: 'Image 2',
-					extension: 'png',
-					id: 'img-2',
-					thumbnail: '/Placeholder Image.svg'
-				}
-			]);
+		if (!id) return setRepository([]);
+		const controller = new AbortController();
+		const loadRepository = async () => {
+			const response = await authFetch(`${API_Route}/repositories/records/${id}`, { signal: controller.signal });
+			if (!response?.ok) {
+				console.error('Failed to fetch repository:', response?.statusText || response);
+				setRepository([]);
+				return;
+			};
+			/** @type {import('../../../classes/Repository').RepositoryProps} */
+			const data = await response.json();
+			if (!data || !Array.isArray(data)) {
+				setRepository([]);
+				return;
+			};
+			setRepository(data);
 		};
-	}, [thisRecord]);
+		loadRepository();
+		return () => controller.abort();
+	}, [id]);
 
 	return (
 		<Flex
@@ -456,11 +447,11 @@ const Record = () => {
 						style={{ width: '100%' }}
 						onClick={() => { }}
 					>
-						<Flex align='flex-start' gap={8}>
-							<Avatar src={file.thumbnail} size='large' shape='square' style={{ width: 32, height: 32 }} />
+						<Flex align='center' gap={16}>
+							<Avatar src={file.metadata.mimetype.includes('image/') && file.publicUrl} icon={!file.metadata.mimetype.includes('image/') && <FileOutlined />} size='large' shape='square' style={{ width: 64, height: 64 }} />
 							<Flex vertical>
 								<Text>{file.name}</Text>
-								<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+								<Text type='secondary'>{(file.metadata.size / 1024).toFixed(2)} KB • {file.metadata.mimetype}</Text>
 							</Flex>
 						</Flex>
 					</Card>
