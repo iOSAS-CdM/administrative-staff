@@ -47,14 +47,18 @@ const PanelCard = ({
 			}}
 			styles={{
 				body: {
+					padding: '16px 16px',
 					overflowY: 'auto'
+				},
+				actions: {
+					padding: '4px 16px'
 				}
 			}}
 			onClick={(e) => {
 				if (e.target.classList.contains('ant-card-head') || e.target.classList.contains('ant-card-head-title'))
 					setColapsed(!collapsed);
 			}}
-			actions={[footer]}
+			actions={footer ? [footer] : undefined}
 		>
 			<Flex vertical gap={8} style={{ position: 'relative' }}>
 				<Flex vertical gap={8} style={{ flex: 1, minHeight: 128, overflowY: 'auto' }}>

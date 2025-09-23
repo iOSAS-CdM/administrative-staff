@@ -236,7 +236,7 @@ const EditStudent = async (Modal, student, setThisStudent) => {
 						delete values.role;
 						// Submit the form values to the backend
 						const request = await authFetch(`${API_Route}/users/student/${student.id}`, {
-							method: 'PUT',
+							method: 'PATCH',
 							headers: {
 								'Content-Type': 'application/json'
 							},

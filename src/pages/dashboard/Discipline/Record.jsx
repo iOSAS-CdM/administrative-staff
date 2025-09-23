@@ -35,6 +35,8 @@ import { usePageProps } from '../../../contexts/PagePropsContext';
 import authFetch from '../../../utils/authFetch';
 import { API_Route } from '../../../main';
 
+import EditCase from '../../../modals/EditCase.jsx';
+
 /**
  * @type {React.FC}
  */
@@ -169,7 +171,8 @@ const Record = () => {
 				<Flex vertical gap={16} style={{ width: '100%' }}>
 					<Card>
 						<Flex vertical gap={8}>
-							<Title level={1}>{thisRecord?.violation}</Title>
+							<Title level={1}>{thisRecord?.title}</Title>
+							<span><Tag>{thisRecord?.violation}</Tag></span>
 							<Flex align='center' gap={8}>
 								<Text>
 									{(thisRecord?.date ? new Date(thisRecord?.date) : new Date()).toLocaleDateString('en-US', {
@@ -199,7 +202,7 @@ const Record = () => {
 									</Tag>
 								</div>
 							</Flex>
-							<Text>{thisRecord?.description}</Text>
+							<Card><Text>{thisRecord?.description}</Text></Card>
 							<Flex gap={8}>
 								<Button
 									type='primary'
@@ -213,6 +216,7 @@ const Record = () => {
 											});
 											return;
 										};
+										EditCase(Modal, thisRecord);
 									}}
 								>
 									Edit Record
@@ -244,26 +248,6 @@ const Record = () => {
 							<PanelCard
 								title={`Complainant${thisComplainants?.length > 1 ? 's' : ''}`}
 								style={{ position: 'sticky', top: 0 }}
-								footer={
-									<Flex justify='flex-end' align='center' gap={8}>
-										<Button
-											type='default'
-											size='small'
-											icon={<BellOutlined />}
-											onClick={() => { }}
-										>
-											Summon
-										</Button>
-										<Button
-											type='primary'
-											size='small'
-											icon={<PlusOutlined />}
-											onClick={() => { }}
-										>
-											Add
-										</Button>
-									</Flex>
-								}
 							>
 								{thisComplainants?.length > 0 && thisComplainants?.map((complainant, i) => (
 									<Card
@@ -302,26 +286,6 @@ const Record = () => {
 							<PanelCard
 								title={`Complainee${thisComplainees?.length > 1 ? 's' : ''}`}
 								style={{ position: 'sticky', top: 0 }}
-								footer={
-									<Flex justify='flex-end' align='center' gap={8}>
-										<Button
-											type='default'
-											size='small'
-											icon={<BellOutlined />}
-											onClick={() => { }}
-										>
-											Summon
-										</Button>
-										<Button
-											type='primary'
-											size='small'
-											icon={<PlusOutlined />}
-											onClick={() => { }}
-										>
-											Add
-										</Button>
-									</Flex>
-								}
 							>
 								{thisComplainees?.length > 0 && thisComplainees?.map((complainee, i) => (
 									<Card
