@@ -22,7 +22,10 @@ import {
 	RightOutlined,
 	PlusOutlined,
 	FileAddOutlined,
-	FileOutlined
+	FileOutlined,
+	DownloadOutlined,
+	DeleteOutlined,
+	UploadOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -37,6 +40,7 @@ import authFetch from '../../../utils/authFetch';
 import { API_Route } from '../../../main';
 
 import EditCase from '../../../modals/EditCase.jsx';
+import UploadRecordFiles from '../../../modals/UploadRecordFiles.jsx';
 
 /**
  * @type {React.FC}
@@ -137,7 +141,7 @@ const Record = () => {
 		if (!id) return setRepository([]);
 		const controller = new AbortController();
 		const loadRepository = async () => {
-			const response = await authFetch(`${API_Route}/repositories/records/${id}`, { signal: controller.signal });
+			const response = await authFetch(`${API_Route}/repositories/record/${id}`, { signal: controller.signal });
 			if (!response?.ok) {
 				console.error('Failed to fetch repository:', response?.statusText || response);
 				setRepository([]);
@@ -426,15 +430,33 @@ const Record = () => {
 							icon={<FileAddOutlined />}
 							onClick={() => { }}
 						>
-							Generate Form
+							Print Form
 						</Button>
 						<Button
 							type='primary'
 							size='small'
-							icon={<PlusOutlined />}
-							onClick={() => { }}
+							icon={<UploadOutlined />}
+							onClick={async () => {
+								if (thisRecord?.placeholder) {
+									Modal.error({
+										title: 'Error',
+										content: 'This is a placeholder disciplinary record. Please try again later.',
+										centered: true
+									});
+									return;
+								};
+
+								const result = await UploadRecordFiles(Modal, id);
+								// Refresh repository data after successful upload
+								if (result?.files?.length > 0) {
+									setRepository(prev => [...prev, ...result.files]);
+									notification.success({
+										message: `Successfully uploaded ${result.files.length} file(s).`
+									});
+								};
+							}}
 						>
-							Add
+							Upload
 						</Button>
 					</Flex>
 				}
@@ -443,15 +465,58 @@ const Record = () => {
 					<Card
 						key={file.id || i}
 						size='small'
-						hoverable
 						style={{ width: '100%' }}
-						onClick={() => { }}
 					>
 						<Flex align='center' gap={16}>
 							<Avatar src={file.metadata.mimetype.includes('image/') && file.publicUrl} icon={!file.metadata.mimetype.includes('image/') && <FileOutlined />} size='large' shape='square' style={{ width: 64, height: 64 }} />
-							<Flex vertical>
+							<Flex vertical style={{ flex: 1 }}>
 								<Text>{file.name}</Text>
 								<Text type='secondary'>{(file.metadata.size / 1024).toFixed(2)} KB • {file.metadata.mimetype}</Text>
+							</Flex>
+							<Flex gap={8}>
+								<Button
+									type='default'
+									size='small'
+									danger
+									icon={<DeleteOutlined />}
+									onClick={async () => {
+										if (thisRecord?.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content: 'This is a placeholder disciplinary record. Please try again later.',
+												centered: true
+											});
+											return;
+										};
+										Modal.confirm({
+											title: 'Confirm Deletion',
+											content: <Text>Are you sure you want to delete <Tag>{file.name}</Tag>? This action cannot be undone.</Text>,
+											centered: true,
+											okButtonProps: { danger: true },
+											okText: 'Delete',
+											onOk: async () => {
+												const response = await authFetch(`${API_Route}/repositories/record/${id}/files/${file.name}`, { method: 'DELETE' }).catch(() => null);
+												if (!response?.ok) {
+													notification.error({
+														message: 'Error deleting file.'
+													});
+													return;
+												};
+												removeFromCache('records', 'id', id);
+												setRepository(prev => prev.filter(f => f.id !== file.id));
+												notification.success({
+													message: 'File deleted successfully.'
+												});
+											}
+										});
+									}}
+								/>
+								<Button
+									type='default'
+									size='small'
+									icon={<DownloadOutlined />}
+									onClick={() => { }}
+								/>
 							</Flex>
 						</Flex>
 					</Card>

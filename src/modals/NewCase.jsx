@@ -82,7 +82,7 @@ const CaseForm = () => {
 				complainants: [],
 				complainees: [],
 				description: '',
-				files: []
+				files: [] // Array of { name: string, base64: string, contentType: string }
 			}}
 			style={{ width: '100%' }}
 			labelCol={{ span: 24 }}
@@ -248,7 +248,11 @@ const CaseForm = () => {
 									reader.onload = (e) => {
 										setFile(e.target.result);
 										NewCaseForm.current.setFieldsValue({
-											files: [e.target.result]
+											files: [{
+												name: file.name,
+												base64: e.target.result,
+												contentType: file.type
+											}]
 										});
 									};
 									reader.readAsDataURL(file);
@@ -303,7 +307,7 @@ const CaseForm = () => {
 									setFile(null);
 								}}
 							>
-								Clear
+								Remove
 							</Button>
 							<Button
 								type='primary'
