@@ -11,6 +11,7 @@ import {
 	Tag,
 	Badge,
 	App,
+	Alert,
 	Steps
 } from 'antd';
 
@@ -20,7 +21,6 @@ import {
 	LeftOutlined,
 	RightOutlined,
 	PlusOutlined,
-	BellOutlined,
 	FileAddOutlined
 } from '@ant-design/icons';
 
@@ -49,9 +49,11 @@ const Record = () => {
 	const notification = app.notification;
 
 	const isMobile = useMobile();
-	const { cache, pushToCache } = useCache();
+	const { cache, pushToCache, removeFromCache } = useCache();
 
 	const { id } = useParams();
+
+	const [refreshToken, setRefreshToken] = React.useState(0);
 
 	const [thisRecord, setThisRecord] = React.useState({
 		id: '',
@@ -98,7 +100,7 @@ const Record = () => {
 		};
 		loadRecord();
 		return () => controller.abort();
-	}, [id, cache.records]);
+	}, [id, cache.records, refreshToken]);
 
 	const [thisComplainants, setThisComplainants] = React.useState([]);
 	const [thisComplainees, setThisComplainees] = React.useState([]);
@@ -169,44 +171,42 @@ const Record = () => {
 		>
 			<Flex gap={16} align='stretch' style={{ width: '100%' }}>
 				<Flex vertical gap={16} style={{ width: '100%' }}>
-					<Card>
-						<Flex vertical gap={8}>
-							<Title level={1}>{thisRecord?.title}</Title>
-							<span><Tag>{thisRecord?.violation}</Tag></span>
-							<Flex align='center' gap={8}>
-								<Text>
-									{(thisRecord?.date ? new Date(thisRecord?.date) : new Date()).toLocaleDateString('en-US', {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric'
-									})}
-								</Text>
-								<div>
-									<Tag color={
-										{
-											minor: 'blue',
-											major: 'orange',
-											severe: 'red'
-										}[thisRecord?.tags.severity.toLowerCase()] || 'default'
-									}>
-										{thisRecord?.tags.severity.charAt(0).toUpperCase() + thisRecord?.tags.severity.slice(1)}
-									</Tag>
-									<Tag color={
-										{
-											ongoing: 'blue',
-											resolved: 'var(--primary)',
-											archived: 'grey'
-										}[thisRecord?.tags.status] || 'default'
-									}>
-										{thisRecord?.tags.status.charAt(0).toUpperCase() + thisRecord?.tags.status.slice(1)}
-									</Tag>
-								</div>
+					<Card styles={{ header: { padding: '8px 16px' }, body: { padding: 16 } }}>
+						<Flex vertical gap={16} style={{ position: 'relative'}}>
+							<Title level={1}>{thisRecord?.title} <Text type='secondary'>
+								{(thisRecord?.date ? new Date(thisRecord?.date) : new Date()).toLocaleDateString('en-US', {
+									year: 'numeric',
+									month: 'long',
+									day: 'numeric'
+								})}
+							</Text></Title>
+							<Flex gap={8} style={{ position: isMobile ? 'relative' : 'absolute', top: 0, right: 0 }}>
+								<Tag>{thisRecord?.violation}</Tag>
+								<Tag color={
+									{
+										minor: 'blue',
+										major: 'orange',
+										severe: 'red'
+									}[thisRecord?.tags.severity.toLowerCase()] || 'default'
+								}>
+									{thisRecord?.tags.severity.charAt(0).toUpperCase() + thisRecord?.tags.severity.slice(1)}
+								</Tag>
+								<Tag color={
+									{
+										ongoing: 'blue',
+										resolved: 'var(--primary)',
+										archived: 'grey'
+									}[thisRecord?.tags.status] || 'default'
+								}>
+									{thisRecord?.tags.status.charAt(0).toUpperCase() + thisRecord?.tags.status.slice(1)}
+								</Tag>
 							</Flex>
 							<Card><Text>{thisRecord?.description}</Text></Card>
-							<Flex gap={8}>
+							<Flex gap={16}>
 								<Button
 									type='primary'
 									icon={<EditOutlined />}
+									block={isMobile}
 									onClick={() => {
 										if (thisRecord?.placeholder) {
 											Modal.error({
@@ -355,13 +355,13 @@ const Record = () => {
 												/** @type {import('../../../classes/Record.js').RecordProps} */
 												const data = await response.json();
 												const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
-												setThisRecord(newRecord);
 												pushToCache('records', newRecord, true);
+												setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
 											}}
 										>
 											Return
 										</Button>
-										{step < 6 ? (
+										{step < 5 ? (
 											<Button
 												type='primary'
 												icon={<RightOutlined />}
@@ -382,8 +382,8 @@ const Record = () => {
 													/** @type {import('../../../classes/Record.js').RecordProps} */
 													const data = await response.json();
 													const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
-													setThisRecord(newRecord);
 													pushToCache('records', newRecord, true);
+													setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
 												}}
 											>
 												Proceed

@@ -46,6 +46,9 @@ const PanelCard = ({
 				...props.style
 			}}
 			styles={{
+				header: {
+					padding: '2px 16px',
+				},
 				body: {
 					padding: '16px 16px',
 					overflowY: 'auto'

@@ -16,11 +16,14 @@ const CacheContext = React.createContext();
  * 	peers: UserProps[];
  * }} Cache
  */
-/** @typedef {(key: keyof Cache, data: Any) => Void} UpdateCache */
-/** @typedef {(key: keyof Cache, data: Any | Any[], single: Boolean) => Void} PushToCache */
+/**
+ * @typedef {Cache[keyof Cache]} Pushable
+ */
+/** @typedef {(key: keyof Cache, data: Pushable) => Void} UpdateCache */
+/** @typedef {(key: keyof Cache, data: Pushable | Pushable[], single: Boolean) => Void} PushToCache */
 /** @typedef {(key: keyof Cache, favorKey: String, favorValue: String) => Void} GetFromCache */
 /** @typedef {(key: keyof Cache, favorKey: String, favorValue: String) => Void} RemoveFromCache */
-/** @typedef {(key: keyof Cache, favorKey: String, favorValue: String, data: Any) => Void} UpdateCacheItem */
+/** @typedef {(key: keyof Cache, favorKey: String, favorValue: String, data: Pushable) => Void} UpdateCacheItem */
 
 // This is the custom hook that components will use to access the cache
 /**
