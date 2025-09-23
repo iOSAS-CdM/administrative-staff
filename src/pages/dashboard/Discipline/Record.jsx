@@ -335,12 +335,12 @@ const Record = () => {
 								title='Progress'
 								style={{ position: 'sticky', top: 0 }}
 								footer={
-									<Flex justify='space-between' align='center' gap={8}>
+									<Flex justify='space-between' align='center' gap={16}>
 										<Button
 											type='default'
 											icon={<LeftOutlined />}
 											disabled={step === 0}
-											style={{ flexGrow: 1 }}
+											block
 											onClick={async () => {
 												setStep(step - 1);
 												const response = await authFetch(`${API_Route}/records/${id}/degress`, { method: 'PATCH' }).catch((() => null));
@@ -367,7 +367,7 @@ const Record = () => {
 												icon={<RightOutlined />}
 												iconPosition='end'
 												disabled={step === 5}
-												style={{ flexGrow: 1 }}
+												block
 												onClick={async () => {
 													setStep(step + 1);
 													const response = await authFetch(`${API_Route}/records/${id}/progress`, { method: 'PATCH' }).catch((() => null));
@@ -391,7 +391,7 @@ const Record = () => {
 										) : (
 											<Button
 												type='primary'
-												style={{ flexGrow: 1 }}
+												block
 											>
 												Generate Report
 											</Button>
