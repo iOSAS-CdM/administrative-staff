@@ -19,11 +19,11 @@ import {
   */
 
 /**
-* @typedef {{
-* 	content: React.ReactNode;
-* 	align?: 'left' | 'center' | 'right';
-* 	style?: React.CSSProperties;
-* }} ItemCardAction
+ * @typedef {{
+ * 	content: React.ReactNode;
+ * 	align?: 'left' | 'center' | 'right';
+ * 	style?: React.CSSProperties;
+ * }} ItemCardAction
  */
 
 /**

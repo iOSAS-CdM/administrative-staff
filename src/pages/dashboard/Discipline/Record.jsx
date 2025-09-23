@@ -207,7 +207,7 @@ const Record = () => {
 									type='primary'
 									icon={<EditOutlined />}
 									block={isMobile}
-									onClick={() => {
+									onClick={async () => {
 										if (thisRecord?.placeholder) {
 											Modal.error({
 												title: 'Error',
@@ -216,7 +216,15 @@ const Record = () => {
 											});
 											return;
 										};
-										EditCase(Modal, thisRecord);
+										const data = await EditCase(Modal, thisRecord);
+										if (data) {
+											console.log(data);
+											setThisRecord(data);
+											pushToCache('records', data, true);
+											notification.success({
+												message: 'Record updated successfully.'
+											});
+										};
 									}}
 								>
 									Edit Record

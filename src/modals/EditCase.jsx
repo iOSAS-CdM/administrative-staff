@@ -244,14 +244,15 @@ const CaseForm = ({ record }) => {
 };
 
 /**
- * @param {import('antd').ModalFunc} Modal
-* @param {import('../classes/Record').RecordProps} record
-* @param {React.Dispatch<React.SetStateAction<import('../classes/Record').RecordProps>>} [setThisRecord]
-* 
-* @returns {Promise<void>}
-*/
+ * @param {import('antd/es/modal/useModal').HookAPI} Modal
+ * @param {import('../classes/Record').RecordProps} record
+ * @param {React.Dispatch<React.SetStateAction<import('../classes/Record').RecordProps>>} [setThisRecord]
+ * 
+ * @returns {Promise<void>}
+ */
 const EditCase = async (Modal, record, setThisRecord) => {
-	Modal.info({
+	let newRecord;
+	await Modal.info({
 		title: 'Edit Case',
 		centered: true,
 		closable: { 'aria-label': 'Close' },
@@ -287,7 +288,6 @@ const EditCase = async (Modal, record, setThisRecord) => {
 				EditCaseForm.current.validateFields()
 					.then(async (values) => {
 						// Process the form values here
-						console.log('Form Values:', values);
 						const request = await authFetch(`${API_Route}/records/${record.id}`, {
 							method: 'PATCH',
 							headers: {
@@ -310,7 +310,8 @@ const EditCase = async (Modal, record, setThisRecord) => {
 
 						// Reset the form after successful submission
 						EditCaseForm.current.resetFields();
-						resolve();
+						newRecord = data;
+						resolve(data);
 					})
 					.catch((errorInfo) => {
 						reject(errorInfo);
@@ -329,6 +330,8 @@ const EditCase = async (Modal, record, setThisRecord) => {
 			});
 		}
 	});
+
+	return newRecord;
 };
 
 export default EditCase;
