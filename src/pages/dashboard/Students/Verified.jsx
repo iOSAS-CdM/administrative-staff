@@ -76,7 +76,7 @@ const Filters = ({ setFilter, category }) => {
 				}}
 			>
 				<Flex vertical>
-					{(category === 'ics' || category === 'active' || category === 'restricted' || category === 'archived') && (
+						{(category === 'ics' || category === 'active' || category === 'restricted' || category === 'dismissed') && (
 						<>
 							<Text type='secondary'>Institute of Computing Studies</Text>
 							<Checkbox value='BSCpE'>
@@ -93,7 +93,7 @@ const Filters = ({ setFilter, category }) => {
 							</Checkbox>
 						</>
 					)}
-					{(category === 'ite' || category === 'active' || category === 'restricted' || category === 'archived') && (
+						{(category === 'ite' || category === 'active' || category === 'restricted' || category === 'dismissed') && (
 						<>
 							<Text type='secondary'>Institute of Teacher Education</Text>
 							<Checkbox value='BSEd-SCI'>
@@ -128,7 +128,7 @@ const Filters = ({ setFilter, category }) => {
 							</Checkbox>
 						</>
 					)}
-					{(category === 'ibe' || category === 'active' || category === 'restricted' || category === 'archived') && (
+						{(category === 'ibe' || category === 'active' || category === 'restricted' || category === 'dismissed') && (
 						<>
 							<Text type='secondary'>Institute of Business Entrepreneurship</Text>
 							<Checkbox value='BSBA-HRM'>
@@ -300,7 +300,7 @@ const StudentCard = ({ student, loading }) => {
 		<ItemCard
 			loading={loading}
 			status={
-				student.status === 'archived' ? 'archived' :
+				student.status === 'dismissed' ? 'dismissed' :
 				student.status === 'restricted' && 'restricted'
 			}
 			onClick={(e) => {

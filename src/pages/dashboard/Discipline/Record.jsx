@@ -191,58 +191,60 @@ const Record = () => {
 									{
 										ongoing: 'blue',
 										resolved: 'var(--primary)',
-										archived: 'grey'
+										dismissed: 'grey'
 									}[thisRecord?.tags.status] || 'default'
 								}>
 									{thisRecord?.tags.status.charAt(0).toUpperCase() + thisRecord?.tags.status.slice(1)}
 								</Tag>
 							</Flex>
 							<Card><Text>{thisRecord?.description}</Text></Card>
-							<Flex gap={16}>
-								<Button
-									type='primary'
-									icon={<EditOutlined />}
-									block={isMobile}
-									onClick={async () => {
-										if (thisRecord?.placeholder) {
-											Modal.error({
-												title: 'Error',
-												content: 'This is a placeholder disciplinary record. Please try again later.',
-												centered: true
-											});
-											return;
-										};
-										const data = await EditCase(Modal, thisRecord);
-										if (data) {
-											console.log(data);
-											setThisRecord(data);
-											pushToCache('records', data, true);
-											notification.success({
-												message: 'Record updated successfully.'
-											});
-										};
-									}}
-								>
-									Edit Record
-								</Button>
-								<Button
-									type='primary'
-									danger
-									icon={<InboxOutlined />}
-									onClick={() => {
-										if (thisRecord?.placeholder) {
-											Modal.error({
-												title: 'Error',
-												content: 'This is a placeholder disciplinary record. Please try again later.',
-												centered: true
-											});
-										} else {
-										};
-									}}
-								>
-									Archive Record
-								</Button>
-							</Flex>
+							{step !== 5 && (
+								<Flex gap={16}>
+									<Button
+										type='primary'
+										icon={<EditOutlined />}
+										block={isMobile}
+										onClick={async () => {
+											if (thisRecord?.placeholder) {
+												Modal.error({
+													title: 'Error',
+													content: 'This is a placeholder disciplinary record. Please try again later.',
+													centered: true
+												});
+												return;
+											};
+											const data = await EditCase(Modal, thisRecord);
+											if (data) {
+												console.log(data);
+												setThisRecord(data);
+												pushToCache('records', data, true);
+												notification.success({
+													message: 'Record updated successfully.'
+												});
+											};
+										}}
+									>
+										Edit Record
+									</Button>
+									<Button
+										type='primary'
+										danger
+										icon={<InboxOutlined />}
+										onClick={() => {
+											if (thisRecord?.placeholder) {
+												Modal.error({
+													title: 'Error',
+													content: 'This is a placeholder disciplinary record. Please try again later.',
+													centered: true
+												});
+											} else {
+											};
+										}}
+									>
+										Dismiss Record
+									</Button>
+								</Flex>
+							)}
 						</Flex>
 					</Card>
 					<Flex vertical={isMobile} gap={16} style={{ width: '100%', height: '100%' }}>

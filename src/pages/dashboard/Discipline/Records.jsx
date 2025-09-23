@@ -94,7 +94,7 @@ const DisciplinaryRecords = () => {
 	const isMobile = useMobile();
 	const { cache, pushToCache } = useCache();
 
-	/** @typedef {'ongoing' | 'resolved' | 'archived'} Category */
+	/** @typedef {'ongoing' | 'resolved' | 'dismissed'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
 	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
 
@@ -185,7 +185,7 @@ const DisciplinaryRecords = () => {
 					options={[
 						{ label: 'Ongoing', value: 'ongoing' },
 						{ label: 'Resolved', value: 'resolved' },
-						{ label: 'Archived', value: 'archived' }
+						{ label: 'Dismissed', value: 'dismissed' }
 					]}
 					value={category}
 					onChange={(value) => {
@@ -262,15 +262,15 @@ const RecordCard = ({ record, loading }) => {
 				{
 					ongoing: 'blue',
 					resolved: 'var(--primary)',
-					archived: 'grey'
+					dismissed: 'grey'
 				}[thisRecord.tags.status] || 'transparent'
 			}
-			style={{ display: loading || thisRecord.tags.status === 'archived' ? 'none' : '' }}
+			style={{ display: loading || thisRecord.tags.status === 'dismissed' ? 'none' : '' }}
 		>
 			<ItemCard
 				loading={loading}
 
-				status={thisRecord.tags.status === 'archived' && 'archived'}
+				status={thisRecord.tags.status === 'dismissed' && 'dismissed'}
 
 				actions={!loading && [
 					{

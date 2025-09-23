@@ -46,7 +46,7 @@ const Organizations = () => {
 
 	const navigate = useNavigate();
 
-	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'archived'} Category */
+	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'dismissed'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
 	const [category, setCategory] = React.useState();
 	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
@@ -58,7 +58,7 @@ const Organizations = () => {
 	 * 	'college-wide': Organization[],
 	 * 	'institute-wide': Organization[],
 	 * 	restricted: Organization[],
-	 * 	archived: Organization[]
+	 * 	dismissed: Organization[]
 	 * }}
 	 */
 	const categorizedOrganizations = React.useMemo(() => {
@@ -67,7 +67,7 @@ const Organizations = () => {
 			'college-wide': [],
 			'institute-wide': [],
 			restricted: [],
-			archived: []
+			dismissed: []
 		};
 
 		for (const organization of (cache.organizations || [])) {
@@ -85,7 +85,7 @@ const Organizations = () => {
 		{ path: '/college-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['college-wide']} /> },
 		{ path: '/institute-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['institute-wide']} /> },
 		{ path: '/restricted', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['restricted']} /> },
-		{ path: '/archived', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['archived']} /> }
+		{ path: '/dismissed', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['dismissed']} /> }
 	]);
 
 	React.useLayoutEffect(() => {
@@ -115,7 +115,7 @@ const Organizations = () => {
 						{ label: 'College-wide', value: 'college-wide' },
 						{ label: 'Institute-wide', value: 'institute-wide' },
 						{ label: 'Restricted', value: 'restricted' },
-						{ label: 'Archived', value: 'archived' }
+						{ label: 'Dismissed', value: 'dismissed' }
 					]}
 					value={category}
 					onChange={(value) => {
@@ -161,7 +161,7 @@ const OrganizationCard = ({ organization, loading }) => {
 			loading={loading}
 
 			status={
-				organization.status === 'archived' ? 'archived' :
+				organization.status === 'dismissed' ? 'dismissed' :
 					organization.status === 'restricted' && 'restricted'
 			}
 

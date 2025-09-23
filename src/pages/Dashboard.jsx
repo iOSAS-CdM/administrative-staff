@@ -141,7 +141,7 @@ const Dashboard = () => {
 				{ path: 'college-wide', element: <Organizations /> },
 				{ path: 'institute-wide', element: <Organizations /> },
 				{ path: 'restricted', element: <Organizations /> },
-				{ path: 'archived', element: <Organizations /> }
+				{ path: 'dismissed', element: <Organizations /> }
 			]
 		},
 		{ path: '/students/organization/:id', element: <Organization /> },
@@ -153,7 +153,7 @@ const Dashboard = () => {
 				{ path: 'active', element: <DisciplinaryRecords /> },
 				{ path: 'ongoing', element: <DisciplinaryRecords /> },
 				{ path: 'resolved', element: <DisciplinaryRecords /> },
-				{ path: 'archived', element: <DisciplinaryRecords /> }
+				{ path: 'dismissed', element: <DisciplinaryRecords /> }
 			]
 		},
 		{ path: '/discipline/record/:id', element: <DisciplinaryRecord /> },
