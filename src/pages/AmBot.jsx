@@ -6,8 +6,8 @@ import { Flex, Button, Card, Avatar, Input, Form } from 'antd';
 
 import { ClearOutlined, UserOutlined, RobotOutlined, SendOutlined } from '@ant-design/icons';
 
-import { useCache } from '../../../contexts/CacheContext';
-import { usePageProps } from '../../../contexts/PagePropsContext';
+import { useCache } from '../contexts/CacheContext';
+import { usePageProps } from '../contexts/PagePropsContext';
 
 /**
  * @typedef {{
@@ -19,7 +19,7 @@ import { usePageProps } from '../../../contexts/PagePropsContext';
 /**
  * @type {React.FC}
  */
-const Helpbot = () => {
+const AmBot = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	React.useLayoutEffect(() => {
@@ -135,4 +135,4 @@ You may now modify it as you please by editing its main description, adding comp
 	);
 };
 
-export default Helpbot;
+export default AmBot;

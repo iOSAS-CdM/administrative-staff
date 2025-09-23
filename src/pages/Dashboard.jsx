@@ -48,7 +48,7 @@ import FAQsPage from './dashboard/Utilities/FAQs';
 import Announcements from './dashboard/Utilities/Announements';
 import NewAnnouncement from './dashboard/Utilities/NewAnnouncement';
 import Repository from './dashboard/Utilities/Repository';
-import Helpbot from './dashboard/Utilities/Helpbot';
+import AmBot from './AmBot';
 
 const { Text, Title } = Typography;
 
@@ -167,7 +167,7 @@ const Dashboard = () => {
 		{ path: '/utilities/announcements/new', element: <NewAnnouncement /> },
 
 		{ path: '/utilities/repository', element: <Repository /> },
-		{ path: '/helpbot', element: <Helpbot /> }
+		{ path: '/helpbot', element: <AmBot /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
