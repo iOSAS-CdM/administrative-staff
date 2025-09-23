@@ -449,10 +449,10 @@ const Record = () => {
 
 								const result = await UploadRecordFiles(Modal, id);
 								// Refresh repository data after successful upload
-								if (result?.files?.length > 0) {
-									setRepository(prev => [...prev, ...result.files]);
+								if (result?.length > 0) {
+									setRepository(result);
 									notification.success({
-										message: `Successfully uploaded ${result.files.length} file(s).`
+										message: `Successfully uploaded ${result.length} file(s).`
 									});
 								};
 							}}
