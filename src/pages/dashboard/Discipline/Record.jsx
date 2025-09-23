@@ -1,5 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router';
+import { download } from '@tauri-apps/plugin-upload';
+import { join, downloadDir } from '@tauri-apps/api/path'; 
 import moment from 'moment';
 
 import {
@@ -20,7 +22,6 @@ import {
 	InboxOutlined,
 	LeftOutlined,
 	RightOutlined,
-	PlusOutlined,
 	FileAddOutlined,
 	FileOutlined,
 	DownloadOutlined,
@@ -515,7 +516,27 @@ const Record = () => {
 									type='default'
 									size='small'
 									icon={<DownloadOutlined />}
-									onClick={() => { }}
+									onClick={async () => {
+										const downloadDirPath = await downloadDir();
+										const tempPath = await join(downloadDirPath, file.name);
+										const downloadTask = download(file.publicUrl, tempPath, {
+											onProgress: (progress) => {
+												console.log(`Progress: ${Math.round(progress * 100)}%`);
+											}
+										});
+										notification.info({
+											message: 'Download started.',
+											description: `Downloading ${file.name}...`,
+											duration: 2
+										});
+										const savedPath = await downloadTask;
+										notification.success({
+											message: 'Download completed.',
+											description: `${file.name} has been downloaded to your Downloads folder.`,
+											duration: 4
+										});
+										console.log('File downloaded to:', savedPath);
+									}}
 								/>
 							</Flex>
 						</Flex>
