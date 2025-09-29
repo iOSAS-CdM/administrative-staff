@@ -34,12 +34,12 @@ pub fn run() {
             // Execute JS to get theme before WebView initialization
             window.eval(&format!(
                 r#"
-                (function() {{
+                (() => {{
                     try {{
                         const theme = localStorage.getItem('displayTheme') || 
                                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                         document.documentElement.setAttribute('data-theme', theme);
-                        window.__TAURI_INVOKE__('set_theme', {{ theme }});
+                        window.__TAURI_INTERNALS__.invoke('set_theme', {{ theme }});
                     }} catch (e) {{
                         console.error('Theme initialization error:', e);
                     }}
