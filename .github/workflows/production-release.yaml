@@ -50,6 +50,7 @@ jobs:
         run: npm install # changed from yarn to npm to match package.json scripts
 
       - name: Validate signing configuration
+        shell: bash
         run: |
           if [ -z "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" ]; then
             echo "⚠️  WARNING: TAURI_SIGNING_PRIVATE_KEY secret is not set!"
