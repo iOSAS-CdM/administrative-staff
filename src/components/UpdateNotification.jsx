@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Modal, Progress, message, Space } from 'antd';
+import React from 'react';
+import { Button, Modal, Progress, message, Space, Typography, Flex } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
-import { invoke } from '@tauri-apps/api/core';
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
 
+const { Text } = Typography;
+
 const UpdateNotification = () => {
-	const [updateAvailable, setUpdateAvailable] = useState(false);
-	const [updateVersion, setUpdateVersion] = useState('');
-	const [isModalVisible, setIsModalVisible] = useState(false);
-	const [isUpdating, setIsUpdating] = useState(false);
-	const [downloadProgress, setDownloadProgress] = useState(0);
-	const [checkingForUpdate, setCheckingForUpdate] = useState(false);
+	const [updateAvailable, setUpdateAvailable] = React.useState(false);
+	const [updateVersion, setUpdateVersion] = React.useState('');
+	const [isModalVisible, setIsModalVisible] = React.useState(false);
+	const [isUpdating, setIsUpdating] = React.useState(false);
+	const [downloadProgress, setDownloadProgress] = React.useState(0);
+	const [checkingForUpdate, setCheckingForUpdate] = React.useState(false);
 
 	// Check for updates on component mount
-	useEffect(() => {
+	React.useEffect(() => {
 		checkForUpdates();
 	}, []);
 
@@ -29,8 +30,8 @@ const UpdateNotification = () => {
 				setUpdateVersion(update.version);
 				setIsModalVisible(true);
 				message.info(`Update available: v${update.version}`);
-			}
-			// Remove the success message for "latest version" since this is automatic
+			};
+			// Remove the success message for 'latest version' since this is automatic
 		} catch (error) {
 			console.error('Error checking for updates:', error);
 
@@ -52,9 +53,9 @@ const UpdateNotification = () => {
 				} else {
 					// In production, log but don't show intrusive error for signature issues
 					console.warn('Skipping update due to signature verification failure');
-				}
+				};
 				return;
-			}
+			};
 
 			// Handle network or other errors
 			if (error.message && (
@@ -65,13 +66,13 @@ const UpdateNotification = () => {
 				console.warn('Network error while checking for updates:', error.message);
 				// Don't show network errors to users as they're usually temporary
 				return;
-			}
+			};
 
 			// For other errors, only log them without showing user notifications
 			console.warn('Update check failed:', error.message);
 		} finally {
 			setCheckingForUpdate(false);
-		}
+		};
 	};
 
 	const handleUpdate = async () => {
@@ -83,7 +84,7 @@ const UpdateNotification = () => {
 			if (!update) {
 				message.error('No update available');
 				return;
-			}
+			};
 
 			// Download and install the update with progress tracking
 			await update.downloadAndInstall((event) => {
@@ -100,7 +101,7 @@ const UpdateNotification = () => {
 						setDownloadProgress(100);
 						message.success('Update downloaded successfully!');
 						break;
-				}
+				};
 			});
 
 			// Installation completed, restart the app
@@ -130,10 +131,10 @@ const UpdateNotification = () => {
 			} else {
 				message.error('Failed to update the application. Please try again or contact support.');
 				console.error('Update installation failed:', error.message);
-			}
+			};
 		} finally {
 			setIsUpdating(false);
-		}
+		};
 	};
 
 	const handleCancel = () => {
@@ -145,16 +146,16 @@ const UpdateNotification = () => {
 		<>
 			{/* Update Modal */}
 			<Modal
-				title="Update Available"
+				title='Update Available'
 				open={isModalVisible}
 				onCancel={handleCancel}
 				footer={[
-					<Button key="cancel" onClick={handleCancel} disabled={isUpdating}>
+					<Button key='cancel' onClick={handleCancel} disabled={isUpdating}>
 						Later
 					</Button>,
 					<Button
-						key="update"
-						type="primary"
+						key='update'
+						type='primary'
 						icon={<DownloadOutlined />}
 						loading={isUpdating}
 						onClick={handleUpdate}
@@ -165,29 +166,25 @@ const UpdateNotification = () => {
 				closable={!isUpdating}
 				maskClosable={!isUpdating}
 			>
-				<Space direction="vertical" style={{ width: '100%' }}>
-					<p>
+				<Space direction='vertical' style={{ width: '100%' }}>
+					<Text>
 						A new version <strong>v{updateVersion}</strong> is available.
 						Would you like to download and install it now?
-					</p>
+					</Text>
 
 					{isUpdating && (
-						<div>
-							<p>Downloading update...</p>
+						<Flex vertical align='start' gap='16' style={{ width: '100%' }}>
+							<Text>Downloading update...</Text>
 							<Progress
 								percent={downloadProgress}
 								status={downloadProgress === 100 ? 'success' : 'active'}
-								strokeColor={{
-									'0%': '#108ee9',
-									'100%': '#87d068',
-								}}
 							/>
-						</div>
+						</Flex>
 					)}
 
-					<p style={{ fontSize: '12px', color: '#666' }}>
+					<Text type='secondary'>
 						The application will restart automatically after the update is installed.
-					</p>
+					</Text>
 				</Space>
 			</Modal>
 		</>
