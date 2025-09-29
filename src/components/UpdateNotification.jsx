@@ -24,7 +24,7 @@ const UpdateNotification = () => {
 			const update = await check();
 			console.log('Update check result:', update);
 
-			if (update?.available) {
+			if (update) {
 				setUpdateAvailable(true);
 				setUpdateVersion(update.version);
 				setIsModalVisible(true);
@@ -33,15 +33,42 @@ const UpdateNotification = () => {
 			// Remove the success message for "latest version" since this is automatic
 		} catch (error) {
 			console.error('Error checking for updates:', error);
-			// Handle specific signature errors
-			if (error.message && error.message.includes('signature')) {
-				console.warn('Update signature verification failed. This may indicate an unsigned release.');
-				// Don't show error for signature issues in development
+
+			// Handle specific signature errors more gracefully
+			if (error.message && (
+				error.message.includes('signature') ||
+				error.message.includes('Signature') ||
+				error.message.includes('the `signature` field was not set')
+			)) {
+				console.warn('Update signature verification failed. This may indicate:');
+				console.warn('1. The release was not properly signed during build');
+				console.warn('2. The TAURI_SIGNING_PRIVATE_KEY secret is not set in GitHub');
+				console.warn('3. The signing process failed during release creation');
+
+			// Only show user-facing error in development or if explicitly enabled
 				if (import.meta.env.DEV) {
 					console.warn('Signature verification disabled in development mode');
+					message.warn('Update check failed: Signature verification issue (development mode)');
+				} else {
+					// In production, log but don't show intrusive error for signature issues
+					console.warn('Skipping update due to signature verification failure');
 				}
+				return;
 			}
-			// Only show error message if it's a real error, not just "no updates" or signature issues
+
+			// Handle network or other errors
+			if (error.message && (
+				error.message.includes('network') ||
+				error.message.includes('fetch') ||
+				error.message.includes('timeout')
+			)) {
+				console.warn('Network error while checking for updates:', error.message);
+				// Don't show network errors to users as they're usually temporary
+				return;
+			}
+
+			// For other errors, only log them without showing user notifications
+			console.warn('Update check failed:', error.message);
 		} finally {
 			setCheckingForUpdate(false);
 		}
@@ -53,7 +80,7 @@ const UpdateNotification = () => {
 			setDownloadProgress(0);
 
 			const update = await check();
-			if (!update?.available) {
+			if (!update) {
 				message.error('No update available');
 				return;
 			}
@@ -84,7 +111,26 @@ const UpdateNotification = () => {
 
 		} catch (error) {
 			console.error('Error updating:', error);
-			message.error('Failed to update the application');
+
+			// Handle signature verification errors during update
+			if (error.message && (
+				error.message.includes('signature') ||
+				error.message.includes('Signature') ||
+				error.message.includes('the `signature` field was not set')
+			)) {
+				message.error('Update failed: Signature verification error. Please contact support.');
+				console.error('Signature verification failed during update process');
+			} else if (error.message && (
+				error.message.includes('network') ||
+				error.message.includes('download') ||
+				error.message.includes('timeout')
+			)) {
+				message.error('Update failed: Network or download error. Please try again later.');
+				console.error('Network error during update:', error.message);
+			} else {
+				message.error('Failed to update the application. Please try again or contact support.');
+				console.error('Update installation failed:', error.message);
+			}
 		} finally {
 			setIsUpdating(false);
 		}

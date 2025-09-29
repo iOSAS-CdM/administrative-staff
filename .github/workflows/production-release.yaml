@@ -47,12 +47,23 @@ jobs:
         run: git submodule update --init --recursive
 
       - name: install frontend dependencies
-        run: yarn install # change this to npm, pnpm or bun depending on which one you use.
+        run: npm install # changed from yarn to npm to match package.json scripts
+
+      - name: Validate signing configuration
+        run: |
+          if [ -z "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" ]; then
+            echo "⚠️  WARNING: TAURI_SIGNING_PRIVATE_KEY secret is not set!"
+            echo "This will result in unsigned releases that cannot be auto-updated."
+            echo "Please add the signing key to repository secrets."
+            exit 1
+          else
+            echo "✅ Signing key is configured"
+          fi
 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY || '' }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           NO_STRIP: true # Prevents stripping the binaries which can cause issues with some antivirus software.
         with:
           tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
@@ -72,4 +83,6 @@ jobs:
           prerelease: false
           includeRelease: true
           includeUpdaterJson: true
+          updaterJsonKeepUniversal: false
+          updaterJsonPreferNsis: false
           args: ${{ matrix.args }}
