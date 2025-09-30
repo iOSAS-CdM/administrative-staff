@@ -22,6 +22,10 @@ import {
 
 const { Title, Text, Paragraph } = Typography;
 
+/**
+ * React ref for the NewCase form instance
+ * @type {React.RefObject<import('antd').FormInstance>}
+ */
 const NewCaseForm = React.createRef();
 
 import { API_Route } from '../main';
@@ -29,15 +33,53 @@ import { useCache, CacheContext } from '../contexts/CacheContext';
 
 import authFetch from '../utils/authFetch';
 
+/**
+ * CaseForm component for creating new disciplinary cases
+ * Handles form input, student search, file uploads, and form validation
+ * @component
+ * @returns {JSX.Element} The rendered form component
+ */
 const CaseForm = () => {
+	/**
+	 * Cache context hook for managing student data
+	 */
 	const { pushToCache } = useCache();
 
+	/**
+	 * Search query string for finding students
+	 * @type {[string, React.Dispatch<React.SetStateAction<string>>]}
+	 */
 	const [search, setSearch] = React.useState('');
+
+	/**
+	 * Array of student search results
+	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
+	 */
 	const [searchResults, setSearchResults] = React.useState([]);
+
+	/**
+	 * Loading state for student search operations
+	 * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+	 */
 	const [searching, setSearchingComplainant] = React.useState(false);
 
+	/**
+	 * Effect hook to handle student search functionality
+	 * Debounces search requests and manages loading states
+	 * @param {string} search - The search query dependency
+	 */
 	React.useEffect(() => {
+		/**
+		 * AbortController for cancelling ongoing requests
+		 */
 		const controller = new AbortController();
+
+		/**
+		 * Async function to fetch student search results from the API
+		 * @async
+		 * @function
+		 * @returns {Promise<void>}
+		 */
 		const fetchSearchResults = async () => {
 			if (search.length === 0) {
 				setSearchResults([]);
@@ -61,11 +103,29 @@ const CaseForm = () => {
 		return () => controller.abort();
 	}, [search]);
 
-	const [severity, setSeverity] = React.useState('minor'); // 'minor', 'major', 'severe'
+	/**
+	 * Current severity level of the case
+	 * @type {[('minor'|'major'|'severe'), React.Dispatch<React.SetStateAction<('minor'|'major'|'severe')>>]}
+	 */
+	const [severity, setSeverity] = React.useState('minor');
 
+	/**
+	 * Array of complainant student IDs
+	 * @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]}
+	 */
 	const [complainants, setComplainants] = React.useState([]);
+
+	/**
+	 * Array of complainee (accused) student IDs
+	 * @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]}
+	 */
 	const [complainees, setComplainees] = React.useState([]);
 
+	/**
+	 * Normalizes file upload event to extract file list
+	 * @param {any} e - Upload event or file array
+	 * @returns {import('antd/es/upload/interface').UploadFile<any>[] | undefined} Normalized file list
+	 */
 	const normFile = (e) => {
 		if (Array.isArray(e))
 			return e;
@@ -246,14 +306,17 @@ const CaseForm = () => {
 						name='files'
 						label='Case Images'
 						valuePropName='fileList.fileList'
+						getValueFromEvent={normFile}
+						style={{
+							width: 256
+						}}
 					>
 						<Upload.Dragger
-							listType='picture-card'
+							listType='picture'
 							action='/upload.do'
 							beforeUpload={() => false} // Prevent auto upload
 							accept='image/*'
 							multiple
-							getValueFromEvent={normFile}
 							style={{
 								width: 256
 							}}
@@ -271,26 +334,36 @@ const CaseForm = () => {
 						</Upload.Dragger>
 					</Form.Item>
 
-						<Flex justify='space-between' align='center' gap={8} style={{ width: '100%' }}>
-							<Button
-								type='default'
-								icon={<ClearOutlined />}
-								onClick={() => {
-									setFile(null);
-								}}
-							>
-								Remove
-							</Button>
-							<Button
-								type='primary'
-								icon={<ScanOutlined />}
-								style={{ flexGrow: 1 }}
-							onClick={() => {
-								console.log(file);
-							}}
-							>
-								Scan
-							</Button>
+					<Flex justify='space-between' align='center' gap={8} style={{ width: '100%' }}>
+						<Button
+							type='primary'
+							icon={<ScanOutlined />}
+							style={{ flexGrow: 1 }}
+							onClick={() => new Promise(async (resolve) => {
+								/**
+								 * @type {import('antd/es/upload/interface').UploadFile<any>[]}
+								 */
+								const files = NewCaseForm.current.getFieldValue('files') || [];
+								const form = new FormData();
+								for (const file of files)
+									if (file.originFileObj)
+										form.append('files', file.originFileObj);
+
+								const uploadResponse = await authFetch(`${API_Route}/ocr/scan`, {
+									method: 'POST',
+									body: form
+								});
+								if (!uploadResponse?.ok) return NewCaseForm.current.setFields([{
+									name: 'files',
+									errors: ['Failed to scan images. Please try again.']
+								}]);
+								const data = await uploadResponse.json();
+								console.log(data);
+								resolve();
+							})}
+						>
+							Scan
+						</Button>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -298,6 +371,18 @@ const CaseForm = () => {
 	);
 };
 
+/**
+ * Creates and displays a modal dialog for creating new disciplinary cases
+ * Handles form submission, file uploads, and validation
+ * @async
+ * @function
+ * @param {import('antd').ModalStaticFunctions} Modal - Ant Design Modal API instance
+ * @returns {Promise<void>} Promise that resolves when modal is closed
+ * @example
+ * // Usage in a component
+ * import { Modal } from 'antd';
+ * await NewCase(Modal);
+ */
 const NewCase = async (Modal) => {
 	await Modal.info({
 		title: 'Open a new Case',
@@ -330,6 +415,11 @@ const NewCase = async (Modal) => {
 		okButtonProps: {
 			icon: <UploadOutlined />
 		},
+		/**
+		 * Handles form submission when OK button is clicked
+		 * Validates form fields, submits case data, and uploads files
+		 * @returns {Promise<void>} Promise that resolves on successful submission
+		 */
 		onOk: () => {
 			return new Promise((resolve, reject) => {
 				NewCaseForm.current.validateFields()
@@ -404,6 +494,11 @@ const NewCase = async (Modal) => {
 			icon: <ClearOutlined />,
 			hidden: false
 		},
+		/**
+		 * Handles modal cancellation
+		 * Resets form fields and closes the modal
+		 * @returns {Promise<void>} Promise that resolves when cancellation is complete
+		 */
 		onCancel: () => {
 			return new Promise((resolve) => {
 				NewCaseForm.current.resetFields();
