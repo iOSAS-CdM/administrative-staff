@@ -36,6 +36,7 @@ import PanelCard from '../../../components/PanelCard';
 import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
+import { useRefresh } from '../../../contexts/RefreshContext';
 
 import authFetch from '../../../utils/authFetch';
 import { API_Route } from '../../../main';
@@ -56,6 +57,7 @@ const Record = () => {
 
 	const isMobile = useMobile();
 	const { cache, pushToCache, removeFromCache } = useCache();
+	const { refresh, setRefresh } = useRefresh();
 
 	const { id } = useParams();
 
@@ -116,7 +118,7 @@ const Record = () => {
 		setThisComplainees(thisRecord.complainees);
 		pushToCache('students', thisRecord.complainants, false);
 		pushToCache('students', thisRecord.complainees.map(c => c.student), false);
-	}, [thisRecord]);
+	}, [thisRecord, refresh]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -158,7 +160,7 @@ const Record = () => {
 		};
 		loadRepository();
 		return () => controller.abort();
-	}, [id]);
+	}, [id, refresh]);
 
 	return (
 		<Flex
@@ -216,8 +218,8 @@ const Record = () => {
 											const data = await EditCase(Modal, thisRecord);
 											if (data) {
 												console.log(data);
-												setThisRecord(data);
 												pushToCache('records', data, true);
+												setRefresh({ timestamp: Date.now() });
 												notification.success({
 													message: 'Record updated successfully.'
 												});
@@ -362,6 +364,7 @@ const Record = () => {
 												const data = await response.json();
 												const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
 												pushToCache('records', newRecord, true);
+												setRefresh({ timestamp: Date.now() });
 												setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
 											}}
 										>
@@ -389,6 +392,7 @@ const Record = () => {
 													const data = await response.json();
 													const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
 													pushToCache('records', newRecord, true);
+													setRefresh({ timestamp: Date.now() });
 													setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
 												}}
 											>
@@ -449,14 +453,11 @@ const Record = () => {
 									return;
 								};
 
-								const result = await UploadRecordFiles(Modal, id);
-								// Refresh repository data after successful upload
-								if (result?.length > 0) {
-									setRepository(result);
-									notification.success({
-										message: `Successfully uploaded ${result.length} file(s).`
-									});
-								};
+								await UploadRecordFiles(Modal, id);
+								setRefresh({ timestamp: Date.now() });
+								notification.success({
+									message: `Successfully uploaded file(s).`
+								});
 							}}
 						>
 							Upload
@@ -506,7 +507,7 @@ const Record = () => {
 													return;
 												};
 												removeFromCache('records', 'id', id);
-												setRepository(prev => prev.filter(f => f.id !== file.id));
+												setRefresh({ timestamp: Date.now() });
 												notification.success({
 													message: 'File deleted successfully.'
 												});

@@ -2,11 +2,9 @@ import React from 'react';
 
 import {
 	Upload,
-	Image,
 	Typography,
 	Form,
-	Flex,
-	Card
+	Flex
 } from 'antd';
 
 import {
@@ -25,11 +23,11 @@ import authFetch from '../utils/authFetch';
 const { Title, Paragraph } = Typography;
 
 const FileUploadForm = () => {
-	const [files, setFiles] = React.useState([]);
-
-	React.useEffect(() => {
-		UploadFileForm.current.setFieldsValue({ files });
-	}, [files]);
+	const normFile = (e) => {
+		if (Array.isArray(e))
+			return e;
+		return e?.fileList;
+	};
 
 	return (
 		<Form
@@ -38,34 +36,25 @@ const FileUploadForm = () => {
 			onFinish={(values) => {
 			}}
 			style={{ width: '100%' }}
+			initialValues={{
+				files: [] // Array of upload file objects
+			}}
 		>
 			<Flex vertical gap={16} style={{ width: '100%' }}>
-				<Form.Item name='files'>
+				<Form.Item
+					name='files'
+					valuePropName='fileList.fileList'
+				>
 					<Upload.Dragger
-						listType='picture'
+						listType='picture-card'
 						multiple
-						beforeUpload={(file) => {
-							if (FileReader && file) {
-								const reader = new FileReader();
-								reader.onload = (e) => {
-									const newFile = {
-										name: file.name,
-										base64: e.target.result,
-										contentType: file.type
-									};
-									setFiles((prevFiles) => ([...prevFiles, newFile]));
-								};
-								reader.readAsDataURL(file);
-							}
-							return false;
-						}} // Prevent auto upload
-						showUploadList={false}
+						beforeUpload={() => false} // Prevent auto upload
+						accept='image/*'
+						getValueFromEvent={normFile}
 						style={{
 							position: 'relative',
-							width: '100%',
-							height: 256
+							width: '100%'
 						}}
-						accept='.jpg,.jpeg,.png'
 					>
 						<Flex vertical justify='center' align='center' style={{ width: '100%', height: '100%' }} gap={8}>
 							<UploadOutlined style={{ fontSize: 32 }} />
@@ -79,27 +68,6 @@ const FileUploadForm = () => {
 						</Flex>
 					</Upload.Dragger>
 				</Form.Item>
-				{files.length > 0 && (
-					<>
-						<Flex wrap="wrap" gap={8} style={{ width: '100%' }}>
-							{files.map((file, idx) => (
-								<Card key={idx}>
-									<Image
-										src={file.base64}
-										alt={`Uploaded file preview ${idx + 1}`}
-										preview={false}
-										style={{
-											width: 64,
-											height: 64,
-											objectFit: 'cover',
-											borderRadius: 'var(--border-radius)'
-										}}
-									/>
-								</Card>
-							))}
-						</Flex>
-					</>
-				)}
 			</Flex>
 		</Form>
 	);
@@ -145,23 +113,30 @@ const UploadRecordFiles = async (Modal, recordId) => {
 			return new Promise((resolve, reject) => {
 				UploadFileForm.current.validateFields()
 					.then(async (values) => {
-						console.log(values);
-						const request = await authFetch(`${API_Route}/repositories/record/${recordId}/files`, {
-							method: 'POST',
-							headers: {
-								'Content-Type': 'application/json'
-							},
-							body: JSON.stringify({
-								files: values.files
-							})
-						});
-						if (!request?.ok) {
-							reject(new Error('Failed to submit the form. Please try again.'));
-							return;
-						};
+						console.log('Form Values:', values);
 
-						uploadResult = await request.json();
-						resolve(uploadResult);
+						// Upload files if any
+						if (values.files.fileList && values.files.fileList.length > 0) {
+							const formData = new FormData();
+							for (const file of values.files.fileList)
+								if (file.originFileObj)
+									formData.append('files', file.originFileObj);
+
+							const request = await authFetch(`${API_Route}/repositories/record/${recordId}/files`, {
+								method: 'POST',
+								body: formData
+							});
+
+							if (!request?.ok) {
+								reject(new Error('Failed to upload files. Please try again.'));
+								return;
+							};
+
+							uploadResult = await request.json();
+							resolve(uploadResult);
+						} else {
+							reject(new Error('No files selected for upload.'));
+						};
 					})
 					.catch((errorInfo) => {
 						console.error('Validate Failed:', errorInfo);
