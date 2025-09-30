@@ -2,9 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import supabase from './utils/supabase';
-import authFetch from './utils/authFetch';
 
-import { ConfigProvider as DesignConfig, App, theme as DesignTheme, notification } from 'antd';
+import { ConfigProvider as DesignConfig, App, theme as DesignTheme } from 'antd';
 
 import Authentication from './pages/Authentication';
 import Dashboard from './pages/Dashboard';
@@ -18,6 +17,7 @@ import './styles/index.css';
 
 import { CacheProvider } from './contexts/CacheContext';
 import { MobileProvider } from './contexts/MobileContext';
+import { RefreshProvider } from './contexts/RefreshContext';
 import UpdateNotification from './components/UpdateNotification';
 
 export const DisplayThemeContext = React.createContext({
@@ -100,7 +100,15 @@ const OSAS = () => {
 
 								<Route
 									path='/dashboard/*'
-									element={session ? <CacheProvider children={<Dashboard />} /> : <Navigate to='/authentication' replace />}
+									element={session ? (
+										<CacheProvider>
+											<RefreshProvider>
+												<Dashboard />
+											</RefreshProvider>
+										</CacheProvider>
+									) : (
+										<Navigate to='/authentication' replace />
+									)}
 								/>
 
 								<Route path='/unauthorized' element={<Unauthorized />} />

@@ -36,6 +36,7 @@ import { API_Route } from '../../../main';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
+import { useRefresh } from '../../../contexts/RefreshContext';
 
 import Record from '../../../classes/Record';
 import authFetch from '../../../utils/authFetch';
@@ -93,6 +94,7 @@ const DisciplinaryRecords = () => {
 
 	const isMobile = useMobile();
 	const { cache, pushToCache } = useCache();
+	const { setRefresh } = useRefresh();
 
 	/** @typedef {'ongoing' | 'resolved' | 'dismissed'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
@@ -195,8 +197,10 @@ const DisciplinaryRecords = () => {
 				<Button
 					type='primary'
 					icon={<BankOutlined />}
-					onClick={() => {
-						NewCase(Modal);
+					onClick={async () => {
+						await NewCase(Modal);
+						console.log('Refreshing records...');
+						setRefresh({ timestamp: Date.now() });
 					}}
 				>
 					Open a new Case

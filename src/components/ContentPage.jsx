@@ -4,6 +4,7 @@ import { Row, Col, Empty, Spin, Flex, Pagination } from 'antd';
 import { useMobile } from '../contexts/MobileContext';
 import authFetch from '../utils/authFetch';
 import { useCache } from '../contexts/CacheContext';
+import { useRefresh } from '../contexts/RefreshContext';
 
 /**
  * A reusable component for displaying items in a grid layout with animations and pagination
@@ -32,6 +33,7 @@ const ContentPage = ({
 	transformData = (data) => Array.isArray(data) ? data : []
 }) => {
 	const isMobile = useMobile();
+	const { refresh } = useRefresh();
 	const { pushToCache } = useCache();
 	const [loading, setLoading] = React.useState(true);
 	const [page, setPage] = React.useState(0);
@@ -65,7 +67,7 @@ const ContentPage = ({
 
 		fetchItems();
 		return () => controller.abort();
-	}, [page, fetchUrl]);
+	}, [page, fetchUrl, refresh]);
 
 	return (
 		<Flex vertical gap={32} style={{ width: '100%' }}>

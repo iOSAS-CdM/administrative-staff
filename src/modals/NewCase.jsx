@@ -9,7 +9,6 @@ import {
 	Flex,
 	Typography,
 	Button,
-	Image,
 	Spin,
 	DatePicker
 } from 'antd';
@@ -62,11 +61,16 @@ const CaseForm = () => {
 		return () => controller.abort();
 	}, [search]);
 
-	const [file, setFile] = React.useState(null);
 	const [severity, setSeverity] = React.useState('minor'); // 'minor', 'major', 'severe'
 
 	const [complainants, setComplainants] = React.useState([]);
 	const [complainees, setComplainees] = React.useState([]);
+
+	const normFile = (e) => {
+		if (Array.isArray(e))
+			return e;
+		return e?.fileList;
+	};
 
 	return (
 		<Form
@@ -82,7 +86,7 @@ const CaseForm = () => {
 				complainants: [],
 				complainees: [],
 				description: '',
-				files: [] // Array of { name: string, base64: string, contentType: string }
+				files: [] // Array of upload file objects
 			}}
 			style={{ width: '100%' }}
 			labelCol={{ span: 24 }}
@@ -237,68 +241,36 @@ const CaseForm = () => {
 					</Form.Item>
 				</Flex>
 
-				<Flex vertical={!!file} gap={16}>
-					<Form.Item name='files' label='Case Image'>
+				<Flex vertical gap={16}>
+					<Form.Item
+						name='files'
+						label='Case Images'
+						valuePropName='fileList.fileList'
+					>
 						<Upload.Dragger
-							listType='picture'
+							listType='picture-card'
 							action='/upload.do'
-							beforeUpload={(file) => {
-								if (FileReader && file) {
-									const reader = new FileReader();
-									reader.onload = (e) => {
-										setFile(e.target.result);
-										NewCaseForm.current.setFieldsValue({
-											files: [{
-												name: file.name,
-												base64: e.target.result,
-												contentType: file.type
-											}]
-										});
-									};
-									reader.readAsDataURL(file);
-								};
-								return false;
-							}} // Prevent auto upload
-							showUploadList={false}
+							beforeUpload={() => false} // Prevent auto upload
+							accept='image/*'
+							multiple
+							getValueFromEvent={normFile}
 							style={{
-								position: 'relative',
-								width: 256,
-								height: '100%'
+								width: 256
 							}}
-							accept='.jpg,.jpeg,.png'
 						>
-							<Flex vertical justify='center' align='center' style={{ width: '100%', height: '100%' }} gap={8}>
-								{file ? (
-									<>
-										<Image
-											src={file}
-											alt='Uploaded file preview'
-											preview={false}
-											style={{
-												width: '100%',
-												height: '100%',
-												objectFit: 'cover',
-												borderRadius: 'var(--border-radius)'
-											}}
-										/>
-									</>
-								) : (
-									<>
-										<UploadOutlined style={{ fontSize: 32 }} />
-										<Title level={5} style={{ margin: 0 }}>
-											Upload Case Image
-										</Title>
-										<Paragraph type='secondary' style={{ textAlign: 'center' }}>
-											Open your Mobile App<br />
-											or drag and drop a file here.
-										</Paragraph>
-									</>
-								)}
+							<Flex vertical justify='center' align='center' gap={8} style={{ minHeight: 100 }}>
+								<UploadOutlined style={{ fontSize: 32 }} />
+								<Title level={5} style={{ margin: 0 }}>
+									Upload Case Images
+								</Title>
+								<Paragraph type='secondary' style={{ textAlign: 'center' }}>
+									Open your Mobile App<br />
+									or drag and drop files here.
+								</Paragraph>
 							</Flex>
 						</Upload.Dragger>
 					</Form.Item>
 
-					{file && (
 						<Flex justify='space-between' align='center' gap={8} style={{ width: '100%' }}>
 							<Button
 								type='default'
@@ -313,12 +285,13 @@ const CaseForm = () => {
 								type='primary'
 								icon={<ScanOutlined />}
 								style={{ flexGrow: 1 }}
-								onClick={() => { }}
+							onClick={() => {
+								console.log(file);
+							}}
 							>
 								Scan
 							</Button>
-						</Flex>
-					)}
+					</Flex>
 				</Flex>
 			</Flex>
 		</Form>
@@ -326,7 +299,7 @@ const CaseForm = () => {
 };
 
 const NewCase = async (Modal) => {
-	Modal.info({
+	await Modal.info({
 		title: 'Open a new Case',
 		centered: true,
 		closable: { 'aria-label': 'Close' },
@@ -363,19 +336,58 @@ const NewCase = async (Modal) => {
 					.then(async (values) => {
 						// Process the form values here
 						console.log('Form Values:', values);
+
+						// Prepare data for submission (exclude files from main payload)
+						/**
+						 * @type {{
+						 * 	files: {
+						 * 		file: import('antd/es/upload/interface').UploadFile<any>;
+						 * 		fileList: import('antd/es/upload/interface').UploadFile<any>[];
+						 * 	};
+						 * 	caseData: import('../classes/Record').RecordProps
+						 * }}
+						 */
+						const { files, ...caseData } = values;
+
 						const request = await authFetch(`${API_Route}/records`, {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json'
 							},
 							body: JSON.stringify({
-								...values,
+								...caseData,
 								date: values.date.toDate()
 							})
 						});
+
 						if (!request?.ok) {
 							reject(new Error('Failed to submit the form. Please try again.'));
 							return;
+						};
+
+						const data = await request.json();
+						if (!data) {
+							reject(new Error('No data returned from server'));
+							return;
+						};
+
+						// Upload files if any
+						if (files.fileList && files.fileList.length > 0) {
+							const formData = new FormData();
+							for (const file of files.fileList)
+								if (file.originFileObj)
+									formData.append('files', file.originFileObj);
+
+							const uploadResponse = await authFetch(`${API_Route}/repositories/record/${data.id}/files`, {
+								method: 'POST',
+								body: formData
+							});
+
+							if (!uploadResponse.ok) {
+								const errorData = await uploadResponse.json();
+								reject(new Error(errorData.message || 'Case created but failed to upload files.'));
+								return;
+							};
 						};
 
 						// Reset the form after successful submission
