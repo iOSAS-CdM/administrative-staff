@@ -129,6 +129,7 @@ const DisciplinaryRecords = () => {
 
 	const app = App.useApp();
 	const Modal = app.modal;
+	const message = app.message;
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -198,7 +199,7 @@ const DisciplinaryRecords = () => {
 					type='primary'
 					icon={<BankOutlined />}
 					onClick={async () => {
-						await NewCase(Modal);
+						await NewCase(Modal, message);
 						console.log('Refreshing records...');
 						setRefresh({ timestamp: Date.now() });
 					}}

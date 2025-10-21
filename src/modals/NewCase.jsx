@@ -39,7 +39,7 @@ import authFetch from '../utils/authFetch';
  * @component
  * @returns {JSX.Element} The rendered form component
  */
-const CaseForm = () => {
+const CaseForm = ({ message }) => {
 	/**
 	 * Cache context hook for managing student data
 	 */
@@ -132,6 +132,8 @@ const CaseForm = () => {
 		return e?.fileList;
 	};
 
+	const [scanning, setScanning] = React.useState(false);
+
 	return (
 		<Form
 			layout='vertical'
@@ -151,6 +153,7 @@ const CaseForm = () => {
 			style={{ width: '100%' }}
 			labelCol={{ span: 24 }}
 			wrapperCol={{ span: 24 }}
+			disabled={scanning}
 		>
 			<Flex gap={32}>
 				<Flex vertical style={{ flex: 1 }}>
@@ -201,7 +204,8 @@ const CaseForm = () => {
 						<DatePicker
 							style={{ width: '100%' }}
 							placeholder='Select a date'
-							format='MMMM DD, YYYY'
+							format='MMMM DD, YYYY - hh:mm A'
+							showTime
 							disabledDate={(current) => current && current > new Date()}
 						/>
 					</Form.Item>
@@ -338,8 +342,11 @@ const CaseForm = () => {
 						<Button
 							type='primary'
 							icon={<ScanOutlined />}
-							style={{ flexGrow: 1 }}
+							block
+							disabled={false}
+							loading={scanning}
 							onClick={() => new Promise(async (resolve) => {
+								setScanning(true);
 								/**
 								 * @type {import('antd/es/upload/interface').UploadFile<any>[]}
 								 */
@@ -349,16 +356,62 @@ const CaseForm = () => {
 									if (file.originFileObj)
 										form.append('files', file.originFileObj);
 
-								const uploadResponse = await authFetch(`${API_Route}/ocr/scan`, {
+								const scanResponse = await authFetch(`${API_Route}/ocr/scan`, {
 									method: 'POST',
 									body: form
-								});
-								if (!uploadResponse?.ok) return NewCaseForm.current.setFields([{
+								}).catch(() => null);
+								if (!scanResponse?.ok) {
+									setScanning(false);
+									NewCaseForm.current.setFields([{
+										name: 'files',
+										errors: ['Failed to scan images. Please try again.']
+									}]);
+									return;
+								};
+								/** @type {string[]} */
+								const data = await scanResponse.json();
+
+								const fillResponse = await authFetch(`${API_Route}/ocr/fill`, {
+									method: 'POST',
+									headers: {
+										'Content-Type': 'application/json'
+									},
+									body: JSON.stringify({
+										form: {
+											title: "string",
+											violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
+											date: "dateThour",
+											severity: "'minor' | 'major' | 'severe'",
+											description: "string"
+										},
+										prompts: data
+									})
+								}).catch(() => null);
+								if (!fillResponse?.ok) {
+									setScanning(false);
+									NewCaseForm.current.setFields([{
+										name: 'files',
+										errors: ['Failed to process scanned data. Please try again.']
+									}]);
+									return;
+								};
+
+								/** @type {Record<string, string | number | boolean>} */
+								const fillData = await fillResponse.json();
+								if (fillData.title) NewCaseForm.current.setFieldValue('title', fillData.title);
+								if (fillData.violation) NewCaseForm.current.setFieldValue('violation', fillData.violation);
+								if (fillData.date) NewCaseForm.current.setFieldValue('date', dayjs(fillData.date));
+								if (fillData.severity) {
+									NewCaseForm.current.setFieldValue('severity', fillData.severity);
+									setSeverity(fillData.severity);
+								};
+								if (fillData.description) NewCaseForm.current.setFieldValue('description', fillData.description);
+								NewCaseForm.current.setFields([{
 									name: 'files',
-									errors: ['Failed to scan images. Please try again.']
+									errors: []
 								}]);
-								const data = await uploadResponse.json();
-								console.log(data);
+								message.success('Successfully scanned and filled the form!');
+								setScanning(false);
 								resolve();
 							})}
 						>
@@ -377,20 +430,21 @@ const CaseForm = () => {
  * @async
  * @function
  * @param {import('antd').ModalStaticFunctions} Modal - Ant Design Modal API instance
+ * @param {import('antd').MessageInstance} message - Ant Design Message API instance
  * @returns {Promise<void>} Promise that resolves when modal is closed
  * @example
  * // Usage in a component
  * import { Modal } from 'antd';
  * await NewCase(Modal);
  */
-const NewCase = async (Modal) => {
+const NewCase = async (Modal, message) => {
 	await Modal.info({
 		title: 'Open a new Case',
 		centered: true,
 		closable: { 'aria-label': 'Close' },
 		content: (
 			<CacheContext.Provider value={{}}>
-				<CaseForm />
+				<CaseForm message={message} />
 			</CacheContext.Provider>
 		),
 		icon: <BankOutlined />,
