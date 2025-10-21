@@ -129,6 +129,7 @@ const DisciplinaryRecords = () => {
 
 	const app = App.useApp();
 	const Modal = app.modal;
+	const message = app.message;
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -198,7 +199,7 @@ const DisciplinaryRecords = () => {
 					type='primary'
 					icon={<BankOutlined />}
 					onClick={async () => {
-						await NewCase(Modal);
+						await NewCase(Modal, message);
 						console.log('Refreshing records...');
 						setRefresh({ timestamp: Date.now() });
 					}}
@@ -214,8 +215,7 @@ const DisciplinaryRecords = () => {
 			fetchUrl={`${API_Route}/records?status=${category}`}
 			emptyText='No records found'
 			cacheKey='records'
-			transformData={(data) => data.records || []}
-			totalItems={cache.records?.filter(record => record.tags.status === 'ongoing').length + 1 || 0}
+			transformData={(data) => data.records.filter(record => record?.tags.status === category) || []}
 			renderItem={(record) => (
 				<RecordCard
 					record={record}
@@ -260,18 +260,7 @@ const RecordCard = ({ record, loading }) => {
 	}, [thisRecord]);
 
 	return (
-		<Badge.Ribbon
-			text={thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
-			color={
-				{
-					ongoing: 'blue',
-					resolved: 'var(--primary)',
-					dismissed: 'grey'
-				}[thisRecord.tags.status] || 'transparent'
-			}
-			style={{ display: loading || thisRecord.tags.status === 'dismissed' ? 'none' : '' }}
-		>
-			<ItemCard
+		<ItemCard
 				loading={loading}
 
 				status={thisRecord.tags.status === 'dismissed' && 'dismissed'}
@@ -347,8 +336,7 @@ const RecordCard = ({ record, loading }) => {
 						</Flex>
 					</Flex>
 				)}
-			</ItemCard>
-		</Badge.Ribbon>
+		</ItemCard>
 	);
 };
 

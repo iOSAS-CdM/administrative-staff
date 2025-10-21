@@ -1,9 +1,9 @@
 import React from 'react';
+// eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
 import { Row, Col, Empty, Spin, Flex, Pagination } from 'antd';
-import { useMobile } from '../contexts/MobileContext';
-import authFetch from '../utils/authFetch';
 import { useCache } from '../contexts/CacheContext';
+import authFetch from '../utils/authFetch';
 import { useRefresh } from '../contexts/RefreshContext';
 
 /**
@@ -14,7 +14,6 @@ import { useRefresh } from '../contexts/RefreshContext';
  *  emptyText?: string;
  *  columnSpan?: number;
  *  pageSize?: number;
- * 	totalItems?: number;
  *  cacheKey?: string;
  *  onDataFetched?: (data: any) => void;
  *  transformData?: (data: any) => any[];
@@ -25,39 +24,75 @@ const ContentPage = ({
 	fetchUrl,
 	renderItem,
 	emptyText = 'No items found',
-	columnSpan = 12,
+	columnSpan = 8,
 	pageSize = 20,
-	totalItems = 0,
 	cacheKey,
 	onDataFetched,
 	transformData = (data) => Array.isArray(data) ? data : []
 }) => {
-	const isMobile = useMobile();
+	const { updateCache, cache } = useCache();
 	const { refresh } = useRefresh();
-	const { pushToCache } = useCache();
 	const [loading, setLoading] = React.useState(true);
 	const [page, setPage] = React.useState(0);
-	const [items, setItems] = React.useState([]);
+	const [totalItems, setTotalItems] = React.useState(0);
+	// initialize items from cache if available so previous items are shown while fetching
+	const [items, setItems] = React.useState(() => {
+		if (cacheKey && cache && cache[cacheKey] && Array.isArray(cache[cacheKey]))
+			return cache[cacheKey];
+		return [];
+	});
+
+	// Keep items in sync with cache for the provided cacheKey. This ensures that if
+	// another component pushes to cache, ContentPage will reflect it without needing
+	// to re-fetch.
+	const cachedCollection = cacheKey && cache && Array.isArray(cache[cacheKey])
+		? cache[cacheKey]
+		: null;
+
+	// Track if we've completed an initial fetch to avoid cache overriding fetched data
+	const [hasFetched, setHasFetched] = React.useState(false);
+
+	React.useEffect(() => {
+		if (!cacheKey || !hasFetched) return;
+		if (cachedCollection) setItems(cachedCollection);
+	}, [cacheKey, cachedCollection, hasFetched]);
 
 	React.useEffect(() => {
 		const controller = new AbortController();
 		const fetchItems = async () => {
+			// do not clear existing items immediately; keep previous items visible while loading
 			setLoading(true);
 			// Add pagination parameters to the URL
 			const paginatedUrl = fetchUrl + (fetchUrl.includes('?') ? '&' : '?') +
 				`limit=${pageSize}&offset=${page * pageSize}`;
 
 			const request = await authFetch(paginatedUrl, { signal: controller.signal });
-			if (!request?.ok) return setLoading(false);
+			if (!request?.ok) {
+				setLoading(false);
+				return;
+			};
 
 			const data = await request.json();
 			if (!data) return setLoading(false);
 
 			const transformedItems = transformData(data);
+			// update items only after we have the new data so UI doesn't flash empty
 			setItems(transformedItems);
 
-			// Cache the items if a cache key is provided
-			if (cacheKey) pushToCache(cacheKey, transformedItems, false);
+			// Extract the total count from the response (overall filtered data length)
+			if (data.length !== undefined) {
+				setTotalItems(data.length);
+			}
+
+			// Cache the items if a cache key is provided (including empty arrays)
+			if (cacheKey) {
+				// Use updateCache to replace the cache completely instead of pushToCache
+				// This ensures empty arrays properly clear the cache instead of merging
+				updateCache(cacheKey, transformedItems);
+			};
+
+			// Mark that we've completed at least one fetch
+			setHasFetched(true);
 
 			// Callback for parent component
 			if (onDataFetched) onDataFetched(data);
@@ -67,16 +102,37 @@ const ContentPage = ({
 
 		fetchItems();
 		return () => controller.abort();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [page, fetchUrl, refresh]);
 
 	return (
-		<Flex vertical gap={32} style={{ width: '100%' }}>
-			{items.length > 0 ? (
+		<Flex vertical gap={32} style={{ width: '100%', minHeight: 256 }}>
+			{loading && items.length === 0 ? (
+				<div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 256 }}>
+					<Spin />
+				</div>
+			) : items.length > 0 ? (
 				<>
-					<Row gutter={[16, 16]}>
+						<Row gutter={[16, 16]} style={{ position: 'relative' }}>
+							{loading && (
+								<div style={{
+									position: 'absolute',
+									top: 0,
+									left: 0,
+									right: 0,
+									bottom: 0,
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									zIndex: 10,
+									borderRadius: 8
+								}}>
+									<Spin />
+								</div>
+							)}
 						<AnimatePresence mode='popLayout'>
 							{items.map((item, index) => (
-								<Col key={item.id || index} span={!isMobile ? columnSpan : 24}>
+								<Col key={item.id || index} lg={columnSpan} md={12} sm={24} xs={24}>
 									<motion.div
 										key={index}
 										initial={{ opacity: 0, y: 20 }}
@@ -99,9 +155,8 @@ const ContentPage = ({
 								onChange={(newPage) => {
 									setPage(newPage - 1);
 									const pageContent = document.getElementById('page-content');
-									if (pageContent) {
+									if (pageContent)
 										pageContent.scrollTo({ top: 0, behavior: 'smooth' });
-									}
 								}}
 								showSizeChanger={false}
 								total={totalItems}
@@ -111,11 +166,7 @@ const ContentPage = ({
 				</>
 			) : (
 				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-					{loading ? (
-						<Spin />
-					) : (
-						<Empty description={emptyText} />
-					)}
+					<Empty description={emptyText} />
 				</div>
 			)}
 		</Flex>
