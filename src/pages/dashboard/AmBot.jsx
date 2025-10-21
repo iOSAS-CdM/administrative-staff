@@ -37,7 +37,7 @@ const AmBot = () => {
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: 'Helpbot',
+			title: 'AmBot',
 			actions: [
 				<Button
 					type='primary'
@@ -50,7 +50,7 @@ const AmBot = () => {
 		});
 	}, [setHeader, clearConversation]);
 	React.useEffect(() => {
-		setSelectedKeys(['helpbot']);
+		setSelectedKeys(['ambot']);
 	}, [setSelectedKeys]);
 
 	const { cache } = useCache();

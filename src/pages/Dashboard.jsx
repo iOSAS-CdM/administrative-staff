@@ -167,7 +167,7 @@ const Dashboard = () => {
 		{ path: '/utilities/announcements/new', element: <NewAnnouncement /> },
 
 		{ path: '/utilities/repository', element: <Repository /> },
-		{ path: '/helpbot', element: <AmBot /> }
+		{ path: '/ambot', element: <AmBot /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
@@ -320,10 +320,10 @@ const Dashboard = () => {
 			]
 		},
 		{
-			key: 'helpbot',
-			label: 'Helpbot',
+			key: 'ambot',
+			label: 'AmBot',
 			icon: <RobotOutlined />,
-			onClick: () => navigate('/dashboard/helpbot', { replace: true })
+			onClick: () => navigate('/dashboard/ambot', { replace: true })
 		}
 	];
 
