@@ -288,6 +288,8 @@ const Profile = () => {
 		id: '',
 		email: ''
 	});
+	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
+	const [thisRecords, setThisRecords] = React.useState();
 	React.useLayoutEffect(() => {
 		const controller = new AbortController();
 		if (id) {
@@ -297,27 +299,39 @@ const Profile = () => {
 				setThisStudent(cachedStudent);
 			} else {
 				const fetchStudent = async () => {
-					// Fetch student from the backend
-					const request = await authFetch(
-						`${API_Route}/users/student/${id}`,
-						{ signal: controller.signal }
-					);
-					if (!request?.ok) {
-						Modal.error({
-							title: 'Error',
-							content:
-								'Failed to fetch student. Please try again later.',
-							centered: true,
-							onOk: () => navigate(-1)
-						});
-						return;
+					const requests = await Promise.all([
+						authFetch(
+							`${API_Route}/users/student/${id}`,
+							{ signal: controller.signal }
+						),
+						authFetch(
+							`${API_Route}/users/student/${id}/records`,
+							{ signal: controller.signal }
+						)
+					]);
+
+					for (const request of requests) {
+						if (!request?.ok) {
+							Modal.error({
+								title: 'Error',
+								content:
+									'Failed to fetch student data. Please try again later.',
+								centered: true,
+								onOk: () => navigate(-1)
+							});
+							return;
+						};
 					};
 
 					/** @type {import('../../../types').Student} */
-					const data = await request.json();
-					if (!data || !data.id) return;
-					pushToCache('peers', data, true);
-					setThisStudent(data);
+					const studentData = await requests[0].json();
+					/** @type {import('../../../types').Record[]} */
+					const recordsData = await requests[1].json();
+					if (!studentData || !studentData.id) return;
+					pushToCache('peers', studentData, true);
+					setThisStudent(studentData);
+					setThisRecords(recordsData.records);
+					console.log(recordsData.records)
 				};
 				fetchStudent();
 			};
@@ -538,11 +552,7 @@ const Profile = () => {
 						gap={16}
 						style={{ position: 'sticky', top: 0 }}
 					>
-						<PanelCard title='Calendar'>
-							<Calendar events={events} />
-						</PanelCard>
-
-						<PanelCard title='Organizations'>
+						<PanelCard title='Organizations' style={{ minWidth: 256 }}>
 							{organizations.length > 0 && (
 								<Flex
 									vertical
@@ -605,80 +615,8 @@ const Profile = () => {
 					</Flex>
 				</div>
 				<Flex style={{ width: '100%', flex: 1 }}>
-					<PanelCard
-						title='Disciplinary Events'
-						style={{ width: '100%' }}
-					>
-						{events.length > 0 &&
-							events.map((event, index) => (
-								<Flex key={index} vertical gap={8}>
-									<Text strong>
-										{moment(event.date).format(
-											'MMMM D, YYYY'
-										)}
-									</Text>
-									{event.events.map((e, idx) => (
-										<Flex
-											key={idx}
-											justify='flex-start'
-											align='flex-start'
-											style={{
-												cursor: 'pointer',
-												width: '100%'
-											}}
-											onClick={() => {
-												navigate(
-													`/dashboard/discipline/record/${e.id}`,
-													{
-														state: { id: e.id }
-													}
-												);
-											}}
-										>
-											<Badge
-												color={
-													['yellow', 'orange', 'red'][
-														e.content.complainees.find(
-															(c) =>
-																c.student.id ===
-																thisStudent.id
-													)?.occurrences - 1
-													] || 'red'
-												}
-												size='small'
-												count={
-													e.content.complainees.some(
-														(c) =>
-															c.student.id ===
-															thisStudent.id
-													)
-														? e.content.complainees.find(
-																(c) =>
-																	c.student
-																		.id ===
-																	thisStudent.id
-														).occurrences
-														: 0
-												}
-												offset={[-8, 0]}
-											>
-												<Tag
-													color={
-														e.content.tags
-															.status ===
-														'ongoing'
-															? 'yellow'
-															: 'var(--primary)'
-													}
-												>
-													{e.content.tags.status}
-												</Tag>
-											</Badge>
-											<Text>{e.content.violations}</Text>
-										</Flex>
-									))}
-								</Flex>
-							))}
+					<PanelCard title='Calendar' style={{ width: '100%' }}>
+						<Calendar events={events} />
 					</PanelCard>
 				</Flex>
 			</Flex>
