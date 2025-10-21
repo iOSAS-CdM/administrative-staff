@@ -75,10 +75,9 @@ const AmBot = () => {
 				const response = await authFetch(`${API_Route}/ambot/suggestions`);
 				if (response.ok) {
 					const data = await response.json();
-					if (data.suggestions && Array.isArray(data.suggestions)) {
+					if (data.suggestions && Array.isArray(data.suggestions))
 						setSuggestedQuestions(data.suggestions);
-					}
-				}
+				};
 			} catch (error) {
 				console.error('Error fetching suggestions:', error);
 				// Keep default suggestions on error
@@ -107,9 +106,8 @@ const AmBot = () => {
 
 		// Add user message to chat
 		setMessages(prev => [...prev, { sender: 'user', content: userMessage }]);
-		if (SendForm.current) {
+		if (SendForm.current)
 			SendForm.current.resetFields();
-		}
 
 		// Set loading state
 		setIsLoading(true);
@@ -127,9 +125,8 @@ const AmBot = () => {
 				body: JSON.stringify({ message: userMessage })
 			});
 
-			if (!response.ok) {
+			if (!response.ok)
 				throw new Error('Failed to get response from chatbot');
-			};
 
 			const reader = response.body.getReader();
 			const decoder = new TextDecoder();
