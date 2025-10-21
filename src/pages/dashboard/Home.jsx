@@ -12,7 +12,8 @@ import {
 	Col,
 	Badge,
 	Button,
-	App
+	App,
+	Empty
 } from 'antd';
 
 import { useCache } from '../../contexts/CacheContext';
@@ -312,89 +313,54 @@ const Home = () => {
 		{ type: 'Verified', value: 1 },
 		{ type: 'Unverified', value: 1 }
 	]);
-	React.useLayoutEffect(() => {
-		const controller = new AbortController();
-		const fetchData = async () => {
-			const response = await authFetch(`${API_Route}/statistics`, { signal: controller.signal });
-			if (!response || !response.ok) {
-				console.error('Failed to fetch statistics:', response);
-				return;
-			};
-			/**
-			 * @type {{
-			 *	records: {
-			 *		total: number,
-			 *		resolved: number,
-			 *		ongoing: number
-			 *	},
-			 *	students: {
-			 *		total: number,
-			 *		verified: number,
-			 *		unverified: number
-			 *	}
-			 * }}
-			 */
-			const data = await response.json();
-
-			setStudentsRatio([
-				{ type: 'Verified', value: data.students.verified },
-				{ type: 'Unverified', value: data.students.unverified }
-			]);
-		};
-		fetchData();
-		return () => controller.abort();
-	}, []);
-
 	const [monthlyCasesTrend, setMonthlyCasesTrend] = React.useState([]);
-	React.useEffect(() => {
-		const controller = new AbortController();
-		const fetchData = async () => {
-			const response = await authFetch(`${API_Route}/statistics/trend`, { signal: controller.signal });
-			if (!response || !response.ok) {
-				console.error('Failed to fetch trend data:', response);
-				return;
-			};
-			/**
-			 * @type {{
-			 *	records: {
-			 *		month: string, // YYYY-MM
-			 *		total: number,
-			 *		resolved: number,
-			 *		ongoing: number
-			 *	}[],
-			 *	students: {
-			 *		month: string, // YYYY-MM
-			 *		total: number,
-			 *		verified: number,
-			 *		unverified: number
-			 *	}[]
-			 * }}
-			 */
-			const data = await response.json();
-			// Transform data for the chart
-			const recordsTrend = data.records.map(item => ({
-				month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
-				cases: item.total,
-				type: 'Total Cases'
-			})).concat(data.records.map(item => ({
-				month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
-				cases: item.resolved,
-				type: 'Resolved Cases'
-			}))).concat(data.records.map(item => ({
-				month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
-				cases: item.ongoing,
-				type: 'Ongoing Cases'
-			})));
-			setMonthlyCasesTrend(recordsTrend);
-		};
-		fetchData();
-		return () => controller.abort();
-	}, []);
 
 	/** @type {[import('../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
 	React.useEffect(() => {
-		setEvents(cache.events || []);
+		const controller = new AbortController();
+		const fetchAll = async () => {
+			try {
+				const [statsRes, trendRes, eventsRes] = await Promise.all([
+					authFetch(`${API_Route}/statistics`, { signal: controller.signal }),
+					authFetch(`${API_Route}/statistics/trend`, { signal: controller.signal }),
+					Promise.resolve({ ok: true, json: async () => cache.events || [] }) // events from cache
+				]);
+
+				if (statsRes && statsRes.ok) {
+					const statsData = await statsRes.json();
+					setStudentsRatio([
+						{ type: 'Verified', value: statsData.students.verified },
+						{ type: 'Unverified', value: statsData.students.unverified }
+					]);
+				};
+
+				if (trendRes && trendRes.ok) {
+					const trendData = await trendRes.json();
+					const recordsTrend = trendData.records.map(item => ({
+						month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
+						cases: item.total,
+						type: 'Total Cases'
+					})).concat(trendData.records.map(item => ({
+						month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
+						cases: item.resolved,
+						type: 'Resolved Cases'
+					}))).concat(trendData.records.map(item => ({
+						month: moment(item.month, 'YYYY-MM').format('MMM YYYY'),
+						cases: item.ongoing,
+						type: 'Ongoing Cases'
+					})));
+					setMonthlyCasesTrend(recordsTrend);
+				}
+
+				const eventsData = await eventsRes.json();
+				setEvents(eventsData);
+			} catch (err) {
+				console.error('Failed to fetch dashboard data:', err);
+			};
+		};
+		fetchAll();
+		return () => controller.abort();
 	}, [cache.events]);
 
 	return (

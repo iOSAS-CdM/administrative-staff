@@ -26,7 +26,9 @@ import {
 	LockOutlined,
 	LeftOutlined,
 	MailOutlined,
-	PhoneOutlined
+	PhoneOutlined,
+	WarningOutlined,
+	ExclamationCircleOutlined
 } from '@ant-design/icons';
 
 import EditStudent from '../../../modals/EditStudent';
@@ -35,13 +37,60 @@ import RestrictStudent from '../../../modals/RestrictStudent';
 const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
-// import { RecordCard } from '../Discipline/Records';
+import ItemCard from '../../../components/ItemCard';
 
 import { API_Route } from '../../../main';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
 import authFetch from '../../../utils/authFetch';
+
+// Simplified Record Display Component for Modal (no navigation)
+const RecordDisplay = ({ record, onRecordClick }) => {
+	return (
+		<Badge.Ribbon
+			text={record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}
+			color={
+				{
+					ongoing: 'blue',
+					resolved: 'var(--primary)',
+					dismissed: 'grey'
+				}[record.tags.status] || 'transparent'
+			}
+			style={{ display: record.tags.status === 'dismissed' ? 'none' : '' }}
+		>
+			<ItemCard
+				status={record.tags.status === 'dismissed' && 'dismissed'}
+				onClick={onRecordClick}
+			>
+				<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
+					<Title level={4}>
+						{
+							{
+								minor: null,
+								major: <WarningOutlined style={{ color: 'orange' }} title='Major violation' />,
+								severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violation' />
+							}[record.tags.severity.toLowerCase()] || ''
+						} {record.title}
+					</Title>
+					<Text type='secondary'>{record.description}</Text>
+					<Flex wrap gap={8}>
+						<Tag>
+							{record.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+						</Tag>
+						<Tag>
+							{new Date(record.date).toLocaleDateString('en-US', {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric'
+							})}
+						</Tag>
+					</Flex>
+				</Flex>
+			</ItemCard>
+		</Badge.Ribbon>
+	);
+};
 
 const Calendar = ({ events }) => {
 	const [value, setValue] = React.useState(moment());
@@ -78,13 +127,13 @@ const Calendar = ({ events }) => {
 												<Col
 													key={event.id}
 													span={!isMobile ? 12 : 12}
-													onClick={() =>
-														modal.destroy()
-													}
 												>
-													<RecordCard
+													<RecordDisplay
 														record={event.content}
-														loading={false}
+														onRecordClick={() => {
+															modal.destroy();
+															navigate(`/dashboard/discipline/record/${event.content.id}`);
+														}}
 													/>
 												</Col>
 											) : null
@@ -126,13 +175,13 @@ const Calendar = ({ events }) => {
 												<Col
 													key={event.id}
 													span={!isMobile ? 12 : 12}
-													onClick={() =>
-														modal.destroy()
-													}
 												>
-													<RecordCard
+													<RecordDisplay
 														record={event.content}
-														loading={false}
+														onRecordClick={() => {
+															modal.destroy();
+															navigate(`/dashboard/discipline/record/${event.content.id}`);
+														}}
 													/>
 												</Col>
 											) : null
@@ -347,6 +396,39 @@ const Profile = () => {
 
 	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
+
+	// Transform records into calendar events
+	React.useEffect(() => {
+		if (!thisRecords || thisRecords.length === 0) {
+			setEvents([]);
+			return;
+		}
+
+		// Group records by date
+		const eventsByDate = {};
+
+		thisRecords.forEach(record => {
+			const recordDate = new Date(record.date);
+			const dateKey = `${recordDate.getFullYear()}-${recordDate.getMonth()}-${recordDate.getDate()}`;
+
+			if (!eventsByDate[dateKey]) {
+				eventsByDate[dateKey] = {
+					date: recordDate,
+					events: []
+				};
+			}
+
+			eventsByDate[dateKey].events.push({
+				id: record.id,
+				type: 'disciplinary',
+				content: record
+			});
+		});
+
+		// Convert to array format expected by Calendar
+		const eventsArray = Object.values(eventsByDate);
+		setEvents(eventsArray);
+	}, [thisRecords]);
 
 	return (
 		<Flex vertical gap={16}>
