@@ -48,7 +48,7 @@ import FAQsPage from './dashboard/Utilities/FAQs';
 import Announcements from './dashboard/Utilities/Announements';
 import NewAnnouncement from './dashboard/Utilities/NewAnnouncement';
 import Repository from './dashboard/Utilities/Repository';
-import AmBot from './AmBot';
+import AmBot from './dashboard/AmBot';
 
 const { Text, Title } = Typography;
 
