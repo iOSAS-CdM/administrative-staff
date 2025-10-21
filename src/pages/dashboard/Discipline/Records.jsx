@@ -261,18 +261,7 @@ const RecordCard = ({ record, loading }) => {
 	}, [thisRecord]);
 
 	return (
-		<Badge.Ribbon
-			text={thisRecord.tags.status.charAt(0).toUpperCase() + thisRecord.tags.status.slice(1)}
-			color={
-				{
-					ongoing: 'blue',
-					resolved: 'var(--primary)',
-					dismissed: 'grey'
-				}[thisRecord.tags.status] || 'transparent'
-			}
-			style={{ display: loading || thisRecord.tags.status === 'dismissed' ? 'none' : '' }}
-		>
-			<ItemCard
+		<ItemCard
 				loading={loading}
 
 				status={thisRecord.tags.status === 'dismissed' && 'dismissed'}
@@ -348,8 +337,7 @@ const RecordCard = ({ record, loading }) => {
 						</Flex>
 					</Flex>
 				)}
-			</ItemCard>
-		</Badge.Ribbon>
+		</ItemCard>
 	);
 };
 

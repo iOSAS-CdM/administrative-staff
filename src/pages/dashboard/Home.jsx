@@ -25,7 +25,6 @@ const { Title, Text } = Typography;
 import rootToHex from '../../utils/rootToHex';
 
 import PanelCard from '../../components/PanelCard';
-import { RecordCard } from './Discipline/Records';
 
 import authFetch from '../../utils/authFetch';
 import { API_Route } from '../../main';
@@ -93,171 +92,10 @@ const Timer = () => {
 };
 
 /**
- * @type {React.FC<{
- * 	events: any[]
- * }>}
- */
-const Calendar = ({ events }) => {
-	const [value, setValue] = React.useState(moment());
-	const isMobile = useMobile();
-
-	const navigate = useNavigate();
-
-	const app = App.useApp();
-	const Modal = app.modal;
-
-	return (
-		<AntCalendar
-			fullscreen={false}
-			onPanelChange={(date) => setValue(date)}
-			onSelect={(date, info) => {
-				if (info.source === 'date') {
-					const eventsForDate = events.find(event =>
-						event.date.getDate() === date.date()
-						&& event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
-					)?.events || [];
-					const modal = Modal.info({
-						title: `Events for ${date.format('MMMM D, YYYY')}`,
-						centered: true,
-						closable: { 'aria-label': 'Close' },
-						content: (
-							<>
-								{
-									eventsForDate.length !== 0 ? (
-										<Row gutter={[16, 16]}>
-											{eventsForDate.map((event, index) => (
-												event.type === 'disciplinary' ? (
-													<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
-														<RecordCard record={event.content} loading={false} />
-													</Col>
-												) : null
-											))}
-										</Row>
-									) : (
-										<Empty description='No events found' />
-									)
-								}
-							</>
-						),
-						width: {
-							xs: '100%',
-							sm: '100%',
-							md: '100%',
-							lg: 512, // 2^9
-							xl: 1024, // 2^10
-							xxl: 1024 // 2^10
-						}
-					});
-				} else {
-					const eventsForMonth = events.filter(event =>
-						event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
-					).flatMap(day => day.events).sort((a, b) => a.content.date - b.content.date);
-					const modal = Modal.info({
-						title: `Events for ${date.format('MMMM YYYY')}`,
-						centered: true,
-						closable: { 'aria-label': 'Close' },
-						content: (
-							<>
-								{
-									eventsForMonth.length !== 0 ? (
-										<Row gutter={[16, 16]}>
-											{eventsForMonth.map((event, index) => (
-												event.type === 'disciplinary' ? (
-													<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
-														<RecordCard record={event.content} loading={false} />
-													</Col>
-												) : null
-											))}
-										</Row>
-									) : (
-										<Empty description='No events found' />
-									)
-								}
-							</>
-						),
-						width: {
-							xs: '100%',
-							sm: '100%',
-							md: '100%',
-							lg: 512, // 2^9
-							xl: 1024, // 2^10
-							xxl: 1024 // 2^10
-						}
-					});
-				};
-			}}
-			fullCellRender={(date, info) => {
-				if (info.type === 'date') {
-					const eventsForDate = events.find(event =>
-						event.date.getDate() === date.date()
-						&& event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
-					)?.events || [];
-					return (
-						<Badge
-							color={
-								date.month() === value.month()
-									&& date.year() === value.year() ? (['yellow', 'orange', 'red'][eventsForDate.length - 1] || 'red') : 'grey'
-							}
-							size='small'
-							count={eventsForDate.length}
-							style={{
-								opacity: date.month() === value.month()
-									&& date.year() === value.year() ? 1 : 0.5
-							}}
-						>
-							<Button
-								type={
-									date.date() === value.date()
-										&& date.month() === value.month()
-										&& date.year() === value.year() ? 'primary' : 'text'
-								}
-								style={{
-									opacity: date.month() === value.month()
-										&& date.year() === value.year() ? 1 : 0.5
-								}}
-								size='small'
-							>
-								{`${date.date()}`.padStart(2, '0')}
-							</Button>
-						</Badge>
-					);
-				} else {
-					const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-					let eventCount = 0;
-					const eventsForMonth = events.filter(event =>
-						event.date.getMonth() === date.month()
-						&& event.date.getFullYear() === date.year()
-					);
-					for (const day of eventsForMonth)
-						eventCount += day.events.length;
-					return (
-						<Badge
-							count={eventCount}
-						>
-							<Button
-								type={
-									date.month() === value.month()
-										&& date.year() === value.year() ? 'primary' : 'text'
-								}
-							>
-								{months[date.month()]}
-							</Button>
-						</Badge>
-					);
-				};
-			}}
-			style={{ minWidth: 256 }}
-		/>
-	);
-};
-
-/**
  * @type {React.FC}
  */
 const Home = () => {
+	const isMobile = useMobile();
 	const { setHeader, setSelectedKeys, displayTheme, staff } = usePageProps();
 	React.useEffect(() => {
 		if (setHeader)
@@ -286,7 +124,7 @@ const Home = () => {
 	const { cache } = useCache();
 
 	const chartConfig = {
-		height: 200,
+		height: 256,
 		legend: {
 			color: {
 				title: false,
@@ -369,7 +207,7 @@ const Home = () => {
 			gap={16}
 		>
 			<Row gutter={[16, 16]}>
-				<Col span={16}>
+				<Col span={isMobile ? 24 : 16}>
 					<Card size='small' style={{ height: '100%' }}>
 						<Flex vertical justify='center' gap={8} style={{height: '100%'}}>
 							<>
@@ -382,23 +220,27 @@ const Home = () => {
 						</Flex>
 					</Card>
 				</Col>
-				<Col span={8}>
-					<Timer />
-				</Col>
+				{!isMobile && (
+					<Col span={isMobile ? 24 : 8}>
+						<Timer />
+					</Col>
+				)}
 
-				<Col span={8}>
-					<PanelCard title='Monthly Cases Ratio'>
-						<Pie
-							data={studentsRatio}
-							angleField='value'
-							colorField='type'
-							innerRadius={0.6}
-							animate={null}
-							{...chartConfig}
-						/>
-					</PanelCard>
-				</Col>
-				<Col span={16}>
+				{isMobile && (
+					<Col span={24}>
+						<PanelCard title='Monthly Cases Ratio'>
+							<Pie
+								data={studentsRatio}
+								angleField='value'
+								colorField='type'
+								innerRadius={0.6}
+								animate={null}
+								{...chartConfig}
+							/>
+						</PanelCard>
+					</Col>
+				)}
+				<Col span={isMobile ? 24 : 16}>
 					<PanelCard title='Monthly Cases Trend'>
 						<Line
 							data={monthlyCasesTrend}
@@ -410,17 +252,20 @@ const Home = () => {
 						/>
 					</PanelCard>
 				</Col>
-
-				<Col span={16}>
-					<PanelCard title='Calendar'>
-						<Calendar events={events} />
-					</PanelCard>
-				</Col>
-
-				<Col span={8}>
-					<PanelCard title='Notifications'>
-					</PanelCard>
-				</Col>
+				{!isMobile && (
+					<Col span={8}>
+						<PanelCard title='Monthly Cases Ratio'>
+							<Pie
+								data={studentsRatio}
+								angleField='value'
+								colorField='type'
+								innerRadius={0.6}
+								animate={null}
+								{...chartConfig}
+							/>
+						</PanelCard>
+					</Col>
+				)}
 			</Row>
 		</Flex>
 	);
