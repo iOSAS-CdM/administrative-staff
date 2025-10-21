@@ -53,7 +53,7 @@ const Unverified = () => {
 			if (!data || !Array.isArray(data.students)) return;
 			setSearchResults(data.students);
 			setSearching(false);
-			pushToCache('peers', data.students, false);
+			pushToCache('students', data.students, false);
 		};
 		fetchSearchResults();
 
@@ -80,7 +80,7 @@ const Unverified = () => {
 										<Flex align='center' gap={8}>
 											<Avatar src={student.profilePicture} size='small' />
 											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
-											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase() || 'N/A'}</Text></Tag>
+											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
 										</Flex>
 									</div>
 								)
@@ -118,10 +118,11 @@ const Unverified = () => {
 	}, [setHeader, setSelectedKeys, isMobile, search, searchResults, searching]);
 	return (
 		<ContentPage
+			key='unverified'
 			fetchUrl={`${API_Route}/users/unverified-students/`}
 			emptyText='No profiles found'
-			cacheKey='peers'
-			transformData={(data) => data.students || []}
+			cacheKey='unverified-students'
+			transformData={(data) => data.students.filter(student => student.role === 'unverified-student') || []}
 			renderItem={(student) => (
 				<StudentCard
 					student={student}

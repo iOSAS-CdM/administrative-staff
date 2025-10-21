@@ -215,7 +215,7 @@ const DisciplinaryRecords = () => {
 			fetchUrl={`${API_Route}/records?status=${category}`}
 			emptyText='No records found'
 			cacheKey='records'
-			transformData={(data) => data.records || []}
+			transformData={(data) => data.records.filter(record => record?.tags.status === category) || []}
 			renderItem={(record) => (
 				<RecordCard
 					record={record}

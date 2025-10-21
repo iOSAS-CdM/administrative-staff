@@ -96,7 +96,7 @@ const CaseForm = ({ message }) => {
 			if (!data || !Array.isArray(data.students)) return;
 			setSearchResults(data.students);
 			setSearchingComplainant(false);
-			pushToCache('peers', data.students, false);
+			pushToCache('students', data.students, false);
 		};
 		fetchSearchResults();
 

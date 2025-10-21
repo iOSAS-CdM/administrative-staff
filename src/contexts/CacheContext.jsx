@@ -9,6 +9,8 @@ const CacheContext = React.createContext();
 /**
  * @typedef {{
  * 	staff: import('../classes/Staff').StaffProps | null;
+ * 	students: import('../classes/Student').StudentProps[];
+ * 	'unverified-students': import('../classes/Student').StudentProps[];
  * 	records: import('../classes/Record').RecordProps[];
  * 	organizations: import('../classes/Organization').OrganizationProps[];
  * 	announcements: import('../classes/Announcement').AnnouncementProps[];
@@ -61,6 +63,7 @@ export const CacheProvider = ({ children }) => {
 			profilePicture: null
 		},
 		students: [],
+		'unverified-students': [],
 		records: [],
 		organizations: [],
 		announcements: [],

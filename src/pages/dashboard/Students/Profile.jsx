@@ -343,7 +343,7 @@ const Profile = () => {
 		const controller = new AbortController();
 		if (id) {
 			// Try to get student from cache first
-			const cachedStudent = getFromCache('peers', 'id', id);
+			const cachedStudent = getFromCache('students', 'id', id);
 			if (cachedStudent) {
 				setThisStudent(cachedStudent);
 			} else {
@@ -377,7 +377,7 @@ const Profile = () => {
 					/** @type {import('../../../types').Record[]} */
 					const recordsData = await requests[1].json();
 					if (!studentData || !studentData.id) return;
-					pushToCache('peers', studentData, true);
+					pushToCache('students', studentData, true);
 					setThisStudent(studentData);
 					setThisRecords(recordsData.records);
 					console.log(recordsData.records)
@@ -578,7 +578,7 @@ const Profile = () => {
 												});
 												return;
 											};
-											pushToCache('peers', data, true);
+											pushToCache('students', data, true);
 											setThisStudent(data);
 											Modal.success({
 												title: 'Success',

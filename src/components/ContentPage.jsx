@@ -80,14 +80,16 @@ const ContentPage = ({
 			setItems(transformedItems);
 
 			// Extract the total count from the response (overall filtered data length)
-			if (data.length !== undefined)
+			if (data.length !== undefined) {
 				setTotalItems(data.length);
+			}
 
 			// Cache the items if a cache key is provided (including empty arrays)
-			// Use updateCache to replace the cache completely instead of pushToCache
-			// This ensures empty arrays properly clear the cache instead of merging
-			if (cacheKey)
+			if (cacheKey) {
+				// Use updateCache to replace the cache completely instead of pushToCache
+				// This ensures empty arrays properly clear the cache instead of merging
 				updateCache(cacheKey, transformedItems);
+			};
 
 			// Mark that we've completed at least one fetch
 			setHasFetched(true);
@@ -105,13 +107,29 @@ const ContentPage = ({
 
 	return (
 		<Flex vertical gap={32} style={{ width: '100%', minHeight: 256 }}>
-			{loading ? (
+			{loading && items.length === 0 ? (
 				<div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 256 }}>
 					<Spin />
 				</div>
 			) : items.length > 0 ? (
 				<>
-					<Row gutter={[16, 16]}>
+						<Row gutter={[16, 16]} style={{ position: 'relative' }}>
+							{loading && (
+								<div style={{
+									position: 'absolute',
+									top: 0,
+									left: 0,
+									right: 0,
+									bottom: 0,
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									zIndex: 10,
+									borderRadius: 8
+								}}>
+									<Spin />
+								</div>
+							)}
 						<AnimatePresence mode='popLayout'>
 							{items.map((item, index) => (
 								<Col key={item.id || index} lg={columnSpan} md={12} sm={24} xs={24}>
