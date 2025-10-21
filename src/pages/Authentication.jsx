@@ -5,7 +5,6 @@ import supabase from '../utils/supabase';
 import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-shell';
 import { start, cancel } from '@fabianlars/tauri-plugin-oauth';
-import { isTauri } from '@tauri-apps/api/core';
 
 import { getVersion } from '@tauri-apps/api/app';
 
@@ -58,73 +57,56 @@ const Authentication = () => {
 
 	const signInWithGoogle = React.useCallback(async () => {
 		setSigningIn(true);
-		if (isTauri()) {
-		// Tauri desktop OAuth flow
-			let port;
+		let port;
 
-			const unlisten = await listen('oauth://url', (data) => {
-				if (!data.payload) return;
+		const unlisten = await listen('oauth://url', (data) => {
+			if (!data.payload) return;
 
-				const url = new URL(data.payload);
-				const code = new URLSearchParams(url.search).get('code');
+			const url = new URL(data.payload);
+			const code = new URLSearchParams(url.search).get('code');
 
-				if (code) {
-					supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-						if (error) {
-							alert(error.message);
-							console.error(error);
-							return;
-						};
-						console.log(data);
-						location.reload();
+			if (code) {
+				supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+					if (error) {
+						alert(error.message);
+						console.error(error);
+						return;
+					};
+					console.log(data);
+					location.reload();
 
-						unlisten();
-						cancel(port)
-							.catch((e) => console.error(`Error cancelling OAuth listener for port ${port}:`, e));
-					});
-				};
-			});
+					unlisten();
+					cancel(port)
+						.catch((e) => console.error(`Error cancelling OAuth listener for port ${port}:`, e));
+				});
+			};
+		});
 
-			await start({
-				ports: [8000, 8001, 8002, 8003, 8004],
-				response: `<script>window.location.href = 'http://${window.location.hostname}:${window.location.port}/auth-return';</script>`,
+		await start({
+			ports: [8000, 8001, 8002, 8003, 8004],
+			response: `<script>window.location.href = 'http://${window.location.hostname}:${window.location.port}/auth-return';</script>`,
+		})
+			.then(async (p) => {
+				console.log(`OAuth listener started on port ${p}`);
+				port = p;
 			})
-				.then(async (p) => {
-					console.log(`OAuth listener started on port ${p}`);
-					port = p;
-				})
-				.catch((e) => console.error('Error starting OAuth listener:', e));
+			.catch((e) => console.error('Error starting OAuth listener:', e));
 
-			if (!port) return;
+		if (!port) return;
 
-			const { data, error } = await supabase.auth.signInWithOAuth({
-				provider: 'google',
-				options: {
-					redirectTo: `http://localhost:${port}`,
-					skipBrowserRedirect: true
-				}
-			});
-			console.log(data, error);
-
-			if (data.url)
-				open(data.url);
-			else if (error)
-				console.error('Error signing in with Google:', error.message);
-		} else {
-			// Web browser OAuth flow
-			const { data, error } = await supabase.auth.signInWithOAuth({
-				provider: 'google',
-				options: {
-					redirectTo: window.location.origin + '/auth-return',
-				}
-			});
-			if (error) {
-				alert(error.message);
-				setSigningIn(false);
-				return;
+		const { data, error } = await supabase.auth.signInWithOAuth({
+			provider: 'google',
+			options: {
+				redirectTo: `http://localhost:${port}`,
+				skipBrowserRedirect: true
 			}
-			// Supabase will handle the redirect, so no further action needed
-		};
+		});
+		console.log(data, error);
+
+		if (data.url)
+			open(data.url);
+		else if (error)
+			console.error('Error signing in with Google:', error.message);
 	}, []);
 
 	return (
