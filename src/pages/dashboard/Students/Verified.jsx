@@ -224,7 +224,7 @@ const Verified = () => {
 										<Flex align='center' gap={8}>
 											<Avatar src={student.profilePicture} size='small' />
 											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
-											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute.toUpperCase()}</Text></Tag>
+											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase() || 'N/A'}</Text></Tag>
 										</Flex>
 									</div>
 								)
@@ -266,7 +266,6 @@ const Verified = () => {
 			emptyText='No profiles found'
 			cacheKey='peers'
 			transformData={(data) => data.students || []}
-			totalItems={cache.peers?.filter(student => student.role === 'student').length + 1 || 0}
 			renderItem={(student) => (
 				<StudentCard
 					student={student}
@@ -324,7 +323,7 @@ const StudentCard = ({ student, loading }) => {
 					<Title level={3}>{thisStudent.name.first} {thisStudent.name.last}</Title>
 					<Flex align='center' gap={8} wrap>
 						<Tag><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.id}</Text></Tag>
-						<Tag color={thisStudent.institute === 'ics' ? 'orange' : thisStudent.institute === 'ite' ? 'blue' : thisStudent.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.institute.toUpperCase()}</Text></Tag>
+						<Tag color={thisStudent.institute === 'ics' ? 'orange' : thisStudent.institute === 'ite' ? 'blue' : thisStudent.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.institute?.toUpperCase() || 'N/A'}</Text></Tag>
 					</Flex>
 				</Flex>
 				<Dropdown

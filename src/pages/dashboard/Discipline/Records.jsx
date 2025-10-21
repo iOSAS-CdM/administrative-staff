@@ -216,7 +216,6 @@ const DisciplinaryRecords = () => {
 			emptyText='No records found'
 			cacheKey='records'
 			transformData={(data) => data.records || []}
-			totalItems={cache.records?.filter(record => record.tags.status === 'ongoing').length + 1 || 0}
 			renderItem={(record) => (
 				<RecordCard
 					record={record}

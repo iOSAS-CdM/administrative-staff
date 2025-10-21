@@ -14,7 +14,6 @@ import { useRefresh } from '../contexts/RefreshContext';
  *  emptyText?: string;
  *  columnSpan?: number;
  *  pageSize?: number;
- * 	totalItems?: number;
  *  cacheKey?: string;
  *  onDataFetched?: (data: any) => void;
  *  transformData?: (data: any) => any[];
@@ -27,7 +26,6 @@ const ContentPage = ({
 	emptyText = 'No items found',
 	columnSpan = 8,
 	pageSize = 20,
-	totalItems = 0,
 	cacheKey,
 	onDataFetched,
 	transformData = (data) => Array.isArray(data) ? data : []
@@ -36,6 +34,7 @@ const ContentPage = ({
 	const { refresh } = useRefresh();
 	const [loading, setLoading] = React.useState(true);
 	const [page, setPage] = React.useState(0);
+	const [totalItems, setTotalItems] = React.useState(0);
 	// initialize items from cache if available so previous items are shown while fetching
 	const [items, setItems] = React.useState(() => {
 		if (cacheKey && cache && cache[cacheKey] && Array.isArray(cache[cacheKey]))
@@ -80,12 +79,15 @@ const ContentPage = ({
 			// update items only after we have the new data so UI doesn't flash empty
 			setItems(transformedItems);
 
+			// Extract the total count from the response (overall filtered data length)
+			if (data.length !== undefined)
+				setTotalItems(data.length);
+
 			// Cache the items if a cache key is provided (including empty arrays)
-			if (cacheKey) {
-				// Use updateCache to replace the cache completely instead of pushToCache
-				// This ensures empty arrays properly clear the cache instead of merging
+			// Use updateCache to replace the cache completely instead of pushToCache
+			// This ensures empty arrays properly clear the cache instead of merging
+			if (cacheKey)
 				updateCache(cacheKey, transformedItems);
-			};
 
 			// Mark that we've completed at least one fetch
 			setHasFetched(true);
