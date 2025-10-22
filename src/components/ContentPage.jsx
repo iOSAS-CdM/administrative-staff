@@ -80,16 +80,14 @@ const ContentPage = ({
 			setItems(transformedItems);
 
 			// Extract the total count from the response (overall filtered data length)
-			if (data.length !== undefined) {
+			if (data.length !== undefined)
 				setTotalItems(data.length);
-			}
 
 			// Cache the items if a cache key is provided (including empty arrays)
-			if (cacheKey) {
+			if (cacheKey)
 				// Use updateCache to replace the cache completely instead of pushToCache
 				// This ensures empty arrays properly clear the cache instead of merging
 				updateCache(cacheKey, transformedItems);
-			};
 
 			// Mark that we've completed at least one fetch
 			setHasFetched(true);
@@ -108,7 +106,16 @@ const ContentPage = ({
 	return (
 		<Flex vertical gap={32} style={{ width: '100%', minHeight: 256 }}>
 			{loading && items.length === 0 ? (
-				<div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 256 }}>
+				<div style={{
+					position: 'absolute',
+					width: '100%',
+					height: 128,
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'end',
+					zIndex: 10,
+					pointerEvents: 'none'
+				}}>
 					<Spin />
 				</div>
 			) : items.length > 0 ? (
@@ -117,15 +124,13 @@ const ContentPage = ({
 							{loading && (
 								<div style={{
 									position: 'absolute',
-									top: 0,
-									left: 0,
-									right: 0,
-									bottom: 0,
+									width: '100%',
+									height: 128,
 									display: 'flex',
 									justifyContent: 'center',
-									alignItems: 'center',
+									alignItems: 'end',
 									zIndex: 10,
-									borderRadius: 8
+									pointerEvents: 'none'
 								}}>
 									<Spin />
 								</div>

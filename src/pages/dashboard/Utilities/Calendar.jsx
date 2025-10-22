@@ -77,7 +77,8 @@ const CalendarPage = () => {
 							},
 							{
 								key: 'create-announcement',
-								label: 'Announcement'
+								label: 'Announcement',
+								onClick: () => navigate('/dashboard/utilities/announcements/new')
 							}
 						]
 					}}

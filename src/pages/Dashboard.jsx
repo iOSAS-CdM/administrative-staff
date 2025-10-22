@@ -27,11 +27,14 @@ import {
 	MenuOutlined,
 	MoonOutlined,
 	SunOutlined,
-	SolutionOutlined
+	SolutionOutlined,
+	ReloadOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 import { DisplayThemeContext, API_Route } from '../main';
 import { useMobile } from '../contexts/MobileContext';
+import { RefreshProvider, useRefresh } from '../contexts/RefreshContext';
 import { PagePropsProvider } from '../contexts/PagePropsContext';
 
 import Home from './dashboard/Home';
@@ -62,6 +65,7 @@ const Dashboard = () => {
 	const location = useLocation();
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
 	const { cache, updateCache, pushToCache } = useCache();
+	const { refresh, setRefresh } = useRefresh();
 
 	const isMobile = useMobile();
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
@@ -107,7 +111,7 @@ const Dashboard = () => {
 		getStaff();
 
 		return () => controller.abort();
-	}, [cache?.staff]);
+	}, [cache?.staff, refresh]);
 
 	const [Header, setHeader] = React.useState({
 		title: 'Dashboard',
@@ -211,23 +215,15 @@ const Dashboard = () => {
 				label: (
 					<Flex justify='space-between' align='center' style={{ width: '100%' }}>
 						<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-							{cache?.staff ? (
-								<Flex vertical>
-									<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
-									<Text type='secondary' style={{ color: 'currentColor' }}>{{
-										'head': 'Head',
-										'guidance': 'Guidance Officer',
-										'prefect': 'Prefect of Discipline Officer',
-										'student-affairs': 'Student Affairs Officer'
-									}[cache?.staff?.role]}</Text>
-								</Flex>
-							) : (
-								<Skeleton.Node
-									active
-									shape='square'
-									style={{ width: '100%' }}
-								/>
-							)}
+							<Flex vertical>
+								<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
+								<Text type='secondary' style={{ color: 'currentColor' }}>{{
+									'head': 'Head',
+									'guidance': 'Guidance Officer',
+									'prefect': 'Prefect of Discipline Officer',
+									'student-affairs': 'Student Affairs Officer'
+								}[cache?.staff?.role]}</Text>
+							</Flex>
 						</div>
 
 						<div style={{ width: 32 }}>
@@ -241,21 +237,12 @@ const Dashboard = () => {
 					</Flex>
 				),
 				icon: (
-					cache?.staff ? (
-						<Avatar
-							src={cache?.staff?.profilePicture}
-							shape='square'
-							size='small'
-							style={{ width: 32, height: 32 }}
-						/>
-					) : (
-						<Skeleton.Avatar
-							active
-							shape='square'
-							size='small'
-							style={{ width: 32, height: 32 }}
-						/>
-					)
+					<Skeleton.Avatar
+						active
+						shape='square'
+						size='small'
+						style={{ width: 32, height: 32 }}
+					/>
 				),
 				onClick: () => { },
 				style: {
@@ -291,11 +278,11 @@ const Dashboard = () => {
 					label: 'Unverified Students',
 					onClick: () => navigate('/dashboard/students/unverified', { replace: true })
 				},
-				{
+				['head', 'student-affairs'].includes(cache?.staff?.role) ? {
 					key: 'organizations',
 					label: 'Organizations',
 					onClick: () => navigate('/dashboard/students/organizations/active', { replace: true })
-				}
+				} : null
 			]
 		},
 		{
@@ -348,7 +335,7 @@ const Dashboard = () => {
 			icon: <RobotOutlined />,
 			onClick: () => navigate('/dashboard/ambot', { replace: true })
 		}
-	], [cache?.staff]);
+	], [cache?.staff, minimized, refresh]);
 
 	return (
 		<Flex
@@ -391,16 +378,18 @@ const Dashboard = () => {
 									onClick={() => setMinimized(!minimized)}
 									style={{ width: '100%' }}
 								/>
-								{cache?.staff ? (
+								{cache?.staff?.profilePicture ? (
 									<Avatar
 										src={cache?.staff?.profilePicture}
+										alt={cache?.staff?.name}
+										fallback={<UserOutlined />}
 										shape='square'
 										size='small'
 										style={{ width: 32, height: 32 }}
 									/>
 								) : (
-									<Skeleton.Avatar
-										active
+									<Avatar
+										icon={<UserOutlined />}
 										shape='square'
 										size='small'
 										style={{ width: 32, height: 32 }}
@@ -516,6 +505,13 @@ const Dashboard = () => {
 						<Title level={4}>{Header.title}</Title>
 						{!isMobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+								<Button
+									type='default'
+									icon={<ReloadOutlined />}
+									onClick={() => {
+										setRefresh({ timestamp: Date.now() });
+									}}
+								/>
 								{Header.actions && Header.actions.map((action, index) =>
 									React.cloneElement(action, { key: index })
 								)}
@@ -581,4 +577,10 @@ const Dashboard = () => {
 	);
 };
 
-export default Dashboard;
+const Entry = () => (
+	<RefreshProvider>
+		<Dashboard />
+	</RefreshProvider>
+);
+
+export default Entry;

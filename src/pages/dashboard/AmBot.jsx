@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
-import { marked } from 'marked';
+import { MarkdownEditor } from '@ant-design/md-editor';
 
 import { Flex, Button, Card, Avatar, Input, Form } from 'antd';
 
@@ -181,7 +181,7 @@ const AmBot = () => {
 							transition={{ duration: 0.2 }}
 						>
 							<Card>
-								<p dangerouslySetInnerHTML={{ __html: marked(message.content) }} />
+								<MarkdownEditor.Markdown source={message.content || ''} />
 							</Card>
 						</motion.div>
 						{message.sender === 'user' && (

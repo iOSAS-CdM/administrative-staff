@@ -1,0 +1,407 @@
+@media (prefers-color-scheme: dark) {
+	.wmde-markdown,
+	.wmde-markdown-var {
+		color-scheme: dark;
+		/* Core Theme Mappings (Reverting to Ant Light/Default for consistency with reference) */
+		--color-fg-default: var(--ant-color-text);
+		--color-fg-muted: var(--ant-color-text-secondary);
+		--color-fg-subtle: var(--ant-color-text-tertiary);
+		--color-canvas-default: var(--ant-color-bg-container);
+		--color-canvas-subtle: var(--ant-color-bg-layout);
+		--color-border-default: var(--ant-color-border);
+		--color-border-muted: var(--ant-color-border-secondary);
+		--color-neutral-muted: var(--ant-color-fill-tertiary);
+		--color-accent-fg: var(--ant-color-primary);
+		--color-accent-emphasis: var(--ant-color-primary-active);
+		--color-attention-fg: var(--ant-color-warning-text);
+		--color-attention-emphasis: var(--ant-color-warning-active);
+		--color-danger-fg: var(--ant-color-error-text);
+		--color-danger-emphasis: var(--ant-color-error-active);
+		--color-success-fg: var(--ant-color-success-text);
+		--color-success-emphasis: var(--ant-color-success-active);
+		--color-done-fg: var(--ant-purple);
+		--color-done-emphasis: var(--ant-purple-7);
+		--color-attention-subtle: var(--ant-color-warning-bg);
+		--color-copied-active-bg: var(--ant-color-success-active);
+
+		/* Prettylights/Syntax Highlighting Mappings (Using Ant's colorful variables) */
+		--color-prettylights-syntax-comment: var(--ant-color-text-tertiary);
+		--color-prettylights-syntax-constant: var(--ant-blue-7);
+		--color-prettylights-syntax-entity: var(--ant-purple-7);
+		--color-prettylights-syntax-storage-modifier-import: var(
+			--ant-color-text
+		);
+		--color-prettylights-syntax-entity-tag: var(--ant-green-7);
+		--color-prettylights-syntax-keyword: var(--ant-red-6);
+		--color-prettylights-syntax-string: var(--ant-cyan-7);
+		--color-prettylights-syntax-variable: var(--ant-orange-7);
+		--color-prettylights-syntax-brackethighlighter-unmatched: var(
+			--ant-color-error
+		);
+		--color-prettylights-syntax-invalid-illegal-text: var(--ant-color-text);
+		--color-prettylights-syntax-invalid-illegal-bg: var(--ant-red-9);
+		--color-prettylights-syntax-carriage-return-text: var(--ant-color-text);
+		--color-prettylights-syntax-carriage-return-bg: var(--ant-red-6);
+		--color-prettylights-syntax-string-regexp: var(--ant-green-7);
+		--color-prettylights-syntax-markup-list: var(--ant-gold-6);
+		--color-prettylights-syntax-markup-heading: var(
+			--ant-color-primary-active
+		);
+		--color-prettylights-syntax-markup-italic: var(--ant-color-text);
+		--color-prettylights-syntax-markup-bold: var(--ant-color-text);
+		--color-prettylights-syntax-markup-deleted-text: var(--ant-red-2);
+		--color-prettylights-syntax-markup-deleted-bg: var(--ant-red-1);
+		--color-prettylights-syntax-markup-inserted-text: var(--ant-green-2);
+		--color-prettylights-syntax-markup-inserted-bg: var(--ant-green-1);
+		--color-prettylights-syntax-markup-changed-text: var(--ant-orange-2);
+		--color-prettylights-syntax-markup-changed-bg: var(--ant-orange-1);
+		--color-prettylights-syntax-markup-ignored-text: var(--ant-color-text);
+		--color-prettylights-syntax-markup-ignored-bg: var(--ant-blue-8);
+		--color-prettylights-syntax-meta-diff-range: var(--ant-purple-7);
+		--color-prettylights-syntax-brackethighlighter-angle: var(
+			--ant-color-text-secondary
+		);
+		--color-prettylights-syntax-sublimelinter-gutter-mark: var(
+			--ant-color-text-tertiary
+		);
+		--color-prettylights-syntax-constant-other-reference-link: var(
+			--ant-cyan-7
+		);
+	}
+}
+@media (prefers-color-scheme: light) {
+	.wmde-markdown,
+	.wmde-markdown-var {
+		color-scheme: light;
+		/* Core Theme Mappings (Using Ant Light/Default for consistency with reference) */
+		--color-fg-default: var(--ant-color-text);
+		--color-fg-muted: var(--ant-color-text-secondary);
+		--color-fg-subtle: var(--ant-color-text-tertiary);
+		--color-canvas-default: var(--ant-color-bg-container);
+		--color-canvas-subtle: var(--ant-color-bg-layout);
+		--color-border-default: var(--ant-color-border);
+		--color-border-muted: var(--ant-color-border-secondary);
+		--color-neutral-muted: var(--ant-color-fill-tertiary);
+		--color-accent-fg: var(--ant-color-primary);
+		--color-accent-emphasis: var(--ant-color-primary-active);
+		--color-attention-fg: var(--ant-color-warning-text);
+		--color-attention-emphasis: var(--ant-color-warning-active);
+		--color-danger-fg: var(--ant-color-error-text);
+		--color-danger-emphasis: var(--ant-color-error-active);
+		--color-success-fg: var(--ant-color-success-text);
+		--color-success-emphasis: var(--ant-color-success-active);
+		--color-done-fg: var(--ant-purple);
+		--color-done-emphasis: var(--ant-purple-7);
+		--color-attention-subtle: var(--ant-color-warning-bg);
+		--color-copied-active-bg: var(--ant-color-success-active);
+
+		/* Prettylights/Syntax Highlighting Mappings (Using Ant's colorful variables) */
+		--color-prettylights-syntax-comment: var(--ant-color-text-tertiary);
+		--color-prettylights-syntax-constant: var(--ant-blue-7);
+		--color-prettylights-syntax-entity: var(--ant-purple-7);
+		--color-prettylights-syntax-storage-modifier-import: var(
+			--ant-color-text
+		);
+		--color-prettylights-syntax-entity-tag: var(--ant-green-7);
+		--color-prettylights-syntax-keyword: var(--ant-red-6);
+		--color-prettylights-syntax-string: var(--ant-cyan-7);
+		--color-prettylights-syntax-variable: var(--ant-orange-7);
+		--color-prettylights-syntax-brackethighlighter-unmatched: var(
+			--ant-color-error
+		);
+		--color-prettylights-syntax-invalid-illegal-text: var(--ant-color-text);
+		--color-prettylights-syntax-invalid-illegal-bg: var(--ant-red-9);
+		--color-prettylights-syntax-carriage-return-text: var(--ant-color-text);
+		--color-prettylights-syntax-carriage-return-bg: var(--ant-red-6);
+		--color-prettylights-syntax-string-regexp: var(--ant-green-7);
+		--color-prettylights-syntax-markup-list: var(--ant-gold-6);
+		--color-prettylights-syntax-markup-heading: var(
+			--ant-color-primary-active
+		);
+		--color-prettylights-syntax-markup-italic: var(--ant-color-text);
+		--color-prettylights-syntax-markup-bold: var(--ant-color-text);
+		--color-prettylights-syntax-markup-deleted-text: var(--ant-red-2);
+		--color-prettylights-syntax-markup-deleted-bg: var(--ant-red-1);
+		--color-prettylights-syntax-markup-inserted-text: var(--ant-green-2);
+		--color-prettylights-syntax-markup-inserted-bg: var(--ant-green-1);
+		--color-prettylights-syntax-markup-changed-text: var(--ant-orange-2);
+		--color-prettylights-syntax-markup-changed-bg: var(--ant-orange-1);
+		--color-prettylights-syntax-markup-ignored-text: var(--ant-color-text);
+		--color-prettylights-syntax-markup-ignored-bg: var(--ant-blue-8);
+		--color-prettylights-syntax-meta-diff-range: var(--ant-purple-7);
+		--color-prettylights-syntax-brackethighlighter-angle: var(
+			--ant-color-text-secondary
+		);
+		--color-prettylights-syntax-sublimelinter-gutter-mark: var(
+			--ant-color-text-tertiary
+		);
+		--color-prettylights-syntax-constant-other-reference-link: var(
+			--ant-cyan-7
+		);
+	}
+}
+/* The data-color-mode selectors also use the Ant Light theme mappings for consistency */
+[data-color-mode*="dark"] .wmde-markdown,
+[data-color-mode*="dark"] .wmde-markdown-var,
+.wmde-markdown-var[data-color-mode*="dark"],
+.wmde-markdown[data-color-mode*="dark"],
+body[data-color-mode*="dark"] {
+	color-scheme: dark;
+	/* Core Theme Mappings (Reverting to Ant Light/Default for consistency with reference) */
+	--color-fg-default: var(--ant-color-text);
+	--color-fg-muted: var(--ant-color-text-secondary);
+	--color-fg-subtle: var(--ant-color-text-tertiary);
+	--color-canvas-default: var(--ant-color-bg-container);
+	--color-canvas-subtle: var(--ant-color-bg-layout);
+	--color-border-default: var(--ant-color-border);
+	--color-border-muted: var(--ant-color-border-secondary);
+	--color-neutral-muted: var(--ant-color-fill-tertiary);
+	--color-accent-fg: var(--ant-color-primary);
+	--color-accent-emphasis: var(--ant-color-primary-active);
+	--color-attention-fg: var(--ant-color-warning-text);
+	--color-attention-emphasis: var(--ant-color-warning-active);
+	--color-danger-fg: var(--ant-color-error-text);
+	--color-danger-emphasis: var(--ant-color-error-active);
+	--color-success-fg: var(--ant-color-success-text);
+	--color-success-emphasis: var(--ant-color-success-active);
+	--color-done-fg: var(--ant-purple);
+	--color-done-emphasis: var(--ant-purple-7);
+	--color-attention-subtle: var(--ant-color-warning-bg);
+	--color-copied-active-bg: var(--ant-color-success-active);
+
+	/* Prettylights/Syntax Highlighting Mappings (Using Ant's colorful variables) */
+	--color-prettylights-syntax-comment: var(--ant-color-text-tertiary);
+	--color-prettylights-syntax-constant: var(--ant-blue-7);
+	--color-prettylights-syntax-entity: var(--ant-purple-7);
+	--color-prettylights-syntax-storage-modifier-import: var(--ant-color-text);
+	--color-prettylights-syntax-entity-tag: var(--ant-green-7);
+	--color-prettylights-syntax-keyword: var(--ant-red-6);
+	--color-prettylights-syntax-string: var(--ant-cyan-7);
+	--color-prettylights-syntax-variable: var(--ant-orange-7);
+	--color-prettylights-syntax-brackethighlighter-unmatched: var(
+		--ant-color-error
+	);
+	--color-prettylights-syntax-invalid-illegal-text: var(--ant-color-text);
+	--color-prettylights-syntax-invalid-illegal-bg: var(--ant-red-9);
+	--color-prettylights-syntax-carriage-return-text: var(--ant-color-text);
+	--color-prettylights-syntax-carriage-return-bg: var(--ant-red-6);
+	--color-prettylights-syntax-string-regexp: var(--ant-green-7);
+	--color-prettylights-syntax-markup-list: var(--ant-gold-6);
+	--color-prettylights-syntax-markup-heading: var(--ant-color-primary-active);
+	--color-prettylights-syntax-markup-italic: var(--ant-color-text);
+	--color-prettylights-syntax-markup-bold: var(--ant-color-text);
+	--color-prettylights-syntax-markup-deleted-text: var(--ant-red-2);
+	--color-prettylights-syntax-markup-deleted-bg: var(--ant-red-1);
+	--color-prettylights-syntax-markup-inserted-text: var(--ant-green-2);
+	--color-prettylights-syntax-markup-inserted-bg: var(--ant-green-1);
+	--color-prettylights-syntax-markup-changed-text: var(--ant-orange-2);
+	--color-prettylights-syntax-markup-changed-bg: var(--ant-orange-1);
+	--color-prettylights-syntax-markup-ignored-text: var(--ant-color-text);
+	--color-prettylights-syntax-markup-ignored-bg: var(--ant-blue-8);
+	--color-prettylights-syntax-meta-diff-range: var(--ant-purple-7);
+	--color-prettylights-syntax-brackethighlighter-angle: var(
+		--ant-color-text-secondary
+	);
+	--color-prettylights-syntax-sublimelinter-gutter-mark: var(
+		--ant-color-text-tertiary
+	);
+	--color-prettylights-syntax-constant-other-reference-link: var(
+		--ant-cyan-7
+	);
+}
+[data-color-mode*="light"] .wmde-markdown,
+[data-color-mode*="light"] .wmde-markdown-var,
+.wmde-markdown-var[data-color-mode*="light"],
+.wmde-markdown[data-color-mode*="light"],
+body[data-color-mode*="light"] {
+	color-scheme: light;
+	/* Core Theme Mappings (Using Ant Light/Default for consistency with reference) */
+	--color-fg-default: var(--ant-color-text);
+	--color-fg-muted: var(--ant-color-text-secondary);
+	--color-fg-subtle: var(--ant-color-text-tertiary);
+	--color-canvas-default: var(--ant-color-bg-container);
+	--color-canvas-subtle: var(--ant-color-bg-layout);
+	--color-border-default: var(--ant-color-border);
+	--color-border-muted: var(--ant-color-border-secondary);
+	--color-neutral-muted: var(--ant-color-fill-tertiary);
+	--color-accent-fg: var(--ant-color-primary);
+	--color-accent-emphasis: var(--ant-color-primary-active);
+	--color-attention-fg: var(--ant-color-warning-text);
+	--color-attention-emphasis: var(--ant-color-warning-active);
+	--color-danger-fg: var(--ant-color-error-text);
+	--color-danger-emphasis: var(--ant-color-error-active);
+	--color-success-fg: var(--ant-color-success-text);
+	--color-success-emphasis: var(--ant-color-success-active);
+	--color-done-fg: var(--ant-purple);
+	--color-done-emphasis: var(--ant-purple-7);
+	--color-attention-subtle: var(--ant-color-warning-bg);
+	--color-copied-active-bg: var(--ant-color-success-active);
+
+	/* Prettylights/Syntax Highlighting Mappings (Using Ant's colorful variables) */
+	--color-prettylights-syntax-comment: var(--ant-color-text-tertiary);
+	--color-prettylights-syntax-constant: var(--ant-blue-7);
+	--color-prettylights-syntax-entity: var(--ant-purple-7);
+	--color-prettylights-syntax-storage-modifier-import: var(--ant-color-text);
+	--color-prettylights-syntax-entity-tag: var(--ant-green-7);
+	--color-prettylights-syntax-keyword: var(--ant-red-6);
+	--color-prettylights-syntax-string: var(--ant-cyan-7);
+	--color-prettylights-syntax-variable: var(--ant-orange-7);
+	--color-prettylights-syntax-brackethighlighter-unmatched: var(
+		--ant-color-error
+	);
+	--color-prettylights-syntax-invalid-illegal-text: var(--ant-color-text);
+	--color-prettylights-syntax-invalid-illegal-bg: var(--ant-red-9);
+	--color-prettylights-syntax-carriage-return-text: var(--ant-color-text);
+	--color-prettylights-syntax-carriage-return-bg: var(--ant-red-6);
+	--color-prettylights-syntax-string-regexp: var(--ant-green-7);
+	--color-prettylights-syntax-markup-list: var(--ant-gold-6);
+	--color-prettylights-syntax-markup-heading: var(--ant-color-primary-active);
+	--color-prettylights-syntax-markup-italic: var(--ant-color-text);
+	--color-prettylights-syntax-markup-bold: var(--ant-color-text);
+	--color-prettylights-syntax-markup-deleted-text: var(--ant-red-2);
+	--color-prettylights-syntax-markup-deleted-bg: var(--ant-red-1);
+	--color-prettylights-syntax-markup-inserted-text: var(--ant-green-2);
+	--color-prettylights-syntax-markup-inserted-bg: var(--ant-green-1);
+	--color-prettylights-syntax-markup-changed-text: var(--ant-orange-2);
+	--color-prettylights-syntax-markup-changed-bg: var(--ant-orange-1);
+	--color-prettylights-syntax-markup-ignored-text: var(--ant-color-text);
+	--color-prettylights-syntax-markup-ignored-bg: var(--ant-blue-8);
+	--color-prettylights-syntax-meta-diff-range: var(--ant-purple-7);
+	--color-prettylights-syntax-brackethighlighter-angle: var(
+		--ant-color-text-secondary
+	);
+	--color-prettylights-syntax-sublimelinter-gutter-mark: var(
+		--ant-color-text-tertiary
+	);
+	--color-prettylights-syntax-constant-other-reference-link: var(
+		--ant-cyan-7
+	);
+}
+.wmde-markdown {
+	-webkit-text-size-adjust: 100%;
+	/* Using Ant Design font family */
+	font-family: var(--ant-font-family);
+	font-size: 16px; /* Keeping GitHub's base font size */
+	line-height: 1.5;
+	word-wrap: break-word;
+	color: var(--color-fg-default);
+	background-color: var(--color-canvas-default);
+}
+.wmde-markdown details,
+.wmde-markdown figcaption,
+.wmde-markdown figure {
+	display: block;
+}
+.wmde-markdown summary {
+	display: list-item;
+}
+.wmde-markdown [hidden] {
+	display: none !important;
+}
+.wmde-markdown a {
+	background-color: transparent;
+	color: var(--color-accent-fg);
+	text-decoration: none;
+}
+.wmde-markdown a:active,
+.wmde-markdown a:hover {
+	outline-width: 0;
+}
+.wmde-markdown abbr[title] {
+	border-bottom: none;
+	-webkit-text-decoration: underline dotted;
+	text-decoration: underline dotted;
+}
+.wmde-markdown b,
+.wmde-markdown strong {
+	font-weight: var(--ant-font-weight-strong);
+}
+.wmde-markdown dfn {
+	font-style: italic;
+}
+.wmde-markdown h1 {
+	margin: 0.67em 0;
+	font-weight: var(--ant-font-weight-strong);
+	padding-bottom: 0.3em;
+	font-size: var(--ant-font-size-heading-1);
+	border-bottom: 1px solid var(--color-border-muted);
+}
+.wmde-markdown mark {
+	background-color: var(--color-attention-subtle);
+	color: var(--ant-color-text); /* Fallback to ant text color */
+}
+.wmde-markdown small {
+	font-size: 90%;
+}
+.wmde-markdown sub,
+.wmde-markdown sup {
+	font-size: 75%;
+	line-height: 0;
+	position: relative;
+	vertical-align: baseline;
+}
+.wmde-markdown sub {
+	bottom: -0.25em;
+}
+.wmde-markdown sup {
+	top: -0.5em;
+}
+.wmde-markdown img {
+	display: inline-block;
+	border-style: none;
+	max-width: 100%;
+	box-sizing: content-box;
+	background-color: var(--color-canvas-default);
+}
+.wmde-markdown code,
+.wmde-markdown kbd,
+.wmde-markdown pre,
+.wmde-markdown samp {
+	font-family: var(--ant-font-family-code);
+	font-size: 1em;
+}
+.wmde-markdown figure {
+	margin: 1em 40px;
+}
+.wmde-markdown hr {
+	box-sizing: content-box;
+	overflow: hidden;
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--color-border-muted);
+	height: 0.25em;
+	padding: 0;
+	margin: 24px 0;
+	background-color: var(--color-border-default);
+}
+.wmde-markdown input {
+	font: inherit;
+	margin: 0;
+	overflow: visible;
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+}
+.wmde-markdown [type="button"],
+.wmde-markdown [type="reset"],
+.wmde-markdown [type="submit"] {
+	-webkit-appearance: button;
+	-moz-appearance: button;
+	appearance: button;
+}
+.wmde-markdown [type="button"]::-moz-focus-inner,
+.wmde-markdown [type="reset"]::-moz-focus-inner,
+.wmde-markdown [type="submit"]::-moz-focus-inner {
+	border-style: none;
+	padding: 0;
+}
+.wmde-markdown [type="button"]:-moz-focusring,
+.wmde-markdown [type="reset"]:-moz-focusring,
+.wmde-markdown [type="submit"]:-moz-focusring {
+	outline: 1px dotted ButtonText;
+}
+.wmde-markdown [type="checkbox"],
+.wmde-markdown [type="radio"] {
+	box-sizing: border-box;
+	padding: 0;
+}
