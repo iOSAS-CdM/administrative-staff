@@ -93,15 +93,15 @@ const Dashboard = () => {
 					});
 				return;
 			};
-			if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(staff.role)) {
-				supabase.auth.signOut()
-					.then(() => {
-						window.location.href = '/unauthorized';
-					})
-					.catch((error) => {
-						console.error('Sign Out Error:', error);
-					});
-			};
+			// if (!['head', 'guidance', 'prefect', 'student-affairs'].includes(staff.role)) {
+			// 	supabase.auth.signOut()
+			// 		.then(() => {
+			// 			window.location.href = '/unauthorized';
+			// 		})
+			// 		.catch((error) => {
+			// 			console.error('Sign Out Error:', error);
+			// 		});
+			// };
 			updateCache('staff', staff);
 			pushToCache('peers', staff, true);
 		};
@@ -173,159 +173,237 @@ const Dashboard = () => {
 	const [minimized, setMinimized] = React.useState(false);
 
 	/**
+	 * Helper function to check if a menu item should be visible based on staff role
+	 * @param {string} itemKey - The key of the menu item
+	 * @param {string} role - The staff role
+	 * @returns {boolean} - Whether the item should be visible
+	 */
+	const isMenuItemVisible = (itemKey, role) => {
+		// Head has access to everything
+		if (role === 'head') return true;
+
+		const roleAccess = {
+			'guidance': ['home', 'notifications', 'verified', 'records', 'calendar', 'faqs', 'announcements', 'repository', 'ambot'],
+			'prefect': ['home', 'notifications', 'records', 'reports', 'calendar', 'repository', 'ambot'],
+			'student-affairs': ['home', 'notifications', 'verified', 'unverified', 'organizations', 'records', 'reports', 'calendar', 'faqs', 'announcements', 'repository', 'ambot']
+		};
+
+		return roleAccess[role]?.includes(itemKey) || false;
+	};
+
+	/**
+	 * Helper function to check if a staff member has read-only access
+	 * @param {string} itemKey - The key of the menu item
+	 * @param {string} role - The staff role
+	 * @returns {boolean} - Whether the access is read-only
+	 */
+	const isReadOnly = (itemKey, role) => {
+		if (role === 'head') return false;
+		if (role === 'guidance' && itemKey === 'records') return true;
+		if (role === 'student-affairs' && (itemKey === 'records' || itemKey === 'reports')) return true;
+		return false;
+	};
+
+	/**
 	 * @type {import('antd').MenuProps['items']}
 	 */
-	const menuItems = [
-		...minimized ? [] : [
-			{
-				key: 'staff',
-				label: (
-					<Flex justify='space-between' align='center' style={{ width: '100%' }}>
-						<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-							{cache?.staff ? (
-								<Flex vertical>
-									<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
-									<Text type='secondary' style={{ color: 'currentColor' }}>{{
-										'head': 'Head',
-										'guidance': 'Guidance Officer',
-										'prefect': 'Prefect of Discipline Officer',
-										'student-affairs': 'Student Affairs Officer'
-									}[cache?.staff?.role]}</Text>
-								</Flex>
-							) : (
-								<Skeleton.Node
-									active
-									shape='square'
-									style={{ width: '100%' }}
-								/>
-							)}
-						</div>
+	const getMenuItems = () => {
+		const role = cache?.staff?.role;
+		if (!role) return [];
 
-						<div style={{ width: 32 }}>
-							<Button
-								type='default'
-								icon={<DoubleLeftOutlined />}
-								onClick={() => setMinimized(!minimized)}
-								style={{ minWidth: '128px !important', height: 32 }}
+		const items = [
+			...minimized ? [] : [
+				{
+					key: 'staff',
+					label: (
+						<Flex justify='space-between' align='center' style={{ width: '100%' }}>
+							<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+								{cache?.staff ? (
+									<Flex vertical>
+										<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
+										<Text type='secondary' style={{ color: 'currentColor' }}>{{
+											'head': 'Head',
+											'guidance': 'Guidance Officer',
+											'prefect': 'Prefect of Discipline Officer',
+											'student-affairs': 'Student Affairs Officer'
+										}[cache?.staff?.role]}</Text>
+									</Flex>
+								) : (
+									<Skeleton.Node
+										active
+										shape='square'
+										style={{ width: '100%' }}
+									/>
+								)}
+							</div>
+
+							<div style={{ width: 32 }}>
+								<Button
+									type='default'
+									icon={<DoubleLeftOutlined />}
+									onClick={() => setMinimized(!minimized)}
+									style={{ minWidth: '128px !important', height: 32 }}
+								/>
+							</div>
+						</Flex>
+					),
+					icon: (
+						cache?.staff ? (
+							<Avatar
+								src={cache?.staff?.profilePicture}
+								shape='square'
+								size='small'
+								style={{ width: 32, height: 32 }}
 							/>
-						</div>
-					</Flex>
-				),
-				icon: (
-					cache?.staff ? (
-						<Avatar
-							src={cache?.staff?.profilePicture}
-							shape='square'
-							size='small'
-							style={{ width: 32, height: 32 }}
-						/>
-					) : (
-						<Skeleton.Avatar
-							active
-							shape='square'
-							size='small'
-							style={{ width: 32, height: 32 }}
-						/>
-					)
-				),
-				onClick: () => { },
-				style: {
-					height: 32
+						) : (
+							<Skeleton.Avatar
+								active
+								shape='square'
+								size='small'
+								style={{ width: 32, height: 32 }}
+							/>
+						)
+					),
+					onClick: () => { },
+					style: {
+						height: 32
+					}
+				},
+				{
+					key: 'divider',
+					type: 'divider',
+					style: {
+						margin: '16px 0'
+					}
 				}
+			],
+			{
+				key: 'home',
+				label: 'Home',
+				icon: <HomeOutlined />,
+				onClick: () => navigate('/dashboard/home', { replace: true })
 			},
 			{
-				key: 'divider',
-				type: 'divider',
-				style: {
-					margin: '16px 0'
-				}
+				key: 'notifications',
+				label: 'Notifications',
+				icon: <NotificationOutlined />,
+				onClick: () => navigate('/dashboard/notifications', { replace: true })
 			}
-		],
-		{
-			key: 'home',
-			label: 'Home',
-			icon: <HomeOutlined />,
-			onClick: () => navigate('/dashboard/home', { replace: true })
-		},
-		{
-			key: 'notifications',
-			label: 'Notifications',
-			icon: <NotificationOutlined />,
-			onClick: () => navigate('/dashboard/notifications', { replace: true })
-		},
-		{
-			key: 'students',
-			label: 'Students',
-			icon: <SmileOutlined />,
-			children: [
-				{
-					key: 'verified',
-					label: 'Verified',
-					onClick: () => navigate('/dashboard/students/verified', { replace: true })
-				},
-				{
-					key: 'unverified',
-					label: 'Unverified',
-					onClick: () => navigate('/dashboard/students/unverified', { replace: true })
-				},
-				{
-					key: 'organizations',
-					label: 'Organizations',
-					onClick: () => navigate('/dashboard/students/organizations/active', { replace: true })
-				}
-			]
-		},
-		{
-			key: 'discipline',
-			label: 'Discipline',
-			icon: <SolutionOutlined />,
-			children: [
-				{
-					key: 'records',
-					label: 'Records',
-					onClick: () => navigate('/dashboard/discipline/records/ongoing', { replace: true })
-				},
-				{
-					key: 'reports',
-					label: 'Reports',
-					onClick: () => navigate('/dashboard/discipline/reports', { replace: true })
-				}
-			]
-		},
-		{
-			key: 'utilities',
-			label: 'Utilities',
-			icon: <ToolOutlined />,
-			children: [
-				{
-					key: 'calendar',
-					label: 'Calendar',
-					onClick: () => navigate('/dashboard/utilities/calendar', { replace: true })
-				},
-				{
-					key: 'faqs',
-					label: 'FAQs',
-					onClick: () => navigate('/dashboard/utilities/faqs', { replace: true })
-				},
-				{
-					key: 'announcements',
-					label: 'Announcements',
-					onClick: () => navigate('/dashboard/utilities/announcements', { replace: true })
-				},
-				{
-					key: 'repository',
-					label: 'Repository',
-					onClick: () => navigate('/dashboard/utilities/repository', { replace: true })
-				}
-			]
-		},
-		{
-			key: 'ambot',
-			label: 'AmBot',
-			icon: <RobotOutlined />,
-			onClick: () => navigate('/dashboard/ambot', { replace: true })
+		];
+
+		// Students submenu
+		const studentsChildren = [];
+		if (isMenuItemVisible('verified', role)) {
+			studentsChildren.push({
+				key: 'verified',
+				label: 'Verified',
+				onClick: () => navigate('/dashboard/students/verified', { replace: true })
+			});
 		}
-	];
+		if (isMenuItemVisible('unverified', role)) {
+			studentsChildren.push({
+				key: 'unverified',
+				label: 'Unverified',
+				onClick: () => navigate('/dashboard/students/unverified', { replace: true })
+			});
+		}
+		if (isMenuItemVisible('organizations', role)) {
+			studentsChildren.push({
+				key: 'organizations',
+				label: 'Organizations',
+				onClick: () => navigate('/dashboard/students/organizations/active', { replace: true })
+			});
+		}
+
+		if (studentsChildren.length > 0) {
+			items.push({
+				key: 'students',
+				label: 'Students',
+				icon: <SmileOutlined />,
+				children: studentsChildren
+			});
+		}
+
+		// Discipline submenu
+		const disciplineChildren = [];
+		if (isMenuItemVisible('records', role)) {
+			disciplineChildren.push({
+				key: 'records',
+				label: isReadOnly('records', role) ? 'Records (View Only)' : 'Records',
+				onClick: () => navigate('/dashboard/discipline/records/ongoing', { replace: true })
+			});
+		}
+		if (isMenuItemVisible('reports', role)) {
+			disciplineChildren.push({
+				key: 'reports',
+				label: isReadOnly('reports', role) ? 'Reports (View Only)' : 'Reports',
+				onClick: () => navigate('/dashboard/discipline/reports', { replace: true })
+			});
+		}
+
+		if (disciplineChildren.length > 0) {
+			items.push({
+				key: 'discipline',
+				label: 'Discipline',
+				icon: <SolutionOutlined />,
+				children: disciplineChildren
+			});
+		}
+
+		// Utilities submenu
+		const utilitiesChildren = [];
+		if (isMenuItemVisible('calendar', role)) {
+			utilitiesChildren.push({
+				key: 'calendar',
+				label: 'Calendar',
+				onClick: () => navigate('/dashboard/utilities/calendar', { replace: true })
+			});
+		}
+		if (isMenuItemVisible('faqs', role)) {
+			utilitiesChildren.push({
+				key: 'faqs',
+				label: 'FAQs',
+				onClick: () => navigate('/dashboard/utilities/faqs', { replace: true })
+			});
+		}
+		if (isMenuItemVisible('announcements', role)) {
+			utilitiesChildren.push({
+				key: 'announcements',
+				label: 'Announcements',
+				onClick: () => navigate('/dashboard/utilities/announcements', { replace: true })
+			});
+		}
+		if (isMenuItemVisible('repository', role)) {
+			utilitiesChildren.push({
+				key: 'repository',
+				label: 'Repository',
+				onClick: () => navigate('/dashboard/utilities/repository', { replace: true })
+			});
+		}
+
+		if (utilitiesChildren.length > 0) {
+			items.push({
+				key: 'utilities',
+				label: 'Utilities',
+				icon: <ToolOutlined />,
+				children: utilitiesChildren
+			});
+		}
+
+		// AmBot
+		if (isMenuItemVisible('ambot', role)) {
+			items.push({
+				key: 'ambot',
+				label: 'AmBot',
+				icon: <RobotOutlined />,
+				onClick: () => navigate('/dashboard/ambot', { replace: true })
+			});
+		}
+
+		return items;
+	};
+
+	const menuItems = getMenuItems();
 
 	return (
 		<Flex
