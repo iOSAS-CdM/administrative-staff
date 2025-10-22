@@ -237,8 +237,10 @@ const Dashboard = () => {
 					</Flex>
 				),
 				icon: (
-					<Skeleton.Avatar
-						active
+					<Avatar
+						src={cache?.staff?.profilePicture}
+						alt={cache?.staff?.name}
+						fallback={<UserOutlined />}
 						shape='square'
 						size='small'
 						style={{ width: 32, height: 32 }}
