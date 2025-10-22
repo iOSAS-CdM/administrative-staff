@@ -26,7 +26,8 @@ import {
 	FileOutlined,
 	DownloadOutlined,
 	DeleteOutlined,
-	UploadOutlined
+	UploadOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -328,7 +329,7 @@ const Record = () => {
 											offset={[-8, 8]}
 										/>
 										<Flex align='flex-start' gap={8}>
-											<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
+											<Avatar src={complainee.student.profilePicture} icon={<UserOutlined />} size='large' style={{ width: 32, height: 32 }} />
 											<Flex vertical>
 												<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
 												<Text type='secondary'>{complainee.student.id}</Text>
