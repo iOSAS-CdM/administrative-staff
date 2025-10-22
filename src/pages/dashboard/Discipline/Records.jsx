@@ -273,18 +273,19 @@ const RecordCard = ({ record, loading }) => {
 									count: 3
 								}}
 							>
-								{participants.map((complainant, index) => (
+								{participants.map((participant, index) => (
 									<Popover
-										key={complainant.id || index}
-										content={<Text>{complainant?.name.first} {complainant?.name.last}</Text>}
+										key={participant.id || index}
+										content={<Text>{participant?.name.first} {participant?.name.last}</Text>}
 										placement='top'
 									>
 										<Avatar
-											src={complainant?.profilePicture}
+											src={participant?.profilePicture}
 											style={{ cursor: 'pointer' }}
 											onClick={(e) => {
 												e.stopPropagation();
-												navigate(`/dashboard/students/profile/${complainant?.id}`);
+												if (!participant.role) return;
+												navigate(`/dashboard/students/profile/${participant?.id}`);
 											}}
 										/>
 									</Popover>

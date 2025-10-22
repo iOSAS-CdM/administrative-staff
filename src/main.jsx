@@ -19,7 +19,6 @@ import { CacheProvider } from './contexts/CacheContext';
 import { MobileProvider } from './contexts/MobileContext';
 import { RefreshProvider } from './contexts/RefreshContext';
 import UpdateNotification from './components/UpdateNotification';
-import { initTelemetry } from './utils/telemetry';
 
 export const DisplayThemeContext = React.createContext({
 	displayTheme: 'light',
@@ -72,11 +71,6 @@ const OSAS = () => {
 			}
 		}
 	}), [displayTheme]);
-
-	// Initialize telemetry on mount
-	React.useLayoutEffect(() => {
-		initTelemetry();
-	}, []);
 
 	// Get initial session
 	React.useLayoutEffect(() => {

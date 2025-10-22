@@ -261,9 +261,10 @@ const Record = () => {
 									<Card
 										key={complainant.id || i}
 										size='small'
-										hoverable
+										hoverable={complainant.role}
 										style={{ width: '100%' }}
 										onClick={() => {
+											if (!complainant.role) return;
 											if (complainant.placeholder) {
 												Modal.error({
 													title: 'Error',
@@ -299,9 +300,10 @@ const Record = () => {
 									<Card
 										key={complainee.student.id || i}
 										size='small'
-										hoverable
+										hoverable={complainee.student.role}
 										style={{ width: '100%' }}
 										onClick={() => {
+											if (!complainee.student.role) return;
 											if (complainee.student.placeholder) {
 												Modal.error({
 													title: 'Error',
