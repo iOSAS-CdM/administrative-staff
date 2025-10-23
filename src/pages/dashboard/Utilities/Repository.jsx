@@ -132,6 +132,7 @@ const Repository = () => {
 					key={file.id || file.name}
 					loading={file.placeholder}
 					style={{ width: '100%' }}
+					hoverable={false}
 				>
 					<Flex vertical align='center' gap={16}>
 						<Image
