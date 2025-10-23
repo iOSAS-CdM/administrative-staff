@@ -179,7 +179,7 @@ const AmBot = () => {
 							style={{ maxWidth: '60%' }}
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.2 }}
+							transition={{ duration: 0.25 }}
 						>
 							<Card>
 								{/* Render Markdown but override anchor rendering so internal links use navigate() */}
