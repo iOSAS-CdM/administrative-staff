@@ -107,11 +107,6 @@ const AnnouncementCard = ({ announcement }) => {
 							src={announcement.author?.profilePicture || null}
 						/>
 					)}
-					{/* <Text>
-						{announcement.author === 'superapi-bypass'
-							? 'System Administrator'
-							: `${announcement.author?.name?.first || ''} ${announcement.author?.name?.last || ''}`}
-					</Text> */}
 					{announcement.author === 'superapi-bypass' ? (
 						<Text>System Administrator</Text>
 					) : (

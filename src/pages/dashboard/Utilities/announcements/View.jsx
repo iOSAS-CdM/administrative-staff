@@ -9,7 +9,8 @@ import {
 	Image,
 	App,
 	Avatar,
-	Flex
+	Flex,
+	Divider
 } from 'antd';
 
 import { LeftOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -114,39 +115,46 @@ const ViewAnnouncement = () => {
 	}, [id, cache.announcements]);
 
 	return (
-		<Flex vertical gap={16}>
 			<Card>
-				<Flex vertical gap={16} style={{ width: '100%' }}>
-					{announcement.cover && (
-						<Image src={announcement.cover} alt={announcement.title} style={{ objectFit: 'cover', width: '100%', maxHeight: 360 }} fallback='/Placeholder Image.svg' />
+			<Flex vertical gap={32} style={{ width: '100%' }}>
+				{announcement.cover && (
+					<Image src={announcement.cover} alt={announcement.title} style={{ objectFit: 'cover', width: '100%', maxHeight: 360 }} fallback='/Placeholder Image.svg' />
+				)}
+				<Title level={1}>{announcement.title}</Title>
+
+				<div style={{ width: '100%' }}>
+					<MDEditor.Markdown source={announcement.content || ''} />
+				</div>
+
+				<Divider />
+
+				<Flex gap={8} align='center'>
+					{announcement.author === 'superapi-bypass' ? (
+						<Avatar size={32} icon={<UserOutlined />} />
+					) : (
+						<Avatar size={32} src={announcement.author?.profilePicture || null} />
 					)}
-					<Title level={1}>{announcement.title}</Title>
-
-					<div style={{ width: '100%' }}>
-						<MDEditor.Markdown source={announcement.content || ''} />
-					</div>
-
-					<Flex gap={8} align='center'>
-						{announcement.author === 'superapi-bypass' ? (
-							<Avatar size={32} icon={<UserOutlined />} />
-						) : (
-							<Avatar size={32} src={announcement.author?.profilePicture || null} />
-						)}
-						<div>
-							<Text strong>
-								{announcement.author === 'superapi-bypass'
-									? 'System Administrator'
-									: `${announcement.author?.name?.first || ''} ${announcement.author?.name?.last || ''}`}
+					{announcement.author === 'superapi-bypass' ? (
+						<Text>System Administrator</Text>
+					) : (
+						<Flex vertical>
+							<Text style={{ margin: 0 }}>
+								{`${announcement.author?.name?.first || ''} ${announcement.author?.name?.last || ''}`}
 							</Text>
-							<br />
-							<Text type='secondary'>
-								{announcement.date ? moment(announcement.date).format('MMMM D, YYYY') : ''}
-							</Text>
-						</div>
-					</Flex>
+							<Text type='secondary'>{
+								{
+									'head': 'Head',
+									'guidance': 'Guidance Officer',
+									'prefect': 'Prefect of Discipline Officer',
+									'student-affairs': 'Student Affairs Officer',
+									'student': 'Student'
+								}[announcement.author?.role]
+							}</Text>
+						</Flex>
+					)}
 				</Flex>
-			</Card>
-		</Flex>
+			</Flex>
+		</Card>
 	);
 };
 
