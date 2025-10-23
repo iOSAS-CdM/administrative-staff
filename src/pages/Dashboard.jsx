@@ -150,14 +150,8 @@ const Dashboard = () => {
 		{ path: '/students/organization/:id', element: <Organization /> },
 
 		{
-			path: '/discipline/records/*',
-			element: <DisciplinaryRecords />,
-			children: [
-				{ path: 'active', element: <DisciplinaryRecords /> },
-				{ path: 'ongoing', element: <DisciplinaryRecords /> },
-				{ path: 'resolved', element: <DisciplinaryRecords /> },
-				{ path: 'dismissed', element: <DisciplinaryRecords /> }
-			]
+			path: '/discipline/records',
+			element: <DisciplinaryRecords />
 		},
 		{ path: '/discipline/record/:id', element: <DisciplinaryRecord /> },
 
@@ -297,7 +291,7 @@ const Dashboard = () => {
 				{
 					key: 'records',
 					label: 'Records',
-					onClick: () => navigate('/dashboard/discipline/records/ongoing', { replace: true })
+					onClick: () => navigate('/dashboard/discipline/records', { replace: true })
 				},
 				cache?.staff && ['head', 'prefect'].includes(cache?.staff?.role) ? {
 					key: 'reports',

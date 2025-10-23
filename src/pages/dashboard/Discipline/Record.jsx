@@ -456,11 +456,8 @@ const Record = () => {
 									return;
 								};
 
-								await UploadRecordFiles(Modal, id);
+								await UploadRecordFiles(Modal, notification, id);
 								setRefresh({ timestamp: Date.now() });
-								notification.success({
-									message: `Successfully uploaded file(s).`
-								});
 							}}
 						>
 							Upload

@@ -98,7 +98,7 @@ const DisciplinaryRecords = () => {
 
 	/** @typedef {'ongoing' | 'resolved' | 'dismissed'} Category */
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState(location.pathname.split('/').pop());
+	const [category, setCategory] = React.useState('ongoing');
 
 	const [search, setSearch] = React.useState('');
 	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
