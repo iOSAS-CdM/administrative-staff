@@ -263,7 +263,7 @@ const RecordCard = ({ record, loading }) => {
 		<ItemCard
 				loading={loading}
 
-				status={thisRecord.tags.status === 'dismissed' && 'dismissed'}
+				status={thisRecord?.tags?.status === 'dismissed' && 'dismissed'}
 
 				actions={!loading && [
 					{

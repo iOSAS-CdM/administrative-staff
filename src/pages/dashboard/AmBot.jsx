@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
-import { MarkdownEditor } from '@ant-design/md-editor';
+
+import MDEditor from '@uiw/react-md-editor';
 
 import { Flex, Button, Card, Avatar, Input, Form } from 'antd';
 
@@ -181,7 +182,7 @@ const AmBot = () => {
 							transition={{ duration: 0.2 }}
 						>
 							<Card>
-								<MarkdownEditor.Markdown source={message.content || ''} />
+								<MDEditor.Markdown source={message.content} />
 							</Card>
 						</motion.div>
 						{message.sender === 'user' && (

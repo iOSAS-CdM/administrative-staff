@@ -48,7 +48,8 @@ import Organization from './dashboard/Students/Organization';
 import CalendarPage from './dashboard/Utilities/Calendar';
 import FAQsPage from './dashboard/Utilities/FAQs';
 import Announcements from './dashboard/Utilities/Announements';
-import NewAnnouncement from './dashboard/Utilities/NewAnnouncement';
+import NewAnnouncement from './dashboard/Utilities/announcements/New';
+import ViewAnnouncement from './dashboard/Utilities/announcements/View';
 import Repository from './dashboard/Utilities/Repository';
 import AmBot from './dashboard/AmBot';
 
@@ -166,6 +167,7 @@ const Dashboard = () => {
 		{ path: '/utilities/faqs', element: <FAQsPage /> },
 
 		{ path: '/utilities/announcements', element: <Announcements /> },
+		{ path: '/utilities/announcements/:id', element: <ViewAnnouncement /> },
 		{ path: '/utilities/announcements/new', element: <NewAnnouncement /> },
 
 		{ path: '/utilities/repository', element: <Repository /> },

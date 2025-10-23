@@ -281,7 +281,7 @@ body[data-color-mode*="light"] {
 	-webkit-text-size-adjust: 100%;
 	/* Using Ant Design font family */
 	font-family: var(--ant-font-family);
-	font-size: 16px; /* Keeping GitHub's base font size */
+	font-size: var(--ant-font-size); /* Keeping GitHub's base font size */
 	line-height: 1.5;
 	word-wrap: break-word;
 	color: var(--color-fg-default);
@@ -358,7 +358,7 @@ body[data-color-mode*="light"] {
 .wmde-markdown pre,
 .wmde-markdown samp {
 	font-family: var(--ant-font-family-code);
-	font-size: 1em;
+	font-size: var(--ant-font-size);
 }
 .wmde-markdown figure {
 	margin: 1em 40px;
@@ -379,7 +379,7 @@ body[data-color-mode*="light"] {
 	margin: 0;
 	overflow: visible;
 	font-family: inherit;
-	font-size: inherit;
+	font-size: var(--ant-font-size);
 	line-height: inherit;
 }
 .wmde-markdown [type="button"],

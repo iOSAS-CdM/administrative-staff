@@ -2,12 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 
 import {
+	App,
 	Avatar,
 	Row,
 	Col,
 	Button,
 	Typography,
-	Image
+	Image,
+	Flex
 } from 'antd';
 
 import {
@@ -19,9 +21,11 @@ import ItemCard from '../../../components/ItemCard';
 
 const { Text, Paragraph, Title } = Typography;
 
-import { useCache } from '../../../contexts/CacheContext';
-import { useMobile } from '../../../contexts/MobileContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
+
+import ContentPage from '../../../components/ContentPage';
+
+import { API_Route } from '../../../main';
 
 /**
  * @typedef {{
@@ -58,51 +62,77 @@ const Announcements = () => {
 		setSelectedKeys(['announcements']);
 	}, [setSelectedKeys]);
 
-	const { cache } = useCache();
-
-	const isMobile = useMobile();
-
 	return (
-		<Row gutter={[16, 16]}>
-			{(cache.announcements || []).map((announcement, index) => (
-				<Col key={index} span={isMobile ? 24 : 12}>
-					<ItemCard
-						cover={
-							<Image
-								src={announcement.cover}
-							/>
-						}
-						actions={[
-							{
-								content: <Avatar.Group max={{ count: 3 }} size='small'>
-									{announcement.authors.map((author, idx) => (
-										<Avatar
-											key={idx}
-											src={author.user.profilePicture || '/Placeholder Image.svg'}
-											icon={!author.user.profilePicture && <UserOutlined />}
-										/>
-									))}
-								</Avatar.Group>
-							},
-							{
-								content: (
-									<Text>
-										{announcement.date.toLocaleDateString('en-US', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric'
-										})}
-									</Text>
-								)
-							}
-						]}
-					>
-						<Title level={4}>{announcement.title}</Title>
-						<Paragraph>{announcement.description}</Paragraph>
-					</ItemCard>
-				</Col>
-			))}
-		</Row>
+		<ContentPage
+			fetchUrl={`${API_Route}/announcements`}
+			emptyText='No records found'
+			cacheKey='records'
+			transformData={(data) => data.announcements || []}
+			renderItem={(announcement) => (
+				<AnnouncementCard
+					announcement={announcement}
+					loading={announcement.placeholder}
+				/>
+			)}
+		/>
+	);
+};
+
+const AnnouncementCard = ({ announcement }) => {
+	const navigate = useNavigate();
+	return (
+		<ItemCard
+			hoverable
+			onClick={() => navigate(`/dashboard/utilities/announcements/${announcement.id}`, { state: { id: announcement.id } })}
+			cover={
+				<Image
+					src={announcement.cover}
+					alt={announcement.title}
+					style={{ objectFit: 'cover', height: 200, width: '100%' }}
+				/>
+			}
+		>
+			<Flex vertical gap={8}>
+				<Title level={4} ellipsis={{ rows: 2 }}>{announcement.title}</Title>
+
+				<Flex gap={8} align='center'>
+					{announcement.author === 'superapi-bypass' ? (
+						<Avatar
+							size={32}
+							icon={<UserOutlined />}
+						/>
+					) : (
+						<Avatar
+							size={32}
+							src={announcement.author?.profilePicture || null}
+						/>
+					)}
+					{/* <Text>
+						{announcement.author === 'superapi-bypass'
+							? 'System Administrator'
+							: `${announcement.author?.name?.first || ''} ${announcement.author?.name?.last || ''}`}
+					</Text> */}
+					{announcement.author === 'superapi-bypass' ? (
+						<Text>System Administrator</Text>
+					) : (
+						<Flex vertical>
+							<Text style={{ margin: 0 }}>
+								{`${announcement.author?.name?.first || ''} ${announcement.author?.name?.last || ''}`}
+							</Text>
+							<Text type='secondary'>{
+								{
+									'head': 'Head',
+									'guidance': 'Guidance Officer',
+									'prefect': 'Prefect of Discipline Officer',
+									'student-affairs': 'Student Affairs Officer',
+									'student': 'Student'
+								}[announcement.author?.role]
+							}</Text>
+						</Flex>
+					)}
+				</Flex>
+			</Flex>
+		</ItemCard>
 	);
 };
 
