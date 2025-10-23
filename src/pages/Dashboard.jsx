@@ -47,7 +47,7 @@ import Organizations from './dashboard/Students/Organizations';
 import Organization from './dashboard/Students/Organization';
 import CalendarPage from './dashboard/Utilities/Calendar';
 import FAQsPage from './dashboard/Utilities/FAQs';
-import Announcements from './dashboard/Utilities/Announements';
+import Announcements from './dashboard/Utilities/Announcement';
 import NewAnnouncement from './dashboard/Utilities/announcements/New';
 import ViewAnnouncement from './dashboard/Utilities/announcements/View';
 import Repository from './dashboard/Utilities/Repository';
