@@ -446,17 +446,14 @@ const Dashboard = () => {
 							)}
 						</Flex>
 
-						<Flex gap={16} vertical align='center' style={{ width: '100%' }}>
-							<Segmented
-								vertical={minimized}
-								options={[
-									{ value: 'light', icon: <SunOutlined /> },
-									{ value: 'dark', icon: <MoonOutlined /> }
-								]}
-								value={displayTheme}
-								onChange={(value) => {
-									localStorage.setItem('displayTheme', value);
-									setDisplayTheme(value);
+						<Flex gap={16} vertical={minimized} align='center' style={{ width: '100%' }}>
+							<Button
+								type='primary'
+								icon={displayTheme === 'light' ? <MoonOutlined /> : <SunOutlined />}
+								onClick={() => {
+									const newTheme = displayTheme === 'light' ? 'dark' : 'light';
+									localStorage.setItem('displayTheme', newTheme);
+									setDisplayTheme(newTheme);
 								}}
 							/>
 							<Button
