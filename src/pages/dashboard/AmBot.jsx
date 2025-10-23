@@ -231,7 +231,7 @@ const AmBot = () => {
 				))}
 
 				{messages.length === 1 && !isLoading && (
-					<Flex vertical gap={8} style={{ padding: '0 48px' }}>
+					<Flex gap={8} style={{ width: '100%', overflowX: 'auto', paddingBottom: 8 }}>
 						{suggestedQuestions.map((question, index) => (
 							<motion.div
 								key={index}
