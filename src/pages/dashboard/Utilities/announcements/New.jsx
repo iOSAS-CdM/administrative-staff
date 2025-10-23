@@ -79,7 +79,7 @@ const NewAnnouncement = () => {
 		title: '',
 		content: '',
 		type: 'information',
-		eventDate: null
+		event_date: null
 	});
 	// coverPreview is a base64 data URL for display; coverFile is the original File to send
 	const [coverPreview, setCoverPreview] = React.useState('');
@@ -236,8 +236,8 @@ const NewAnnouncement = () => {
 											setAnnouncement((prev) => ({ ...prev, type: value }));
 											// When switching away from event, clear the date field and its validation
 											if (value !== 'event') {
-												form.setFieldsValue({ eventDate: null });
-												setAnnouncement((prev) => ({ ...prev, eventDate: null }));
+												form.setFieldsValue({ event_date: null });
+												setAnnouncement((prev) => ({ ...prev, event_date: null }));
 												form.validateFields().catch(() => { });
 											}
 										}}
@@ -247,13 +247,13 @@ const NewAnnouncement = () => {
 								{announcement.type === 'event' && (
 									<Form.Item
 										label='Event Date & Time'
-										name='eventDate'
+										name='event_date'
 										rules={[{ required: true, message: 'Please select the event date and time' }]}
 									>
 										<DatePicker
 											showTime
 											style={{ width: '100%' }}
-											value={announcement.eventDate ? dayjs(announcement.eventDate) : null}
+											value={announcement.event_date ? dayjs(announcement.event_date) : null}
 											// prevent selecting dates before today
 											disabledDate={(current) => {
 												if (!current) return false;
@@ -263,8 +263,8 @@ const NewAnnouncement = () => {
 											}}
 											onChange={(value) => {
 												// value is a moment/dayjs object
-												setAnnouncement((prev) => ({ ...prev, eventDate: value }));
-												form.setFieldsValue({ eventDate: value });
+												setAnnouncement((prev) => ({ ...prev, event_date: value }));
+												form.setFieldsValue({ event_date: value });
 											}}
 										/>
 									</Form.Item>
@@ -295,10 +295,10 @@ const NewAnnouncement = () => {
 												const type = values.type || announcement.type || 'information';
 												formData.append('type', type);
 												if (type === 'event') {
-													const dateVal = values.eventDate || announcement.eventDate;
+													const dateVal = values.event_date || announcement.event_date;
 													// convert moment/dayjs to ISO string if possible
 													const iso = dateVal && dateVal.toISOString ? dateVal.toISOString() : (dateVal ? String(dateVal) : '');
-													formData.append('eventDate', iso);
+													formData.append('event_date', iso);
 												}
 
 												Modal.confirm({

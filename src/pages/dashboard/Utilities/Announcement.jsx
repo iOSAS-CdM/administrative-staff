@@ -89,6 +89,7 @@ const AnnouncementCard = ({ announcement }) => {
 					<Image
 						src={announcement.cover}
 						alt={announcement.title}
+						preview={false}
 						style={{ objectFit: 'cover', height: 200, width: '100%' }}
 					/>
 					<span>
