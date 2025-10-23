@@ -66,7 +66,7 @@ const Announcements = () => {
 		<ContentPage
 			fetchUrl={`${API_Route}/announcements`}
 			emptyText='No records found'
-			cacheKey='records'
+			cacheKey='announcements'
 			transformData={(data) => data.announcements || []}
 			renderItem={(announcement) => (
 				<AnnouncementCard

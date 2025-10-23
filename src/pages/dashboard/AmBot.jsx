@@ -182,7 +182,50 @@ const AmBot = () => {
 							transition={{ duration: 0.2 }}
 						>
 							<Card>
-								<MDEditor.Markdown source={message.content} />
+								{/* Render Markdown but override anchor rendering so internal links use navigate() */}
+								<MDEditor.Markdown
+									source={message.content}
+									components={{
+										a: ({ href, children, ...props }) => {
+											// Handle empty/malformed hrefs
+											if (!href) return <a {...props}>{children}</a>;
+											const handleClick = (e) => {
+												e.preventDefault();
+												// Hash links -> update location.hash
+												if (href.startsWith('#')) {
+													window.location.hash = href;
+													return;
+												}
+												try {
+													const url = new URL(href, window.location.href);
+													const isInternal = url.origin === window.location.origin;
+													if (isInternal) {
+														// Use react-router navigation for internal links
+														navigate(url.pathname + url.search + url.hash);
+													} else {
+														// External link - open new tab
+														window.open(url.href, '_blank', 'noopener,noreferrer');
+													}
+												} catch (err) {
+													// Fallback: open in new tab
+													window.open(href, '_blank', 'noopener,noreferrer');
+												};
+											};
+											// For external links add safe attributes so keyboard users/open in new tab still works
+											const isExternal = /^https?:\/\//i.test(href) && !href.startsWith(window.location.origin);
+											return (
+												<a
+													href={href}
+													onClick={handleClick}
+													{...props}
+													{...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+												>
+													{children}
+												</a>
+											);
+										}
+									}}
+								/>
 							</Card>
 						</motion.div>
 						{message.sender === 'user' && (

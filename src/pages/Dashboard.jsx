@@ -328,7 +328,7 @@ const Dashboard = () => {
 				} : null,
 				{
 					key: 'repository',
-					label: 'Repository',
+					label: 'Public Forms',
 					onClick: () => navigate('/dashboard/utilities/repository', { replace: true })
 				}
 			]
