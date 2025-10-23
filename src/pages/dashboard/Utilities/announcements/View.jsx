@@ -30,13 +30,19 @@ const { Title, Text } = Typography;
 const ViewAnnouncement = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const { setHeader } = usePageProps();
+	const { setHeader, setSelectedKeys } = usePageProps();
 	const app = App.useApp();
 	const Modal = app.modal;
 
 	const { cache, pushToCache, getFromCache } = useCache();
 
 	const [announcement, setAnnouncement] = React.useState({ placeholder: true });
+
+	const formatDate = (d) => {
+		if (!d) return null;
+		const m = moment(d);
+		return m.isValid() ? m.format('LLL') : null;
+	};
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -85,6 +91,10 @@ const ViewAnnouncement = () => {
 	}, [setHeader, id]);
 
 	React.useEffect(() => {
+		setSelectedKeys(['announcements']);
+	}, [setSelectedKeys]);
+
+	React.useEffect(() => {
 		if (!id) return;
 
 		const cached = (cache.announcements || []).find(a => String(a.id) === String(id));
@@ -114,13 +124,24 @@ const ViewAnnouncement = () => {
 		return () => controller.abort();
 	}, [id, cache.announcements]);
 
+	// support common date field names
+	const createdAt = announcement.createdAt || announcement.created_at || announcement.date || null;
+	const createdStr = formatDate(createdAt);
+
 	return (
 			<Card>
 			<Flex vertical gap={32} style={{ width: '100%' }}>
 				{announcement.cover && (
 					<Image src={announcement.cover} alt={announcement.title} style={{ objectFit: 'cover', width: '100%', maxHeight: 360 }} fallback='/Placeholder Image.svg' />
 				)}
-				<Title level={1}>{announcement.title}</Title>
+				<div>
+					<Title level={1} style={{ marginBottom: 8 }}>{announcement.title}</Title>
+					{createdStr && (
+						<Text type='secondary' style={{ display: 'block', marginBottom: 8 }}>
+							Posted: {createdStr}
+						</Text>
+					)}
+				</div>
 
 				<div style={{ width: '100%' }}>
 					<MDEditor.Markdown source={announcement.content || ''} />

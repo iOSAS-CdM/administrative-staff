@@ -85,11 +85,18 @@ const AnnouncementCard = ({ announcement }) => {
 			hoverable
 			onClick={() => navigate(`/dashboard/utilities/announcements/${announcement.id}`, { state: { id: announcement.id } })}
 			cover={
-				<Image
-					src={announcement.cover}
-					alt={announcement.title}
-					style={{ objectFit: 'cover', height: 200, width: '100%' }}
-				/>
+				<>
+					<Image
+						src={announcement.cover}
+						alt={announcement.title}
+						style={{ objectFit: 'cover', height: 200, width: '100%' }}
+					/>
+					<span>
+						<Text type='secondary' style={{ position: 'absolute', top: 16, right: 16 }}>
+							{new Date(announcement.created_at).toLocaleDateString()}
+						</Text>
+					</span>
+				</>
 			}
 		>
 			<Flex vertical gap={8}>
