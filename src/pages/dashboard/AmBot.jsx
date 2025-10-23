@@ -56,13 +56,7 @@ const AmBot = () => {
 
 	const { cache } = useCache();
 
-	const [suggestedQuestions, setSuggestedQuestions] = React.useState([
-		'How do I open a new disciplinary case?',
-		'How can I upload documents to a case?',
-		'How do I verify a student account?',
-		'What are the different case statuses?',
-		'How do I search for a student?'
-	]);
+	const [suggestedQuestions, setSuggestedQuestions] = React.useState([]);
 
 	// Initialize with welcome message
 	React.useEffect(() => {
