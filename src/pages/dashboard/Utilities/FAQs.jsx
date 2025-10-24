@@ -2,8 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 
 import {
-	Card,
-	Flex,
+	App,
+	Form,
+	Input,
 	Row,
 	Col,
 	Button,
@@ -12,13 +13,17 @@ import {
 
 import {
 	QuestionCircleOutlined,
-	EditOutlined,
-	DeleteOutlined,
-	SaveOutlined
+	DeleteOutlined
 } from '@ant-design/icons';
 
 import ItemCard from '../../../components/ItemCard';
+import ContentPage from '../../../components/ContentPage';
+
 import { usePageProps } from '../../../contexts/PagePropsContext';
+import { useRefresh } from '../../../contexts/RefreshContext';
+
+import authFetch from '../../../utils/authFetch';
+import { API_Route } from '../../../main';
 
 const { Paragraph, Title } = Typography;
 
@@ -28,6 +33,12 @@ const { Paragraph, Title } = Typography;
 const FAQsPage = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
+	const { setRefresh } = useRefresh();
+
+	const { modal: Modal, notification } = App.useApp();
+
+	const FAQFormRef = React.useRef(null);
+
 	React.useEffect(() => {
 		setHeader({
 			title: 'Frequently Asked Questions',
@@ -35,80 +46,118 @@ const FAQsPage = () => {
 				<Button
 					type='primary'
 					icon={<QuestionCircleOutlined />}
+					onClick={() => {
+						Modal.confirm({
+							title: 'Add FAQ',
+							okText: 'Add FAQ',
+							content: (
+								<Form
+									layout='vertical'
+									ref={FAQFormRef}
+								>
+									<Form.Item
+										label='Question'
+										name='question'
+										rules={[{ required: true, message: 'Please enter the question' }]}
+									>
+										<Input />
+									</Form.Item>
+									<Form.Item
+										label='Answer'
+										name='answer'
+										rules={[{ required: true, message: 'Please enter the answer' }]}
+									>
+										<Input.TextArea rows={4} />
+									</Form.Item>
+								</Form>
+							),
+							onOk: () => FAQFormRef.current.validateFields()
+								.then(async (values) => {
+									const request = await authFetch(`${API_Route}/faqs`, {
+										method: 'POST',
+										headers: {
+											'Content-Type': 'application/json'
+										},
+										body: JSON.stringify(values)
+									});
+
+									if (!request?.ok) {
+										notification.error({
+											message: 'Error',
+											description: 'Failed to add FAQ. Please try again.'
+										});
+										return;
+									};
+
+									notification.success({
+										message: 'Success',
+										description: 'FAQ added successfully.'
+									});
+
+									setRefresh({ timestamp: Date.now() });
+								})
+						});
+					}}
 				>
 					Add FAQ
 				</Button>
 			]
 		});
-	}, [setHeader]);
+	}, [setHeader, Modal]);
 
 	React.useEffect(() => {
 		setSelectedKeys(['faqs']);
 	}, [setSelectedKeys]);
 
-	/** @type {[{ question: String, answer: String, editMode: Boolean }[], React.Dispatch<React.SetStateAction<{ question: String, answer: String, editMode: Boolean }[]>>]} */
-	const [FAQs, setFAQs] = React.useState([]);
-
-	React.useEffect(() => {
-		// Fetch FAQs from an API or define them here
-		const fetchedFAQs = [
-			{ question: 'What is the return policy?', answer: 'You can return any item within 30 days.', editMode: false },
-			{ question: 'How do I track my order?', answer: 'You can track your order in the "My Orders" section.', editMode: false },
-			{ question: 'Do you ship internationally?', answer: 'Yes, we ship to over 100 countries.', editMode: false }
-		];
-		setFAQs(fetchedFAQs);
-	}, []);
-
 	return (
-		<Row gutter={[16, 16]}>
-			{FAQs.map((FAQ, index) => (
-				<Col key={index} span={8}>
-					<ItemCard
-						actions={!FAQ.editMode ? [
-							{
-								icon: <EditOutlined />,
-								type: 'primary',
-								content: 'Edit',
-								style: { width: '100%' },
-								onClick: () => {
-									setFAQs(FAQs.map((f, i) => i === index ? { ...f, editMode: true } : f));
+		<ContentPage
+			fetchUrl={`${API_Route}/faqs`}
+			cacheKey='faqs'
+			emptyText='No FAQs available'
+			columnSpan={8}
+			pageSize={24}
+			transformData={(data) => data.faqs || []}
+			renderItem={(faq, index) => (
+				<ItemCard key={index} hoverable={false} style={{ width: '100%' }}>
+					<Title level={4}>{faq.question}</Title>
+					<Paragraph>{faq.answer}</Paragraph>
+
+					<Button
+						danger
+						block
+						icon={<DeleteOutlined />}
+						onClick={() => {
+							Modal.confirm({
+								title: 'Delete FAQ',
+								content: 'Are you sure you want to delete this FAQ?',
+								okText: 'Delete',
+								okType: 'danger',
+								onOk: async () => {
+									const request = await authFetch(`${API_Route}/faqs/${faq.id}`, {
+										method: 'DELETE'
+									});
+
+									if (!request?.ok) {
+										notification.error({
+											message: 'Error',
+											description: 'Failed to delete FAQ. Please try again.'
+										});
+										return;
+									};
+
+									notification.success({
+										message: 'Success',
+										description: 'FAQ deleted successfully.'
+									});
+
+									setRefresh({ timestamp: Date.now() });
 								}
-							},
-							{
-								icon: <DeleteOutlined />,
-								danger: true,
-								type: 'default',
-								style: { width: '100%' },
-								content: 'Delete',
-								onClick: () => { }
-							}
-						] : [
-							{
-								icon: <SaveOutlined />,
-								type: 'primary',
-								style: { width: '100%' },
-								content: 'Save',
-								onClick: () => {
-									setFAQs(FAQs.map((f, i) => i === index ? { ...f, editMode: false } : f));
-								}
-							},
-							{
-								icon: <DeleteOutlined />,
-								danger: true,
-								type: 'default',
-								content: 'Cancel',
-								onClick: () => {
-									setFAQs(FAQs.map((f, i) => i === index ? { ...f, editMode: false } : f));
-								}
-							}
-						]}
-					>
-						<Title level={4}>{FAQ.question}</Title>
-						<Paragraph>{FAQ.answer}</Paragraph>
-					</ItemCard>
-				</Col>
-			))}
-		</Row>
+							});
+						}}
+					/>
+				</ItemCard>
+			)}
+		/>
 	);
 };
 

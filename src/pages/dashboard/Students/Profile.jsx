@@ -467,7 +467,7 @@ const Profile = () => {
 							align={isMobile ? 'center' : ''}
 							style={{ height: '100%' }}
 						>
-							<Title level={1}>
+							<Title level={1} style={{ textAlign: isMobile ? 'center' : '' }}>
 								{thisStudent.name.first}{' '}
 								{thisStudent.name.middle}{' '}
 								{thisStudent.name.last}

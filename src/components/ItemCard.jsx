@@ -33,6 +33,8 @@ import {
  * 	extra: React.ReactNode;
  * 	status: String;
  * 	children: React.ReactNode;
+ * 	actions: (ItemCardActionButton | ItemCardAction)[];
+ * 	hoverable?: Boolean;
  * 	style?: React.CSSProperties;
  * 	className?: String;
  * } & import('antd/es/card').CardInterface} ItemCardBaseProps
@@ -47,6 +49,7 @@ const ItemCard = ({
 	extra,
 	status,
 	actions,
+	hoverable = true,
 	children,
 	...props
 }) => {
@@ -55,7 +58,7 @@ const ItemCard = ({
 			{...props}
 			loading={loading}
 			size='small'
-			hoverable
+			hoverable={hoverable}
 			className={`card ${status} ${props.className || ''}`}
 			actions={null}
 			title={title}

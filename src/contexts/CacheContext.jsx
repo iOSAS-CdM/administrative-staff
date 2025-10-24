@@ -12,6 +12,7 @@ const CacheContext = React.createContext();
  * 	students: import('../classes/Student').StudentProps[];
  * 	'unverified-students': import('../classes/Student').StudentProps[];
  * 	records: import('../classes/Record').RecordProps[];
+ * 	publicRepository: import('../classes/Repository').RepositoryProps[];
  * 	organizations: import('../classes/Organization').OrganizationProps[];
  * 	announcements: import('../classes/Announcement').AnnouncementProps[];
  * 	events: import('../classes/Event').EventProps[];
@@ -65,6 +66,7 @@ export const CacheProvider = ({ children }) => {
 		students: [],
 		'unverified-students': [],
 		records: [],
+		publicRepository: [],
 		organizations: [],
 		announcements: [],
 		events: [],

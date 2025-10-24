@@ -4,20 +4,19 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import {
 	App,
+	Form,
 	Input,
 	Segmented,
 	Flex,
-	Empty,
-	Row,
-	Col,
 	Avatar,
+	Select,
 	Typography,
-	Spin,
+	Button,
 	Image
 } from 'antd';
 
 import {
-	SearchOutlined
+	TeamOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -44,84 +43,81 @@ const Organizations = () => {
 	const isMobile = useMobile();
 	const { cache } = useCache();
 
+	/** @typedef {'all' | 'college-wide' | 'institute-wide'} Category */
+	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
+	const [category, setCategory] = React.useState('all');
+
+	const [search, setSearch] = React.useState('');
+	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
+	const [searchResults, setSearchResults] = React.useState([]);
+	const [searching, setSearching] = React.useState(false);
+
 	const navigate = useNavigate();
 
-	/** @typedef {'active' | 'college-wide' | 'institute-wide' | 'restricted' | 'dismissed'} Category */
-	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
-	const [category, setCategory] = React.useState();
-	/** @type {[String, React.Dispatch<React.SetStateAction<String>>]} */
-	const [search, setSearch] = React.useState('');
-
-	/**
-	 * @type {{
-	 * 	active: Organization[],
-	 * 	'college-wide': Organization[],
-	 * 	'institute-wide': Organization[],
-	 * 	restricted: Organization[],
-	 * 	dismissed: Organization[]
-	 * }}
-	 */
-	const categorizedOrganizations = React.useMemo(() => {
-		const categorized = {
-			active: [],
-			'college-wide': [],
-			'institute-wide': [],
-			restricted: [],
-			dismissed: []
-		};
-
-		for (const organization of (cache.organizations || [])) {
-			categorized[organization.status].push(organization);
-
-			if (organization.status === 'active')
-				categorized[organization.type].push(organization);
-		};
-
-		return categorized;
-	}, [cache.organizations, category]);
-
-	const routes = useRoutes([
-		{ path: '/active', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['active']} /> },
-		{ path: '/college-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['college-wide']} /> },
-		{ path: '/institute-wide', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['institute-wide']} /> },
-		{ path: '/restricted', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['restricted']} /> },
-		{ path: '/dismissed', element: <CategoryPage categorizedOrganizations={categorizedOrganizations['dismissed']} /> }
-	]);
+	const NewOrganizationForm = React.useRef(null);
 
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Student Organizations',
 			actions: [
-				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
-					<Input
-						placeholder='Search'
-						allowClear
-						prefix={<SearchOutlined />}
-						onChange={(e) => {
-							const value = e.target.value;
-							clearTimeout(window.profileDebounceTimer);
-							const debounceTimer = setTimeout(() => {
-								setSearch(value);
-							}, 8); // 2^3
-							window.profileDebounceTimer = debounceTimer;
-						}}
-						style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
-					/>
-				</Flex>,
 				<Segmented
 					vertical={isMobile}
 					options={[
-						{ label: 'Active', value: 'active' },
+						{ label: 'All', value: 'all' },
 						{ label: 'College-wide', value: 'college-wide' },
 						{ label: 'Institute-wide', value: 'institute-wide' },
-						{ label: 'Restricted', value: 'restricted' },
-						{ label: 'Dismissed', value: 'dismissed' }
 					]}
 					value={category}
-					onChange={(value) => {
-						navigate(`/dashboard/students/organizations/${value}`);
+					onChange={(value) => setCategory(value)}
+				/>,
+				<Button
+					type='primary'
+					icon={<TeamOutlined />}
+					onClick={() => {
+						Modal.confirm({
+							title: 'Create New Organization',
+							icon: null,
+							width: 512,
+							centered: true,
+							content: (
+								<Form
+									ref={NewOrganizationForm}
+									layout='vertical'
+								>
+									<Form.Item
+										label='Short Name'
+										name='shortName'
+										rules={[{ required: true, message: 'Please enter the short name of the organization.' }]}
+									>
+										<Input placeholder='e.g., CS Club' />
+									</Form.Item>
+									<Form.Item
+										label='Full Name'
+										name='fullName'
+										rules={[{ required: true, message: 'Please enter the full name of the organization.' }]}
+									>
+										<Input placeholder='e.g., Computer Science Club' />
+									</Form.Item>
+									<Form.Item
+										label='Type'
+										name='type'
+										rules={[{ required: true, message: 'Please select the type of the organization.' }]}
+									>
+										<Select
+											placeholder='Select organization type'
+											options={[
+												{ label: 'College-wide', value: 'college-wide' },
+												{ label: 'Institute-wide', value: 'institute-wide' },
+											]}
+										/>
+									</Form.Item>
+								</Form>
+							)
+						});
 					}}
-				/>
+				>
+					Create Organization
+				</Button>
 			]
 		});
 	}, [setHeader, setSelectedKeys, category, isMobile]);
@@ -130,7 +126,7 @@ const Organizations = () => {
 
 	return (
 		<Flex vertical gap={16} style={{ width: '100%' }}>
-			{routes}
+
 		</Flex>
 	);
 };
@@ -234,51 +230,5 @@ const OrganizationCard = ({ organization, loading }) => {
 				</Avatar.Group>
 			</Flex>
 		</ItemCard>
-	);
-};
-
-/**
- * @param {{
- * 	categorizedOrganizations: Organization[];
- * }} props
- * @returns {JSX.Element}
- */
-const CategoryPage = ({ categorizedOrganizations }) => {
-	const navigate = useNavigate();
-	const isMobile = useMobile();
-	const { cache } = useCache();
-	return (
-		<>
-			{categorizedOrganizations.length > 0 ? (
-				<Row gutter={[16, 16]}>
-					<AnimatePresence mode='popLayout'>
-						{categorizedOrganizations.map((organization, index) => (
-							<Col key={organization.id} span={!isMobile ? 12 : 24}>
-								<motion.div
-									key={index}
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, y: -20 }}
-									transition={{ duration: 0.3, delay: index * 0.05 }}
-								>
-									<OrganizationCard
-										organization={organization}
-										loading={organization.placeholder}
-									/>
-								</motion.div>
-							</Col>
-						))}
-					</AnimatePresence>
-				</Row>
-			) : (
-				<div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-						{(cache.organizations || []).length !== 0 ? (
-						<Spin />
-					) : (
-						<Empty description='No organizations found' />
-					)}
-				</div>
-			)}
-		</>
 	);
 };

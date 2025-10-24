@@ -346,6 +346,75 @@ const CaseForm = ({ message }) => {
 							disabled={false}
 							loading={scanning}
 							onClick={() => new Promise(async (resolve) => {
+								// setScanning(true);
+								// /**
+								//  * @type {import('antd/es/upload/interface').UploadFile<any>[]}
+								//  */
+								// const files = NewCaseForm.current.getFieldValue('files') || [];
+								// const form = new FormData();
+								// for (const file of files)
+								// 	if (file.originFileObj)
+								// 		form.append('files', file.originFileObj);
+
+								// const scanResponse = await authFetch(`${API_Route}/ocr/scan`, {
+								// 	method: 'POST',
+								// 	body: form
+								// }).catch(() => null);
+								// if (!scanResponse?.ok) {
+								// 	setScanning(false);
+								// 	NewCaseForm.current.setFields([{
+								// 		name: 'files',
+								// 		errors: ['Failed to scan images. Please try again.']
+								// 	}]);
+								// 	return;
+								// };
+								// /** @type {string[]} */
+								// const data = await scanResponse.json();
+
+								// const fillResponse = await authFetch(`${API_Route}/ocr/fill`, {
+								// 	method: 'POST',
+								// 	headers: {
+								// 		'Content-Type': 'application/json'
+								// 	},
+								// 	body: JSON.stringify({
+								// 		form: {
+								// 			title: "string",
+								// 			violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
+								// 			date: "dateThour",
+								// 			severity: "'minor' | 'major' | 'severe'",
+								// 			description: "string"
+								// 		},
+								// 		prompts: data
+								// 	})
+								// }).catch(() => null);
+								// if (!fillResponse?.ok) {
+								// 	setScanning(false);
+								// 	NewCaseForm.current.setFields([{
+								// 		name: 'files',
+								// 		errors: ['Failed to process scanned data. Please try again.']
+								// 	}]);
+								// 	return;
+								// };
+
+								// /** @type {Record<string, string | number | boolean>} */
+								// const fillData = await fillResponse.json();
+								// if (fillData.title) NewCaseForm.current.setFieldValue('title', fillData.title);
+								// if (fillData.violation) NewCaseForm.current.setFieldValue('violation', fillData.violation);
+								// if (fillData.date) NewCaseForm.current.setFieldValue('date', dayjs(fillData.date));
+								// if (fillData.severity) {
+								// 	NewCaseForm.current.setFieldValue('severity', fillData.severity);
+								// 	setSeverity(fillData.severity);
+								// };
+								// if (fillData.description) NewCaseForm.current.setFieldValue('description', fillData.description);
+								// NewCaseForm.current.setFields([{
+								// 	name: 'files',
+								// 	errors: []
+								// }]);
+								// message.success('Successfully scanned and filled the form!');
+								// setScanning(false);
+								// resolve();
+
+								// The endpoint has been combined into one for simplicity
 								setScanning(true);
 								/**
 								 * @type {import('antd/es/upload/interface').UploadFile<any>[]}
@@ -355,8 +424,15 @@ const CaseForm = ({ message }) => {
 								for (const file of files)
 									if (file.originFileObj)
 										form.append('files', file.originFileObj);
+								form.append('form', JSON.stringify({
+									title: "string",
+									violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
+									date: "dateThour",
+									severity: "'minor' | 'major' | 'severe'",
+									description: "string"
+								}));
 
-								const scanResponse = await authFetch(`${API_Route}/ocr/scan`, {
+								const scanResponse = await authFetch(`${API_Route}/ocr/process`, {
 									method: 'POST',
 									body: form
 								}).catch(() => null);
@@ -364,40 +440,13 @@ const CaseForm = ({ message }) => {
 									setScanning(false);
 									NewCaseForm.current.setFields([{
 										name: 'files',
-										errors: ['Failed to scan images. Please try again.']
-									}]);
-									return;
-								};
-								/** @type {string[]} */
-								const data = await scanResponse.json();
-
-								const fillResponse = await authFetch(`${API_Route}/ocr/fill`, {
-									method: 'POST',
-									headers: {
-										'Content-Type': 'application/json'
-									},
-									body: JSON.stringify({
-										form: {
-											title: "string",
-											violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
-											date: "dateThour",
-											severity: "'minor' | 'major' | 'severe'",
-											description: "string"
-										},
-										prompts: data
-									})
-								}).catch(() => null);
-								if (!fillResponse?.ok) {
-									setScanning(false);
-									NewCaseForm.current.setFields([{
-										name: 'files',
-										errors: ['Failed to process scanned data. Please try again.']
+										errors: ['Failed to scan and process images. Please try again.']
 									}]);
 									return;
 								};
 
 								/** @type {Record<string, string | number | boolean>} */
-								const fillData = await fillResponse.json();
+								const fillData = await scanResponse.json();
 								if (fillData.title) NewCaseForm.current.setFieldValue('title', fillData.title);
 								if (fillData.violation) NewCaseForm.current.setFieldValue('violation', fillData.violation);
 								if (fillData.date) NewCaseForm.current.setFieldValue('date', dayjs(fillData.date));

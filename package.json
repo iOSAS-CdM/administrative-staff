@@ -1,7 +1,7 @@
 {
   "name": "administrative-staff",
   "private": true,
-  "version": "1.1.53",
+  "version": "1.1.86",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -27,10 +27,10 @@
     "@tauri-apps/plugin-shell": "^2.3.1",
     "@tauri-apps/plugin-updater": "^2",
     "@tauri-apps/plugin-upload": "^2.3.1",
+    "@uiw/react-md-editor": "^4.0.8",
     "antd": "^5.26.1",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.18.1",
-    "marked": "^16.2.0",
     "moment": "^2.30.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

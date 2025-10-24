@@ -9,6 +9,7 @@ const supabase = createClient(
 	{
 		auth: {
 			persistSession: true,
+			autoRefreshToken: true,
 			storageKey: 'CustomApp',
 			storage: window.localStorage,
 			flowType: 'pkce'

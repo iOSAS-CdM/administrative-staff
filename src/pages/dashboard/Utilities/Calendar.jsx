@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import {
 	Card,
@@ -14,11 +14,12 @@ import {
 	App,
 	Row,
 	Col,
-	Empty
+	Empty,
+	Badge
 } from 'antd';
 
 import {
-	CalendarOutlined
+	PlusOutlined
 } from '@ant-design/icons';
 
 import { useMobile } from '../../../contexts/MobileContext';
@@ -26,9 +27,12 @@ import { useCache } from '../../../contexts/CacheContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import NewCase from '../../../modals/NewCase';
-import { RecordCard } from '../Discipline/Records';
+import Announcement from '../../../classes/Announcement';
+import Record from '../../../classes/Record';
+import authFetch from '../../../utils/authFetch';
+import { API_Route } from '../../../main';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 /**
  * @type {React.FC}
@@ -37,234 +41,401 @@ const CalendarPage = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	const isMobile = useMobile();
+	const { cache, updateCache } = useCache();
 	const [search, setSearch] = React.useState('');
-	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
+
+	/** @type {[Announcement[], React.Dispatch<React.SetStateAction<Announcement[]>>]} */
+	const [announcements, setAnnouncements] = React.useState([]);
+
+	/** @type {[Record[], React.Dispatch<React.SetStateAction<Record[]>>]} */
+	const [records, setRecords] = React.useState([]);
+
+	/** @type {[Announcement[], React.Dispatch<React.SetStateAction<Announcement[]>>]} */
 	const [searchedEvents, setSearchedEvents] = React.useState([]);
+
 	const [dropdownOpen, setDropdownOpen] = React.useState(false);
+	const [loading, setLoading] = React.useState(true);
+	const [selectedDate, setSelectedDate] = React.useState(dayjs());
+
+	const app = App.useApp();
+	const Modal = app.modal;
+	const { message } = app;
+
+	// Fetch events and records
+	React.useEffect(() => {
+		const controller = new AbortController();
+		const fetchData = async () => {
+			try {
+				setLoading(true);
+
+				// Check cache first
+				if (cache.events && cache.events.length > 0 && cache.records && cache.records.length > 0) {
+					setAnnouncements(cache.events.filter(e => e.type === 'event'));
+					setRecords(cache.records);
+					setLoading(false);
+					return;
+				}
+
+				const response = await authFetch(`${API_Route}/events/staff`, {
+					signal: controller.signal
+				});
+
+				if (!response.ok) {
+					throw new Error('Failed to fetch calendar data');
+				}
+
+				const data = await response.json();
+
+				// Transform announcements
+				const announcementsData = data.announcements.map(a => new Announcement({
+					id: a.id,
+					title: a.title,
+					description: a.description,
+					cover: a.cover,
+					content: a.content,
+					date: new Date(a.created_at),
+					type: a.type,
+					eventDate: a.event_date ? new Date(a.event_date) : null,
+					author: a.author
+				}));
+
+				// Transform records
+				const recordsData = data.records?.map(r => new Record({
+					id: r.id,
+					title: r.title,
+					violation: r.violation,
+					description: r.description,
+					tags: r.tags,
+					date: new Date(r.date),
+					complainants: r.complainants || [],
+					complainees: r.complainees || [],
+					author: r.author,
+					coauthors: r.coauthors || [],
+					raw: r.raw || false
+				})) || [];
+
+				setAnnouncements(announcementsData);
+				setRecords(recordsData);
+
+				// Save to cache
+				updateCache('events', announcementsData);
+				updateCache('records', recordsData);
+			} catch (error) {
+				if (error.name !== 'AbortError') {
+					message.error('Failed to load calendar data');
+					console.error(error);
+				}
+			} finally {
+				setLoading(false);
+			};
+		};
+
+		fetchData();
+
+		return () => {
+			controller.abort();
+		};
+	}, [message, cache.events, cache.records, updateCache]);
+
+	// Filter events by search
+	React.useEffect(() => {
+		if (search) {
+			const filtered = [...announcements, ...records].filter(item => {
+				const title = item.title?.toLowerCase() || '';
+				const description = item.description?.toLowerCase() || '';
+				const searchLower = search.toLowerCase();
+				return title.includes(searchLower) || description.includes(searchLower);
+			});
+			setSearchedEvents(filtered);
+		} else {
+			setSearchedEvents([]);
+		}
+	}, [search, announcements, records]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Calendar',
 			actions: [
+				<Input.Search
+					key="search"
+					placeholder='Search events'
+					onChange={e => setSearch(e.target.value)}
+					style={{ width: 200 }}
+					allowClear
+				/>,
 				<Dropdown
-					open={dropdownOpen}
-					menu={{
-						items: searchedEvents.map(event => ({
-							key: event.id,
-							label: {
-								disciplinary: event.content.violations
-							}[event.type],
-							onClick: () => navigate(`/dashboard/discipline/record/${event.id}`)
-						}))
-					}}
-				>
-					<Input.Search
-						placeholder='Search events'
-						onChange={e => setSearch(e.target.value)}
-						onFocus={() => setDropdownOpen(true)}
-						onBlur={() => setDropdownOpen(false)}
-						style={{ width: 200 }}
-					/>
-				</Dropdown>,
-				<Dropdown
+					key="create"
 					arrow
 					menu={{
 						items: [
 							{
 								key: 'create-disciplinary-record',
 								label: 'Disciplinary Record',
-								onClick: () => NewCase(Modal)
+								onClick: async () => {
+									await NewCase(Modal, message);
+								}
 							},
 							{
 								key: 'create-announcement',
-								label: 'Announcement'
+								label: 'Announcement',
+								onClick: () => navigate('/dashboard/utilities/announcements/new')
 							}
 						]
 					}}
 				>
 					<Button
 						type='primary'
-						icon={<CalendarOutlined />}
+						icon={<PlusOutlined />}
 					>
 						Create
 					</Button>
 				</Dropdown>
 			]
 		});
-	}, [setHeader, searchedEvents]);
+	}, [setHeader, navigate, Modal, message]);
 
 	React.useEffect(() => {
 		setSelectedKeys(['calendar']);
 	}, [setSelectedKeys]);
 
-	const { cache } = useCache();
+	// Get events for a specific date
+	const getEventsForDate = (date) => {
+		const dateStr = date.format('YYYY-MM-DD');
+		const events = [];
 
-	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
-	const [events, setEvents] = React.useState([]);
-	React.useEffect(() => {
-		setEvents(cache.events || []);
-	}, [cache.events]);
-
-	React.useEffect(() => {
-		const searchTerm = search.toLowerCase();
-		if (!searchTerm) {
-			setSearchedEvents([]);
-			return;
-		};
-
-		/** @type {import('../../../classes/Event').EventProps[]} */
-		const events = (cache.events || []).filter(day => {
-			return day.events.some(event => {
-				if (event.type === 'disciplinary')
-					return event.content.title.toLowerCase().includes(searchTerm);
-				return false;
-			});
-		});
-		for (const day of events) {
-			day.events = day.events.filter(event => {
-				if (event.type === 'disciplinary')
-					return event.content.title.toLowerCase().includes(searchTerm);
-				return false;
-			});
-		};
-		const flattenedEvents = events.flatMap(day => day.events).sort((a, b) => {
-			return a.content.date - b.content.date;
+		// Add announcements with event dates
+		announcements.forEach(announcement => {
+			if (announcement.eventDate) {
+				const eventDateStr = dayjs(announcement.eventDate).format('YYYY-MM-DD');
+				if (eventDateStr === dateStr) {
+					events.push({ ...announcement, type: 'announcement' });
+				}
+			}
 		});
 
-		setSearchedEvents(flattenedEvents);
-	}, [search, events]);
+		// Add records
+		records.forEach(record => {
+			const recordDateStr = dayjs(record.date).format('YYYY-MM-DD');
+			if (recordDateStr === dateStr) {
+				events.push({ ...record, type: 'record' });
+			}
+		});
 
-	const [value, setValue] = React.useState(moment());
+		return events;
+	};
 
-	const app = App.useApp();
-	const Modal = app.modal;
+	// Custom cell renderer for calendar dates
+	const dateCellRender = (date) => {
+		const events = getEventsForDate(date);
 
-	return (
-		<Card>
-			<Calendar
-				onPanelChange={(date) => setValue(date)}
-					onSelect={(date, info) => {
-							if (info.source === 'date') {
-								const eventsForDate = events.find(event =>
-									event.date.getDate() === date.date()
-									&& event.date.getMonth() === date.month()
-									&& event.date.getFullYear() === date.year()
-								)?.events || [];
-								const modal = Modal.info({
-									title: `Events for ${date.format('MMMM D, YYYY')}`,
-									centered: true,
-									closable: { 'aria-label': 'Close' },
-									content: (
-										<>
-											{
-												eventsForDate.length !== 0 ? (
-													<Row gutter={[16, 16]}>
-														{eventsForDate.map((event, index) => (
-															event.type === 'disciplinary' ? (
-																<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
-																	<RecordCard record={event.content} loading={false} />
-																</Col>
-															) : null
-														))}
-													</Row>
-												) : (
-													<Empty description='No events found' />
-												)
-											}
-										</>
-									),
-									width: {
-										xs: '100%',
-										sm: '100%',
-										md: '100%',
-										lg: 512, // 2^9
-										xl: 1024, // 2^10
-										xxl: 1024 // 2^10
-									}
-								});
-							} else {
-								const eventsForMonth = events.filter(event =>
-									event.date.getMonth() === date.month()
-									&& event.date.getFullYear() === date.year()
-								).flatMap(day => day.events).sort((a, b) => a.content.date - b.content.date);
-								const modal = Modal.info({
-									title: `Events for ${date.format('MMMM YYYY')}`,
-									centered: true,
-									closable: { 'aria-label': 'Close' },
-									content: (
-										<>
-											{
-												eventsForMonth.length !== 0 ? (
-													<Row gutter={[16, 16]}>
-														{eventsForMonth.map((event, index) => (
-															event.type === 'disciplinary' ? (
-																<Col key={event.id} span={!isMobile ? 12 : 12} onClick={() => modal.destroy()}>
-																	<RecordCard record={event.content} loading={false} />
-																</Col>
-															) : null
-														))}
-													</Row>
-												) : (
-													<Empty description='No events found' />
-												)
-											}
-										</>
-									),
-									width: {
-										xs: '100%',
-										sm: '100%',
-										md: '100%',
-										lg: 512, // 2^9
-										xl: 1024, // 2^10
-										xxl: 1024 // 2^10
-									}
-								});
-							};
-						}}
-					cellRender={(date, info) => {
-						if (info.type === 'date') {
-							const eventsForDate = events.find(event =>
-								event.date.getDate() === date.date()
-								&& event.date.getMonth() === date.month()
-								&& event.date.getFullYear() === date.year()
-							)?.events || [];
-							return (
-								<Flex
-									vertical
+		if (events.length === 0) return null;
+
+		return (
+			<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+				{events.slice(0, 3).map((event, index) => (
+					<li key={index}>
+						<Badge
+							status={event.type === 'announcement' ? 'success' : 'error'}
+							text={
+								<Text
+									ellipsis
 									style={{
-										opacity: date.month() === value.month()
-											&& date.year() === value.year() ? 1 : 0.5
+										fontSize: '12px',
+										maxWidth: '100px',
+										display: 'inline-block'
 									}}
 								>
-									{eventsForDate.map((event, index) => (
-										event.type === 'disciplinary' ? (
-											<Text key={index}>
-												{event.content.violations}
-											</Text>
-										) : null
-									))}
-								</Flex>
-							);
-						} else {
-							const eventsForMonth = events.filter(event =>
-								event.date.getMonth() === date.month()
-								&& event.date.getFullYear() === date.year()
-							).flatMap(day => day.events).sort((a, b) => a.content.date - b.content.date);
-							return (
-								<Flex vertical>
-									{eventsForMonth.map((event, index) => (
-										event.type === 'disciplinary' ? (
-											<Text key={index}>
-												{event.content.violations}
-											</Text>
-										) : null
-									))}
-								</Flex>
-							);
-						};
+									{event.title}
+								</Text>
+							}
+						/>
+					</li>
+				))}
+				{events.length > 3 && (
+					<li>
+						<Text type="secondary" style={{ fontSize: '11px' }}>
+							+{events.length - 3} more
+						</Text>
+					</li>
+				)}
+			</ul>
+		);
+	};
+
+	// Full cell renderer for mobile (similar to Profile.jsx)
+	const fullCellRender = (date, info) => {
+		if (info.type === 'date') {
+			const events = getEventsForDate(date);
+			const eventCount = events.length;
+
+			return (
+				<Badge
+					color={
+						date.month() === selectedDate.month() &&
+							date.year() === selectedDate.year()
+							? ['green', 'orange', 'red'][eventCount - 1] || 'red'
+							: 'grey'
+					}
+					size='small'
+					count={eventCount}
+					style={{
+						opacity:
+							date.month() === selectedDate.month() &&
+								date.year() === selectedDate.year()
+								? 1
+								: 0.5
 					}}
-				/>
-		</Card>
+				>
+					<Button
+						type={
+							date.date() === selectedDate.date() &&
+								date.month() === selectedDate.month() &&
+								date.year() === selectedDate.year()
+								? 'primary'
+								: 'text'
+						}
+						style={{
+							opacity:
+								date.month() === selectedDate.month() &&
+									date.year() === selectedDate.year()
+									? 1
+									: 0.5
+						}}
+						size='small'
+					>
+						{`${date.date()}`.padStart(2, '0')}
+					</Button>
+				</Badge>
+			);
+		} else {
+			// Month view
+			const months = [
+				'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+				'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+			];
+
+			let eventCount = 0;
+			// Count all events in this month
+			announcements.forEach(announcement => {
+				if (announcement.eventDate) {
+					const eventDate = dayjs(announcement.eventDate);
+					if (eventDate.month() === date.month() && eventDate.year() === date.year()) {
+						eventCount++;
+					}
+				}
+			});
+			records.forEach(record => {
+				const recordDate = dayjs(record.date);
+				if (recordDate.month() === date.month() && recordDate.year() === date.year()) {
+					eventCount++;
+				}
+			});
+
+			return (
+				<Badge count={eventCount}>
+					<Button
+						type={
+							date.month() === selectedDate.month() &&
+								date.year() === selectedDate.year()
+								? 'primary'
+								: 'text'
+						}
+					>
+						{months[date.month()]}
+					</Button>
+				</Badge>
+			);
+		}
+	};
+
+	// Get events for selected date
+	const selectedDateEvents = getEventsForDate(selectedDate);
+
+	// Filter events by search
+	const filteredEvents = search
+		? selectedDateEvents.filter(event =>
+			event.title?.toLowerCase().includes(search.toLowerCase()) ||
+			event.description?.toLowerCase().includes(search.toLowerCase())
+		)
+		: selectedDateEvents;
+
+	return (
+		<Skeleton loading={loading} active>
+			<Row gutter={[16, 16]}>
+				<Col xs={24} lg={16}>
+					<Card>
+						<Calendar
+							value={selectedDate}
+							onSelect={(date) => setSelectedDate(date)}
+							{...(isMobile
+								? { fullCellRender }
+								: { cellRender: dateCellRender }
+							)}
+							fullscreen={!isMobile}
+						/>
+					</Card>
+				</Col>
+				<Col xs={24} lg={8}>
+					<Card
+						title={
+							<Title level={4} style={{ margin: 0 }}>
+								Events on {selectedDate.format('MMMM D, YYYY')}
+							</Title>
+						}
+						style={{ height: '100%' }}
+					>
+						{filteredEvents.length === 0 ? (
+							<Empty
+								description={
+									search
+										? "No events match your search"
+										: "No events scheduled for this date"
+								}
+								image={Empty.PRESENTED_IMAGE_SIMPLE}
+							/>
+						) : (
+							<Flex vertical gap={12}>
+								{filteredEvents.map((event) => (
+									<Card
+										key={event.id}
+										size="small"
+										hoverable
+										style={{ cursor: 'pointer' }}
+										onClick={() => {
+											if (event.type === 'record') {
+												navigate(`/dashboard/discipline/record/${event.id}`);
+											} else {
+												// Navigate to announcement detail if route exists
+												message.info('Announcement details view not yet implemented');
+											}
+										}}
+									>
+										<Flex vertical gap={8}>
+											<Flex justify="space-between" align="center">
+												<Text strong ellipsis style={{ flex: 1 }}>
+													{event.title}
+												</Text>
+												<Badge
+													status={event.type === 'announcement' ? 'success' : 'error'}
+													text={
+														<Text type="secondary" style={{ fontSize: '12px' }}>
+															{event.type === 'announcement' ? 'Event' : 'Record'}
+														</Text>
+													}
+												/>
+											</Flex>
+											<Text type="secondary" ellipsis={{ rows: 2 }}>
+												{event.description}
+											</Text>
+										</Flex>
+									</Card>
+								))}
+								</Flex>
+						)}
+					</Card>
+				</Col>
+			</Row>
+		</Skeleton>
 	);
 };
 

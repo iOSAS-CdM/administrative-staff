@@ -18,7 +18,6 @@ import {
 
 import {
 	HomeOutlined,
-	NotificationOutlined,
 	DoubleLeftOutlined,
 	DoubleRightOutlined,
 	LogoutOutlined,
@@ -28,11 +27,14 @@ import {
 	MenuOutlined,
 	MoonOutlined,
 	SunOutlined,
-	SolutionOutlined
+	SolutionOutlined,
+	ReloadOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 import { DisplayThemeContext, API_Route } from '../main';
 import { useMobile } from '../contexts/MobileContext';
+import { RefreshProvider, useRefresh } from '../contexts/RefreshContext';
 import { PagePropsProvider } from '../contexts/PagePropsContext';
 
 import Home from './dashboard/Home';
@@ -41,14 +43,16 @@ import Profile from './dashboard/Students/Profile';
 import Unverified from './dashboard/Students/Unverified';
 import DisciplinaryRecords from './dashboard/Discipline/Records';
 import DisciplinaryRecord from './dashboard/Discipline/Record';
+import Reports from './dashboard/Discipline/Reports';
 import Organizations from './dashboard/Students/Organizations';
 import Organization from './dashboard/Students/Organization';
 import CalendarPage from './dashboard/Utilities/Calendar';
 import FAQsPage from './dashboard/Utilities/FAQs';
-import Announcements from './dashboard/Utilities/Announements';
-import NewAnnouncement from './dashboard/Utilities/NewAnnouncement';
+import Announcements from './dashboard/Utilities/Announcement';
+import NewAnnouncement from './dashboard/Utilities/announcements/New';
+import ViewAnnouncement from './dashboard/Utilities/announcements/View';
 import Repository from './dashboard/Utilities/Repository';
-import AmBot from './AmBot';
+import AmBot from './dashboard/AmBot';
 
 const { Text, Title } = Typography;
 
@@ -63,6 +67,7 @@ const Dashboard = () => {
 	const location = useLocation();
 	const [selectedKeys, setSelectedKeys] = React.useState(['home']);
 	const { cache, updateCache, pushToCache } = useCache();
+	const { refresh, setRefresh } = useRefresh();
 
 	const isMobile = useMobile();
 	const { displayTheme, setDisplayTheme } = React.useContext(DisplayThemeContext);
@@ -108,7 +113,7 @@ const Dashboard = () => {
 		getStaff();
 
 		return () => controller.abort();
-	}, [cache?.staff]);
+	}, [cache?.staff, refresh]);
 
 	const [Header, setHeader] = React.useState({
 		title: 'Dashboard',
@@ -127,7 +132,6 @@ const Dashboard = () => {
 		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/home', element: <Home /> },
-		{ path: '/notifications', element: <p>Notifications</p> },
 
 		{ path: '/students/verified/*', element: <Verified /> },
 		{ path: '/students/unverified/*', element: <Unverified /> },
@@ -147,27 +151,22 @@ const Dashboard = () => {
 		{ path: '/students/organization/:id', element: <Organization /> },
 
 		{
-			path: '/discipline/records/*',
-			element: <DisciplinaryRecords />,
-			children: [
-				{ path: 'active', element: <DisciplinaryRecords /> },
-				{ path: 'ongoing', element: <DisciplinaryRecords /> },
-				{ path: 'resolved', element: <DisciplinaryRecords /> },
-				{ path: 'dismissed', element: <DisciplinaryRecords /> }
-			]
+			path: '/discipline/records',
+			element: <DisciplinaryRecords />
 		},
 		{ path: '/discipline/record/:id', element: <DisciplinaryRecord /> },
 
-		{ path: '/discipline/reports/*', element: <p>Reports</p> },
+		{ path: '/discipline/reports', element: <Reports /> },
 
 		{ path: '/utilities/calendar', element: <CalendarPage /> },
 		{ path: '/utilities/faqs', element: <FAQsPage /> },
 
 		{ path: '/utilities/announcements', element: <Announcements /> },
+		{ path: '/utilities/announcements/:id', element: <ViewAnnouncement /> },
 		{ path: '/utilities/announcements/new', element: <NewAnnouncement /> },
 
 		{ path: '/utilities/repository', element: <Repository /> },
-		{ path: '/helpbot', element: <AmBot /> }
+		{ path: '/ambot', element: <AmBot /> }
 	]);
 
 	const [minimized, setMinimized] = React.useState(false);
@@ -175,30 +174,53 @@ const Dashboard = () => {
 	/**
 	 * @type {import('antd').MenuProps['items']}
 	 */
-	const menuItems = [
+	const menuItems = React.useMemo(() => [
+	// Guidance:
+	//  - Verified (View Only)
+	//  - Unverified (View Only)
+	//  - Records (View Only)
+	//  - Calendar
+	//  - Faqs
+	//  - Announcements
+	//  - Repositories
+	//  - AmBot
+	// Prefect of Discipline:
+	//  - Verified (View Only)
+	//  - Unverified (View Only)
+	//  - Records
+	//  - Reports
+	//  - Calendar
+	//  - Repositories
+	//  - AmBot
+	// Student Affairs
+	//  - Verified
+	//  - Unverified
+	//  - Organizations
+	//  - Records (View Only)
+	//  - Reports (View Only)
+	//  - Calendar
+	//  - FAQs
+	//  - Announcements
+	//  - Repositories
+	//  - AmBot
+	// Head
+	//  - All (Read and Write)
+
 		...minimized ? [] : [
 			{
 				key: 'staff',
 				label: (
 					<Flex justify='space-between' align='center' style={{ width: '100%' }}>
 						<div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-							{cache?.staff ? (
-								<Flex vertical>
-									<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
-									<Text type='secondary' style={{ color: 'currentColor' }}>{{
-										'head': 'Head',
-										'guidance': 'Guidance Officer',
-										'prefect': 'Prefect of Discipline Officer',
-										'student-affairs': 'Student Affairs Officer'
-									}[cache?.staff?.role]}</Text>
-								</Flex>
-							) : (
-								<Skeleton.Node
-									active
-									shape='square'
-									style={{ width: '100%' }}
-								/>
-							)}
+							<Flex vertical>
+								<Title level={5} style={{ color: 'currentColor' }}>{cache?.staff?.name.first} {cache?.staff?.name.last}</Title>
+								<Text type='secondary' style={{ color: 'currentColor' }}>{{
+									'head': 'Head',
+									'guidance': 'Guidance Officer',
+									'prefect': 'Prefect of Discipline Officer',
+									'student-affairs': 'Student Affairs Officer'
+								}[cache?.staff?.role]}</Text>
+							</Flex>
 						</div>
 
 						<div style={{ width: 32 }}>
@@ -212,21 +234,14 @@ const Dashboard = () => {
 					</Flex>
 				),
 				icon: (
-					cache?.staff ? (
-						<Avatar
-							src={cache?.staff?.profilePicture}
-							shape='square'
-							size='small'
-							style={{ width: 32, height: 32 }}
-						/>
-					) : (
-						<Skeleton.Avatar
-							active
-							shape='square'
-							size='small'
-							style={{ width: 32, height: 32 }}
-						/>
-					)
+					<Avatar
+						src={cache?.staff?.profilePicture}
+						alt={cache?.staff?.name}
+						fallback={<UserOutlined />}
+						shape='square'
+						size='small'
+						style={{ width: 32, height: 32 }}
+					/>
 				),
 				onClick: () => { },
 				style: {
@@ -248,31 +263,25 @@ const Dashboard = () => {
 			onClick: () => navigate('/dashboard/home', { replace: true })
 		},
 		{
-			key: 'notifications',
-			label: 'Notifications',
-			icon: <NotificationOutlined />,
-			onClick: () => navigate('/dashboard/notifications', { replace: true })
-		},
-		{
 			key: 'students',
 			label: 'Students',
 			icon: <SmileOutlined />,
 			children: [
 				{
 					key: 'verified',
-					label: 'Verified',
-					onClick: () => navigate('/dashboard/students/verified', { replace: true })
+					label: 'Verified Students',
+					onClick: () => navigate('/dashboard/students/verified/active', { replace: true })
 				},
 				{
 					key: 'unverified',
-					label: 'Unverified',
+					label: 'Unverified Students',
 					onClick: () => navigate('/dashboard/students/unverified', { replace: true })
 				},
-				{
+				['head', 'student-affairs'].includes(cache?.staff?.role) ? {
 					key: 'organizations',
 					label: 'Organizations',
 					onClick: () => navigate('/dashboard/students/organizations/active', { replace: true })
-				}
+				} : null
 			]
 		},
 		{
@@ -283,13 +292,13 @@ const Dashboard = () => {
 				{
 					key: 'records',
 					label: 'Records',
-					onClick: () => navigate('/dashboard/discipline/records/ongoing', { replace: true })
+					onClick: () => navigate('/dashboard/discipline/records', { replace: true })
 				},
-				{
+				cache?.staff && ['head', 'prefect'].includes(cache?.staff?.role) ? {
 					key: 'reports',
 					label: 'Reports',
 					onClick: () => navigate('/dashboard/discipline/reports', { replace: true })
-				}
+				} : null
 			]
 		},
 		{
@@ -302,30 +311,30 @@ const Dashboard = () => {
 					label: 'Calendar',
 					onClick: () => navigate('/dashboard/utilities/calendar', { replace: true })
 				},
-				{
+				cache?.staff && ['head', 'student-affairs', 'guidance'].includes(cache?.staff?.role) ? {
 					key: 'faqs',
 					label: 'FAQs',
 					onClick: () => navigate('/dashboard/utilities/faqs', { replace: true })
-				},
-				{
+				} : null,
+				cache?.staff && ['head', 'student-affairs', 'guidance'].includes(cache?.staff?.role) ? {
 					key: 'announcements',
 					label: 'Announcements',
 					onClick: () => navigate('/dashboard/utilities/announcements', { replace: true })
-				},
+				} : null,
 				{
 					key: 'repository',
-					label: 'Repository',
+					label: 'Public Forms',
 					onClick: () => navigate('/dashboard/utilities/repository', { replace: true })
 				}
 			]
 		},
 		{
-			key: 'helpbot',
-			label: 'Helpbot',
+			key: 'ambot',
+			label: 'AmBot',
 			icon: <RobotOutlined />,
-			onClick: () => navigate('/dashboard/helpbot', { replace: true })
+			onClick: () => navigate('/dashboard/ambot', { replace: true })
 		}
-	];
+	], [cache?.staff, minimized, refresh]);
 
 	return (
 		<Flex
@@ -368,16 +377,18 @@ const Dashboard = () => {
 									onClick={() => setMinimized(!minimized)}
 									style={{ width: '100%' }}
 								/>
-								{cache?.staff ? (
+								{cache?.staff?.profilePicture ? (
 									<Avatar
 										src={cache?.staff?.profilePicture}
+										alt={cache?.staff?.name}
+										fallback={<UserOutlined />}
 										shape='square'
 										size='small'
 										style={{ width: 32, height: 32 }}
 									/>
 								) : (
-									<Skeleton.Avatar
-										active
+									<Avatar
+										icon={<UserOutlined />}
 										shape='square'
 										size='small'
 										style={{ width: 32, height: 32 }}
@@ -392,32 +403,52 @@ const Dashboard = () => {
 							gap={16}
 							style={{ width: '100%', height: '100%' }}
 						>
-							<Menu
-								selectedKeys={selectedKeys}
-								inlineCollapsed={minimized}
-								style={{
-									position: 'relative',
-									height: '100%',
-									width: minimized ? 64 : 256 + (128 / 2),
-									padding: 0,
-									border: 'none'
-								}}
-								items={menuItems}
-								mode='inline'
-							/>
+							{cache?.staff?.id ? (
+								<Menu
+									selectedKeys={selectedKeys}
+									inlineCollapsed={minimized}
+									style={{
+										position: 'relative',
+										height: '100%',
+										width: minimized ? 64 : 256 + (128 / 2),
+										padding: 0,
+										border: 'none'
+									}}
+									items={menuItems}
+									mode='inline'
+								/>
+							) : (
+								<Flex vertical gap={32} style={{ width: '100%' }}>
+									<Flex gap={16} justify='space-between' align='center' style={{ width: '100%' }}>
+										<Skeleton.Node active style={{ height: 32, width: minimized ? 64 : undefined, flex: 1 }} />
+
+										{!minimized && (
+											<Button
+												type='default'
+												icon={<DoubleLeftOutlined />}
+												onClick={() => setMinimized(!minimized)}
+												style={{ minWidth: '128px !important', height: 32 }}
+											/>
+										)}
+									</Flex>
+
+									<Flex vertical gap={16} style={{ width: '100%' }}>
+										{Array.from({ length: 6 }).map((_, index) => (
+											<Skeleton.Node key={index} active style={{ height: 32, width: minimized ? 64 : 256 + (128 / 2) }} />
+										))}
+									</Flex>
+								</Flex>
+							)}
 						</Flex>
 
-						<Flex gap={16} vertical align='center' style={{ width: '100%' }}>
-							<Segmented
-								vertical={minimized}
-								options={[
-									{ value: 'light', icon: <SunOutlined /> },
-									{ value: 'dark', icon: <MoonOutlined /> }
-								]}
-								value={displayTheme}
-								onChange={(value) => {
-									localStorage.setItem('displayTheme', value);
-									setDisplayTheme(value);
+						<Flex gap={16} vertical={minimized} align='center' style={{ width: '100%' }}>
+							<Button
+								type='primary'
+								icon={displayTheme === 'light' ? <MoonOutlined /> : <SunOutlined />}
+								onClick={() => {
+									const newTheme = displayTheme === 'light' ? 'dark' : 'light';
+									localStorage.setItem('displayTheme', newTheme);
+									setDisplayTheme(newTheme);
 								}}
 							/>
 							<Button
@@ -470,6 +501,13 @@ const Dashboard = () => {
 						<Title level={4}>{Header.title}</Title>
 						{!isMobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
+								<Button
+									type='default'
+									icon={<ReloadOutlined />}
+									onClick={() => {
+										setRefresh({ timestamp: Date.now() });
+									}}
+								/>
 								{Header.actions && Header.actions.map((action, index) =>
 									React.cloneElement(action, { key: index })
 								)}
@@ -535,4 +573,10 @@ const Dashboard = () => {
 	);
 };
 
-export default Dashboard;
+const Entry = () => (
+	<RefreshProvider>
+		<Dashboard />
+	</RefreshProvider>
+);
+
+export default Entry;

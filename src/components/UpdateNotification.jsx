@@ -29,7 +29,6 @@ const UpdateNotification = () => {
 				setUpdateAvailable(true);
 				setUpdateVersion(update.version);
 				setIsModalVisible(true);
-				message.info(`Update available: v${update.version}`);
 			};
 			// Remove the success message for 'latest version' since this is automatic
 		} catch (error) {

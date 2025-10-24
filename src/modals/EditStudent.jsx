@@ -58,7 +58,10 @@ const StudentForm = ({ student }) => {
 			layout='vertical'
 			ref={EditStudentForm}
 			onFinish={(values) => { }}
-			initialValues={student}
+			initialValues={{
+				...student,
+				year: typeof student.year === 'number' ? student.year : undefined
+			}}
 			style={{ width: '100%' }}
 		>
 			<Flex justify='center' align='flex-start' gap={32}>

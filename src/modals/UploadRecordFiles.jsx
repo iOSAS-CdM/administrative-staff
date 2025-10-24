@@ -46,7 +46,7 @@ const FileUploadForm = () => {
 					valuePropName='fileList.fileList'
 				>
 					<Upload.Dragger
-						listType='picture-card'
+						listType='picture'
 						multiple
 						beforeUpload={() => false} // Prevent auto upload
 						accept='image/*'
@@ -79,7 +79,7 @@ const FileUploadForm = () => {
  * 
  * @returns {Promise<any>}
  */
-const UploadRecordFiles = async (Modal, recordId) => {
+const UploadRecordFiles = async (Modal, notification, recordId) => {
 	let uploadResult = null;
 
 	await Modal.info({
@@ -128,11 +128,18 @@ const UploadRecordFiles = async (Modal, recordId) => {
 							});
 
 							if (!request?.ok) {
+								notification.error({
+									message: 'Failed to upload files. Please try again.'
+								});
 								reject(new Error('Failed to upload files. Please try again.'));
 								return;
 							};
 
 							uploadResult = await request.json();
+
+							notification.success({
+								message: `Successfully uploaded ${values.files.fileList.length} file(s).`
+							});
 							resolve(uploadResult);
 						} else {
 							reject(new Error('No files selected for upload.'));
@@ -140,6 +147,9 @@ const UploadRecordFiles = async (Modal, recordId) => {
 					})
 					.catch((errorInfo) => {
 						console.error('Validate Failed:', errorInfo);
+						notification.error({
+							message: 'Failed to validate form. Please check your input.'
+						});
 						reject(errorInfo);
 					});
 			});

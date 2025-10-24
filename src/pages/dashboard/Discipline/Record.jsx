@@ -26,7 +26,8 @@ import {
 	FileOutlined,
 	DownloadOutlined,
 	DeleteOutlined,
-	UploadOutlined
+	UploadOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -261,9 +262,10 @@ const Record = () => {
 									<Card
 										key={complainant.id || i}
 										size='small'
-										hoverable
+										hoverable={complainant.role}
 										style={{ width: '100%' }}
 										onClick={() => {
+											if (!complainant.role) return;
 											if (complainant.placeholder) {
 												Modal.error({
 													title: 'Error',
@@ -299,9 +301,10 @@ const Record = () => {
 									<Card
 										key={complainee.student.id || i}
 										size='small'
-										hoverable
+										hoverable={complainee.student.role}
 										style={{ width: '100%' }}
 										onClick={() => {
+											if (!complainee.student.role) return;
 											if (complainee.student.placeholder) {
 												Modal.error({
 													title: 'Error',
@@ -326,7 +329,7 @@ const Record = () => {
 											offset={[-8, 8]}
 										/>
 										<Flex align='flex-start' gap={8}>
-											<Avatar src={complainee.student.profilePicture} size='large' style={{ width: 32, height: 32 }} />
+											<Avatar src={complainee.student.profilePicture} icon={<UserOutlined />} size='large' style={{ width: 32, height: 32 }} />
 											<Flex vertical>
 												<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
 												<Text type='secondary'>{complainee.student.id}</Text>
@@ -453,11 +456,8 @@ const Record = () => {
 									return;
 								};
 
-								await UploadRecordFiles(Modal, id);
+								await UploadRecordFiles(Modal, notification, id);
 								setRefresh({ timestamp: Date.now() });
-								notification.success({
-									message: `Successfully uploaded file(s).`
-								});
 							}}
 						>
 							Upload
