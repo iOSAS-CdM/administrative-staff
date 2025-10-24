@@ -135,7 +135,7 @@ const CalendarPage = () => {
 		return () => {
 			controller.abort();
 		};
-	}, [message, cache.events, cache.records, updateCache]);
+	}, [message, cache.events, cache.records]);
 
 	// Filter events by search
 	React.useEffect(() => {

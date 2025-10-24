@@ -290,7 +290,7 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 			onCancel={onClose}
 			okText='Dismiss'
 			okButtonProps={{ icon: <CloseOutlined />, danger: true }}
-			onOk={() => new Promise(async (resolve) => {
+			onOk={async () => new Promise(async (resolve) => {
 				const reponse = await authFetch(`${API_Route}/cases/${caseItem.id}/close`, {
 					method: 'DELETE'
 				});
