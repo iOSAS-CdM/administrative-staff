@@ -43,6 +43,7 @@ import Profile from './dashboard/Students/Profile';
 import Unverified from './dashboard/Students/Unverified';
 import DisciplinaryRecords from './dashboard/Discipline/Records';
 import DisciplinaryRecord from './dashboard/Discipline/Record';
+import Reports from './dashboard/Discipline/Reports';
 import Organizations from './dashboard/Students/Organizations';
 import Organization from './dashboard/Students/Organization';
 import CalendarPage from './dashboard/Utilities/Calendar';
@@ -155,7 +156,7 @@ const Dashboard = () => {
 		},
 		{ path: '/discipline/record/:id', element: <DisciplinaryRecord /> },
 
-		{ path: '/discipline/reports/*', element: <p>Reports</p> },
+		{ path: '/discipline/reports', element: <Reports /> },
 
 		{ path: '/utilities/calendar', element: <CalendarPage /> },
 		{ path: '/utilities/faqs', element: <FAQsPage /> },
