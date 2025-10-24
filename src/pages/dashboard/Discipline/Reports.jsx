@@ -107,8 +107,6 @@ const Reports = () => {
 		return () => controller.abort();
 	}, [search, pushToCache]);
 
-	const app = App.useApp();
-
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Reports',
@@ -207,12 +205,13 @@ export default Reports;
 const ReportCard = ({ caseItem, loading }) => {
 	const [thisCase, setThisCase] = React.useState(caseItem);
 	const [modalOpen, setModalOpen] = React.useState(false);
+	const { setRefresh } = useRefresh();
 	const navigate = useNavigate();
 
 	React.useEffect(() => {
 		if (caseItem) {
 			setThisCase(caseItem);
-		}
+		};
 	}, [caseItem]);
 
 	const app = App.useApp();
@@ -260,7 +259,10 @@ const ReportCard = ({ caseItem, loading }) => {
 
 			<ReportDetailModal
 				open={modalOpen}
-				onClose={() => setModalOpen(false)}
+				onClose={() => {
+					setModalOpen(false);
+					setRefresh({ timestamp: Date.now()});
+				}}
 				caseItem={thisCase}
 				notification={notification}
 			/>
@@ -288,7 +290,7 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 			onCancel={onClose}
 			okText='Dismiss'
 			okButtonProps={{ icon: <CloseOutlined />, danger: true }}
-			onOk={async () => {
+			onOk={() => new Promise(async (resolve) => {
 				const reponse = await authFetch(`${API_Route}/cases/${caseItem.id}/close`, {
 					method: 'DELETE'
 				});
@@ -300,8 +302,9 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 					});
 					return;
 				};
+				resolve();
 				onClose();
-			}}
+			})}
 			width={800}
 			title={
 				<Flex align='center' gap={8}>
