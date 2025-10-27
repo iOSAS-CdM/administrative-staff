@@ -25,7 +25,7 @@ const ContentPage = ({
 	renderItem,
 	emptyText = 'No items found',
 	columnSpan = 8,
-	pageSize = 20,
+	pageSize = 32,
 	cacheKey,
 	onDataFetched,
 	transformData = (data) => Array.isArray(data) ? data : []
@@ -70,11 +70,10 @@ const ContentPage = ({
 
 	// Fetch items function
 	const fetchItems = React.useCallback(async (currentPage, isInitialLoad = false) => {
-		if (isInitialLoad) {
+		if (isInitialLoad)
 			setLoading(true);
-		} else {
+		else
 			setLoadingMore(true);
-		}
 
 		// Add pagination parameters to the URL
 		const paginatedUrl = fetchUrl + (fetchUrl.includes('?') ? '&' : '?') +
@@ -86,30 +85,28 @@ const ContentPage = ({
 				if (isInitialLoad) setLoading(false);
 				else setLoadingMore(false);
 				return;
-			}
+			};
 
 			const data = await request.json();
 			if (!data) {
 				if (isInitialLoad) setLoading(false);
 				else setLoadingMore(false);
 				return;
-			}
+			};
 
 			const transformedItems = transformData(data);
 
 			// Check if we've reached the end
-			if (transformedItems.length < pageSize) {
+			if (transformedItems.length < pageSize)
 				setHasMore(false);
-			}
 
 			// Append new items to existing items for infinite scroll
 			setItems(prevItems => {
 				const newItems = currentPage === 0 ? transformedItems : [...prevItems, ...transformedItems];
 
 				// Cache the items if a cache key is provided
-				if (cacheKey) {
+				if (cacheKey)
 					updateCache(cacheKey, newItems);
-				}
 
 				return newItems;
 			});
@@ -125,7 +122,7 @@ const ContentPage = ({
 		} finally {
 			if (isInitialLoad) setLoading(false);
 			else setLoadingMore(false);
-		}
+		};
 	}, [fetchUrl, pageSize, transformData, cacheKey, updateCache, onDataFetched]);
 
 	// Initial fetch
@@ -136,9 +133,8 @@ const ContentPage = ({
 
 	// Load more items when page changes
 	React.useEffect(() => {
-		if (page > 0) {
+		if (page > 0)
 			fetchItems(page, false);
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [page]);
 
@@ -148,9 +144,8 @@ const ContentPage = ({
 
 		const observer = new IntersectionObserver(
 			(entries) => {
-				if (entries[0].isIntersecting && !loadingMore && hasMore && !loading) {
+				if (entries[0].isIntersecting && !loadingMore && hasMore && !loading)
 					setPage(prevPage => prevPage + 1);
-				}
 			},
 			{ threshold: 0.1 }
 		);
@@ -158,10 +153,9 @@ const ContentPage = ({
 		observer.observe(observerRef.current);
 
 		return () => {
-			if (observerRef.current) {
+			if (observerRef.current)
 				// eslint-disable-next-line react-hooks/exhaustive-deps
 				observer.unobserve(observerRef.current);
-			}
 		};
 	}, [loadingMore, hasMore, loading]);
 
@@ -187,11 +181,10 @@ const ContentPage = ({
 							{items.map((item, index) => (
 								<Col key={item.id || index} lg={columnSpan} md={12} sm={24} xs={24}>
 									<motion.div
-										key={index}
-										initial={{ opacity: 0, y: 20 }}
+										initial={{ opacity: 0, y: 32 }}
 										animate={{ opacity: 1, y: 0 }}
-										exit={{ opacity: 0, y: -20 }}
-										transition={{ duration: 0.3, delay: index * 0.05 }}
+										exit={{ opacity: 0, y: -32 }}
+										transition={{ duration: 0.25, delay: index * 0.05 }}
 									>
 										{renderItem(item, index)}
 									</motion.div>
@@ -202,7 +195,7 @@ const ContentPage = ({
 
 						{/* Loading indicator for infinite scroll */}
 						{loadingMore && (
-							<Flex justify='center' style={{ width: '100%', padding: '20px 0' }}>
+							<Flex justify='center' style={{ width: '100%', padding: '32px 0' }}>
 								<Spin />
 							</Flex>
 						)}
@@ -211,15 +204,15 @@ const ContentPage = ({
 						{hasMore && !loadingMore && (
 							<div
 								ref={observerRef}
-								style={{ height: '20px', width: '100%' }}
+								style={{ height: '32px', width: '100%' }}
 							/>
 						)}
 
 						{/* End of content message */}
 						{!hasMore && items.length > 0 && (
-							<Flex justify='center' style={{ width: '100%', padding: '20px 0', opacity: 0.5 }}>
+							<Flex justify='center' style={{ width: '100%', padding: '32px 0', opacity: 0.5 }}>
 								<span>No more items to load</span>
-						</Flex>
+							</Flex>
 					)}
 				</>
 			) : (
