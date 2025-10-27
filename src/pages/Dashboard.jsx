@@ -554,22 +554,22 @@ const Dashboard = () => {
 						padding: 16
 					}}
 				>
-					<AnimatePresence mode='wait'>
-						<motion.div
-							key={location.pathname}
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.2 }}
-							style={{ width: '100%', minHeight: '100%' }}
-						>
-							<PagePropsProvider value={pageProps}>
-								<WebSocketProvider>
+					<PagePropsProvider value={pageProps}>
+						<WebSocketProvider>
+							<AnimatePresence mode='wait'>
+								<motion.div
+									key={location.pathname}
+									initial={{ opacity: 0, x: 20 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: -20 }}
+									transition={{ duration: 0.2 }}
+									style={{ width: '100%', minHeight: '100%' }}
+								>
 									{routes}
-								</WebSocketProvider>
-							</PagePropsProvider>
-						</motion.div>
-					</AnimatePresence>
+								</motion.div>
+							</AnimatePresence>
+						</WebSocketProvider>
+					</PagePropsProvider>
 				</div>
 			</Flex>
 		</Flex>

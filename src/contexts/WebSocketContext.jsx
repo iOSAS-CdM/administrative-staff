@@ -19,7 +19,7 @@ export const WebSocketProvider = ({ children }) => {
 			console.log('WebSocket connected');
 			ws.send(JSON.stringify({
 				type: 'introduce',
-				payload: { id: staff.id }
+				payload: { id: staff.id, role: staff.role }
 			}));
 		};
 

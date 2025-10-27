@@ -62,9 +62,9 @@ const ContentPage = ({
 	// Reset state when fetchUrl or refresh changes
 	React.useEffect(() => {
 		setPage(0);
-		setItems([]);
 		setHasMore(true);
 		setHasFetched(false);
+		// Do NOT clear items on refresh; preserve current items
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchUrl, refresh]);
 
