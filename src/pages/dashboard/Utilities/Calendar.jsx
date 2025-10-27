@@ -74,15 +74,14 @@ const CalendarPage = () => {
 					setRecords(cache.records);
 					setLoading(false);
 					return;
-				}
+				};
 
 				const response = await authFetch(`${API_Route}/events/staff`, {
 					signal: controller.signal
 				});
 
-				if (!response.ok) {
+				if (!response.ok)
 					throw new Error('Failed to fetch calendar data');
-				}
 
 				const data = await response.json();
 
@@ -95,7 +94,7 @@ const CalendarPage = () => {
 					content: a.content,
 					date: new Date(a.created_at),
 					type: a.type,
-					eventDate: a.event_date ? new Date(a.event_date) : null,
+					event_date: a.event_date ? new Date(a.event_date) : null,
 					author: a.author
 				}));
 
@@ -124,7 +123,7 @@ const CalendarPage = () => {
 				if (error.name !== 'AbortError') {
 					message.error('Failed to load calendar data');
 					console.error(error);
-				}
+				};
 			} finally {
 				setLoading(false);
 			};
@@ -132,10 +131,8 @@ const CalendarPage = () => {
 
 		fetchData();
 
-		return () => {
-			controller.abort();
-		};
-	}, [message, cache.events, cache.records, updateCache]);
+		return () => controller.abort();
+	}, [message]);
 
 	// Filter events by search
 	React.useEffect(() => {
@@ -204,22 +201,21 @@ const CalendarPage = () => {
 		const events = [];
 
 		// Add announcements with event dates
-		announcements.forEach(announcement => {
-			if (announcement.eventDate) {
-				const eventDateStr = dayjs(announcement.eventDate).format('YYYY-MM-DD');
-				if (eventDateStr === dateStr) {
+		for (const announcement of announcements) {
+			const event_date = announcement.event_date;
+			if (event_date) {
+				const event_dateStr = dayjs(event_date).format('YYYY-MM-DD');
+				if (event_dateStr === dateStr)
 					events.push({ ...announcement, type: 'announcement' });
-				}
-			}
-		});
+			};
+		};
 
 		// Add records
-		records.forEach(record => {
+		for (const record of records) {
 			const recordDateStr = dayjs(record.date).format('YYYY-MM-DD');
-			if (recordDateStr === dateStr) {
+			if (recordDateStr === dateStr)
 				events.push({ ...record, type: 'record' });
-			}
-		});
+		};
 
 		return events;
 	};
@@ -317,9 +313,9 @@ const CalendarPage = () => {
 			let eventCount = 0;
 			// Count all events in this month
 			announcements.forEach(announcement => {
-				if (announcement.eventDate) {
-					const eventDate = dayjs(announcement.eventDate);
-					if (eventDate.month() === date.month() && eventDate.year() === date.year()) {
+				if (announcement.event_date) {
+					const event_date = dayjs(announcement.event_date);
+					if (event_date.month() === date.month() && event_date.year() === date.year()) {
 						eventCount++;
 					}
 				}
