@@ -593,13 +593,6 @@ const Profile = () => {
 								}
 								<Button
 									type={thisStudent.role === 'student' ? 'primary' : 'default'}
-									icon={<FileOutlined />}
-									onClick={() => {}}
-								>
-									Generate Clearance
-								</Button>
-								<Button
-									type={thisStudent.role === 'student' ? 'primary' : 'default'}
 									danger
 									icon={<LockOutlined />}
 									onClick={() => {

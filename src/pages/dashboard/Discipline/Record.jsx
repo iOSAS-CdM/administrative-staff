@@ -373,42 +373,33 @@ const Record = () => {
 										>
 											Return
 										</Button>
-										{step < 5 ? (
-											<Button
-												type='primary'
-												icon={<RightOutlined />}
-												iconPosition='end'
-												disabled={step === 5}
-												block
-												onClick={async () => {
-													setStep(step + 1);
-													const response = await authFetch(`${API_Route}/records/${id}/progress`, { method: 'PATCH' }).catch((() => null));
-													if (!response?.ok) {
-														setStep(thisRecord.tags.progress);
-														notification.error({
-															message: 'Error changing progress.'
-														});
-														return;
-													};
+										<Button
+											type='primary'
+											icon={<RightOutlined />}
+											iconPosition='end'
+											disabled={step === 5}
+											block
+											onClick={async () => {
+												setStep(step + 1);
+												const response = await authFetch(`${API_Route}/records/${id}/progress`, { method: 'PATCH' }).catch((() => null));
+												if (!response?.ok) {
+													setStep(thisRecord.tags.progress);
+													notification.error({
+														message: 'Error changing progress.'
+													});
+													return;
+												};
 
-													/** @type {import('../../../classes/Record.js').RecordProps} */
-													const data = await response.json();
-													const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
-													pushToCache('records', newRecord, true);
-													setRefresh({ timestamp: Date.now() });
-													setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
-												}}
-											>
-												Proceed
-											</Button>
-										) : (
-											<Button
-												type='primary'
-												block
-											>
-												Generate Report
-											</Button>
-										)}
+												/** @type {import('../../../classes/Record.js').RecordProps} */
+												const data = await response.json();
+												const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
+												pushToCache('records', newRecord, true);
+												setRefresh({ timestamp: Date.now() });
+												setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
+											}}
+										>
+											Proceed
+										</Button>
 									</Flex>
 								}
 							>
