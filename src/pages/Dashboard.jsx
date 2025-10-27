@@ -36,6 +36,7 @@ import { DisplayThemeContext, API_Route } from '../main';
 import { useMobile } from '../contexts/MobileContext';
 import { RefreshProvider, useRefresh } from '../contexts/RefreshContext';
 import { PagePropsProvider } from '../contexts/PagePropsContext';
+import { WebSocketProvider } from '../contexts/WebSocketContext';
 
 import Home from './dashboard/Home';
 import Verified from './dashboard/Students/Verified';
@@ -563,7 +564,9 @@ const Dashboard = () => {
 							style={{ width: '100%', minHeight: '100%' }}
 						>
 							<PagePropsProvider value={pageProps}>
-								{routes}
+								<WebSocketProvider>
+									{routes}
+								</WebSocketProvider>
 							</PagePropsProvider>
 						</motion.div>
 					</AnimatePresence>

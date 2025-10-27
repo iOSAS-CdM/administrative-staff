@@ -299,14 +299,6 @@ const Organization = () => {
 				footer={
 					<Flex justify='flex-end' align='center' gap={8}>
 						<Button
-							type='default'
-							size='small'
-							icon={<FileAddOutlined />}
-							onClick={() => { }}
-						>
-							Generate Form
-						</Button>
-						<Button
 							type='primary'
 							size='small'
 							icon={<PlusOutlined />}
