@@ -29,6 +29,9 @@ import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import Organization from '../../../classes/Organization';
 
+import { API_Route } from '../../../main';
+import authFetch from '../../../utils/authFetch';
+
 /** @typedef {[Organization[], React.Dispatch<React.SetStateAction<Organization[]>>]} OrganizationsState */
 
 /**
@@ -112,7 +115,47 @@ const Organizations = () => {
 										/>
 									</Form.Item>
 								</Form>
-							)
+							),
+							onOk: () => new Promise((resolve, reject) => {
+								NewOrganizationForm.current.validateFields()
+									.then(async (values) => {
+										const response = await authFetch(`${API_Route}/organizations`, {
+											method: 'POST',
+											headers: {
+												'Content-Type': 'application/json'
+											},
+											body: JSON.stringify({
+												shortName: values.shortName,
+												fullName: values.fullName,
+												type: values.type
+											})
+										});
+
+										if (!response?.ok) {
+											const errorData = await response.json();
+											Modal.error({
+												title: 'Error',
+												content: errorData.message || 'An error occurred while creating the organization.',
+												centered: true
+											});
+											reject();
+											return;
+										};
+
+										const data = await response.json();
+										Modal.success({
+											title: 'Success',
+											content: 'Organization created successfully.',
+											centered: true
+										});
+
+										navigate(`/dashboard/students/organization/${data.id}`, { replace: true });
+										resolve();
+									})
+									.catch(info => {
+										reject(info);
+									});
+							})
 						});
 					}}
 				>

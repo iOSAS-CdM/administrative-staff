@@ -2,13 +2,13 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import {
+	App,
 	Card,
 	Button,
 	Flex,
 	Avatar,
 	Typography,
 	Calendar,
-	App,
 	Image
 } from 'antd';
 
@@ -17,8 +17,7 @@ import {
 	LockOutlined,
 	LeftOutlined,
 	PlusOutlined,
-	BellOutlined,
-	FileAddOutlined
+	BellOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -29,12 +28,16 @@ import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
 
+import authFetch from '../../../utils/authFetch';
+import { API_Route } from '../../../main';
+
 /**
  * @type {React.FC}
  */
 const Organization = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
+	const Modal = App.useApp().modal;
 
 	const isMobile = useMobile();
 	const { cache } = useCache();
@@ -42,29 +45,32 @@ const Organization = () => {
 	const { id } = useParams();
 
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
-	const [thisOrganization, setThisOrganization] = React.useState({
-		placeholder: true,
-		id: '',
-		shortName: '',
-		fullName: '',
-		description: '',
-		email: '',
-		logo: '',
-		cover: '',
-		status: '',
-		type: '',
-		members: []
-	});
+	const [thisOrganization, setThisOrganization] = React.useState();
 	React.useEffect(() => {
-		if (!id) return;
-		const organization = (cache.organizations || []).find(o => o.id === id);
-		if (organization)
-			setThisOrganization(organization);
-	}, [id, cache.organizations]);
+		const controller = new AbortController();
+
+		const fetchOrganization = async () => {
+			const response = await authFetch(`${API_Route}/organizations/${id}`, { signal: controller.signal });
+			if (!response?.ok) {
+				Modal.error({
+					title: 'Error',
+					content: `Failed to fetch organization: ${response?.statusText || 'Unknown error'}`,
+					onOk: () => navigate(-1)
+				});
+				return;
+			};
+
+			const data = await response.json();
+			setThisOrganization(data);
+		};
+	
+		fetchOrganization();
+		return () => controller.abort();
+	}, [id]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: `Student Organization ${thisOrganization.id || ''}`,
+			title: `Student Organization ${thisOrganization?.id || ''}`,
 			actions: [
 				<Button
 					type='primary'
@@ -82,7 +88,7 @@ const Organization = () => {
 
 	const [repository, setRepository] = React.useState([]);
 	React.useEffect(() => {
-		if (thisOrganization.placeholder) {
+		if (thisOrganization?.placeholder) {
 			setRepository([]);
 			return;
 		};
@@ -115,7 +121,6 @@ const Organization = () => {
 	}, [thisOrganization]);
 
 	const app = App.useApp();
-	const Modal = app.modal;
 
 	return (
 		<Flex
@@ -127,8 +132,8 @@ const Organization = () => {
 					<Card
 						cover={
 							<Image
-								src={thisOrganization.cover || '/Placeholder Image.svg'}
-								alt={`${thisOrganization.shortName} Cover`}
+								src={thisOrganization?.cover || '/Placeholder Image.svg'}
+								alt={`${thisOrganization?.shortName} Cover`}
 								style={{ borderRadius: 'var(--ant-border-radius-outer)', aspectRatio: isMobile ? '2/1' : '6/1', objectFit: 'cover', overflow: 'hidden' }}
 							/>
 						}
@@ -138,27 +143,27 @@ const Organization = () => {
 								<Flex
 									style={{
 										position: 'relative',
-										width: 256, // 2^8
+										width: 128, // 2^7
 										height: '100%'
 									}}
 								>
 									<Avatar
-										src={thisOrganization.logo}
+										src={thisOrganization?.logo}
 										size='large'
 										shape='square'
 										style={{
 											position: 'absolute',
-											width: 256, // 2^8
-											height: 256, // 2^8
+											width: 128, // 2^7
+											height: 128, // 2^7
 											bottom: 0,
 											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 										}}
 									/>
 								</Flex>
 								<Flex vertical justify='center' align='flex-start' style={{ flex: 1, }}>
-									<Title level={1}>{thisOrganization.shortName}</Title>
-									<Title level={5}>{thisOrganization.fullName}</Title>
-									<Text type='secondary'>{thisOrganization.description}</Text>
+									<Title level={1}>{thisOrganization?.shortName}</Title>
+									<Title level={5}>{thisOrganization?.fullName}</Title>
+									<Text type='secondary'>{thisOrganization?.description}</Text>
 								</Flex>
 								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
 									<Button
@@ -166,13 +171,6 @@ const Organization = () => {
 										icon={<EditOutlined />}
 									>
 										Edit
-									</Button>
-									<Button
-										type='primary'
-										danger
-										icon={<LockOutlined />}
-									>
-										Restrict
 									</Button>
 								</Flex>
 							</Flex>
@@ -189,7 +187,7 @@ const Organization = () => {
 									}}
 								>
 									<Avatar
-										src={thisOrganization.logo}
+											src={thisOrganization?.logo}
 										size='large'
 										shape='square'
 										style={{
@@ -202,9 +200,9 @@ const Organization = () => {
 									/>
 								</Flex>
 									<Flex vertical justify='flex-start' align='center' style={{ flex: 1, }}>
-										<Title level={1}>{thisOrganization.shortName}</Title>
-										<Title level={5}>{thisOrganization.fullName}</Title>
-										<Text type='secondary'>{thisOrganization.description}</Text>
+										<Title level={1}>{thisOrganization?.shortName}</Title>
+										<Title level={5}>{thisOrganization?.fullName}</Title>
+										<Text type='secondary'>{thisOrganization?.description}</Text>
 								</Flex>
 								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
 									<Button
@@ -212,13 +210,6 @@ const Organization = () => {
 										icon={<EditOutlined />}
 									>
 										Edit
-									</Button>
-									<Button
-										type='primary'
-										danger
-										icon={<LockOutlined />}
-									>
-										Restrict
 									</Button>
 								</Flex>
 							</Flex>
@@ -234,14 +225,6 @@ const Organization = () => {
 								footer={
 									<Flex justify='flex-end' align='center' gap={8}>
 										<Button
-											type='default'
-											size='small'
-											icon={<BellOutlined />}
-											onClick={() => { }}
-										>
-											Summon
-										</Button>
-										<Button
 											type='primary'
 											size='small'
 											icon={<PlusOutlined />}
@@ -252,7 +235,7 @@ const Organization = () => {
 									</Flex>
 								}
 							>
-								{thisOrganization.members.length > 0 && thisOrganization.members.map((member, index) => (
+								{thisOrganization?.members.length > 0 && thisOrganization?.members.map((member, index) => (
 									<Card
 										key={index}
 										size='small'
