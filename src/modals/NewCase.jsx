@@ -10,14 +10,18 @@ import {
 	Typography,
 	Button,
 	Spin,
-	DatePicker
+	AutoComplete,
+	DatePicker,
+	List
 } from 'antd';
 
 import {
 	BankOutlined,
 	UploadOutlined,
 	ScanOutlined,
-	ClearOutlined
+	ClearOutlined,
+	MinusCircleOutlined,
+	MinusOutlined
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -29,7 +33,7 @@ const { Title, Text, Paragraph } = Typography;
 const NewCaseForm = React.createRef();
 
 import { API_Route } from '../main';
-import { useCache, CacheContext } from '../contexts/CacheContext';
+import { useCache, CacheProvider } from '../contexts/CacheContext';
 
 import authFetch from '../utils/authFetch';
 
@@ -43,7 +47,8 @@ const CaseForm = ({ message }) => {
 	/**
 	 * Cache context hook for managing student data
 	 */
-	const { pushToCache } = useCache();
+	const { pushToCache, getFromCache, cache } = useCache();
+	const [form] = Form.useForm();
 
 	/**
 	 * Search query string for finding students
@@ -52,10 +57,34 @@ const CaseForm = ({ message }) => {
 	const [search, setSearch] = React.useState('');
 
 	/**
+	 * Search query string for complainants
+	 * @type {[string, React.Dispatch<React.SetStateAction<string>>]}
+	 */
+	const [complainantSearch, setComplainantSearch] = React.useState('');
+
+	/**
+	 * Search query string for complainees
+	 * @type {[string, React.Dispatch<React.SetStateAction<string>>]}
+	 */
+	const [complaineesSearch, setComplaineesSearch] = React.useState('');
+
+	/**
 	 * Array of student search results
 	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
 	 */
 	const [searchResults, setSearchResults] = React.useState([]);
+
+	/**
+	 * Array of complainant search results
+	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
+	 */
+	const [complainantSearchResults, setComplainantSearchResults] = React.useState([]);
+
+	/**
+	 * Array of complainees search results
+	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
+	 */
+	const [complaineesSearchResults, setComplaineesSearchResults] = React.useState([]);
 
 	/**
 	 * Loading state for student search operations
@@ -64,44 +93,58 @@ const CaseForm = ({ message }) => {
 	const [searching, setSearchingComplainant] = React.useState(false);
 
 	/**
-	 * Effect hook to handle student search functionality
-	 * Debounces search requests and manages loading states
-	 * @param {string} search - The search query dependency
+	 * Loading state for complainant search operations
+	 * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+	 */
+	const [complainantSearching, setComplainantSearching] = React.useState(false);
+
+	/**
+	 * Loading state for complainees search operations
+	 * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+	 */
+	const [complaineesSearching, setComplaineesSearching] = React.useState(false);
+
+	/**
+	 * Helper function to fetch student search results
+	 * @param {string} query - The search query
+	 * @param {React.Dispatch<React.SetStateAction<boolean>>} setLoading - Loading state setter
+	 * @param {React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>} setResults - Results setter
+	 * @param {AbortController} controller - Abort controller for cancelling request
+	 */
+	const fetchStudentResults = async (query, setLoading, setResults, controller) => {
+		if (query.length === 0) {
+			setResults([]);
+			return;
+		}
+
+		setLoading(true);
+		const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+		if (!request?.ok) return;
+
+		const data = await request.json();
+		if (!data || !Array.isArray(data.students)) return;
+		setResults(data.students);
+		setLoading(false);
+		pushToCache('students', data.students, false);
+	};
+
+	/**
+	 * Effect hook to handle complainant search functionality
 	 */
 	React.useEffect(() => {
-		/**
-		 * AbortController for cancelling ongoing requests
-		 */
 		const controller = new AbortController();
-
-		/**
-		 * Async function to fetch student search results from the API
-		 * @async
-		 * @function
-		 * @returns {Promise<void>}
-		 */
-		const fetchSearchResults = async () => {
-			if (search.length === 0) {
-				setSearchResults([]);
-				return;
-			};
-
-			// Fetch students from the backend
-			setSearchingComplainant(true);
-			const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(search)}`, { signal: controller.signal });
-			if (!request?.ok) return;
-
-			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
-			const data = await request.json();
-			if (!data || !Array.isArray(data.students)) return;
-			setSearchResults(data.students);
-			setSearchingComplainant(false);
-			pushToCache('students', data.students, false);
-		};
-		fetchSearchResults();
-
+		fetchStudentResults(complainantSearch, setComplainantSearching, setComplainantSearchResults, controller);
 		return () => controller.abort();
-	}, [search]);
+	}, [complainantSearch]);
+
+	/**
+	 * Effect hook to handle complainees search functionality
+	 */
+	React.useEffect(() => {
+		const controller = new AbortController();
+		fetchStudentResults(complaineesSearch, setComplaineesSearching, setComplaineesSearchResults, controller);
+		return () => controller.abort();
+	}, [complaineesSearch]);
 
 	/**
 	 * Current severity level of the case
@@ -111,15 +154,14 @@ const CaseForm = ({ message }) => {
 
 	/**
 	 * Array of complainant student IDs
-	 * @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]}
+	 * @type {string[]}
 	 */
-	const [complainants, setComplainants] = React.useState([]);
-
+	const complainants = Form.useWatch('complainants', form);
 	/**
 	 * Array of complainee (accused) student IDs
-	 * @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]}
+	 * @type {string[]}
 	 */
-	const [complainees, setComplainees] = React.useState([]);
+	const complainees = Form.useWatch('complainees', form);
 
 	/**
 	 * Normalizes file upload event to extract file list
@@ -138,6 +180,7 @@ const CaseForm = ({ message }) => {
 		<Form
 			layout='vertical'
 			ref={NewCaseForm}
+			form={form}
 			onFinish={(values) => { }}
 			initialValues={{
 				violation: '',
@@ -155,318 +198,355 @@ const CaseForm = ({ message }) => {
 			wrapperCol={{ span: 24 }}
 			disabled={scanning}
 		>
-			<Flex gap={32}>
-				<Flex vertical style={{ flex: 1 }}>
-					<Form.Item
-						name='title'
-						label='Title'
-						rules={[{ required: true, message: 'Please enter a title!' }]}
-					>
-						<Input
-							placeholder='Enter a brief title for the case'
-							style={{ width: '100%' }}
-							maxLength={100}
-						/>
-					</Form.Item>
-					<Form.Item
-						name='violation'
-						label='Violation'
-						rules={[{ required: true, message: 'Please enter a violation!' }]}
-					>
-						<Select
-							placeholder='Select a violation'
-							options={[
-								{ label: 'Bullying', value: 'bullying' },
-								{ label: 'Cheating', value: 'cheating' },
-								{ label: 'Disruptive Behavior', value: 'disruptive_behavior' },
-								{ label: 'Fraud', value: 'fraud' },
-								{ label: 'Gambling', value: 'gambling' },
-								{ label: 'Harassment', value: 'harassment' },
-								{ label: 'Improper Uniform', value: 'improper_uniform' },
-								{ label: 'Litering', value: 'littering' },
-								{ label: 'Plagiarism', value: 'plagiarism' },
-								{ label: 'Possession of Prohibited Items', value: 'prohibited_items' },
-								{ label: 'Vandalism', value: 'vandalism' },
-								{ label: 'Other', value: 'other' }
-							]}
-							style={{ width: '100%' }}
-							showSearch
-							filterOption={(input, option) =>
-								option.label.toLowerCase().includes(input.toLowerCase())
-							}
-						/>
-					</Form.Item>
-					<Form.Item
-						name='date'
-						label='Date'
-						rules={[{ required: true, message: 'Please enter a date!' }]}
-					>
-						<DatePicker
-							style={{ width: '100%' }}
-							placeholder='Select a date'
-							format='MMMM DD, YYYY - hh:mm A'
-							showTime
-							disabledDate={(current) => current && current > new Date()}
-						/>
-					</Form.Item>
-					<Form.Item
-						name='severity'
-						label='Severity'
-						rules={[{ required: true, message: 'Please select a severity!' }]}
-						style={{ flex: 1 }}
-						status={{
-							minor: 'default',
-							major: 'warning',
-							severe: 'error'
-						}[severity]}
-					>
-						<Select
-							placeholder='Select severity'
-							options={[
-								{ label: 'Minor', value: 'minor' },
-								{ label: 'Major', value: 'major' },
-								{ label: 'Severe', value: 'severe' }
-							]}
-							style={{ width: '100%' }}
-							filterOption={(input, option) =>
-								option.label.toLowerCase().includes(input.toLowerCase())
-							}
-							onChange={(value) => {
-								setSeverity(value);
-							}}
-						/>
-					</Form.Item>
-					<Form.Item
-						name='complainants'
-						label='Complainants'
-					>
-						<Select
-							mode='tags'
-							placeholder='Select complainants'
-							options={searchResults.filter(student => !complainees.includes(student.id)).map(student => ({
-								label: `${student.name.first} ${student.name.last} (${student.id})`,
-								value: student.id
-							}))}
-							suffixIcon={searching ? <Spin size='small' /> : null}
-							onChange={(value) => {
-								setComplainants(value);
-								setSearchResults([]);
-							}}
-							onSearch={(value) => {
-								setSearch(value);
-							}}
-							style={{ width: '100%' }}
-							showSearch
-							filterOption={(input, option) => {
-								if (complainants.includes(option.value) || complainees.includes(option.value)) return false;
-								return option.label.toLowerCase().includes(input.toLowerCase());
-							}}
-						/>
-					</Form.Item>
-					<Form.Item
-						name='complainees'
-						label='Complainees'
-					>
-						<Select
-							mode='tags'
-							placeholder='Select complainees'
-							options={searchResults.filter(student => !complainants.includes(student.id)).map(student => ({
-								label: `${student.name.first} ${student.name.last} (${student.id})`,
-								value: student.id
-							}))}
-							suffixIcon={searching ? <Spin size='small' /> : null}
-							onChange={(value) => {
-								setComplainees(value);
-								setSearchResults([]);
-							}}
-							onSearch={(value) => {
-								setSearch(value);
-							}}
-							style={{ width: '100%' }}
-							showSearch
-							filterOption={(input, option) => {
-								if (complainants.includes(option.value) || complainees.includes(option.value)) return false;
-								return option.label.toLowerCase().includes(input.toLowerCase());
-							}}
-						/>
-					</Form.Item>
-					<Form.Item
-						name='description'
-						label='Description'
-						rules={[{ required: true, message: 'Please enter a description!' }]}
-					>
-						<Input.TextArea
-							placeholder='Enter a detailed description of the case'
-							rows={4}
-							style={{ width: '100%' }}
-							showCount
-							maxLength={5000}
-						/>
-					</Form.Item>
-				</Flex>
-
-				<Flex vertical gap={16}>
-					<Form.Item
-						name='files'
-						label='Case Images'
-						valuePropName='fileList.fileList'
-						getValueFromEvent={normFile}
-						style={{
-							width: 256
-						}}
-					>
-						<Upload.Dragger
-							listType='picture'
-							action='/upload.do'
-							beforeUpload={() => false} // Prevent auto upload
-							accept='image/*'
-							multiple
+			<Flex vertical gap={32} style={{ width: '100%' }}>
+				<Flex gap={32} style={{ width: '100%' }}>
+					<Flex vertical style={{ flex: 1 }}>
+						<Form.Item
+							name='title'
+							label='Title'
+							rules={[{ required: true, message: 'Please enter a title!' }]}
+						>
+							<Input
+								placeholder='Enter a brief title for the case'
+								style={{ width: '100%' }}
+								maxLength={100}
+							/>
+						</Form.Item>
+						<Form.Item
+							name='violation'
+							label='Violation'
+							rules={[{ required: true, message: 'Please enter a violation!' }]}
+						>
+							<Select
+								placeholder='Select a violation'
+								options={[
+									{ label: 'Bullying', value: 'bullying' },
+									{ label: 'Cheating', value: 'cheating' },
+									{ label: 'Disruptive Behavior', value: 'disruptive_behavior' },
+									{ label: 'Fraud', value: 'fraud' },
+									{ label: 'Gambling', value: 'gambling' },
+									{ label: 'Harassment', value: 'harassment' },
+									{ label: 'Improper Uniform', value: 'improper_uniform' },
+									{ label: 'Litering', value: 'littering' },
+									{ label: 'Plagiarism', value: 'plagiarism' },
+									{ label: 'Possession of Prohibited Items', value: 'prohibited_items' },
+									{ label: 'Vandalism', value: 'vandalism' },
+									{ label: 'Other', value: 'other' }
+								]}
+								style={{ width: '100%' }}
+								showSearch
+								filterOption={(input, option) =>
+									option.label.toLowerCase().includes(input.toLowerCase())
+								}
+							/>
+						</Form.Item>
+						<Form.Item
+							name='date'
+							label='Date'
+							rules={[{ required: true, message: 'Please enter a date!' }]}
+						>
+							<DatePicker
+								style={{ width: '100%' }}
+								placeholder='Select a date'
+								format='MMMM DD, YYYY - hh:mm A'
+								showTime
+								disabledDate={(current) => current && current > new Date()}
+							/>
+						</Form.Item>
+						<Form.Item
+							name='severity'
+							label='Severity'
+							rules={[{ required: true, message: 'Please select a severity!' }]}
+							style={{ flex: 1 }}
+							status={{
+								minor: 'default',
+								major: 'warning',
+								severe: 'error'
+							}[severity]}
+						>
+							<Select
+								placeholder='Select severity'
+								options={[
+									{ label: 'Minor', value: 'minor' },
+									{ label: 'Major', value: 'major' },
+									{ label: 'Severe', value: 'severe' }
+								]}
+								style={{ width: '100%' }}
+								filterOption={(input, option) =>
+									option.label.toLowerCase().includes(input.toLowerCase())
+								}
+								onChange={(value) => {
+									setSeverity(value);
+								}}
+							/>
+						</Form.Item>
+						<Form.Item
+							name='description'
+							label='Description'
+							rules={[{ required: true, message: 'Please enter a description!' }]}
+						>
+							<Input.TextArea
+								placeholder='Enter a detailed description of the case'
+								rows={4}
+								style={{ width: '100%' }}
+								showCount
+								maxLength={5000}
+							/>
+						</Form.Item>
+					</Flex>
+					<Flex vertical gap={16}>
+						<Form.Item
+							name='files'
+							label='Case Images'
+							valuePropName='fileList.fileList'
+							getValueFromEvent={normFile}
 							style={{
 								width: 256
 							}}
 						>
-							<Flex vertical justify='center' align='center' gap={8} style={{ minHeight: 100 }}>
-								<UploadOutlined style={{ fontSize: 32 }} />
-								<Title level={5} style={{ margin: 0 }}>
-									Upload Case Images
-								</Title>
-								<Paragraph type='secondary' style={{ textAlign: 'center' }}>
-									Open your Mobile App<br />
-									or drag and drop files here.
-								</Paragraph>
-							</Flex>
-						</Upload.Dragger>
-					</Form.Item>
-
-					<Flex justify='space-between' align='center' gap={8} style={{ width: '100%' }}>
-						<Button
-							type='primary'
-							icon={<ScanOutlined />}
-							block
-							disabled={false}
-							loading={scanning}
-							onClick={() => new Promise(async (resolve) => {
-								// setScanning(true);
-								// /**
-								//  * @type {import('antd/es/upload/interface').UploadFile<any>[]}
-								//  */
-								// const files = NewCaseForm.current.getFieldValue('files') || [];
-								// const form = new FormData();
-								// for (const file of files)
-								// 	if (file.originFileObj)
-								// 		form.append('files', file.originFileObj);
-
-								// const scanResponse = await authFetch(`${API_Route}/ocr/scan`, {
-								// 	method: 'POST',
-								// 	body: form
-								// }).catch(() => null);
-								// if (!scanResponse?.ok) {
-								// 	setScanning(false);
-								// 	NewCaseForm.current.setFields([{
-								// 		name: 'files',
-								// 		errors: ['Failed to scan images. Please try again.']
-								// 	}]);
-								// 	return;
-								// };
-								// /** @type {string[]} */
-								// const data = await scanResponse.json();
-
-								// const fillResponse = await authFetch(`${API_Route}/ocr/fill`, {
-								// 	method: 'POST',
-								// 	headers: {
-								// 		'Content-Type': 'application/json'
-								// 	},
-								// 	body: JSON.stringify({
-								// 		form: {
-								// 			title: "string",
-								// 			violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
-								// 			date: "dateThour",
-								// 			severity: "'minor' | 'major' | 'severe'",
-								// 			description: "string"
-								// 		},
-								// 		prompts: data
-								// 	})
-								// }).catch(() => null);
-								// if (!fillResponse?.ok) {
-								// 	setScanning(false);
-								// 	NewCaseForm.current.setFields([{
-								// 		name: 'files',
-								// 		errors: ['Failed to process scanned data. Please try again.']
-								// 	}]);
-								// 	return;
-								// };
-
-								// /** @type {Record<string, string | number | boolean>} */
-								// const fillData = await fillResponse.json();
-								// if (fillData.title) NewCaseForm.current.setFieldValue('title', fillData.title);
-								// if (fillData.violation) NewCaseForm.current.setFieldValue('violation', fillData.violation);
-								// if (fillData.date) NewCaseForm.current.setFieldValue('date', dayjs(fillData.date));
-								// if (fillData.severity) {
-								// 	NewCaseForm.current.setFieldValue('severity', fillData.severity);
-								// 	setSeverity(fillData.severity);
-								// };
-								// if (fillData.description) NewCaseForm.current.setFieldValue('description', fillData.description);
-								// NewCaseForm.current.setFields([{
-								// 	name: 'files',
-								// 	errors: []
-								// }]);
-								// message.success('Successfully scanned and filled the form!');
-								// setScanning(false);
-								// resolve();
-
-								// The endpoint has been combined into one for simplicity
-								setScanning(true);
-								/**
-								 * @type {import('antd/es/upload/interface').UploadFile<any>[]}
-								 */
-								const files = NewCaseForm.current.getFieldValue('files') || [];
-								const form = new FormData();
-								for (const file of files)
-									if (file.originFileObj)
-										form.append('files', file.originFileObj);
-								form.append('form', JSON.stringify({
-									title: "string",
-									violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
-									date: "dateThour",
-									severity: "'minor' | 'major' | 'severe'",
-									description: "string"
-								}));
-
-								const scanResponse = await authFetch(`${API_Route}/ocr/process`, {
-									method: 'POST',
-									body: form
-								}).catch(() => null);
-								if (!scanResponse?.ok) {
-									setScanning(false);
+							<Upload.Dragger
+								listType='picture'
+								action='/upload.do'
+								beforeUpload={() => false} // Prevent auto upload
+								accept='image/*'
+								multiple
+								style={{
+									width: 256
+								}}
+							>
+								<Flex vertical justify='center' align='center' gap={8} style={{ minHeight: 100 }}>
+									<UploadOutlined style={{ fontSize: 32 }} />
+									<Title level={5} style={{ margin: 0 }}>
+										Upload Case Images
+									</Title>
+									<Paragraph type='secondary' style={{ textAlign: 'center' }}>
+										Open your Mobile App<br />
+										or drag and drop files here.
+									</Paragraph>
+								</Flex>
+							</Upload.Dragger>
+						</Form.Item>
+						<Flex justify='space-between' align='center' gap={8} style={{ width: '100%' }}>
+							<Button
+								type='primary'
+								icon={<ScanOutlined />}
+								block
+								disabled={false}
+								loading={scanning}
+								onClick={() => new Promise(async (resolve) => {
+									setScanning(true);
+									/**
+									 * @type {import('antd/es/upload/interface').UploadFile<any>[]}
+									 */
+									const files = NewCaseForm.current.getFieldValue('files') || [];
+									const form = new FormData();
+									for (const file of files)
+										if (file.originFileObj)
+											form.append('files', file.originFileObj);
+									form.append('form', JSON.stringify({
+										title: "string",
+										violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
+										date: "dateThour",
+										severity: "'minor' | 'major' | 'severe'",
+										description: "string"
+									}));
+									const scanResponse = await authFetch(`${API_Route}/ocr/process`, {
+										method: 'POST',
+										body: form
+									}).catch(() => null);
+									if (!scanResponse?.ok) {
+										setScanning(false);
+										NewCaseForm.current.setFields([{
+											name: 'files',
+											errors: ['Failed to scan and process images. Please try again.']
+										}]);
+										return;
+									};
+									/** @type {Record<string, string | number | boolean>} */
+									const fillData = await scanResponse.json();
+									if (fillData.title) NewCaseForm.current.setFieldValue('title', fillData.title);
+									if (fillData.violation) NewCaseForm.current.setFieldValue('violation', fillData.violation);
+									if (fillData.date) NewCaseForm.current.setFieldValue('date', dayjs(fillData.date));
+									if (fillData.severity) {
+										NewCaseForm.current.setFieldValue('severity', fillData.severity);
+										setSeverity(fillData.severity);
+									};
+									if (fillData.description) NewCaseForm.current.setFieldValue('description', fillData.description);
 									NewCaseForm.current.setFields([{
 										name: 'files',
-										errors: ['Failed to scan and process images. Please try again.']
+										errors: []
 									}]);
-									return;
-								};
-
-								/** @type {Record<string, string | number | boolean>} */
-								const fillData = await scanResponse.json();
-								if (fillData.title) NewCaseForm.current.setFieldValue('title', fillData.title);
-								if (fillData.violation) NewCaseForm.current.setFieldValue('violation', fillData.violation);
-								if (fillData.date) NewCaseForm.current.setFieldValue('date', dayjs(fillData.date));
-								if (fillData.severity) {
-									NewCaseForm.current.setFieldValue('severity', fillData.severity);
-									setSeverity(fillData.severity);
-								};
-								if (fillData.description) NewCaseForm.current.setFieldValue('description', fillData.description);
-								NewCaseForm.current.setFields([{
-									name: 'files',
-									errors: []
-								}]);
-								message.success('Successfully scanned and filled the form!');
-								setScanning(false);
-								resolve();
-							})}
-						>
-							Scan
-						</Button>
+									message.success('Successfully scanned and filled the form!');
+									setScanning(false);
+									resolve();
+								})}
+							>
+								Scan
+							</Button>
+						</Flex>
 					</Flex>
+				</Flex>
+
+				<Flex gap={32} style={{ width: '100%' }}>
+					{/* Complainants */}
+					<Form.List name='complainants'>
+						{(fields, { add, remove }) => (
+							<Flex vertical gap={8} style={{ flex: 1 }}>
+								<Form.Item label='Complainants'>
+									<AutoComplete
+										placeholder='Search or enter complainant ID'
+										options={complainantSearchResults
+											.filter(student =>
+												!complainees?.includes(student.id) &&
+												!complainants?.includes(student.id)
+											)
+											.map(student => ({
+												label: `${student.name.first} ${student.name.last} (${student.id})`,
+												value: student.id
+											}))
+										}
+										suffixIcon={complainantSearching ? <Spin size='small' /> : null}
+										value={complainantSearch}
+										onChange={(value) => setComplainantSearch(value)}
+										onSelect={(value) => {
+											add(value);
+											setComplainantSearch('');
+											setComplainantSearchResults([]);
+										}}
+										onBlur={() => {
+											if (complainantSearch && !complainants?.includes(complainantSearch)) {
+												add(complainantSearch);
+												setComplainantSearch('');
+											}
+										}}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' && complainantSearch && !complainants?.includes(complainantSearch)) {
+												e.preventDefault();
+												add(complainantSearch);
+												setComplainantSearch('');
+											}
+										}}
+										style={{ width: '100%' }}
+										filterOption={(input, option) =>
+											option.label.toLowerCase().includes(input.toLowerCase())
+										}
+									/>
+								</Form.Item>
+
+								{fields.map(({ key, name, ...restField }) => (
+									<Flex key={key} align='center' gap={8}>
+										<Form.Item
+											{...restField}
+											name={name}
+											rules={[{ required: true, message: 'Please select a complainant!' }]}
+											style={{ flex: 1 }}
+										>
+											<Select
+												placeholder='Select a complainant'
+												showSearch
+												optionFilterProp='label'
+												filterOption={(input, option) =>
+													option.label.toLowerCase().includes(input.toLowerCase())
+												}
+												options={cache.students
+													.filter(student => !complainees?.includes(student.id))
+													.map(student => ({
+														label: `${student.name.first} ${student.name.last} (${student.id})`,
+														value: student.id
+													}))}
+											/>
+										</Form.Item>
+										<Form.Item>
+											<Button
+												icon={<MinusOutlined />}
+												onClick={() => remove(name)}
+											/>
+										</Form.Item>
+									</Flex>
+								))}
+							</Flex>
+						)}
+					</Form.List>
+
+					{/* Complainees */}
+					<Form.List name='complainees'>
+						{(fields, { add, remove }) => (
+							<Flex vertical gap={8} style={{ flex: 1 }}>
+								<Form.Item label='Complainees (Accused)'>
+									<AutoComplete
+										placeholder='Search or enter complainee ID'
+										options={complaineesSearchResults
+											.filter(student =>
+												!complainants?.includes(student.id) &&
+												!complainees?.includes(student.id)
+											)
+											.map(student => ({
+												label: `${student.name.first} ${student.name.last} (${student.id})`,
+												value: student.id
+											}))
+										}
+										suffixIcon={complaineesSearching ? <Spin size='small' /> : null}
+										value={complaineesSearch}
+										onChange={(value) => setComplaineesSearch(value)}
+										onSelect={(value) => {
+											add(value);
+											setComplaineesSearch('');
+											setComplaineesSearchResults([]);
+										}}
+										onBlur={() => {
+											if (complaineesSearch && !complainees?.includes(complaineesSearch)) {
+												add(complaineesSearch);
+												setComplaineesSearch('');
+											}
+										}}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' && complaineesSearch && !complainees?.includes(complaineesSearch)) {
+												e.preventDefault();
+												add(complaineesSearch);
+												setComplaineesSearch('');
+											}
+										}}
+										style={{ width: '100%' }}
+										filterOption={(input, option) =>
+											option.label.toLowerCase().includes(input.toLowerCase())
+										}
+									/>
+								</Form.Item>
+
+								{fields.map(({ key, name, ...restField }) => (
+									<Flex key={key} align='center' gap={8}>
+										<Form.Item
+											{...restField}
+											name={name}
+											rules={[{ required: true, message: 'Please select a complainee!' }]}
+											style={{ flex: 1 }}
+										>
+											<Select
+												placeholder='Select a complainee'
+												showSearch
+												optionFilterProp='label'
+												filterOption={(input, option) =>
+													option.label.toLowerCase().includes(input.toLowerCase())
+												}
+												options={cache.students
+													.filter(student => !complainants?.includes(student.id))
+													.map(student => ({
+														label: `${student.name.first} ${student.name.last} (${student.id})`,
+														value: student.id
+													}))}
+											/>
+										</Form.Item>
+										<Form.Item>
+											<Button
+												icon={<MinusOutlined />}
+												onClick={() => remove(name)}
+											/>
+										</Form.Item>
+									</Flex>
+								))}
+							</Flex>
+						)}
+					</Form.List>
 				</Flex>
 			</Flex>
 		</Form>
@@ -492,9 +572,9 @@ const NewCase = async (Modal, message) => {
 		centered: true,
 		closable: { 'aria-label': 'Close' },
 		content: (
-			<CacheContext.Provider value={{}}>
+			<CacheProvider>
 				<CaseForm message={message} />
-			</CacheContext.Provider>
+			</CacheProvider>
 		),
 		icon: <BankOutlined />,
 		width: {
