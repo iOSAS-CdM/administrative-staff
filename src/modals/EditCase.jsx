@@ -4,17 +4,20 @@ import dayjs from 'dayjs';
 import {
 	Form,
 	Input,
+	AutoComplete,
 	Select,
 	Flex,
 	Typography,
 	Spin,
-	DatePicker
+	DatePicker,
+	Button
 } from 'antd';
 
 import {
 	EditOutlined,
 	ClearOutlined,
-	SaveOutlined
+	SaveOutlined,
+	MinusOutlined
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -22,7 +25,7 @@ const { Title, Text, Paragraph } = Typography;
 const EditCaseForm = React.createRef();
 
 import { API_Route } from '../main';
-import { useCache, CacheContext } from '../contexts/CacheContext';
+import { useCache, CacheProvider } from '../contexts/CacheContext';
 
 import authFetch from '../utils/authFetch';
 
@@ -32,47 +35,127 @@ import authFetch from '../utils/authFetch';
  * }>}
  */
 const CaseForm = ({ record }) => {
-	const { pushToCache } = useCache();
+	const { pushToCache, cache } = useCache();
+	const [form] = Form.useForm();
 
-	const [search, setSearch] = React.useState('');
-	const [searchResults, setSearchResults] = React.useState([]);
-	const [searching, setSearchingComplainant] = React.useState(false);
+	// separate search text states
+	const [complainantSearch, setComplainantSearch] = React.useState('');
+	const [complaineeSearch, setComplaineeSearch] = React.useState('');
 
+	// separate search results
+	const [complainantSearchResults, setComplainantSearchResults] = React.useState([]);
+	const [complaineeSearchResults, setComplaineeSearchResults] = React.useState([]);
+
+	// loading flags
+	const [complainantSearching, setComplainantSearching] = React.useState(false);
+	const [complaineeSearching, setComplaineeSearching] = React.useState(false);
+
+	// severity local state for validateStatus
+	const [severity, setSeverity] = React.useState(
+		(record?.tags?.severity && record.tags.severity.toLowerCase()) || 'minor'
+	);
+
+	// convenience watchers for current complainants/complainees values
+	const complainants = Form.useWatch('complainants', form) || [];
+	const complainees = Form.useWatch('complainees', form) || [];
+
+	/**
+	 * Fetch helper for students
+	 */
+	const fetchStudentResults = async (query, setLoading, setResults, controller) => {
+		if (!query || query.length === 0) {
+			setResults([]);
+			return;
+		};
+		setLoading(true);
+		try {
+			const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+			if (!request?.ok) {
+				setLoading(false);
+				return;
+			}
+			const data = await request.json();
+			if (!data || !Array.isArray(data.students)) {
+				setLoading(false);
+				return;
+			}
+			setResults(data.students);
+			pushToCache('students', data.students, false);
+		} catch (err) {
+			// ignore abort/network errors
+		} finally {
+			setLoading(false);
+		};
+	};
+
+	// debounced effects for complainant search
 	React.useEffect(() => {
 		const controller = new AbortController();
-		const fetchSearchResults = async () => {
-			if (search.length === 0) {
-				setSearchResults([]);
-				return;
-			};
-
-			// Fetch students from the backend
-			setSearchingComplainant(true);
-			const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(search)}`, { signal: controller.signal });
-			if (!request?.ok) return;
-
-			/** @type {{students: import('../../../classes/Student').StudentProps[], length: Number}} */
-			const data = await request.json();
-			if (!data || !Array.isArray(data.students)) return;
-			setSearchResults(data.students);
-			setSearchingComplainant(false);
-			pushToCache('students', data.students, false);
+		if (!complainantSearch) {
+			setComplainantSearchResults([]);
+			return () => controller.abort();
+		}
+		const t = setTimeout(() => fetchStudentResults(complainantSearch, setComplainantSearching, setComplainantSearchResults, controller), 300);
+		return () => {
+			clearTimeout(t);
+			controller.abort();
 		};
-		fetchSearchResults();
+	}, [complainantSearch]);
+
+	// debounced effects for complainee search
+	React.useEffect(() => {
+		const controller = new AbortController();
+		if (!complaineeSearch) {
+			setComplaineeSearchResults([]);
+			return () => controller.abort();
+		}
+		const t = setTimeout(() => fetchStudentResults(complaineeSearch, setComplaineeSearching, setComplaineeSearchResults, controller), 300);
+		return () => {
+			clearTimeout(t);
+			controller.abort();
+		};
+	}, [complaineeSearch]);
+
+	React.useEffect(() => {
+		if (!record) return;
+
+		const participantIds = [
+			...(record.complainants?.map(c => c.id) || []),
+			...(record.complainees?.map(c => c.id) || [])
+		];
+
+		// filter out students already cached
+		const cachedIds = new Set((cache.students || []).map(s => s.id));
+		const uncached = participantIds.filter(id => !cachedIds.has(id));
+
+		if (uncached.length === 0) return;
+
+		const controller = new AbortController();
+
+		(async () => {
+			try {
+				const request = await authFetch(`${API_Route}/users/students/batch${uncached.length > 0 ? `?ids=${uncached.map(id => encodeURIComponent(id)).join(',')}` : ''}`, {
+					signal: controller.signal
+				});
+				if (!request?.ok) return;
+				const data = await request.json();
+				if (Array.isArray(data.students)) {
+					pushToCache('students', data.students, false);
+				}
+			} catch (err) {
+				// ignore aborts
+			}
+		})();
 
 		return () => controller.abort();
-	}, [search]);
-
-	const [severity, setSeverity] = React.useState(record?.tags?.severity?.toLowerCase() || 'minor'); // 'minor', 'major', 'severe'
-
-	const [complainants, setComplainants] = React.useState(record?.complainants?.map(c => c.id) || []);
-	const [complainees, setComplainees] = React.useState(record?.complainees?.map(c => c.id) || []);
+	}, [record]);
 
 	return (
 		<Form
 			layout='vertical'
 			ref={EditCaseForm}
-			onFinish={(values) => { }}
+			form={form}
+			onFinish={() => { }}
 			initialValues={record ? {
 				...record,
 				date: dayjs(record.date),
@@ -85,8 +168,7 @@ const CaseForm = ({ record }) => {
 				severity: 'minor',
 				complainants: [],
 				complainees: [],
-				description: '',
-				files: []
+					description: ''
 			}}
 			style={{ width: '100%' }}
 			labelCol={{ span: 24 }}
@@ -104,6 +186,7 @@ const CaseForm = ({ record }) => {
 						maxLength={100}
 					/>
 				</Form.Item>
+
 				<Form.Item
 					name='violation'
 					label='Violation'
@@ -132,6 +215,7 @@ const CaseForm = ({ record }) => {
 						}
 					/>
 				</Form.Item>
+
 				<Form.Item
 					name='date'
 					label='Date'
@@ -141,16 +225,17 @@ const CaseForm = ({ record }) => {
 						style={{ width: '100%' }}
 						placeholder='Select a date'
 						format='MMMM DD, YYYY'
-						disabledDate={(current) => current && current > new Date()}
+						disabledDate={(current) => current && current.isAfter(dayjs())}
 					/>
 				</Form.Item>
+
 				<Form.Item
 					name='severity'
 					label='Severity'
 					rules={[{ required: true, message: 'Please select a severity!' }]}
 					style={{ flex: 1 }}
-					status={{
-						minor: 'default',
+					validateStatus={{
+						minor: 'success',
 						major: 'warning',
 						severe: 'error'
 					}[severity]}
@@ -171,60 +256,7 @@ const CaseForm = ({ record }) => {
 						}}
 					/>
 				</Form.Item>
-				<Form.Item
-					name='complainants'
-					label='Complainants'
-				>
-					<Select
-						mode='tags'
-						placeholder='Select complainants'
-						options={searchResults.filter(student => !complainees.includes(student.id)).map(student => ({
-							label: `${student.name.first} ${student.name.last} (${student.id})`,
-							value: student.id
-						}))}
-						suffixIcon={searching ? <Spin size='small' /> : null}
-						onChange={(value) => {
-							setComplainants(value);
-							setSearchResults([]);
-						}}
-						onSearch={(value) => {
-							setSearch(value);
-						}}
-						style={{ width: '100%' }}
-						showSearch
-						filterOption={(input, option) => {
-							if (complainants.includes(option.value) || complainees.includes(option.value)) return false;
-							return option.label.toLowerCase().includes(input.toLowerCase());
-						}}
-					/>
-				</Form.Item>
-				<Form.Item
-					name='complainees'
-					label='Complainees'
-				>
-					<Select
-						mode='tags'
-						placeholder='Select complainees'
-						options={searchResults.filter(student => !complainants.includes(student.id)).map(student => ({
-							label: `${student.name.first} ${student.name.last} (${student.id})`,
-							value: student.id
-						}))}
-						suffixIcon={searching ? <Spin size='small' /> : null}
-						onChange={(value) => {
-							setComplainees(value);
-							setSearchResults([]);
-						}}
-						onSearch={(value) => {
-							setSearch(value);
-						}}
-						style={{ width: '100%' }}
-						showSearch
-						filterOption={(input, option) => {
-							if (complainants.includes(option.value) || complainees.includes(option.value)) return false;
-							return option.label.toLowerCase().includes(input.toLowerCase());
-						}}
-					/>
-				</Form.Item>
+
 				<Form.Item
 					name='description'
 					label='Description'
@@ -238,6 +270,171 @@ const CaseForm = ({ record }) => {
 						maxLength={5000}
 					/>
 				</Form.Item>
+
+				{/* Complainants - Form.List with AutoComplete to add */}
+				<Flex gap={32} style={{ width: '100%' }}>
+					<Form.List name='complainants'>
+						{(fields, { add, remove }) => (
+							<Flex vertical gap={8} style={{ flex: 1 }}>
+								<Form.Item label='Complainants'>
+									<AutoComplete
+										placeholder='Search or enter complainant ID'
+										options={complainantSearchResults
+											.filter(student =>
+												!complainees.includes(student.id) &&
+												!complainants.includes(student.id)
+											)
+											.map(student => ({
+												label: `${student.name.first} ${student.name.last} (${student.id})`,
+												value: student.id
+											}))
+										}
+										suffixIcon={complainantSearching ? <Spin size='small' /> : null}
+										value={complainantSearch}
+										onChange={(value) => setComplainantSearch(value)}
+										onSelect={(value) => {
+											// add selected value to the list
+											add(value);
+											setComplainantSearch('');
+											setComplainantSearchResults([]);
+										}}
+										onBlur={() => {
+											// manual entry on blur
+											if (complainantSearch && !complainants.includes(complainantSearch)) {
+												add(complainantSearch);
+												setComplainantSearch('');
+											}
+										}}
+										onKeyDown={(e) => {
+											// Enter to add manual entry
+											if (e.key === 'Enter' && complainantSearch && !complainants.includes(complainantSearch)) {
+												e.preventDefault();
+												add(complainantSearch);
+												setComplainantSearch('');
+											}
+										}}
+										style={{ width: '100%' }}
+										filterOption={(input, option) =>
+											option.label.toLowerCase().includes(input.toLowerCase())
+										}
+									/>
+								</Form.Item>
+
+								{fields.map(({ key, name, ...restField }) => (
+									<Flex key={key} align='center' gap={8}>
+										<Form.Item
+											{...restField}
+											name={name}
+											rules={[{ required: true, message: 'Please select a complainant!' }]}
+											style={{ flex: 1 }}
+										>
+											<Select
+												placeholder='Select a complainant'
+												showSearch
+												optionFilterProp='label'
+												filterOption={(input, option) =>
+													option.label.toLowerCase().includes(input.toLowerCase())
+												}
+												options={(cache.students || [])
+													.filter(student => !complainees.includes(student.id))
+													.map(student => ({
+														label: `${student.name.first} ${student.name.last} (${student.id})`,
+														value: student.id
+													}))}
+											/>
+										</Form.Item>
+										<Form.Item>
+											<Button
+												icon={<MinusOutlined />}
+												onClick={() => remove(name)}
+											/>
+										</Form.Item>
+									</Flex>
+								))}
+							</Flex>
+						)}
+					</Form.List>
+
+					{/* Complainees - Form.List with AutoComplete to add */}
+					<Form.List name='complainees'>
+						{(fields, { add, remove }) => (
+							<Flex vertical gap={8} style={{ flex: 1 }}>
+								<Form.Item label='Complainees (Accused)'>
+									<AutoComplete
+										placeholder='Search or enter complainee ID'
+										options={complaineeSearchResults
+											.filter(student =>
+												!complainants.includes(student.id) &&
+												!complainees.includes(student.id)
+											)
+											.map(student => ({
+												label: `${student.name.first} ${student.name.last} (${student.id})`,
+												value: student.id
+											}))
+										}
+										suffixIcon={complaineeSearching ? <Spin size='small' /> : null}
+										value={complaineeSearch}
+										onChange={(value) => setComplaineeSearch(value)}
+										onSelect={(value) => {
+											add(value);
+											setComplaineeSearch('');
+											setComplaineeSearchResults([]);
+										}}
+										onBlur={() => {
+											if (complaineeSearch && !complainees.includes(complaineeSearch)) {
+												add(complaineeSearch);
+												setComplaineeSearch('');
+											}
+										}}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' && complaineeSearch && !complainees.includes(complaineeSearch)) {
+												e.preventDefault();
+												add(complaineeSearch);
+												setComplaineeSearch('');
+											}
+										}}
+										style={{ width: '100%' }}
+										filterOption={(input, option) =>
+											option.label.toLowerCase().includes(input.toLowerCase())
+										}
+									/>
+								</Form.Item>
+
+								{fields.map(({ key, name, ...restField }) => (
+									<Flex key={key} align='center' gap={8}>
+										<Form.Item
+											{...restField}
+											name={name}
+											rules={[{ required: true, message: 'Please select a complainee!' }]}
+											style={{ flex: 1 }}
+										>
+											<Select
+												placeholder='Select a complainee'
+												showSearch
+												optionFilterProp='label'
+												filterOption={(input, option) =>
+													option.label.toLowerCase().includes(input.toLowerCase())
+												}
+												options={(cache.students || [])
+													.filter(student => !complainants.includes(student.id))
+													.map(student => ({
+														label: `${student.name.first} ${student.name.last} (${student.id})`,
+														value: student.id
+													}))}
+											/>
+										</Form.Item>
+										<Form.Item>
+											<Button
+												icon={<MinusOutlined />}
+												onClick={() => remove(name)}
+											/>
+										</Form.Item>
+									</Flex>
+								))}
+							</Flex>
+						)}
+					</Form.List>
+				</Flex>
 			</Flex>
 		</Form>
 	);
@@ -247,7 +444,7 @@ const CaseForm = ({ record }) => {
  * @param {import('antd/es/modal/useModal').HookAPI} Modal
  * @param {import('../classes/Record').RecordProps} record
  * @param {React.Dispatch<React.SetStateAction<import('../classes/Record').RecordProps>>} [setThisRecord]
- * 
+ *
  * @returns {Promise<void>}
  */
 const EditCase = async (Modal, record, setThisRecord) => {
@@ -257,19 +454,12 @@ const EditCase = async (Modal, record, setThisRecord) => {
 		centered: true,
 		closable: { 'aria-label': 'Close' },
 		content: (
-			<CacheContext.Provider value={{}}>
+			<CacheProvider>
 				<CaseForm record={record} />
-			</CacheContext.Provider>
+			</CacheProvider>
 		),
 		icon: <EditOutlined />,
-		width: {
-			xs: '100%',
-			sm: '100%',
-			md: '100%',
-			lg: '100%', // 2^9
-			xl: 1024, // 2^10
-			xxl: 1024 // 2^10
-		},
+		width: 1024,
 		footer: (_, { CancelBtn, OkBtn }) => (
 			<Flex justify='flex-end' align='center' gap={16}>
 				<Text type='secondary' italic>
@@ -287,7 +477,6 @@ const EditCase = async (Modal, record, setThisRecord) => {
 			return new Promise((resolve, reject) => {
 				EditCaseForm.current.validateFields()
 					.then(async (values) => {
-						// Process the form values here
 						const request = await authFetch(`${API_Route}/records/${record.id}`, {
 							method: 'PATCH',
 							headers: {
@@ -302,13 +491,12 @@ const EditCase = async (Modal, record, setThisRecord) => {
 							const errorData = await request.json();
 							reject(new Error(errorData.message || 'Failed to update the case. Please try again.'));
 							return;
-						};
+						}
 
 						const data = await request.json();
 						if (setThisRecord)
 							setThisRecord(data);
 
-						// Reset the form after successful submission
 						EditCaseForm.current.resetFields();
 						newRecord = data;
 						resolve(data);
