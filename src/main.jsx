@@ -122,7 +122,7 @@ const OSAS = () => {
 	);
 };
 
-export const API_Route = false ? 'http://localhost:3001' : 'https://iosas.online/api';
+export const API_Route = import.meta.env.DEV ? 'http://localhost:3001' : 'https://iosas.online/api';
 
 // Create root only once to avoid React DOM warnings
 const container = document.getElementById('root');

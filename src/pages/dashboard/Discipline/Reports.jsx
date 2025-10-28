@@ -76,93 +76,11 @@ const Reports = () => {
 	/** @type {[Status, React.Dispatch<React.SetStateAction<Status>>]} */
 	const [status, setStatus] = React.useState('open');
 
-	const [search, setSearch] = React.useState('');
-	const [searchResults, setSearchResults] = React.useState([]);
-	const [searching, setSearching] = React.useState(false);
-
-	React.useEffect(() => {
-		const controller = new AbortController();
-		const fetchSearchResults = async () => {
-			if (search.length === 0) return setSearchResults([]);
-
-			// Fetch cases from the backend
-			setSearching(true);
-			const request = await authFetch(`${API_Route}/cases/search?q=${encodeURIComponent(search)}`, { signal: controller.signal });
-			if (!request?.ok) {
-				setSearching(false);
-				return;
-			}
-
-			const data = await request.json();
-			if (!data || !Array.isArray(data.cases)) {
-				setSearching(false);
-				return;
-			}
-			setSearchResults(data.cases);
-			setSearching(false);
-			pushToCache('cases', data.cases, false);
-		};
-		fetchSearchResults();
-
-		return () => controller.abort();
-	}, [search, pushToCache]);
-
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Reports',
 			subtitle: 'View and manage student reports',
 			actions: [
-				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
-					<Dropdown
-						showArrow={false}
-						open={search.length > 0}
-						position='bottomRight'
-						placement='bottomRight'
-						menu={{
-							items: searchResults.length > 0 ? searchResults.map((caseItem) => ({
-								key: caseItem.id,
-								label: (
-									<div style={{ width: '100%' }}>
-										<Flex justify='space-between' align='center' gap={8}>
-											<Text ellipsis>{violationLabels[caseItem.violation]}</Text>
-											<Tag color={caseItem.status === 'open' ? 'blue' : 'gray'}>
-												<Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>
-													{caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1)}
-												</Text>
-											</Tag>
-										</Flex>
-									</div>
-								)
-							})) : [{
-								key: 'no-results',
-								label: <Text>No results found</Text>,
-								disabled: true
-							}],
-							placement: 'bottomRight',
-							style: { width: isMobile ? '100%' : 300, maxHeight: 400, overflowY: 'auto' },
-							emptyText: 'No results found',
-							onClick: (e) => {
-								setSearch('');
-								navigate(`/dashboard/discipline/report/${e.key}`);
-							}
-						}}
-					>
-						<Input.Search
-							placeholder='Search reports'
-							allowClear
-							suffix={searching ? <Spin size='small' /> : null}
-							onChange={(e) => {
-								const value = e.target.value;
-								clearTimeout(window.reportDebounceTimer);
-								const debounceTimer = setTimeout(() => {
-									setSearch(value);
-								}, 512);
-								window.reportDebounceTimer = debounceTimer;
-							}}
-							style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }}
-						/>
-					</Dropdown>
-				</Flex>,
 				<Segmented
 					key='status-filter'
 					options={[
@@ -176,7 +94,7 @@ const Reports = () => {
 				/>
 			]
 		});
-	}, [setHeader, status, search, searchResults, isMobile, navigate]);
+	}, [setHeader, status, isMobile, navigate]);
 
 	return (
 		<ContentPage
@@ -290,8 +208,8 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 			onCancel={onClose}
 			okText='Dismiss'
 			okButtonProps={{ icon: <CloseOutlined />, danger: true }}
-			onOk={async () => new Promise(async (resolve) => {
-				const reponse = await authFetch(`${API_Route}/cases/${caseItem.id}/close`, {
+			onOk={() => new Promise(async (resolve) => {
+				const reponse = await authFetch(`${API_Route}/cases/${caseItem.id}`, {
 					method: 'DELETE'
 				});
 				if (!reponse?.ok) {
@@ -350,7 +268,7 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 					<Text type='secondary' strong>Reported By</Text>
 					<Flex align='center' gap={12}>
 						<Avatar
-							size={48}
+							size={32}
 							icon={<UserOutlined />}
 							src={caseItem.author.profilePicture || null}
 							style={{ cursor: 'pointer' }}

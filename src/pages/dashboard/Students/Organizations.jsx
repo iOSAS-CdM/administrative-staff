@@ -12,6 +12,7 @@ import {
 	Select,
 	Typography,
 	Button,
+	Upload,
 	Image
 } from 'antd';
 
@@ -28,6 +29,10 @@ import { useMobile } from '../../../contexts/MobileContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
 
 import Organization from '../../../classes/Organization';
+
+import { API_Route } from '../../../main';
+import authFetch from '../../../utils/authFetch';
+import ContentPage from '../../../components/ContentPage';
 
 /** @typedef {[Organization[], React.Dispatch<React.SetStateAction<Organization[]>>]} OrganizationsState */
 
@@ -54,7 +59,9 @@ const Organizations = () => {
 
 	const navigate = useNavigate();
 
-	const NewOrganizationForm = React.useRef(null);
+	const [NewOrganizationForm] = Form.useForm();
+	const logo = Form.useWatch('logo', NewOrganizationForm);
+	const cover = Form.useWatch('cover', NewOrganizationForm);
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -77,11 +84,12 @@ const Organizations = () => {
 						Modal.confirm({
 							title: 'Create New Organization',
 							icon: null,
+							closable: { 'aria-label': 'Close' },
 							width: 512,
 							centered: true,
 							content: (
 								<Form
-									ref={NewOrganizationForm}
+									form={NewOrganizationForm}
 									layout='vertical'
 								>
 									<Form.Item
@@ -111,8 +119,89 @@ const Organizations = () => {
 											]}
 										/>
 									</Form.Item>
+									<Form.Item
+										label='Logo'
+										name='logo'
+										valuePropName='fileList.fileList'
+										getValueFromEvent={e => {
+											if (Array.isArray(e))
+												return e;
+											return e && e.fileList;
+										}}
+										style={{ textAlign: 'center', justifyContent: 'center' }}
+									>
+										<Upload.Dragger
+											listType='picture'
+											action={'/upload.do'}
+											beforeUpload={() => false}
+											accept='image/*'
+										>
+											Upload Logo
+										</Upload.Dragger>
+									</Form.Item>
+									<Form.Item
+										label='Cover Image'
+										name='cover'
+										valuePropName='fileList.fileList'
+										getValueFromEvent={e => {
+											if (Array.isArray(e))
+												return e;
+											return e && e.fileList;
+										}}
+									>
+										<Upload.Dragger
+											listType='picture'
+											action={'/upload.do'}
+											beforeUpload={() => false}
+											accept='image/*'
+										>
+											Upload Cover Image
+										</Upload.Dragger>
+									</Form.Item>
 								</Form>
-							)
+							),
+							onOk: () => new Promise((resolve, reject) => {
+								NewOrganizationForm.validateFields()
+									.then(async (values) => {
+										const formData = new FormData();
+										formData.append('shortName', values.shortName);
+										formData.append('fullName', values.fullName);
+										formData.append('type', values.type);
+										if (values.logo && values.logo[0]?.originFileObj)
+											formData.append('logo', values.logo[0].originFileObj);
+										if (values.cover && values.cover[0]?.originFileObj)
+											formData.append('cover', values.cover[0].originFileObj);
+
+										const response = await authFetch(`${API_Route}/organizations`, {
+											method: 'POST',
+											body: formData
+										});
+
+										if (!response?.ok) {
+											const errorData = await response.json();
+											Modal.error({
+												title: 'Error',
+												content: errorData.message || 'An error occurred while creating the organization.',
+												centered: true
+											});
+											reject();
+											return;
+										};
+
+										const data = await response.json();
+										Modal.success({
+											title: 'Success',
+											content: 'Organization created successfully.',
+											centered: true
+										});
+
+										navigate(`/dashboard/students/organization/${data.id}`, { replace: true });
+										resolve();
+									})
+									.catch(info => {
+										reject(info);
+									});
+							})
 						});
 					}}
 				>
@@ -125,9 +214,18 @@ const Organizations = () => {
 	const Modal = app.modal;
 
 	return (
-		<Flex vertical gap={16} style={{ width: '100%' }}>
-
-		</Flex>
+		<ContentPage
+			fetchUrl={`${API_Route}/organizations?category=${category}`}
+			emptyText='No organizations found'
+			cacheKey='organizations'
+			transformData={(data) => data.organizations || []}
+			renderItem={(organization) => (
+				<OrganizationCard
+					organization={organization}
+					loading={organization.placeholder}
+				/>
+			)}
+		/>
 	);
 };
 

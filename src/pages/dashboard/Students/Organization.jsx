@@ -2,23 +2,25 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import {
+	App,
 	Card,
 	Button,
 	Flex,
 	Avatar,
 	Typography,
 	Calendar,
-	App,
-	Image
+	Image,
+	Form,
+	Input,
+	Upload,
+	Select
 } from 'antd';
 
 import {
 	EditOutlined,
-	LockOutlined,
 	LeftOutlined,
 	PlusOutlined,
-	BellOutlined,
-	FileAddOutlined
+	InboxOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -27,7 +29,11 @@ import PanelCard from '../../../components/PanelCard';
 
 import { useCache } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
+import { useRefresh } from '../../../contexts/RefreshContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
+
+import authFetch from '../../../utils/authFetch';
+import { API_Route } from '../../../main';
 
 /**
  * @type {React.FC}
@@ -35,6 +41,8 @@ import { usePageProps } from '../../../contexts/PagePropsContext';
 const Organization = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
+	const { refresh, setRefresh } = useRefresh();
+	const Modal = App.useApp().modal;
 
 	const isMobile = useMobile();
 	const { cache } = useCache();
@@ -42,29 +50,32 @@ const Organization = () => {
 	const { id } = useParams();
 
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
-	const [thisOrganization, setThisOrganization] = React.useState({
-		placeholder: true,
-		id: '',
-		shortName: '',
-		fullName: '',
-		description: '',
-		email: '',
-		logo: '',
-		cover: '',
-		status: '',
-		type: '',
-		members: []
-	});
+	const [thisOrganization, setThisOrganization] = React.useState();
 	React.useEffect(() => {
-		if (!id) return;
-		const organization = (cache.organizations || []).find(o => o.id === id);
-		if (organization)
-			setThisOrganization(organization);
-	}, [id, cache.organizations]);
+		const controller = new AbortController();
+
+		const fetchOrganization = async () => {
+			const response = await authFetch(`${API_Route}/organizations/${id}`, { signal: controller.signal });
+			if (!response?.ok) {
+				Modal.error({
+					title: 'Error',
+					content: `Failed to fetch organization: ${response?.statusText || 'Unknown error'}`,
+					onOk: () => navigate(-1)
+				});
+				return;
+			};
+
+			const data = await response.json();
+			setThisOrganization(data);
+		};
+	
+		fetchOrganization();
+		return () => controller.abort();
+	}, [id, refresh]);
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: `Student Organization ${thisOrganization.id || ''}`,
+			title: `Student Organization ${thisOrganization?.id || ''}`,
 			actions: [
 				<Button
 					type='primary'
@@ -82,7 +93,7 @@ const Organization = () => {
 
 	const [repository, setRepository] = React.useState([]);
 	React.useEffect(() => {
-		if (thisOrganization.placeholder) {
+		if (thisOrganization?.placeholder) {
 			setRepository([]);
 			return;
 		};
@@ -114,8 +125,184 @@ const Organization = () => {
 		]);
 	}, [thisOrganization]);
 
-	const app = App.useApp();
-	const Modal = app.modal;
+	const [EditOrganizationForm] = Form.useForm();
+	const editOrganization = React.useCallback(() => {
+		if (!thisOrganization.id) return;
+		EditOrganizationForm.resetFields();
+		Modal.confirm({
+			title: 'Edit Organization',
+			icon: null,
+			width: 512,
+			centered: true,
+			content: (
+				<Form
+					form={EditOrganizationForm}
+					layout='vertical'
+					initialValues={{
+						shortName: thisOrganization.shortName,
+						fullName: thisOrganization.fullName,
+						type: thisOrganization.type
+					}}
+				>
+					<Form.Item
+						label='Short Name'
+						name='shortName'
+						rules={[{ required: true, message: 'Please enter the short name of the organization.' }]}
+					>
+						<Input placeholder='e.g., CS Club' />
+					</Form.Item>
+					<Form.Item
+						label='Full Name'
+						name='fullName'
+						rules={[{ required: true, message: 'Please enter the full name of the organization.' }]}
+					>
+						<Input placeholder='e.g., Computer Science Club' />
+					</Form.Item>
+					<Form.Item
+						label='Type'
+						name='type'
+						rules={[{ required: true, message: 'Please select the type of the organization.' }]}
+					>
+						<Select
+							placeholder='Select organization type'
+							options={[
+								{ label: 'College-wide', value: 'college-wide' },
+								{ label: 'Institute-wide', value: 'institute-wide' },
+							]}
+						/>
+					</Form.Item>
+				</Form>
+			),
+			onOk: () => new Promise((resolve, reject) => {
+				EditOrganizationForm.validateFields()
+					.then(async (values) => {
+						const formData = new FormData();
+						formData.append('shortName', values.shortName);
+						formData.append('fullName', values.fullName);
+						formData.append('type', values.type);
+						if (values.logo && values.logo[0]?.originFileObj)
+							formData.append('logo', values.logo[0].originFileObj);
+						if (values.cover && values.cover[0]?.originFileObj)
+							formData.append('cover', values.cover[0].originFileObj);
+
+						const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}`, {
+							method: 'PATCH',
+							body: formData
+						});
+
+						if (!response?.ok) {
+							const errorData = await response.json();
+							Modal.error({
+								title: 'Error',
+								content: errorData.message || 'An error occurred while creating the organization.',
+								centered: true
+							});
+							reject();
+							return;
+						};
+
+						const data = await response.json();
+						Modal.success({
+							title: 'Success',
+							content: 'Organization created successfully.',
+							centered: true
+						});
+
+						setThisOrganization((prev) => ({
+							...prev,
+							logo: `${data.logo}?seed=${Math.random()}`,
+							cover: `${data.cover}?seed=${Math.random()}`
+						}));
+						resolve();
+					})
+					.catch(info => {
+						reject(info);
+					});
+			})
+		});
+	}, [thisOrganization]);
+
+	const [EditMediaForm] = Form.useForm();
+	const editMedia = React.useCallback((type) => {
+		if (!thisOrganization?.id) return;
+		EditMediaForm.resetFields();
+
+		Modal.confirm({
+			title: `Edit ${type === 'cover' ? 'Cover Photo' : 'Logo'}`,
+			icon: null,
+			closable: { 'aria-label': 'Close' },
+			width: 512,
+			centered: true,
+			content: (
+				<Form
+					form={EditMediaForm}
+					layout='vertical'
+				>
+					<Form.Item
+						label={type === 'cover' ? 'Cover Photo' : 'Logo'}
+						name={'file'}
+						rules={[{ required: true, message: `Please upload the new ${type === 'cover' ? 'cover photo' : 'logo'}.` }]}
+					>
+						<Upload.Dragger
+							listType='picture'
+							accept='image/*'
+							beforeUpload={() => false}
+							maxCount={1}
+						>
+							<p className='ant-upload-drag-icon'>
+								<InboxOutlined />
+							</p>
+							<p className='ant-upload-text'>Click or drag file to this area to upload</p>
+							<p className='ant-upload-hint'>Support for a single upload. Strictly prohibit from uploading company data or other band files.</p>
+						</Upload.Dragger>
+					</Form.Item>
+				</Form>
+			),
+			onOk: () => new Promise((resolve, reject) => {
+				EditMediaForm.validateFields()
+					.then(async (values) => {
+						const formData = new FormData();
+						console.log(values);
+						if (values.file.fileList && values.file.fileList[0]?.originFileObj)
+							formData.append('file', values.file.fileList[0].originFileObj);
+
+						const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}/${type}`, {
+							method: 'PATCH',
+							body: formData
+						});
+
+						if (!response?.ok) {
+							const errorData = await response.json();
+							Modal.error({
+								title: 'Error',
+								content: errorData.message || `An error occurred while updating the ${type === 'cover' ? 'cover photo' : 'logo'}.`,
+								centered: true
+							});
+							reject();
+							return;
+						};
+
+						const data = await response.json();
+						Modal.success({
+							title: 'Success',
+							content: `${type === 'cover' ? 'Cover photo' : 'Logo'} updated successfully.`,
+							centered: true
+						});
+
+
+						setThisOrganization((prev) => ({
+							...prev,
+							logo: `${data.logo}?seed=${Math.random()}`,
+							cover: `${data.cover}?seed=${Math.random()}`
+						}));
+						resolve();
+					})
+					.catch(info => {
+						reject(info);
+					});
+			})
+		});
+	}, [thisOrganization]);
 
 	return (
 		<Flex
@@ -126,11 +313,36 @@ const Organization = () => {
 				<Flex vertical gap={16} style={{ width: '100%' }}>
 					<Card
 						cover={
-							<Image
-								src={thisOrganization.cover || '/Placeholder Image.svg'}
-								alt={`${thisOrganization.shortName} Cover`}
-								style={{ borderRadius: 'var(--ant-border-radius-outer)', aspectRatio: isMobile ? '2/1' : '6/1', objectFit: 'cover', overflow: 'hidden' }}
-							/>
+							(() => {
+								const [hovered, setHovered] = React.useState(false);
+								return (
+									<span
+										onMouseEnter={() => setHovered(true)}
+										onMouseLeave={() => setHovered(false)}
+									>
+										<Image
+											preview={false}
+											src={thisOrganization?.cover || '/Placeholder Image.svg'}
+											alt={`${thisOrganization?.shortName} Cover`}
+											style={{ borderRadius: 'var(--ant-border-radius-outer)', aspectRatio: isMobile ? '2/1' : '6/1', objectFit: 'cover', overflow: 'hidden' }}
+										/>
+										{hovered && (
+											<Button
+												style={{
+													position: 'absolute',
+													top: isMobile ? '8px' : '16px',
+													right: isMobile ? '8px' : '16px',
+													opacity: 0.8
+												}}
+												icon={<EditOutlined />}
+												onClick={() => editMedia('cover')}
+											>
+												Update Cover Photo
+											</Button>
+										)}
+									</span>
+								);
+							})()
 						}
 					>
 						{!isMobile ? (
@@ -138,41 +350,61 @@ const Organization = () => {
 								<Flex
 									style={{
 										position: 'relative',
-										width: 256, // 2^8
+										width: 128, // 2^7
 										height: '100%'
 									}}
 								>
-									<Avatar
-										src={thisOrganization.logo}
-										size='large'
-										shape='square'
-										style={{
-											position: 'absolute',
-											width: 256, // 2^8
-											height: 256, // 2^8
-											bottom: 0,
-											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
-										}}
-									/>
+									{(() => {
+										const [hovered, setHovered] = React.useState(false);
+										return (
+											<span
+												onMouseEnter={() => setHovered(true)}
+												onMouseLeave={() => setHovered(false)}
+												style={{
+													position: 'absolute',
+													width: 128, // 2^7
+													height: 128, // 2^7
+													bottom: 0
+												}}
+											>
+												<Avatar
+													src={thisOrganization?.logo}
+													size='large'
+													shape='square'
+													style={{
+														width: 128, // 2^7
+														height: 128, // 2^7
+														border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
+													}}
+												/>
+												{hovered && (
+													<Button
+														style={{
+															position: 'absolute',
+															top: isMobile ? '8px' : '16px',
+															right: isMobile ? '8px' : '16px',
+															opacity: 0.8
+														}}
+														icon={<EditOutlined />}
+														onClick={() => editMedia('logo')}
+													/>
+												)}
+											</span>
+										);
+									})()}
 								</Flex>
 								<Flex vertical justify='center' align='flex-start' style={{ flex: 1, }}>
-									<Title level={1}>{thisOrganization.shortName}</Title>
-									<Title level={5}>{thisOrganization.fullName}</Title>
-									<Text type='secondary'>{thisOrganization.description}</Text>
+									<Title level={1}>{thisOrganization?.shortName}</Title>
+									<Title level={5}>{thisOrganization?.fullName}</Title>
+									<Text type='secondary'>{thisOrganization?.description}</Text>
 								</Flex>
 								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
 									<Button
 										type='primary'
 										icon={<EditOutlined />}
+										onClick={editOrganization}
 									>
 										Edit
-									</Button>
-									<Button
-										type='primary'
-										danger
-										icon={<LockOutlined />}
-									>
-										Restrict
 									</Button>
 								</Flex>
 							</Flex>
@@ -188,37 +420,57 @@ const Organization = () => {
 										height: '100%'
 									}}
 								>
-									<Avatar
-										src={thisOrganization.logo}
-										size='large'
-										shape='square'
-										style={{
-											position: 'absolute',
-											width: 128, // 2^7
-											height: 128, // 2^7
-											bottom: 0,
-											border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
-										}}
-									/>
+										{(() => {
+											const [hovered, setHovered] = React.useState(false);
+											return (
+												<span
+													onMouseEnter={() => setHovered(true)}
+													onMouseLeave={() => setHovered(false)}
+													style={{
+														position: 'absolute',
+														width: 128, // 2^7
+														height: 128, // 2^7
+														bottom: 0
+													}}
+												>
+													<Avatar
+														src={thisOrganization?.logo}
+														size='large'
+														shape='square'
+														style={{
+													width: 128, // 2^7
+													height: 128, // 2^7
+															border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
+														}}
+													/>
+													{hovered && (
+														<Button
+															style={{
+																position: 'absolute',
+																top: isMobile ? '8px' : '16px',
+																right: isMobile ? '8px' : '16px',
+																opacity: 0.8
+															}}
+															icon={<EditOutlined />}
+															onClick={() => editMedia('logo')}
+														/>
+													)}
+												</span>
+											);
+										})()}
 								</Flex>
 									<Flex vertical justify='flex-start' align='center' style={{ flex: 1, }}>
-										<Title level={1}>{thisOrganization.shortName}</Title>
-										<Title level={5}>{thisOrganization.fullName}</Title>
-										<Text type='secondary'>{thisOrganization.description}</Text>
+										<Title level={1}>{thisOrganization?.shortName}</Title>
+										<Title level={5}>{thisOrganization?.fullName}</Title>
+										<Text type='secondary'>{thisOrganization?.description}</Text>
 								</Flex>
 								<Flex justify='flex-end' align='center' gap={8} style={{ height: '100%' }}>
 									<Button
 										type='primary'
 										icon={<EditOutlined />}
+											onClick={editOrganization}
 									>
 										Edit
-									</Button>
-									<Button
-										type='primary'
-										danger
-										icon={<LockOutlined />}
-									>
-										Restrict
 									</Button>
 								</Flex>
 							</Flex>
@@ -234,14 +486,6 @@ const Organization = () => {
 								footer={
 									<Flex justify='flex-end' align='center' gap={8}>
 										<Button
-											type='default'
-											size='small'
-											icon={<BellOutlined />}
-											onClick={() => { }}
-										>
-											Summon
-										</Button>
-										<Button
 											type='primary'
 											size='small'
 											icon={<PlusOutlined />}
@@ -252,7 +496,7 @@ const Organization = () => {
 									</Flex>
 								}
 							>
-								{thisOrganization.members.length > 0 && thisOrganization.members.map((member, index) => (
+								{thisOrganization?.members.length > 0 && thisOrganization?.members.map((member, index) => (
 									<Card
 										key={index}
 										size='small'

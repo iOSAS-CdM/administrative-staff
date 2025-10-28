@@ -261,82 +261,55 @@ const RecordCard = ({ record, loading }) => {
 
 	return (
 		<ItemCard
-				loading={loading}
+			loading={loading}
 
-				status={thisRecord?.tags?.status === 'dismissed' && 'dismissed'}
+			status={thisRecord?.tags?.status === 'dismissed' && 'dismissed'}
 
-				actions={!loading && [
-					{
-						content: (
-							<Avatar.Group
-								max={{
-									count: 3
-								}}
-							>
-								{participants.map((participant, index) => (
-									<Popover
-										key={participant.id || index}
-										content={<Text>{participant?.name.first} {participant?.name.last}</Text>}
-										placement='top'
-									>
-										<Avatar
-											src={participant?.profilePicture}
-											style={{ cursor: 'pointer' }}
-											onClick={(e) => {
-												e.stopPropagation();
-												if (!participant.role) return;
-												navigate(`/dashboard/students/profile/${participant?.id}`);
-											}}
-										/>
-									</Popover>
-								))}
-							</Avatar.Group>
-						)
-					},
-					{
-						content: (
-							<Text>
-								{new Date(thisRecord.date).toLocaleDateString('en-US', {
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric'
-								})}
-							</Text>
-						)
-					}
-				]}
+			actions={!loading && [
+				{
+					content: (
+						<Text type='secondary' style={{ width: '100%', textAlign: 'left' }}>
+							{new Date(thisRecord.date).toLocaleDateString('en-US', {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric'
+							})}
+						</Text>
+					)
+				}
+			]}
 
-				onClick={() => {
-					if (loading) {
-						Modal.error({
-							title: 'Error',
-							content: 'This is a placeholder disciplinary record. Please try again later.',
-							centered: true
-						});
-					} else {
-						navigate(`/dashboard/discipline/record/${thisRecord.id}`);
-					};
-				}}
-			>
-				{!loading && (
-					<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
-						<Title level={3}>
+			onClick={() => {
+				if (loading) {
+					Modal.error({
+						title: 'Error',
+						content: 'This is a placeholder disciplinary record. Please try again later.',
+						centered: true
+					});
+				} else {
+					navigate(`/dashboard/discipline/record/${thisRecord.id}`);
+				};
+			}}
+		>
+			{!loading && (
+				<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
+					<Title level={3}>
+						{
 							{
-								{
-									minor: null,
-									major: <WarningOutlined style={{ color: 'orange' }} title='Major violation' />,
-									severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violation' />
-								}[thisRecord.tags.severity.toLowerCase()] || ''
-							} {thisRecord.title}
-						</Title>
-						<Paragraph>{thisRecord.description}</Paragraph>
-						<Flex wrap gap={8}>
-							<Tag>
-								{thisRecord.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-							</Tag>
-						</Flex>
+								minor: null,
+								major: <WarningOutlined style={{ color: 'orange' }} title='Major violation' />,
+								severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violation' />
+							}[thisRecord.tags.severity.toLowerCase()] || ''
+						} {thisRecord.title}
+					</Title>
+					<Paragraph>{thisRecord.description}</Paragraph>
+					<Flex wrap gap={8}>
+						<Tag>
+							{thisRecord.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+						</Tag>
 					</Flex>
-				)}
+				</Flex>
+			)}
 		</ItemCard>
 	);
 };
