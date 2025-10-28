@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { download } from '@tauri-apps/plugin-upload';
+import { join, downloadDir } from '@tauri-apps/api/path';
 
 import {
 	App,
@@ -24,10 +26,11 @@ import {
 import {
 	EditOutlined,
 	LeftOutlined,
-	PlusOutlined,
 	InboxOutlined,
 	DeleteOutlined,
-	MinusOutlined
+	MinusOutlined,
+	UploadOutlined,
+	DownloadOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -39,6 +42,8 @@ import { useMobile } from '../../../contexts/MobileContext';
 import { useRefresh } from '../../../contexts/RefreshContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
 
+import UploadOrganizationFiles from '../../../modals/UploadOrganizationFiles';
+
 import authFetch from '../../../utils/authFetch';
 import { API_Route } from '../../../main';
 
@@ -49,34 +54,44 @@ const Organization = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	const { refresh, setRefresh } = useRefresh();
-	const Modal = App.useApp().modal;
+	const app = App.useApp();
+	const Modal = app.modal;
+	const notification = app.notification;
 
 	const isMobile = useMobile();
-	const { cache, pushToCache } = useCache();
+	const { cache, pushToCache, removeFromCache } = useCache();
 
 	const { id } = useParams();
 
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState();
 	React.useEffect(() => {
-		const controller = new AbortController();
+		if (!id) return;
+		const organization = (cache.organizations || []).find(r => r.id === id);
+		if (organization)
+			return setThisOrganization(organization);
 
-		const fetchOrganization = async () => {
+		const controller = new AbortController();
+		const loadOrganization = async () => {
 			const response = await authFetch(`${API_Route}/organizations/${id}`, { signal: controller.signal });
-			if (!response?.ok) {
+			if (!response || !response.ok) {
+				console.error('Failed to fetch organization:', response?.statusText || response);
 				Modal.error({
 					title: 'Error',
-					content: `Failed to fetch organization: ${response?.statusText || 'Unknown error'}`,
+					content: 'Failed to fetch organization. Please try again later.',
+					centered: true,
 					onOk: () => navigate(-1)
 				});
 				return;
 			};
-
 			const data = await response.json();
-			setThisOrganization(data);
+			console.log('Fetched organization:', data);
+			if (data) {
+				setThisOrganization(data);
+				pushToCache('organizations', data, true);
+			};
 		};
-	
-		fetchOrganization();
+		loadOrganization();
 		return () => controller.abort();
 	}, [id, refresh]);
 
@@ -97,40 +112,6 @@ const Organization = () => {
 	React.useEffect(() => {
 		setSelectedKeys(['organizations']);
 	}, [setSelectedKeys]);
-
-	const [repository, setRepository] = React.useState([]);
-	React.useEffect(() => {
-		if (thisOrganization?.placeholder) {
-			setRepository([]);
-			return;
-		};
-		setRepository([
-			{
-				name: 'Document 1',
-				extension: 'pdf',
-				id: 'doc-1',
-				thumbnail: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Document 2',
-				extension: 'pdf',
-				id: 'doc-2',
-				thumbnail: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Image 1',
-				extension: 'jpg',
-				id: 'img-1',
-				thumbnail: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Image 2',
-				extension: 'png',
-				id: 'img-2',
-				thumbnail: '/Placeholder Image.svg'
-			}
-		]);
-	}, [thisOrganization]);
 
 	const [EditOrganizationForm] = Form.useForm();
 
@@ -264,6 +245,29 @@ const Organization = () => {
 			})
 		});
 	}, [thisOrganization]);
+
+	/** @type {[import('../../../classes/Repository').RepositoryProps, React.Dispatch<React.SetStateAction<import('../../../classes/Repository').RepositoryProps>>]} */
+	const [repository, setRepository] = React.useState([]);
+	React.useEffect(() => {
+		if (!id) return setRepository([]);
+		const controller = new AbortController();
+		const loadRepository = async () => {
+			const response = await authFetch(`${API_Route}/repositories/organization/${id}`, { signal: controller.signal });
+			if (!response?.ok) {
+				console.error('Failed to fetch repository:', response?.statusText || response);
+				return;
+			};
+			/** @type {import('../../../classes/Repository').RepositoryProps} */
+			const data = await response.json();
+			if (!data || !Array.isArray(data)) {
+				setRepository([]);
+				return;
+			};
+			setRepository(data);
+		};
+		loadRepository();
+		return () => controller.abort();
+	}, [id, refresh]);
 
 	return (
 		<Flex
@@ -571,10 +575,22 @@ const Organization = () => {
 						<Button
 							type='primary'
 							size='small'
-							icon={<PlusOutlined />}
-							onClick={() => { }}
+							icon={<UploadOutlined />}
+							onClick={async () => {
+								if (thisOrganization?.placeholder) {
+									Modal.error({
+										title: 'Error',
+										content: 'This is a placeholder organization. Please try again later.',
+										centered: true
+									});
+									return;
+								};
+
+								await UploadOrganizationFiles(Modal, notification, thisOrganization.id);
+								setRefresh({ timestamp: Date.now() });
+							}}
 						>
-							Add
+							Upload
 						</Button>
 					</Flex>
 				}
@@ -583,15 +599,78 @@ const Organization = () => {
 					<Card
 						key={file.id || i}
 						size='small'
-						hoverable
 						style={{ width: '100%' }}
-						onClick={() => { }}
 					>
-						<Flex align='center' gap={8}>
-							<Avatar src={file.thumbnail} size='large' shape='square' />
-							<Flex vertical>
+						<Flex align='center' gap={16}>
+							<Avatar src={file.metadata.mimetype.includes('image/') && file.publicUrl} icon={!file.metadata.mimetype.includes('image/') && <FileOutlined />} size='large' shape='square' style={{ width: 64, height: 64 }} />
+							<Flex vertical style={{ flex: 1 }}>
 								<Text>{file.name}</Text>
-								<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+								<Text type='secondary'>{(file.metadata.size / 1024).toFixed(2)} KB • {file.metadata.mimetype}</Text>
+							</Flex>
+							<Flex gap={8}>
+								<Button
+									type='default'
+									size='small'
+									danger
+									icon={<DeleteOutlined />}
+									onClick={async () => {
+										if (thisOrganization?.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content: 'This is a placeholder organization. Please try again later.',
+												centered: true
+											});
+											return;
+										};
+										Modal.confirm({
+											title: 'Confirm Deletion',
+											content: <Text>Are you sure you want to delete <Tag>{file.name}</Tag>? This action cannot be undone.</Text>,
+											centered: true,
+											okButtonProps: { danger: true },
+											okText: 'Delete',
+											onOk: async () => {
+												const response = await authFetch(`${API_Route}/repositories/organization/${id}/files/${file.name}`, { method: 'DELETE' }).catch(() => null);
+												if (!response?.ok) {
+													notification.error({
+														message: 'Error deleting file.'
+													});
+													return;
+												};
+												removeFromCache('organizations', 'id', id);
+												setRefresh({ timestamp: Date.now() });
+												notification.success({
+													message: 'File deleted successfully.'
+												});
+											}
+										});
+									}}
+								/>
+								<Button
+									type='default'
+									size='small'
+									icon={<DownloadOutlined />}
+									onClick={async () => {
+										const downloadDirPath = await downloadDir();
+										const tempPath = await join(downloadDirPath, file.name);
+										const downloadTask = download(file.publicUrl, tempPath, {
+											onProgress: (progress) => {
+												console.log(`Progress: ${Math.round(progress * 100)}%`);
+											}
+										});
+										notification.info({
+											message: 'Download started.',
+											description: `Downloading ${file.name}...`,
+											duration: 2
+										});
+										const savedPath = await downloadTask;
+										notification.success({
+											message: 'Download completed.',
+											description: `${file.name} has been downloaded to your Downloads folder.`,
+											duration: 4
+										});
+										console.log('File downloaded to:', savedPath);
+									}}
+								/>
 							</Flex>
 						</Flex>
 					</Card>
