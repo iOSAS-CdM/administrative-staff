@@ -177,25 +177,17 @@ const Organization = () => {
 			onOk: () => new Promise((resolve, reject) => {
 				EditOrganizationForm.validateFields()
 					.then(async (values) => {
-						const formData = new FormData();
-						formData.append('shortName', values.shortName);
-						formData.append('fullName', values.fullName);
-						formData.append('type', values.type);
-						if (values.logo && values.logo[0]?.originFileObj)
-							formData.append('logo', values.logo[0].originFileObj);
-						if (values.cover && values.cover[0]?.originFileObj)
-							formData.append('cover', values.cover[0].originFileObj);
-
 						const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}`, {
 							method: 'PATCH',
-							body: formData
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify(values)
 						});
 
 						if (!response?.ok) {
 							const errorData = await response.json();
 							Modal.error({
 								title: 'Error',
-								content: errorData.message || 'An error occurred while creating the organization.',
+								content: errorData.message || 'An error occurred while updating the organization.',
 								centered: true
 							});
 							reject();
@@ -205,15 +197,11 @@ const Organization = () => {
 						const data = await response.json();
 						Modal.success({
 							title: 'Success',
-							content: 'Organization created successfully.',
+							content: 'Organization updated successfully.',
 							centered: true
 						});
 
-						setThisOrganization((prev) => ({
-							...prev,
-							logo: `${data.logo}?seed=${Math.random()}`,
-							cover: `${data.cover}?seed=${Math.random()}`
-						}));
+						setThisOrganization(data);
 						resolve();
 					})
 					.catch(info => {
