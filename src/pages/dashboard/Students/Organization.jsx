@@ -20,7 +20,8 @@ import {
 	EditOutlined,
 	LeftOutlined,
 	PlusOutlined,
-	InboxOutlined
+	InboxOutlined,
+	DeleteOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -406,6 +407,43 @@ const Organization = () => {
 									>
 										Edit
 									</Button>
+									<Button
+										type='primary'
+										danger
+										icon={<DeleteOutlined />}
+										onClick={() => {
+											Modal.confirm({
+												title: 'Delete Organization',
+												content: 'Are you sure you want to delete this organization? This action cannot be undone.',
+												centered: true,
+												onOk: async () => {
+													const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}`, {
+														method: 'DELETE'
+													});
+
+													if (!response?.ok) {
+														const errorData = await response.json();
+														Modal.error({
+															title: 'Error',
+															content: errorData.message || 'An error occurred while deleting the organization.',
+															centered: true
+														});
+														return;
+													};
+
+													Modal.success({
+														title: 'Success',
+														content: 'Organization deleted successfully.',
+														centered: true
+													});
+
+													navigate(-1);
+												}
+											});
+										}}
+									>
+										Delete
+									</Button>
 								</Flex>
 							</Flex>
 						) : (
@@ -472,6 +510,43 @@ const Organization = () => {
 									>
 										Edit
 									</Button>
+										<Button
+											type='primary'
+											danger
+											icon={<DeleteOutlined />}
+											onClick={() => {
+												Modal.confirm({
+													title: 'Delete Organization',
+													content: 'Are you sure you want to delete this organization? This action cannot be undone.',
+													centered: true,
+													onOk: async () => {
+														const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}`, {
+															method: 'DELETE'
+														});
+
+														if (!response?.ok) {
+															const errorData = await response.json();
+															Modal.error({
+																title: 'Error',
+																content: errorData.message || 'An error occurred while deleting the organization.',
+																centered: true
+															});
+															return;
+														};
+
+														Modal.success({
+															title: 'Success',
+															content: 'Organization deleted successfully.',
+															centered: true
+														});
+
+														navigate(-1);
+													}
+												});
+											}}
+										>
+											Delete
+										</Button>
 								</Flex>
 							</Flex>
 						)}
