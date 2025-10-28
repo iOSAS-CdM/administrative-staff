@@ -62,8 +62,6 @@ const Record = () => {
 
 	const { id } = useParams();
 
-	const [refreshToken, setRefreshToken] = React.useState(0);
-
 	const [thisRecord, setThisRecord] = React.useState({
 		id: '',
 		violation: '',
@@ -109,7 +107,7 @@ const Record = () => {
 		};
 		loadRecord();
 		return () => controller.abort();
-	}, [id, cache.records, refreshToken]);
+	}, [id, cache.records, refresh]);
 
 	const [thisComplainants, setThisComplainants] = React.useState([]);
 	const [thisComplainees, setThisComplainees] = React.useState([]);
@@ -203,36 +201,40 @@ const Record = () => {
 							<Card><Text>{thisRecord?.description}</Text></Card>
 							{step !== 5 && (
 								<Flex gap={16}>
+									{thisRecord?.tags.status === 'ongoing' && (
+										<Button
+											type='primary'
+											icon={<EditOutlined />}
+											block={isMobile}
+											onClick={async () => {
+												if (thisRecord?.placeholder) {
+													Modal.error({
+														title: 'Error',
+														content: 'This is a placeholder disciplinary record. Please try again later.',
+														centered: true
+													});
+													return;
+												};
+												const data = await EditCase(Modal, thisRecord);
+												if (data) {
+													console.log(data);
+													pushToCache('records', data, true);
+													setRefresh({ timestamp: Date.now() });
+													notification.success({
+														message: 'Record updated successfully.'
+													});
+												};
+											}}
+										>
+											Edit Record
+										</Button>
+									)}
 									<Button
 										type='primary'
-										icon={<EditOutlined />}
-										block={isMobile}
-										onClick={async () => {
-											if (thisRecord?.placeholder) {
-												Modal.error({
-													title: 'Error',
-													content: 'This is a placeholder disciplinary record. Please try again later.',
-													centered: true
-												});
-												return;
-											};
-											const data = await EditCase(Modal, thisRecord);
-											if (data) {
-												console.log(data);
-												pushToCache('records', data, true);
-												setRefresh({ timestamp: Date.now() });
-												notification.success({
-													message: 'Record updated successfully.'
-												});
-											};
-										}}
-									>
-										Edit Record
-									</Button>
-									<Button
-										type='primary'
+										disabled={thisRecord?.tags.status === 'dismissed' || thisRecord?.tags.status === 'resolved'}
 										danger
 										icon={<InboxOutlined />}
+										block={isMobile}
 										onClick={() => {
 											if (thisRecord?.placeholder) {
 												Modal.error({
@@ -241,10 +243,34 @@ const Record = () => {
 													centered: true
 												});
 											} else {
+												Modal.confirm({
+													title: 'Confirm Dismissal',
+													content: 'Are you sure you want to dismiss this record? This action cannot be undone.',
+													centered: true,
+													okButtonProps: { danger: true },
+													okText: 'Dismiss Record',
+													onOk: async () => {
+														const response = await authFetch(`${API_Route}/records/${id}`, { method: 'DELETE' }).catch(() => null);
+														if (!response?.ok) {
+															notification.error({
+																message: 'Error dismissing record.'
+															});
+															return;
+														};
+														/** @type {import('../../../classes/Record.js').RecordProps} */
+														const data = await response.json();
+														const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, status: data.tags?.status } }
+														pushToCache('records', newRecord, true);
+														setRefresh({ timestamp: Date.now() });
+														notification.success({
+															message: 'Record dismissed successfully.'
+														});
+													}
+												});
 											};
 										}}
 									>
-										Dismiss Record
+										{thisRecord?.tags.status === 'dismissed' ? 'Record Dismissed' : 'Dismiss Record'}
 									</Button>
 								</Flex>
 							)}
@@ -347,59 +373,73 @@ const Record = () => {
 								style={{ position: 'sticky', top: 0 }}
 								footer={
 									<Flex justify='space-between' align='center' gap={16}>
-										<Button
-											type='default'
-											icon={<LeftOutlined />}
-											disabled={step === 0}
-											block
-											onClick={async () => {
-												setStep(step - 1);
-												const response = await authFetch(`${API_Route}/records/${id}/degress`, { method: 'PATCH' }).catch((() => null));
-												if (!response?.ok) {
-													setStep(thisRecord.tags.progress);
-													notification.error({
-														message: 'Error changing progress.'
-													});
-													return;
-												};
+										{(() => {
+											const [loading, setLoading] = React.useState(false);
+											return (
+												<Button
+													type='default'
+													icon={<LeftOutlined />}
+													disabled={step === 0 || thisRecord?.tags.status === 'dismissed'}
+													loading={loading}
+													block
+													onClick={async () => {
+														setLoading(true);
+														const response = await authFetch(`${API_Route}/records/${id}/degress`, { method: 'PATCH' }).catch((() => null));
+														setLoading(false);
+														if (!response?.ok) {
+															setStep(thisRecord.tags.progress);
+															notification.error({
+																message: 'Error changing progress.'
+															});
+															return;
+														};
+														setStep(step - 1);
 
-												/** @type {import('../../../classes/Record.js').RecordProps} */
-												const data = await response.json();
-												const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
-												pushToCache('records', newRecord, true);
-												setRefresh({ timestamp: Date.now() });
-												setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
-											}}
-										>
-											Return
-										</Button>
-										<Button
-											type='primary'
-											icon={<RightOutlined />}
-											iconPosition='end'
-											disabled={step === 5}
-											block
-											onClick={async () => {
-												setStep(step + 1);
-												const response = await authFetch(`${API_Route}/records/${id}/progress`, { method: 'PATCH' }).catch((() => null));
-												if (!response?.ok) {
-													setStep(thisRecord.tags.progress);
-													notification.error({
-														message: 'Error changing progress.'
-													});
-													return;
-												};
+														/** @type {import('../../../classes/Record.js').RecordProps} */
+														const data = await response.json();
+														const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
+														pushToCache('records', newRecord, true);
+														setRefresh({ timestamp: Date.now() });
+													}}
+												>
+													Return
+												</Button>
+											);
+										})()}
+										{(() => {
+											const [loading, setLoading] = React.useState(false);
+											return (
+												<Button
+													type='primary'
+													icon={<RightOutlined />}
+													iconPosition='end'
+													disabled={step === 5 || thisRecord?.tags.status === 'dismissed'}
+													loading={loading}
+													block
+													onClick={async () => {
+														setLoading(true);
+														const response = await authFetch(`${API_Route}/records/${id}/progress`, { method: 'PATCH' }).catch((() => null));
+														setLoading(false);
+														if (!response?.ok) {
+															setStep(thisRecord.tags.progress);
+															notification.error({
+																message: 'Error changing progress.'
+															});
+															return;
+														};
+														setStep(step + 1);
 
-												/** @type {import('../../../classes/Record.js').RecordProps} */
-												const data = await response.json();
-												const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
-												pushToCache('records', newRecord, true);
-												setRefresh({ timestamp: Date.now() });
-												setTimeout(() => setRefreshToken(Math.floor(Math.random() * 10000)), 500);
-											}}
-										>
-											Proceed
-										</Button>
+														/** @type {import('../../../classes/Record.js').RecordProps} */
+														const data = await response.json();
+														const newRecord = { ...thisRecord, tags: { ...thisRecord.tags, progress: data.tags?.progress } }
+														pushToCache('records', newRecord, true);
+														setRefresh({ timestamp: Date.now() });
+													}}
+												>
+													Advance
+												</Button>
+											);
+										})()}
 									</Flex>
 								}
 							>
@@ -425,34 +465,30 @@ const Record = () => {
 				title='Repository'
 				footer={
 					<Flex justify='flex-end' align='center' gap={8}>
-						<Button
-							type='default'
-							size='small'
-							icon={<FileAddOutlined />}
-							onClick={() => { }}
-						>
-							Print Form
-						</Button>
-						<Button
-							type='primary'
-							size='small'
-							icon={<UploadOutlined />}
-							onClick={async () => {
-								if (thisRecord?.placeholder) {
-									Modal.error({
-										title: 'Error',
-										content: 'This is a placeholder disciplinary record. Please try again later.',
-										centered: true
-									});
-									return;
-								};
+						{step !== 5 && (
+							<Button
+								type='primary'
+								size='small'
+								block={isMobile}
+								disabled={thisRecord?.tags.status === 'dismissed' || thisRecord?.tags.status === 'resolved'}
+								icon={<UploadOutlined />}
+								onClick={async () => {
+									if (thisRecord?.placeholder) {
+										Modal.error({
+											title: 'Error',
+											content: 'This is a placeholder disciplinary record. Please try again later.',
+											centered: true
+										});
+										return;
+									};
 
-								await UploadRecordFiles(Modal, notification, id);
-								setRefresh({ timestamp: Date.now() });
-							}}
-						>
-							Upload
-						</Button>
+									await UploadRecordFiles(Modal, notification, id);
+									setRefresh({ timestamp: Date.now() });
+								}}
+							>
+								Upload
+							</Button>
+						)}
 					</Flex>
 				}
 			>

@@ -208,8 +208,8 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 			onCancel={onClose}
 			okText='Dismiss'
 			okButtonProps={{ icon: <CloseOutlined />, danger: true }}
-			onOk={async () => new Promise(async (resolve) => {
-				const reponse = await authFetch(`${API_Route}/cases/${caseItem.id}/close`, {
+			onOk={() => new Promise(async (resolve) => {
+				const reponse = await authFetch(`${API_Route}/cases/${caseItem.id}`, {
 					method: 'DELETE'
 				});
 				if (!reponse?.ok) {
@@ -268,7 +268,7 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 					<Text type='secondary' strong>Reported By</Text>
 					<Flex align='center' gap={12}>
 						<Avatar
-							size={48}
+							size={32}
 							icon={<UserOutlined />}
 							src={caseItem.author.profilePicture || null}
 							style={{ cursor: 'pointer' }}
