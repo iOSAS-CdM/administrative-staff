@@ -69,12 +69,6 @@ const CaseForm = ({ message }) => {
 	const [complaineesSearch, setComplaineesSearch] = React.useState('');
 
 	/**
-	 * Array of student search results
-	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
-	 */
-	const [searchResults, setSearchResults] = React.useState([]);
-
-	/**
 	 * Array of complainant search results
 	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
 	 */
@@ -85,12 +79,6 @@ const CaseForm = ({ message }) => {
 	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
 	 */
 	const [complaineesSearchResults, setComplaineesSearchResults] = React.useState([]);
-
-	/**
-	 * Loading state for student search operations
-	 * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
-	 */
-	const [searching, setSearchingComplainant] = React.useState(false);
 
 	/**
 	 * Loading state for complainant search operations
@@ -115,10 +103,10 @@ const CaseForm = ({ message }) => {
 		if (query.length === 0) {
 			setResults([]);
 			return;
-		}
+		};
 
 		setLoading(true);
-		const request = await authFetch(`${API_Route}/users/search/students/?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+		const request = await authFetch(`${API_Route}/users/search/students?q=${encodeURIComponent(query)}`, { signal: controller.signal });
 		if (!request?.ok) return;
 
 		const data = await request.json();
@@ -417,14 +405,14 @@ const CaseForm = ({ message }) => {
 											if (complainantSearch && !complainants?.includes(complainantSearch)) {
 												add(complainantSearch);
 												setComplainantSearch('');
-											}
+											};
 										}}
 										onKeyDown={(e) => {
 											if (e.key === 'Enter' && complainantSearch && !complainants?.includes(complainantSearch)) {
 												e.preventDefault();
 												add(complainantSearch);
 												setComplainantSearch('');
-											}
+											};
 										}}
 										style={{ width: '100%' }}
 										filterOption={(input, option) =>

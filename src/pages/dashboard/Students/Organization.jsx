@@ -13,7 +13,12 @@ import {
 	Form,
 	Input,
 	Upload,
-	Select
+	Select,
+	AutoComplete,
+	Spin,
+	Checkbox,
+	message,
+	Tag
 } from 'antd';
 
 import {
@@ -21,14 +26,15 @@ import {
 	LeftOutlined,
 	PlusOutlined,
 	InboxOutlined,
-	DeleteOutlined
+	DeleteOutlined,
+	MinusOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
 
-import { useCache } from '../../../contexts/CacheContext';
+import { useCache, CacheProvider } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useRefresh } from '../../../contexts/RefreshContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
@@ -46,7 +52,7 @@ const Organization = () => {
 	const Modal = App.useApp().modal;
 
 	const isMobile = useMobile();
-	const { cache } = useCache();
+	const { cache, pushToCache } = useCache();
 
 	const { id } = useParams();
 
@@ -127,6 +133,7 @@ const Organization = () => {
 	}, [thisOrganization]);
 
 	const [EditOrganizationForm] = Form.useForm();
+
 	const editOrganization = React.useCallback(() => {
 		if (!thisOrganization.id) return;
 		EditOrganizationForm.resetFields();
@@ -136,43 +143,9 @@ const Organization = () => {
 			width: 512,
 			centered: true,
 			content: (
-				<Form
-					form={EditOrganizationForm}
-					layout='vertical'
-					initialValues={{
-						shortName: thisOrganization.shortName,
-						fullName: thisOrganization.fullName,
-						type: thisOrganization.type
-					}}
-				>
-					<Form.Item
-						label='Short Name'
-						name='shortName'
-						rules={[{ required: true, message: 'Please enter the short name of the organization.' }]}
-					>
-						<Input placeholder='e.g., CS Club' />
-					</Form.Item>
-					<Form.Item
-						label='Full Name'
-						name='fullName'
-						rules={[{ required: true, message: 'Please enter the full name of the organization.' }]}
-					>
-						<Input placeholder='e.g., Computer Science Club' />
-					</Form.Item>
-					<Form.Item
-						label='Type'
-						name='type'
-						rules={[{ required: true, message: 'Please select the type of the organization.' }]}
-					>
-						<Select
-							placeholder='Select organization type'
-							options={[
-								{ label: 'College-wide', value: 'college-wide' },
-								{ label: 'Institute-wide', value: 'institute-wide' },
-							]}
-						/>
-					</Form.Item>
-				</Form>
+				<CacheProvider>
+					<EditOrganizationFormContent form={EditOrganizationForm} organization={thisOrganization} />
+				</CacheProvider>
 			),
 			onOk: () => new Promise((resolve, reject) => {
 				EditOrganizationForm.validateFields()
@@ -200,8 +173,7 @@ const Organization = () => {
 							content: 'Organization updated successfully.',
 							centered: true
 						});
-
-						setThisOrganization(data);
+						setRefresh({ timestamp: Date.now() });
 						resolve();
 					})
 					.catch(info => {
@@ -546,18 +518,6 @@ const Organization = () => {
 							<PanelCard
 								title='Members'
 								style={{ position: 'sticky', top: 0 }}
-								footer={
-									<Flex justify='flex-end' align='center' gap={8}>
-										<Button
-											type='primary'
-											size='small'
-											icon={<PlusOutlined />}
-											onClick={() => { }}
-										>
-											Add
-										</Button>
-									</Flex>
-								}
 							>
 								{thisOrganization?.members.length > 0 && thisOrganization?.members.map((member, index) => (
 									<Card
@@ -571,6 +531,9 @@ const Organization = () => {
 											});
 										}}
 									>
+										{member.publisher && (
+											<Tag color='blue' style={{ position: 'absolute', top: 8, right: 8 }}>Publisher</Tag>
+										)}
 										<Flex justify='flex-start' align='center' gap={16}>
 											<Avatar
 												src={member.student.profilePicture || '/Placeholder Image.svg'}
@@ -635,6 +598,230 @@ const Organization = () => {
 				))}
 			</PanelCard>
 		</Flex>
+	);
+};
+
+const EditOrganizationFormContent = ({ form, organization }) => {
+	/**
+	 * Cache context hook for managing student data
+	 */
+	const { pushToCache, getFromCache, cache } = useCache();
+
+	/**
+	 * Search query string for members
+	 * @type {[string, React.Dispatch<React.SetStateAction<string>>]}
+	 */
+	const [memberSearch, setMemberSearch] = React.useState('');
+
+	/**
+	 * Array of member search results
+	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
+	 */
+	const [memberSearchResults, setMemberSearchResults] = React.useState([]);
+
+	/**
+	 * Loading state for member search operations
+	 * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+	 */
+	const [memberSearching, setMemberSearching] = React.useState(false);
+
+	/**
+	 * Helper function to fetch student search results
+	 * @param {string} query - The search query
+	 * @param {React.Dispatch<React.SetStateAction<boolean>>} setLoading - Loading state setter
+	 * @param {React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>} setResults - Results setter
+	 * @param {AbortController} controller - Abort controller for cancelling request
+	 */
+	const fetchStudentResults = async (query, setLoading, setResults, controller) => {
+		if (query.length === 0) {
+			setResults([]);
+			return;
+		};
+
+		setLoading(true);
+		const request = await authFetch(`${API_Route}/users/search/students?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+		if (!request?.ok) return;
+
+		const data = await request.json();
+		if (!data || !Array.isArray(data.students)) return;
+		setResults(data.students);
+		setLoading(false);
+		pushToCache('students', data.students, false);
+	};
+
+	/**
+	 * Effect hook to handle member search functionality
+	 */
+	React.useEffect(() => {
+		const controller = new AbortController();
+		fetchStudentResults(memberSearch, setMemberSearching, setMemberSearchResults, controller);
+		return () => controller.abort();
+	}, [memberSearch]);
+
+	/**
+	 * Array of member student IDs
+	 * @type {string[]}
+	 */
+	const members = Form.useWatch('members', form);
+
+	return (
+		<Form
+			form={form}
+			layout='vertical'
+			initialValues={{
+				shortName: organization.shortName,
+				fullName: organization.fullName,
+				type: organization.type,
+				members: organization.members.map(member => ({
+					id: member.id,
+					role: member.role,
+					publisher: member.publisher
+				}))
+			}}
+		>
+			<Form.Item
+				label='Short Name'
+				name='shortName'
+				rules={[{ required: true, message: 'Please enter the short name of the organization.' }]}
+			>
+				<Input placeholder='e.g., CS Club' />
+			</Form.Item>
+			<Form.Item
+				label='Full Name'
+				name='fullName'
+				rules={[{ required: true, message: 'Please enter the full name of the organization.' }]}
+			>
+				<Input placeholder='e.g., Computer Science Club' />
+			</Form.Item>
+			<Form.Item
+				label='Type'
+				name='type'
+				rules={[{ required: true, message: 'Please select the type of the organization.' }]}
+			>
+				<Select
+					placeholder='Select organization type'
+					options={[
+						{ label: 'College-wide', value: 'college-wide' },
+						{ label: 'Institute-wide', value: 'institute-wide' },
+					]}
+				/>
+			</Form.Item>
+
+			<Form.List name='members'>
+				{(fields, { add, remove, move }) => (
+					<Flex vertical gap={8} style={{ flex: 1 }}>
+						<Form.Item label='Members'>
+							<AutoComplete
+								placeholder='Search or enter member ID'
+								options={memberSearchResults
+									.filter(student =>
+										!members?.includes(student.id)
+									)
+									.map(student => ({
+										label: `${student.name.first} ${student.name.last} (${student.id})`,
+										value: student.id
+									}))
+								}
+								suffixIcon={memberSearching ? <Spin size='small' /> : null}
+								value={memberSearch}
+								onChange={(value) => setMemberSearch(value)}
+								onSelect={(value) => {
+									if (members?.includes(value)) return;
+									add({ id: value, role: '', publisher: false });
+									setMemberSearch('');
+									setMemberSearchResults([]);
+								}}
+								onBlur={() => {
+									if (!memberSearch) return;
+									const exists = (memberSearchResults || []).some(s => s.id === memberSearch) || (cache.students || []).some(s => s.id === memberSearch);
+									if (!exists) {
+										message.error('Please select a valid member from the search results');
+										return;
+									};
+									if (!members?.includes(memberSearch)) {
+										add({ id: memberSearch, role: 'Member', publisher: false });
+										setMemberSearch('');
+									};
+								}}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										e.preventDefault();
+										if (!memberSearch) return;
+										const exists = (memberSearchResults || []).some(s => s.id === memberSearch) || (cache.students || []).some(s => s.id === memberSearch);
+										if (!exists) {
+											message.error('Please select a valid member from the search results');
+											return;
+										}
+										if (!members?.includes(memberSearch)) {
+											add({ id: memberSearch, role: '', publisher: false });
+											setMemberSearch('');
+										};
+									};
+								}}
+								style={{ width: '100%' }}
+								filterOption={(input, option) =>
+									option.label.toLowerCase().includes(input.toLowerCase())
+								}
+							/>
+						</Form.Item>
+
+						{fields.map(({ key, name, ...restField }) => (
+							<Flex key={key} align='start' gap={8}>
+								<Form.Item
+									{...restField}
+									name={[name, 'id']}
+									label='Student'
+									rules={[{ required: true, message: 'Please select a member!' }]}
+									style={{ flex: 1 }}
+								>
+									<Select
+										placeholder='Select a member'
+										showSearch
+										optionFilterProp='label'
+										filterOption={(input, option) =>
+											option.label.toLowerCase().includes(input.toLowerCase())
+										}
+										options={cache.students
+											.filter(student =>
+												!members?.includes(student.id) || student.id === form.getFieldValue(['members', name, 'id'])
+											)
+											.map(student => ({
+												label: `${student.name.first} ${student.name.last} (${student.id})`,
+												value: student.id
+											}))}
+									/>
+								</Form.Item>
+								<Form.Item
+									{...restField}
+									name={[name, 'role']}
+									label='Role'
+									rules={[{ required: true, message: 'Please enter the role!' }]}
+									style={{ flex: 1 }}
+								>
+									<Input placeholder='Role (e.g., President)' />
+								</Form.Item>
+								<Form.Item
+									{...restField}
+									name={[name, 'publisher']}
+									label='Publisher'
+									valuePropName='checked'
+									tooltip='If checked, this member can publish announcements on behalf of the organization.'
+									style={{ textAlign: 'center' }}
+								>
+									<Checkbox />
+								</Form.Item>
+								<Form.Item label=' '>
+									<Button
+										icon={<MinusOutlined />}
+										onClick={() => remove(name)}
+									/>
+								</Form.Item>
+							</Flex>
+						))}
+					</Flex>
+				)}
+			</Form.List>
+		</Form>
 	);
 };
 
