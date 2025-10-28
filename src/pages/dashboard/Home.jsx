@@ -254,7 +254,7 @@ const Home = () => {
 				</Col>
 				{!isMobile && (
 					<Col span={8}>
-						<PanelCard title='Monthly Cases Ratio'>
+						<PanelCard title='Student Registration Status'>
 							<Pie
 								data={studentsRatio}
 								angleField='value'

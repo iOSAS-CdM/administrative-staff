@@ -339,6 +339,8 @@ const Profile = () => {
 	});
 	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
 	const [thisRecords, setThisRecords] = React.useState();
+	/** @type {[import('../../../classes/Organization').Organization[], React.Dispatch<React.SetStateAction<import('../../../classes/Organization').Organization[]>>]} */
+	const [organizations, setOrganizations] = React.useState([]);
 	React.useLayoutEffect(() => {
 		const controller = new AbortController();
 		if (id) {
@@ -355,6 +357,10 @@ const Profile = () => {
 						),
 						authFetch(
 							`${API_Route}/users/student/${id}/records`,
+							{ signal: controller.signal }
+						),
+						authFetch(
+							`${API_Route}/users/student/${id}/organizations`,
 							{ signal: controller.signal }
 						)
 					]);
@@ -376,10 +382,14 @@ const Profile = () => {
 					const studentData = await requests[0].json();
 					/** @type {import('../../../types').Record[]} */
 					const recordsData = await requests[1].json();
+					/** @type {import('../../../types').Organization[]} */
+					const organizationsData = await requests[2].json();
+
 					if (!studentData || !studentData.id) return;
 					pushToCache('students', studentData, true);
 					setThisStudent(studentData);
 					setThisRecords(recordsData.records);
+					setOrganizations(organizationsData.organizations);
 					console.log(recordsData.records)
 				};
 				fetchStudent();
@@ -392,8 +402,6 @@ const Profile = () => {
 		else setSelectedKeys(['unverified']);
 	}, [thisStudent]);
 
-	const [organizations, setOrganizations] = React.useState([]);
-
 	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
 	const [events, setEvents] = React.useState([]);
 
@@ -402,7 +410,7 @@ const Profile = () => {
 		if (!thisRecords || thisRecords.length === 0) {
 			setEvents([]);
 			return;
-		}
+		};
 
 		// Group records by date
 		const eventsByDate = {};
@@ -416,7 +424,7 @@ const Profile = () => {
 					date: recordDate,
 					events: []
 				};
-			}
+			};
 
 			eventsByDate[dateKey].events.push({
 				id: record.id,
@@ -457,7 +465,8 @@ const Profile = () => {
 								width: 256,
 								height: 256,
 								border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)',
-								objectFit: 'cover'
+								objectFit: 'cover',
+								filter: thisStudent.role === 'unverified-student' ? 'grayscale(100%)' : ''
 							}}
 						/>
 						<Flex
@@ -523,7 +532,7 @@ const Profile = () => {
 												thisStudent,
 												setThisStudent
 											);
-										}
+										};
 									}}
 								>
 									Edit

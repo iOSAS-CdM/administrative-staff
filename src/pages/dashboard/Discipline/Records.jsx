@@ -302,7 +302,9 @@ const RecordCard = ({ record, loading }) => {
 							}[thisRecord.tags.severity.toLowerCase()] || ''
 						} {thisRecord.title}
 					</Title>
-					<Paragraph>{thisRecord.description}</Paragraph>
+					<Paragraph ellipsis={{ rows: 2, expandable: false }}>
+						{thisRecord.description}
+					</Paragraph>
 					<Flex wrap gap={8}>
 						<Tag>
 							{thisRecord.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}

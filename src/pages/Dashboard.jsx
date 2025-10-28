@@ -10,9 +10,8 @@ import {
 	Typography,
 	Button,
 	Menu,
-	Skeleton,
 	Popover,
-	Segmented,
+	Spin,
 	App
 } from 'antd';
 
@@ -341,6 +340,54 @@ const Dashboard = () => {
 		<Flex
 			className='page-container'
 		>
+			{/*************************** Splash Screen ***************************/}
+			<div
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100vw',
+					height: '100vh',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+					alignItems: 'center',
+					gap: 16,
+					backgroundColor: 'var(--ant-color-bg-layout)',
+					pointerEvents: cache?.staff?.id ? 'none' : 'all',
+					opacity: cache?.staff?.id ? 0 : 1,
+					transition: 'opacity 0.3s ease-in-out',
+					zIndex: 1000
+				}}
+			>
+				<svg width='232' height='232' viewBox='0 0 232 232' fill='transparent' xmlns='http://www.w3.org/2000/svg' style={{ width: 128, height: 128 }}>
+					<path
+						d='M193 129.667C193 94.3206 164.346 65.6669 129 65.6669C93.6538 65.6669 65 94.3206 65 129.667C65 165.013 93.6538 193.667 129 193.667C164.346 193.667 193 165.013 193 129.667Z'
+						stroke='var(--ant-color-primary)' stroke-width='8' />
+					<path d='M145 156.667C145 161.085 137.837 164.667 129 164.667C120.163 164.667 113 161.085 113 156.667'
+						stroke='var(--ant-color-primary)' stroke-width='8' stroke-linecap='round' />
+					<path
+						d='M117 121.667C117 115.039 111.627 109.667 105 109.667C98.3726 109.667 93 115.039 93 121.667C93 128.294 98.3726 133.667 105 133.667C111.627 133.667 117 128.294 117 121.667Z'
+						fill='var(--ant-color-primary)' stroke='var(--ant-color-primary)' stroke-width='8' />
+					<path
+						d='M41 97.6669C41 93.2486 37.4183 89.6669 33 89.6669C28.5817 89.6669 25 93.2486 25 97.6669C25 102.085 28.5817 105.667 33 105.667C37.4183 105.667 41 102.085 41 97.6669Z'
+						fill='var(--ant-color-primary)' stroke='var(--ant-color-primary)' stroke-width='8' />
+					<path
+						d='M183 65.6669C183 64.5623 182.105 63.6669 181 63.6669C179.895 63.6669 179 64.5623 179 65.6669C179 66.7714 179.895 67.6669 181 67.6669C182.105 67.6669 183 66.7714 183 65.6669Z'
+						fill='var(--ant-color-primary)' stroke='var(--ant-color-primary)' stroke-width='8' />
+					<path
+						d='M165.626 121.985C165 119.649 160.298 115.131 151.965 117.364C145.563 119.079 141.818 125.861 142.444 128.197'
+						stroke='var(--ant-color-primary)' stroke-width='8' stroke-linecap='round' />
+					<path fill-rule='evenodd' clip-rule='evenodd'
+						d='M169 79.7039V51.0002L129 57.6669L89 51.0002V79.7039C99.9568 70.9206 113.865 65.6669 129 65.6669C144.135 65.6669 158.043 70.9206 169 79.7039Z'
+						fill='var(--ant-color-primary)' />
+					<path d='M65 43.0001L129 53.6668L193 43L129 27L65 43.0001Z' fill='var(--ant-color-primary)' />
+					<path d='M181 43V65.6668' stroke='var(--ant-color-primary)' stroke-width='8' />
+					<path d='M33 130V174' stroke='var(--ant-color-primary)' stroke-width='8' stroke-linecap='round' />
+				</svg>
+				<Spin />
+			</div>
+
 			{/*************************** Sidebar ***************************/}
 			<Flex
 				vertical
@@ -404,42 +451,19 @@ const Dashboard = () => {
 							gap={16}
 							style={{ width: '100%', height: '100%' }}
 						>
-							{cache?.staff?.id ? (
-								<Menu
-									selectedKeys={selectedKeys}
-									inlineCollapsed={minimized}
-									style={{
-										position: 'relative',
-										height: '100%',
-										width: minimized ? 64 : 256 + (128 / 2),
-										padding: 0,
-										border: 'none'
-									}}
-									items={menuItems}
-									mode='inline'
-								/>
-							) : (
-								<Flex vertical gap={32} style={{ width: '100%' }}>
-									<Flex gap={16} justify='space-between' align='center' style={{ width: '100%' }}>
-										<Skeleton.Node active style={{ height: 32, width: minimized ? 64 : undefined, flex: 1 }} />
-
-										{!minimized && (
-											<Button
-												type='default'
-												icon={<DoubleLeftOutlined />}
-												onClick={() => setMinimized(!minimized)}
-												style={{ minWidth: '128px !important', height: 32 }}
-											/>
-										)}
-									</Flex>
-
-									<Flex vertical gap={16} style={{ width: '100%' }}>
-										{Array.from({ length: 6 }).map((_, index) => (
-											<Skeleton.Node key={index} active style={{ height: 32, width: minimized ? 64 : 256 + (128 / 2) }} />
-										))}
-									</Flex>
-								</Flex>
-							)}
+							<Menu
+								selectedKeys={selectedKeys}
+								inlineCollapsed={minimized}
+								style={{
+									position: 'relative',
+									height: '100%',
+									width: minimized ? 64 : 256 + (128 / 2),
+									padding: 0,
+									border: 'none'
+								}}
+								items={menuItems}
+								mode='inline'
+							/>
 						</Flex>
 
 						<Flex gap={16} vertical={minimized} align='center' style={{ width: '100%' }}>

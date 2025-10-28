@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { download } from '@tauri-apps/plugin-upload';
+import { join, downloadDir } from '@tauri-apps/api/path';
 
 import {
 	App,
@@ -13,24 +15,34 @@ import {
 	Form,
 	Input,
 	Upload,
-	Select
+	Select,
+	AutoComplete,
+	Spin,
+	Checkbox,
+	message,
+	Tag
 } from 'antd';
 
 import {
 	EditOutlined,
 	LeftOutlined,
-	PlusOutlined,
-	InboxOutlined
+	InboxOutlined,
+	DeleteOutlined,
+	MinusOutlined,
+	UploadOutlined,
+	DownloadOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
 import PanelCard from '../../../components/PanelCard';
 
-import { useCache } from '../../../contexts/CacheContext';
+import { useCache, CacheProvider } from '../../../contexts/CacheContext';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useRefresh } from '../../../contexts/RefreshContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
+
+import UploadOrganizationFiles from '../../../modals/UploadOrganizationFiles';
 
 import authFetch from '../../../utils/authFetch';
 import { API_Route } from '../../../main';
@@ -42,34 +54,44 @@ const Organization = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	const { refresh, setRefresh } = useRefresh();
-	const Modal = App.useApp().modal;
+	const app = App.useApp();
+	const Modal = app.modal;
+	const notification = app.notification;
 
 	const isMobile = useMobile();
-	const { cache } = useCache();
+	const { cache, pushToCache, removeFromCache } = useCache();
 
 	const { id } = useParams();
 
 	/** @type {[import('../../../classes/Organization').Organization, React.Dispatch<React.SetStateAction<import('../../../classes/Organization')>>]} */
 	const [thisOrganization, setThisOrganization] = React.useState();
 	React.useEffect(() => {
-		const controller = new AbortController();
+		if (!id) return;
+		const organization = (cache.organizations || []).find(r => r.id === id);
+		if (organization)
+			return setThisOrganization(organization);
 
-		const fetchOrganization = async () => {
+		const controller = new AbortController();
+		const loadOrganization = async () => {
 			const response = await authFetch(`${API_Route}/organizations/${id}`, { signal: controller.signal });
-			if (!response?.ok) {
+			if (!response || !response.ok) {
+				console.error('Failed to fetch organization:', response?.statusText || response);
 				Modal.error({
 					title: 'Error',
-					content: `Failed to fetch organization: ${response?.statusText || 'Unknown error'}`,
+					content: 'Failed to fetch organization. Please try again later.',
+					centered: true,
 					onOk: () => navigate(-1)
 				});
 				return;
 			};
-
 			const data = await response.json();
-			setThisOrganization(data);
+			console.log('Fetched organization:', data);
+			if (data) {
+				setThisOrganization(data);
+				pushToCache('organizations', data, true);
+			};
 		};
-	
-		fetchOrganization();
+		loadOrganization();
 		return () => controller.abort();
 	}, [id, refresh]);
 
@@ -91,41 +113,8 @@ const Organization = () => {
 		setSelectedKeys(['organizations']);
 	}, [setSelectedKeys]);
 
-	const [repository, setRepository] = React.useState([]);
-	React.useEffect(() => {
-		if (thisOrganization?.placeholder) {
-			setRepository([]);
-			return;
-		};
-		setRepository([
-			{
-				name: 'Document 1',
-				extension: 'pdf',
-				id: 'doc-1',
-				thumbnail: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Document 2',
-				extension: 'pdf',
-				id: 'doc-2',
-				thumbnail: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Image 1',
-				extension: 'jpg',
-				id: 'img-1',
-				thumbnail: '/Placeholder Image.svg'
-			},
-			{
-				name: 'Image 2',
-				extension: 'png',
-				id: 'img-2',
-				thumbnail: '/Placeholder Image.svg'
-			}
-		]);
-	}, [thisOrganization]);
-
 	const [EditOrganizationForm] = Form.useForm();
+
 	const editOrganization = React.useCallback(() => {
 		if (!thisOrganization.id) return;
 		EditOrganizationForm.resetFields();
@@ -135,66 +124,24 @@ const Organization = () => {
 			width: 512,
 			centered: true,
 			content: (
-				<Form
-					form={EditOrganizationForm}
-					layout='vertical'
-					initialValues={{
-						shortName: thisOrganization.shortName,
-						fullName: thisOrganization.fullName,
-						type: thisOrganization.type
-					}}
-				>
-					<Form.Item
-						label='Short Name'
-						name='shortName'
-						rules={[{ required: true, message: 'Please enter the short name of the organization.' }]}
-					>
-						<Input placeholder='e.g., CS Club' />
-					</Form.Item>
-					<Form.Item
-						label='Full Name'
-						name='fullName'
-						rules={[{ required: true, message: 'Please enter the full name of the organization.' }]}
-					>
-						<Input placeholder='e.g., Computer Science Club' />
-					</Form.Item>
-					<Form.Item
-						label='Type'
-						name='type'
-						rules={[{ required: true, message: 'Please select the type of the organization.' }]}
-					>
-						<Select
-							placeholder='Select organization type'
-							options={[
-								{ label: 'College-wide', value: 'college-wide' },
-								{ label: 'Institute-wide', value: 'institute-wide' },
-							]}
-						/>
-					</Form.Item>
-				</Form>
+				<CacheProvider>
+					<EditOrganizationFormContent form={EditOrganizationForm} organization={thisOrganization} />
+				</CacheProvider>
 			),
 			onOk: () => new Promise((resolve, reject) => {
 				EditOrganizationForm.validateFields()
 					.then(async (values) => {
-						const formData = new FormData();
-						formData.append('shortName', values.shortName);
-						formData.append('fullName', values.fullName);
-						formData.append('type', values.type);
-						if (values.logo && values.logo[0]?.originFileObj)
-							formData.append('logo', values.logo[0].originFileObj);
-						if (values.cover && values.cover[0]?.originFileObj)
-							formData.append('cover', values.cover[0].originFileObj);
-
 						const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}`, {
 							method: 'PATCH',
-							body: formData
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify(values)
 						});
 
 						if (!response?.ok) {
 							const errorData = await response.json();
 							Modal.error({
 								title: 'Error',
-								content: errorData.message || 'An error occurred while creating the organization.',
+								content: errorData.message || 'An error occurred while updating the organization.',
 								centered: true
 							});
 							reject();
@@ -204,15 +151,10 @@ const Organization = () => {
 						const data = await response.json();
 						Modal.success({
 							title: 'Success',
-							content: 'Organization created successfully.',
+							content: 'Organization updated successfully.',
 							centered: true
 						});
-
-						setThisOrganization((prev) => ({
-							...prev,
-							logo: `${data.logo}?seed=${Math.random()}`,
-							cover: `${data.cover}?seed=${Math.random()}`
-						}));
+						setRefresh({ timestamp: Date.now() });
 						resolve();
 					})
 					.catch(info => {
@@ -303,6 +245,29 @@ const Organization = () => {
 			})
 		});
 	}, [thisOrganization]);
+
+	/** @type {[import('../../../classes/Repository').RepositoryProps, React.Dispatch<React.SetStateAction<import('../../../classes/Repository').RepositoryProps>>]} */
+	const [repository, setRepository] = React.useState([]);
+	React.useEffect(() => {
+		if (!id) return setRepository([]);
+		const controller = new AbortController();
+		const loadRepository = async () => {
+			const response = await authFetch(`${API_Route}/repositories/organization/${id}`, { signal: controller.signal });
+			if (!response?.ok) {
+				console.error('Failed to fetch repository:', response?.statusText || response);
+				return;
+			};
+			/** @type {import('../../../classes/Repository').RepositoryProps} */
+			const data = await response.json();
+			if (!data || !Array.isArray(data)) {
+				setRepository([]);
+				return;
+			};
+			setRepository(data);
+		};
+		loadRepository();
+		return () => controller.abort();
+	}, [id, refresh]);
 
 	return (
 		<Flex
@@ -406,6 +371,43 @@ const Organization = () => {
 									>
 										Edit
 									</Button>
+									<Button
+										type='primary'
+										danger
+										icon={<DeleteOutlined />}
+										onClick={() => {
+											Modal.confirm({
+												title: 'Delete Organization',
+												content: 'Are you sure you want to delete this organization? This action cannot be undone.',
+												centered: true,
+												onOk: async () => {
+													const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}`, {
+														method: 'DELETE'
+													});
+
+													if (!response?.ok) {
+														const errorData = await response.json();
+														Modal.error({
+															title: 'Error',
+															content: errorData.message || 'An error occurred while deleting the organization.',
+															centered: true
+														});
+														return;
+													};
+
+													Modal.success({
+														title: 'Success',
+														content: 'Organization deleted successfully.',
+														centered: true
+													});
+
+													navigate(-1);
+												}
+											});
+										}}
+									>
+										Delete
+									</Button>
 								</Flex>
 							</Flex>
 						) : (
@@ -472,6 +474,43 @@ const Organization = () => {
 									>
 										Edit
 									</Button>
+										<Button
+											type='primary'
+											danger
+											icon={<DeleteOutlined />}
+											onClick={() => {
+												Modal.confirm({
+													title: 'Delete Organization',
+													content: 'Are you sure you want to delete this organization? This action cannot be undone.',
+													centered: true,
+													onOk: async () => {
+														const response = await authFetch(`${API_Route}/organizations/${thisOrganization.id}`, {
+															method: 'DELETE'
+														});
+
+														if (!response?.ok) {
+															const errorData = await response.json();
+															Modal.error({
+																title: 'Error',
+																content: errorData.message || 'An error occurred while deleting the organization.',
+																centered: true
+															});
+															return;
+														};
+
+														Modal.success({
+															title: 'Success',
+															content: 'Organization deleted successfully.',
+															centered: true
+														});
+
+														navigate(-1);
+													}
+												});
+											}}
+										>
+											Delete
+										</Button>
 								</Flex>
 							</Flex>
 						)}
@@ -483,18 +522,6 @@ const Organization = () => {
 							<PanelCard
 								title='Members'
 								style={{ position: 'sticky', top: 0 }}
-								footer={
-									<Flex justify='flex-end' align='center' gap={8}>
-										<Button
-											type='primary'
-											size='small'
-											icon={<PlusOutlined />}
-											onClick={() => { }}
-										>
-											Add
-										</Button>
-									</Flex>
-								}
 							>
 								{thisOrganization?.members.length > 0 && thisOrganization?.members.map((member, index) => (
 									<Card
@@ -508,6 +535,9 @@ const Organization = () => {
 											});
 										}}
 									>
+										{member.publisher && (
+											<Tag color='blue' style={{ position: 'absolute', top: 8, right: 8 }}>Publisher</Tag>
+										)}
 										<Flex justify='flex-start' align='center' gap={16}>
 											<Avatar
 												src={member.student.profilePicture || '/Placeholder Image.svg'}
@@ -545,10 +575,22 @@ const Organization = () => {
 						<Button
 							type='primary'
 							size='small'
-							icon={<PlusOutlined />}
-							onClick={() => { }}
+							icon={<UploadOutlined />}
+							onClick={async () => {
+								if (thisOrganization?.placeholder) {
+									Modal.error({
+										title: 'Error',
+										content: 'This is a placeholder organization. Please try again later.',
+										centered: true
+									});
+									return;
+								};
+
+								await UploadOrganizationFiles(Modal, notification, thisOrganization.id);
+								setRefresh({ timestamp: Date.now() });
+							}}
 						>
-							Add
+							Upload
 						</Button>
 					</Flex>
 				}
@@ -557,21 +599,308 @@ const Organization = () => {
 					<Card
 						key={file.id || i}
 						size='small'
-						hoverable
 						style={{ width: '100%' }}
-						onClick={() => { }}
 					>
-						<Flex align='center' gap={8}>
-							<Avatar src={file.thumbnail} size='large' shape='square' />
-							<Flex vertical>
+						<Flex align='center' gap={16}>
+							<Avatar src={file.metadata.mimetype.includes('image/') && file.publicUrl} icon={!file.metadata.mimetype.includes('image/') && <FileOutlined />} size='large' shape='square' style={{ width: 64, height: 64 }} />
+							<Flex vertical style={{ flex: 1 }}>
 								<Text>{file.name}</Text>
-								<Text type='secondary'>{file.extension.toUpperCase()}</Text>
+								<Text type='secondary'>{(file.metadata.size / 1024).toFixed(2)} KB • {file.metadata.mimetype}</Text>
+							</Flex>
+							<Flex gap={8}>
+								<Button
+									type='default'
+									size='small'
+									danger
+									icon={<DeleteOutlined />}
+									onClick={async () => {
+										if (thisOrganization?.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content: 'This is a placeholder organization. Please try again later.',
+												centered: true
+											});
+											return;
+										};
+										Modal.confirm({
+											title: 'Confirm Deletion',
+											content: <Text>Are you sure you want to delete <Tag>{file.name}</Tag>? This action cannot be undone.</Text>,
+											centered: true,
+											okButtonProps: { danger: true },
+											okText: 'Delete',
+											onOk: async () => {
+												const response = await authFetch(`${API_Route}/repositories/organization/${id}/files/${file.name}`, { method: 'DELETE' }).catch(() => null);
+												if (!response?.ok) {
+													notification.error({
+														message: 'Error deleting file.'
+													});
+													return;
+												};
+												removeFromCache('organizations', 'id', id);
+												setRefresh({ timestamp: Date.now() });
+												notification.success({
+													message: 'File deleted successfully.'
+												});
+											}
+										});
+									}}
+								/>
+								<Button
+									type='default'
+									size='small'
+									icon={<DownloadOutlined />}
+									onClick={async () => {
+										const downloadDirPath = await downloadDir();
+										const tempPath = await join(downloadDirPath, file.name);
+										const downloadTask = download(file.publicUrl, tempPath, {
+											onProgress: (progress) => {
+												console.log(`Progress: ${Math.round(progress * 100)}%`);
+											}
+										});
+										notification.info({
+											message: 'Download started.',
+											description: `Downloading ${file.name}...`,
+											duration: 2
+										});
+										const savedPath = await downloadTask;
+										notification.success({
+											message: 'Download completed.',
+											description: `${file.name} has been downloaded to your Downloads folder.`,
+											duration: 4
+										});
+										console.log('File downloaded to:', savedPath);
+									}}
+								/>
 							</Flex>
 						</Flex>
 					</Card>
 				))}
 			</PanelCard>
 		</Flex>
+	);
+};
+
+const EditOrganizationFormContent = ({ form, organization }) => {
+	/**
+	 * Cache context hook for managing student data
+	 */
+	const { pushToCache, getFromCache, cache } = useCache();
+
+	/**
+	 * Search query string for members
+	 * @type {[string, React.Dispatch<React.SetStateAction<string>>]}
+	 */
+	const [memberSearch, setMemberSearch] = React.useState('');
+
+	/**
+	 * Array of member search results
+	 * @type {[import('../classes/Student').StudentProps[], React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>]}
+	 */
+	const [memberSearchResults, setMemberSearchResults] = React.useState([]);
+
+	/**
+	 * Loading state for member search operations
+	 * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+	 */
+	const [memberSearching, setMemberSearching] = React.useState(false);
+
+	/**
+	 * Helper function to fetch student search results
+	 * @param {string} query - The search query
+	 * @param {React.Dispatch<React.SetStateAction<boolean>>} setLoading - Loading state setter
+	 * @param {React.Dispatch<React.SetStateAction<import('../classes/Student').StudentProps[]>>} setResults - Results setter
+	 * @param {AbortController} controller - Abort controller for cancelling request
+	 */
+	const fetchStudentResults = async (query, setLoading, setResults, controller) => {
+		if (query.length === 0) {
+			setResults([]);
+			return;
+		};
+
+		setLoading(true);
+		const request = await authFetch(`${API_Route}/users/search/students?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+		if (!request?.ok) return;
+
+		const data = await request.json();
+		if (!data || !Array.isArray(data.students)) return;
+		setResults(data.students);
+		setLoading(false);
+		pushToCache('students', data.students, false);
+	};
+
+	/**
+	 * Effect hook to handle member search functionality
+	 */
+	React.useEffect(() => {
+		const controller = new AbortController();
+		fetchStudentResults(memberSearch, setMemberSearching, setMemberSearchResults, controller);
+		return () => controller.abort();
+	}, [memberSearch]);
+
+	/**
+	 * Array of member student IDs
+	 * @type {string[]}
+	 */
+	const members = Form.useWatch('members', form);
+
+	return (
+		<Form
+			form={form}
+			layout='vertical'
+			initialValues={{
+				shortName: organization.shortName,
+				fullName: organization.fullName,
+				type: organization.type,
+				members: organization.members.map(member => ({
+					id: member.id,
+					role: member.role,
+					publisher: member.publisher
+				}))
+			}}
+		>
+			<Form.Item
+				label='Short Name'
+				name='shortName'
+				rules={[{ required: true, message: 'Please enter the short name of the organization.' }]}
+			>
+				<Input placeholder='e.g., CS Club' />
+			</Form.Item>
+			<Form.Item
+				label='Full Name'
+				name='fullName'
+				rules={[{ required: true, message: 'Please enter the full name of the organization.' }]}
+			>
+				<Input placeholder='e.g., Computer Science Club' />
+			</Form.Item>
+			<Form.Item
+				label='Type'
+				name='type'
+				rules={[{ required: true, message: 'Please select the type of the organization.' }]}
+			>
+				<Select
+					placeholder='Select organization type'
+					options={[
+						{ label: 'College-wide', value: 'college-wide' },
+						{ label: 'Institute-wide', value: 'institute-wide' },
+					]}
+				/>
+			</Form.Item>
+
+			<Form.List name='members'>
+				{(fields, { add, remove, move }) => (
+					<Flex vertical gap={8} style={{ flex: 1 }}>
+						<Form.Item label='Members'>
+							<AutoComplete
+								placeholder='Search or enter member ID'
+								options={memberSearchResults
+									.filter(student =>
+										!members?.includes(student.id)
+									)
+									.map(student => ({
+										label: `${student.name.first} ${student.name.last} (${student.id})`,
+										value: student.id
+									}))
+								}
+								suffixIcon={memberSearching ? <Spin size='small' /> : null}
+								value={memberSearch}
+								onChange={(value) => setMemberSearch(value)}
+								onSelect={(value) => {
+									if (members?.includes(value)) return;
+									add({ id: value, role: '', publisher: false });
+									setMemberSearch('');
+									setMemberSearchResults([]);
+								}}
+								onBlur={() => {
+									if (!memberSearch) return;
+									const exists = (memberSearchResults || []).some(s => s.id === memberSearch) || (cache.students || []).some(s => s.id === memberSearch);
+									if (!exists) {
+										message.error('Please select a valid member from the search results');
+										return;
+									};
+									if (!members?.includes(memberSearch)) {
+										add({ id: memberSearch, role: 'Member', publisher: false });
+										setMemberSearch('');
+									};
+								}}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										e.preventDefault();
+										if (!memberSearch) return;
+										const exists = (memberSearchResults || []).some(s => s.id === memberSearch) || (cache.students || []).some(s => s.id === memberSearch);
+										if (!exists) {
+											message.error('Please select a valid member from the search results');
+											return;
+										}
+										if (!members?.includes(memberSearch)) {
+											add({ id: memberSearch, role: '', publisher: false });
+											setMemberSearch('');
+										};
+									};
+								}}
+								style={{ width: '100%' }}
+								filterOption={(input, option) =>
+									option.label.toLowerCase().includes(input.toLowerCase())
+								}
+							/>
+						</Form.Item>
+
+						{fields.map(({ key, name, ...restField }) => (
+							<Flex key={key} align='start' gap={8}>
+								<Form.Item
+									{...restField}
+									name={[name, 'id']}
+									label='Student'
+									rules={[{ required: true, message: 'Please select a member!' }]}
+									style={{ flex: 1 }}
+								>
+									<Select
+										placeholder='Select a member'
+										showSearch
+										optionFilterProp='label'
+										filterOption={(input, option) =>
+											option.label.toLowerCase().includes(input.toLowerCase())
+										}
+										options={cache.students
+											.filter(student =>
+												!members?.includes(student.id) || student.id === form.getFieldValue(['members', name, 'id'])
+											)
+											.map(student => ({
+												label: `${student.name.first} ${student.name.last} (${student.id})`,
+												value: student.id
+											}))}
+									/>
+								</Form.Item>
+								<Form.Item
+									{...restField}
+									name={[name, 'role']}
+									label='Role'
+									rules={[{ required: true, message: 'Please enter the role!' }]}
+									style={{ flex: 1 }}
+								>
+									<Input placeholder='Role (e.g., President)' />
+								</Form.Item>
+								<Form.Item
+									{...restField}
+									name={[name, 'publisher']}
+									label='Publisher'
+									valuePropName='checked'
+									tooltip='If checked, this member can publish announcements on behalf of the organization.'
+									style={{ textAlign: 'center' }}
+								>
+									<Checkbox />
+								</Form.Item>
+								<Form.Item label=' '>
+									<Button
+										icon={<MinusOutlined />}
+										onClick={() => remove(name)}
+									/>
+								</Form.Item>
+							</Flex>
+						))}
+					</Flex>
+				)}
+			</Form.List>
+		</Form>
 	);
 };
 

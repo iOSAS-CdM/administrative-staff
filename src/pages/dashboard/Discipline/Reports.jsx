@@ -162,15 +162,21 @@ const ReportCard = ({ caseItem, loading }) => {
 									navigate(`/dashboard/students/profile/${thisCase.author.id}`);
 								}}
 							/>
-							<Text>
-								{thisCase.author.name.first} {thisCase.author.name.last}
-							</Text>
+							<Flex vertical>
+								<Text>
+									{thisCase.author.name.first} {thisCase.author.name.last}
+								</Text>
+								<Text type='secondary'>
+									{thisCase && new Date(thisCase.created_at).toLocaleDateString('en-US', {
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric',
+										hour: '2-digit',
+										minute: '2-digit'
+									})}
+								</Text>
+							</Flex>
 						</Flex>
-
-						<Text type='secondary'>
-							Reported on{' '}
-							{thisCase ? new Date(thisCase.created_at).toLocaleDateString() : <Skeleton.Input style={{ width: 100 }} active />}
-						</Text>
 					</Flex>
 				</Flex>
 			</ItemCard>
@@ -234,6 +240,43 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 					</Tag>
 				</Flex>
 			}
+			footer={(_, { OkBtn, CancelBtn }) => {
+				return (
+					<Flex justify='space-between' align='center' style={{ width: '100%' }}>
+						<Flex align='center' gap={12}>
+							<Avatar
+								size={32}
+								icon={<UserOutlined />}
+								src={caseItem.author.profilePicture || null}
+								style={{ cursor: 'pointer' }}
+								onClick={() => {
+									navigate(`/dashboard/students/profile/${caseItem.author.id}`);
+									onClose();
+								}}
+							/>
+							<Flex vertical style={{ textAlign: 'left' }}>
+								<Text strong>
+									{caseItem.author.name.first} {caseItem.author.name.last}
+								</Text>
+								<Text type='secondary' style={{ fontSize: 12 }}>
+									{new Date(caseItem.created_at).toLocaleDateString('en-US', {
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric',
+										hour: '2-digit',
+										minute: '2-digit'
+									})}
+								</Text>
+							</Flex>
+						</Flex>
+
+						<Flex gap={8} justify='end'>
+							<CancelBtn />
+							<OkBtn />
+						</Flex>
+					</Flex>
+				);
+			}}
 		>
 			<Flex vertical gap={16}>
 				{/* Case Description */}
@@ -260,39 +303,6 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 						</Flex>
 					</>
 				)}
-
-				<Divider style={{ margin: '8px 0' }} />
-
-				{/* Author Information */}
-				<Flex vertical gap={8}>
-					<Text type='secondary' strong>Reported By</Text>
-					<Flex align='center' gap={12}>
-						<Avatar
-							size={32}
-							icon={<UserOutlined />}
-							src={caseItem.author.profilePicture || null}
-							style={{ cursor: 'pointer' }}
-							onClick={() => {
-								navigate(`/dashboard/students/profile/${caseItem.author.id}`);
-								onClose();
-							}}
-						/>
-						<Flex vertical>
-							<Text strong>
-								{caseItem.author.name.first} {caseItem.author.name.last}
-							</Text>
-							<Text type='secondary' style={{ fontSize: 12 }}>
-								{new Date(caseItem.created_at).toLocaleDateString('en-US', {
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-									hour: '2-digit',
-									minute: '2-digit'
-								})}
-							</Text>
-						</Flex>
-					</Flex>
-				</Flex>
 			</Flex>
 		</Modal>
 	);

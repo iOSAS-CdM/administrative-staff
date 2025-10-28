@@ -87,7 +87,7 @@ const Record = () => {
 		const controller = new AbortController();
 		const loadRecord = async () => {
 			const response = await authFetch(`${API_Route}/records/${id}`, { signal: controller.signal });
-			if (!response || !response.ok) {
+			if (!response?.ok) {
 				console.error('Failed to fetch record:', response?.statusText || response);
 				Modal.error({
 					title: 'Error',
@@ -146,7 +146,6 @@ const Record = () => {
 			const response = await authFetch(`${API_Route}/repositories/record/${id}`, { signal: controller.signal });
 			if (!response?.ok) {
 				console.error('Failed to fetch repository:', response?.statusText || response);
-				setRepository([]);
 				return;
 			};
 			/** @type {import('../../../classes/Repository').RepositoryProps} */

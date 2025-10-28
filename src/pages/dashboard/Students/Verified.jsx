@@ -321,7 +321,7 @@ const StudentCard = ({ student, loading }) => {
 					style={{ width: 64, height: 64, filter: thisStudent.role === 'unverified-student' ? 'grayscale(100%)' : 'none' }}
 				/>
 				<Flex vertical justify='flex-start' align='flex-start' gap={8} style={{ flex: 1 }}>
-					<Title level={3}>{thisStudent.name.first} {thisStudent.name.last}</Title>
+					<Title level={4}>{thisStudent.name.first} {thisStudent.name.last}</Title>
 					<Flex align='center' gap={8} wrap>
 						<Tag><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.id}</Text></Tag>
 						<Tag color={thisStudent.institute === 'ics' ? 'orange' : thisStudent.institute === 'ite' ? 'blue' : thisStudent.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.institute?.toUpperCase()}</Text></Tag>
