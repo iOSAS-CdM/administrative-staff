@@ -120,7 +120,6 @@ const DisciplinaryRecords = () => {
 			if (!data || !Array.isArray(data.records)) return;
 			setSearchResults(data.records);
 			setSearching(false);
-			pushToCache('records', data.records, false);
 		};
 		fetchSearchResults();
 
@@ -208,7 +207,7 @@ const DisciplinaryRecords = () => {
 				</Button>
 			]
 		});
-	}, [setHeader, setSelectedKeys, category, search, isMobile]);
+	}, [setHeader, setSelectedKeys, category, search, isMobile, searchResults]);
 
 	return (
 		<ContentPage

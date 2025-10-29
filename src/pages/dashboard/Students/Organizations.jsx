@@ -52,16 +52,7 @@ const Organizations = () => {
 	/** @type {[Category, React.Dispatch<React.SetStateAction<Category>>]} */
 	const [category, setCategory] = React.useState('all');
 
-	const [search, setSearch] = React.useState('');
-	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
-	const [searchResults, setSearchResults] = React.useState([]);
-	const [searching, setSearching] = React.useState(false);
-
 	const navigate = useNavigate();
-
-	const [NewOrganizationForm] = Form.useForm();
-	const logo = Form.useWatch('logo', NewOrganizationForm);
-	const cover = Form.useWatch('cover', NewOrganizationForm);
 
 	React.useLayoutEffect(() => {
 		setHeader({
