@@ -53,7 +53,6 @@ const Unverified = () => {
 			if (!data || !Array.isArray(data.students)) return;
 			setSearchResults(data.students);
 			setSearching(false);
-			pushToCache('students', data.students, false);
 		};
 		fetchSearchResults();
 
