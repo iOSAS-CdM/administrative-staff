@@ -1,8 +1,8 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
-	"productName": "Office of Student Affairs and Services - Staff",
+	"productName": "iOSAS Administrative Staff",
 	"version": "../package.json",
-	"identifier": "com.danieljohnbyns.administrative-staff",
+	"identifier": "com.danieljohnbyns.iosas-administrative-staff",
 	"build": {
 		"beforeDevCommand": "npm run dev",
 		"devUrl": "http://localhost:1421",
@@ -12,7 +12,7 @@
 	"app": {
 		"windows": [
 			{
-				"title": "Office of Student Affairs and Services - Staff",
+				"title": "iOSAS Administrative Staff",
 				"width": 1000,
 				"height": 800,
 				"minWidth": 800,
