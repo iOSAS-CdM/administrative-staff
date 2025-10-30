@@ -121,16 +121,16 @@ jobs:
           # Download all release assets
           gh release download "$RELEASE_TAG" -D assets --clobber
           
-          # Rename files by removing _${VERSION} from filenames
-          find assets -type f -exec bash -c 'mv "$1" "${1/_${VERSION}/}"' _ {} \;
+          # Rename files by removing _${VERSION} from filenames (exclude updater json)
+          find assets -type f ! -name "latest.json" -exec bash -c 'mv "$1" "${1/_${VERSION}/}"' _ {} \;
           
-          # Get list of old asset names that contain the version
-          OLD_ASSETS=$(gh release view "$RELEASE_TAG" --json assets -q '.assets[] | select(.name | contains("_${VERSION}")) | .name')
+          # Get list of old asset names that contain the version (exclude updater json)
+          OLD_ASSETS=$(gh release view "$RELEASE_TAG" --json assets -q '.assets[] | select(.name | contains("_${VERSION}") and (.name | endswith(".dmg") or endswith(".msi") or endswith(".AppImage") or endswith(".deb"))) | .name')
           
           # Delete old assets
           for asset in $OLD_ASSETS; do
             gh release delete-asset "$RELEASE_TAG" "$asset" -y
           done
           
-          # Upload renamed assets
-          gh release upload "$RELEASE_TAG" assets/*
+          # Upload renamed assets (exclude updater json)
+          gh release upload "$RELEASE_TAG" $(find assets -type f ! -name "latest.json")
