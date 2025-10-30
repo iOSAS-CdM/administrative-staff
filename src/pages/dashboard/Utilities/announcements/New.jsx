@@ -228,8 +228,8 @@ const NewAnnouncement = () => {
 								>
 									<Segmented
 										options={[
-											{ label: 'Information', value: 'information' },
-											{ label: 'Event', value: 'event' },
+											{ label: 'Information', value: 'information', title: 'Information Announcements' },
+											{ label: 'Event', value: 'event', title: 'Event Announcements' },
 										]}
 										value={announcement.type || 'information'}
 										onChange={(value) => {

@@ -185,10 +185,11 @@ const DisciplinaryRecords = () => {
 				</Flex>,
 				<Segmented
 					options={[
-						{ label: 'Ongoing', value: 'ongoing' },
-						{ label: 'Resolved', value: 'resolved' },
-						{ label: 'Dismissed', value: 'dismissed' }
+						{ label: 'Ongoing', value: 'ongoing', title: 'Ongoing Cases' },
+						{ label: 'Resolved', value: 'resolved', title: 'Resolved Cases' },
+						{ label: 'Dismissed', value: 'dismissed', title: 'Dismissed Cases' }
 					]}
+					
 					value={category}
 					onChange={(value) => {
 						setCategory(value);

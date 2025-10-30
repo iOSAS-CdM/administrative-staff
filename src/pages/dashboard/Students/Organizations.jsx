@@ -61,9 +61,9 @@ const Organizations = () => {
 				<Segmented
 					vertical={isMobile}
 					options={[
-						{ label: 'All', value: 'all' },
-						{ label: 'College-wide', value: 'college-wide' },
-						{ label: 'Institute-wide', value: 'institute-wide' },
+						{ label: 'All', value: 'all', title: 'All Organizations' },
+						{ label: 'College-wide', value: 'college-wide', title: 'College-wide Organizations' },
+						{ label: 'Institute-wide', value: 'institute-wide', title: 'Institute-wide Organizations' },
 					]}
 					value={category}
 					onChange={(value) => setCategory(value)}

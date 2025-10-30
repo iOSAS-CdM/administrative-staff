@@ -84,8 +84,8 @@ const Reports = () => {
 				<Segmented
 					key='status-filter'
 					options={[
-						{ label: 'Open', value: 'open' },
-						{ label: 'Closed', value: 'closed' }
+						{ label: 'Open', value: 'open', title: 'Open Reports' },
+						{ label: 'Closed', value: 'closed', title: 'Closed Reports' }
 					]}
 					value={status}
 					onChange={(value) => {
