@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
 	"productName": "iOSAS Administrative Staff",
-	"version": "../package.json",
+	"version": "latest",
 	"identifier": "com.danieljohnbyns.iosas-administrative-staff",
 	"build": {
 		"beforeDevCommand": "npm run dev",
