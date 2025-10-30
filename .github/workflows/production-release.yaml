@@ -102,8 +102,71 @@ jobs:
             **Full Changelog**: https://github.com/${{ github.repository }}/commits/release
           releaseDraft: false
           prerelease: false
-          includeRelease: true
+          includeRelease: false
           includeUpdaterJson: true
           updaterJsonKeepUniversal: false
           updaterJsonPreferNsis: false
           args: ${{ matrix.args }}
+
+      - name: Rename artifacts
+        shell: bash
+        run: |
+          # Determine bundle directory based on platform
+          if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
+            if [[ "${{ matrix.args }}" == "--target aarch64-apple-darwin" ]]; then
+              BUNDLE_DIR="src-tauri/target/aarch64-apple-darwin/release/bundle/macos"
+            else
+              BUNDLE_DIR="src-tauri/target/x86_64-apple-darwin/release/bundle/macos"
+            fi
+          else
+            BUNDLE_DIR="src-tauri/target/release/bundle"
+          fi
+          
+          # Rename artifacts by removing _1.0.0
+          find "$BUNDLE_DIR" -type f \( -name "*.dmg" -o -name "*.msi" -o -name "*.AppImage" -o -name "*.deb" \) -exec bash -c 'mv "$1" "${1/_1.0.0/}"' _ {} \;
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.platform }}-${{ matrix.args }}
+          path: |
+            src-tauri/target/**/release/bundle/**
+
+  create-release:
+    needs: publish-tauri
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create and upload release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG="v$VERSION"
+          
+          # Create release
+          gh release create "$RELEASE_TAG" \
+            --title "$RELEASE_TAG" \
+            --notes "### Download Instructions
+          - **Windows**: Download the \`.msi\` installer for easy installation
+          - **macOS**: Download the \`.dmg\` file for drag-and-drop installation
+          - **Linux**: Download the \`.AppImage\` for portable execution or \`.deb\` for system installation
+
+          ### Installation Notes
+          - Please ensure you have the latest version of your operating system
+          - For first-time installations, you may need to allow the application in your security settings
+
+          **Full Changelog**: https://github.com/${{ github.repository }}/commits/release" \
+            --draft false \
+            --prerelease false
+
+          # Upload all artifacts
+          find artifacts -type f -exec gh release upload "$RELEASE_TAG" {} \;
