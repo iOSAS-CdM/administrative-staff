@@ -14,6 +14,8 @@ import rootToHex from './utils/rootToHex';
 
 import 'antd/dist/reset.css';
 import './styles/index.css';
+import { initTelemetry } from './utils/telemetry';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import { CacheProvider } from './contexts/CacheContext';
 import { MobileProvider } from './contexts/MobileContext';
@@ -124,8 +126,16 @@ const OSAS = () => {
 
 export const API_Route = import.meta.env.DEV ? 'http://localhost:3001' : 'https://iosas.online/api';
 
+// Initialize telemetry (global handlers, batching, dedupe)
+if (typeof window !== 'undefined')
+	initTelemetry();
+
 // Create root only once to avoid React DOM warnings
 const container = document.getElementById('root');
 if (!container._reactRoot)
 	container._reactRoot = ReactDOM.createRoot(container);
-container._reactRoot.render(<OSAS />);
+container._reactRoot.render(
+	<ErrorBoundary>
+		<OSAS />
+	</ErrorBoundary>
+);
