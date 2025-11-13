@@ -9,6 +9,7 @@ import {
 	Image,
 	App,
 	Avatar,
+	Input,
 	Flex,
 	Divider
 } from 'antd';
@@ -37,6 +38,9 @@ const ViewAnnouncement = () => {
 	const { cache, pushToCache, getFromCache } = useCache();
 
 	const [announcement, setAnnouncement] = React.useState({ placeholder: true });
+
+	const [commentText, setCommentText] = React.useState('');
+	const [posting, setPosting] = React.useState(false);
 
 	const formatDate = (d) => {
 		if (!d) return null;
@@ -128,6 +132,33 @@ const ViewAnnouncement = () => {
 	const createdAt = announcement.createdAt || announcement.created_at || announcement.date || null;
 	const createdStr = formatDate(createdAt);
 
+	const postComment = async () => {
+		if (!commentText || commentText.trim().length === 0) return;
+		setPosting(true);
+		try {
+			const res = await authFetch(`${API_Route}/announcements/${id}/comments`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ content: commentText.trim() })
+			}).catch(() => null);
+			if (!res || !res.ok) {
+				Modal.error({ title: 'Error', content: 'Failed to post comment. Please try again.' });
+				setPosting(false);
+				return;
+			}
+			const { comment } = await res.json();
+			// Append to local state and cache
+			setAnnouncement(prev => ({ ...prev, comments: [...(prev.comments || []), comment] }));
+			try { pushToCache('announcements', { ...announcement, comments: [...(announcement.comments || []), comment] }, true); } catch (e) { /* ignore */ }
+			setCommentText('');
+			Modal.success({ title: 'Comment posted' });
+		} catch (e) {
+			Modal.error({ title: 'Error', content: 'Failed to post comment. Please try again later.' });
+		} finally {
+			setPosting(false);
+		}
+	};
+
 	return (
 			<Card>
 			<Flex vertical gap={32} style={{ width: '100%' }}>
@@ -173,6 +204,77 @@ const ViewAnnouncement = () => {
 							}</Text>
 						</Flex>
 					)}
+				</Flex>
+
+				<Divider />
+
+				{/* Comments Section */}
+				<Flex vertical gap={16} style={{ width: '100%' }}>
+					<Title level={4}>Comments ({(announcement.comments || []).length})</Title>
+					{(announcement.comments || []).length === 0 && (
+						<Text type='secondary'>No comments yet. Be the first to comment.</Text>
+					)}
+					{(announcement.comments || []).map((comment) => (
+						<Flex key={String(comment.id)} gap={8} style={{ padding: 8, borderRadius: 6, background: 'var(--ant-bg-container)', position: 'relative' }}>
+							{/* Delete comment button for author or staff */}
+							{(cache.staff && (String(cache.staff.id) === String(comment.author) || ['head', 'guidance', 'prefect', 'student-affairs'].includes(cache.staff.role))) && (
+								<Button
+									type='text'
+									danger
+									style={{ position: 'absolute', right: 8, top: 8 }}
+									onClick={() => {
+										Modal.confirm({
+											title: 'Delete Comment',
+											content: 'Are you sure you want to delete this comment? This action cannot be undone.',
+											centered: true,
+											onOk: async () => {
+												const res = await authFetch(`${API_Route}/announcements/${id}/comments/${comment.id}`, { method: 'DELETE' }).catch(() => null);
+												if (!res || !res.ok) {
+													Modal.error({ title: 'Error', content: 'Failed to delete comment. Please try again later.' });
+													return;
+												}
+												// remove locally
+												setAnnouncement(prev => ({ ...prev, comments: (prev.comments || []).filter(c => String(c.id) !== String(comment.id)) }));
+												try { pushToCache('announcements', { ...announcement, comments: (announcement.comments || []).filter(c => String(c.id) !== String(comment.id)) }, true); } catch (e) { /* ignore */ }
+												Modal.success({ title: 'Comment deleted' });
+											}
+										});
+									}}
+								>
+									Delete
+								</Button>
+							)}
+							{comment.author === 'superapi-bypass' ? (
+								<Avatar size={32} icon={<UserOutlined />} />
+							) : (
+								<Avatar size={32} src={comment.author?.profilePicture || null} />
+							)}
+							<Flex vertical style={{ width: '100%' }}>
+								<Flex gap={8}>
+									<Text>{comment.author === 'superapi-bypass' ? 'System' : `${comment.author?.name?.first || ''} ${comment.author?.name?.last || ''}`}</Text>
+									<Text type='secondary'>{formatDate(comment.date || comment.created_at || comment.date)}</Text>
+								</Flex>
+								<div style={{ marginTop: 6 }}>
+									{comment.content}
+								</div>
+							</Flex>
+						</Flex>
+					))}
+
+					{/* Composer */}
+					<div style={{ width: '100%' }}>
+						<Input.TextArea
+							value={commentText}
+							onChange={(e) => setCommentText(e.target.value)}
+							rows={3}
+							placeholder='Write a comment...'
+						/>
+						<div style={{ marginTop: 8, textAlign: 'right' }}>
+							<Button type='primary' loading={posting} onClick={postComment} disabled={posting || !commentText.trim()}>
+								Post Comment
+							</Button>
+						</div>
+					</div>
 				</Flex>
 			</Flex>
 		</Card>
