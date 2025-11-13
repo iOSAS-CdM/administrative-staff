@@ -20,7 +20,7 @@ import {
 	TeamOutlined
 } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 import ItemCard from '../../../components/ItemCard';
 
@@ -53,6 +53,9 @@ const Organizations = () => {
 	const [category, setCategory] = React.useState('all');
 
 	const navigate = useNavigate();
+
+	/** @type {import('antd').FormInstance} */
+	const [NewOrganizationForm] = Form.useForm();
 
 	React.useLayoutEffect(() => {
 		setHeader({
