@@ -50,7 +50,6 @@ const Repository = () => {
 									<Upload.Dragger
 										action='/upload.do'
 										listType='picture'
-										accept='image/*'
 										multiple
 										getValueFromEvent={(e) => {
 											if (Array.isArray(e))
@@ -136,7 +135,7 @@ const Repository = () => {
 				>
 					<Flex vertical align='center' gap={16}>
 						<Image
-							src={file.metadata?.mimetype?.includes('image/') ? file.publicUrl : null}
+							src={file.thumbnailUrl || (file.metadata?.mimetype?.includes('image/') ? file.publicUrl : null)}
 							alt={file.name}
 							width={'100%'}
 							height={128}

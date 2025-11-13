@@ -187,7 +187,6 @@ const Organization = () => {
 					>
 						<Upload.Dragger
 							listType='picture'
-							accept='image/*'
 							beforeUpload={() => false}
 							maxCount={1}
 						>
@@ -602,7 +601,13 @@ const Organization = () => {
 						style={{ width: '100%' }}
 					>
 						<Flex align='center' gap={16}>
-							<Avatar src={file.metadata.mimetype.includes('image/') && file.publicUrl} icon={!file.metadata.mimetype.includes('image/') && <FileOutlined />} size='large' shape='square' style={{ width: 64, height: 64 }} />
+							<Avatar
+								src={file.thumbnailUrl || (file.metadata?.mimetype?.includes('image/') ? file.publicUrl : null)}
+								icon={!(file.metadata?.mimetype?.includes && file.metadata?.mimetype.includes('image/')) && <FileOutlined />}
+								size='large'
+								shape='square'
+								style={{ width: 64, height: 64 }}
+							/>
 							<Flex vertical style={{ flex: 1 }}>
 								<Text>{file.name}</Text>
 								<Text type='secondary'>{(file.metadata.size / 1024).toFixed(2)} KB • {file.metadata.mimetype}</Text>

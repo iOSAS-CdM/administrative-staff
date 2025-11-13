@@ -49,7 +49,6 @@ const FileUploadForm = () => {
 						listType='picture'
 						multiple
 						beforeUpload={() => false} // Prevent auto upload
-						accept='image/*'
 						getValueFromEvent={normFile}
 						style={{
 							position: 'relative',
