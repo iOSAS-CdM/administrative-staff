@@ -30,7 +30,8 @@ import {
 	DeleteOutlined,
 	MinusOutlined,
 	UploadOutlined,
-	DownloadOutlined
+	DownloadOutlined,
+	FileOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -229,7 +230,6 @@ const Organization = () => {
 							content: `${type === 'cover' ? 'Cover photo' : 'Logo'} updated successfully.`,
 							centered: true
 						});
-
 
 						setThisOrganization((prev) => ({
 							...prev,
