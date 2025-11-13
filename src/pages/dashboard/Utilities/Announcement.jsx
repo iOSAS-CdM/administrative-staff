@@ -118,19 +118,25 @@ const AnnouncementCard = ({ announcement }) => {
 					{announcement.author === 'superapi-bypass' ? (
 						<Text>System Administrator</Text>
 					) : (
-						<Flex vertical>
-							<Text style={{ margin: 0 }}>
-								{`${announcement.author?.name?.first || ''} ${announcement.author?.name?.last || ''}`}
-							</Text>
-							<Text type='secondary'>{
-								{
-									'head': 'Head',
-									'guidance': 'Guidance Officer',
-									'prefect': 'Prefect of Discipline Officer',
-									'student-affairs': 'Student Affairs Officer',
-									'student': 'Student'
-								}[announcement.author?.role]
-							}</Text>
+						<Flex direction='row' align='center' gap={8}>
+							<Avatar
+								uri={announcement.author.profilePicture}
+							/>
+							<Flex direction='column' justify='center' align='start'>
+								<Text style={{ fontWeight: '500' }}>
+									{announcement.author.name.first}{' '}
+									{announcement.author.name.last}
+								</Text>
+								<Text style={{ color: theme.color_text_secondary }}>{
+									{
+										'head': 'Head',
+										'guidance': 'Guidance Officer',
+										'prefect': 'Prefect of Discipline Officer',
+										'student-affairs': 'Student Affairs Officer',
+										'student': 'Student'
+									}[announcement.author?.role] || announcement.author?.role
+								}{announcement.organization && ` - ${announcement.organization.shortName}`}</Text>
+							</Flex>
 						</Flex>
 					)}
 				</Flex>

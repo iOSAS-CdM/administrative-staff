@@ -156,7 +156,7 @@ const ViewAnnouncement = () => {
 			Modal.error({ title: 'Error', content: 'Failed to post comment. Please try again later.' });
 		} finally {
 			setPosting(false);
-		}
+		};
 	};
 
 	return (
@@ -200,8 +200,8 @@ const ViewAnnouncement = () => {
 									'prefect': 'Prefect of Discipline Officer',
 									'student-affairs': 'Student Affairs Officer',
 									'student': 'Student'
-								}[announcement.author?.role]
-							}</Text>
+									}[announcement.author?.role] || announcement.author?.role
+								}{announcement.organization && ` - ${announcement.organization.shortName}`}</Text>
 						</Flex>
 					)}
 				</Flex>
