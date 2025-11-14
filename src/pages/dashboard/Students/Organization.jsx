@@ -541,6 +541,7 @@ const Organization = () => {
 											<Avatar
 												src={member.student.profilePicture || '/Placeholder Image.svg'}
 												size='large'
+												shape='square'
 												style={{
 													border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 												}}

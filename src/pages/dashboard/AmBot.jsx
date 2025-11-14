@@ -168,7 +168,7 @@ const AmBot = () => {
 				<p id='spacer' style={{ marginTop: 'auto' }} />
 				{messages.map((message, index) => (
 					<Flex key={index} justify={message.sender === 'user' ? 'end' : 'start'} align='flex-start' gap={16}>
-						{message.sender === 'bot' && <Avatar icon={<RobotOutlined />} style={{ backgroundColor: 'var(--primary)' }} />}
+						{message.sender === 'bot' && <Avatar icon={<RobotOutlined />} shape='square' style={{ backgroundColor: 'var(--primary)' }} />}
 						<motion.div
 							style={{ maxWidth: '60%' }}
 							initial={{ opacity: 0, y: 10 }}
@@ -224,8 +224,8 @@ const AmBot = () => {
 						</motion.div>
 						{message.sender === 'user' && (
 							cache.staff?.profilePicture ?
-								<Avatar src={cache.staff.profilePicture} style={{ backgroundColor: 'var(--primary)' }} />
-								: <Avatar icon={<UserOutlined />} style={{ backgroundColor: 'var(--primary)' }} />
+								<Avatar src={cache.staff.profilePicture} shape='square' style={{ backgroundColor: 'var(--primary)' }} />
+								: <Avatar icon={<UserOutlined />} shape='square' style={{ backgroundColor: 'var(--primary)' }} />
 						)}
 					</Flex>
 				))}
