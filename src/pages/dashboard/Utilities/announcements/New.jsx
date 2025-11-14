@@ -281,7 +281,7 @@ const NewAnnouncement = () => {
 						style={{ width: '100%', minHeight: '100%' }}
 					>
 						<Card>
-							<Flex justify='flex-end' align='center' gap={16}>
+							<Flex justify='flex-start' align='center' gap={16}>
 								<Button
 									type='primary'
 									onClick={async () =>
