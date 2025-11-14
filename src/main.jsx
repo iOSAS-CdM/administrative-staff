@@ -124,7 +124,7 @@ const OSAS = () => {
 	);
 };
 
-export const API_Route = false ? 'http://localhost:3001' : 'https://api.iosas.online';
+export const API_Route = import.meta.env.DEV ? 'http://localhost:3001' : 'https://api.iosas.online';
 
 // Initialize telemetry (global handlers, batching, dedupe)
 if (typeof window !== 'undefined')
