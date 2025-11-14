@@ -1,7 +1,7 @@
 {
   "name": "administrative-staff",
   "private": true,
-  "version": "1.1.127",
+  "version": "1.1.128",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,7 +14,8 @@
     "version:commit": "git add package.json package-lock.json && git commit -m \"chore: bump version to $(node -p 'require(\"./package.json\").version')\"",
     "release:patch": "npm run version:patch && npm run version:commit",
     "release:minor": "npm run version:minor && npm run version:commit",
-    "release:major": "npm run version:major && npm run version:commit"
+    "release:major": "npm run version:major && npm run version:commit",
+    "release:publish": "git checkout release && git merge main && git push && git checkout main"
   },
   "dependencies": {
     "@ant-design/charts": "^2.4.0",
