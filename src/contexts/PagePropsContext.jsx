@@ -28,9 +28,8 @@ const PagePropsContext = React.createContext();
  */
 export const usePageProps = () => {
 	const context = React.useContext(PagePropsContext);
-	if (context === undefined) {
+	if (context === undefined)
 		throw new Error('usePageProps must be used within a PagePropsProvider');
-	}
 	return context;
 };
 

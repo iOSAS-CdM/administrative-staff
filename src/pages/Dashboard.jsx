@@ -53,6 +53,7 @@ import NewAnnouncement from './dashboard/Utilities/announcements/New';
 import ViewAnnouncement from './dashboard/Utilities/announcements/View';
 import Repository from './dashboard/Utilities/Repository';
 import AmBot from './dashboard/AmBot';
+import StaffProfile from './dashboard/StaffProfile';
 
 const { Text, Title } = Typography;
 
@@ -132,6 +133,7 @@ const Dashboard = () => {
 		{ path: '/*', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/', element: <Navigate to='/dashboard/home' replace /> },
 		{ path: '/home', element: <Home /> },
+		{ path: '/profile', element: <StaffProfile /> },
 
 		{ path: '/students/verified/*', element: <Verified /> },
 		{ path: '/students/unverified/*', element: <Unverified /> },
@@ -227,7 +229,10 @@ const Dashboard = () => {
 							<Button
 								type='default'
 								icon={<DoubleLeftOutlined />}
-								onClick={() => setMinimized(!minimized)}
+								onClick={(e) => {
+									e.stopPropagation();
+									setMinimized(!minimized);
+								}}
 								style={{ minWidth: '128px !important', height: 32 }}
 							/>
 						</div>
@@ -243,7 +248,7 @@ const Dashboard = () => {
 						style={{ width: 32, height: 32 }}
 					/>
 				),
-				onClick: () => { },
+				onClick: () => navigate('/dashboard/profile', { replace: true }),
 				style: {
 					height: 32
 				}
@@ -432,14 +437,16 @@ const Dashboard = () => {
 										fallback={<UserOutlined />}
 										shape='square'
 										size='small'
-										style={{ width: 32, height: 32 }}
+										style={{ width: 32, height: 32, cursor: 'pointer' }}
+										onClick={() => navigate('/dashboard/profile', { replace: true })}
 									/>
 								) : (
 									<Avatar
 										icon={<UserOutlined />}
 										shape='square'
 										size='small'
-										style={{ width: 32, height: 32 }}
+										style={{ width: 32, height: 32, cursor: 'pointer' }}
+										onClick={() => navigate('/dashboard/profile', { replace: true })}
 									/>
 								)}
 							</Flex>
