@@ -298,62 +298,63 @@ const Verified = () => {
 		setHeader({
 			title: 'Verified Profiles',
 			actions: [
-				<Button
-					key='unverify-all'
-					danger
-					type='default'
-					onClick={handleUnverifyAll}
-				>
-					Unverify All Students
-				</Button>,
-				<Dropdown
-					showArrow={false}
-					open={search.length > 0}
-					position='bottomRight'
-					placement='bottomRight'
-					menu={{
-						items: searchResults.length > 0 ? searchResults.map((student) => ({
-							key: student.id,
-							label: (
-								<div
-									style={{ width: '100%' }}
-								>
-									<Flex align='center' gap={8}>
-										<Avatar src={student.profilePicture} size='small' />
-										<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
-										<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
-									</Flex>
-								</div>
-							)
-						})) : [{
-							key: 'no-results',
-							label: <Text>No results found</Text>,
-							disabled: true
-						}],
-						placement: 'bottomRight',
-						style: { width: isMobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
-						onClick: (e) => {
-							setSearch('');
-							navigate(`/dashboard/students/profile/${e.key}`);
-						}
-					}}
-				>
-					<Input.Search
-						placeholder='Search'
-						key='search'
-						allowClear
-						suffix={searching ? <Spin size='small' /> : null}
-						onChange={(e) => {
-							const value = e.target.value;
-							clearTimeout(window.profileDebounceTimer);
-							const debounceTimer = setTimeout(() => {
-								setSearch(value);
-							}, 512);
-							window.profileDebounceTimer = debounceTimer;
+				<Flex vertical={isMobile} gap={isMobile ? 8 : 16} key='actions'>
+					<Button
+						danger
+						type='default'
+						onClick={handleUnverifyAll}
+					>
+						Unverify All Students
+					</Button>
+					<Dropdown
+						showArrow={false}
+						open={search.length > 0}
+						position='bottomRight'
+						placement='bottomRight'
+						menu={{
+							items: searchResults.length > 0 ? searchResults.map((student) => ({
+								key: student.id,
+								label: (
+									<div
+										style={{ width: '100%' }}
+									>
+										<Flex align='center' gap={8}>
+											<Avatar src={student.profilePicture} size='small' />
+											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
+											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
+										</Flex>
+									</div>
+								)
+							})) : [{
+								key: 'no-results',
+								label: <Text>No results found</Text>,
+								disabled: true
+							}],
+							placement: 'bottomRight',
+							style: { width: isMobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
+							onClick: (e) => {
+								setSearch('');
+								navigate(`/dashboard/students/profile/${e.key}`);
+							}
 						}}
-						style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
-					/>
-				</Dropdown>
+					>
+						<Input.Search
+							placeholder='Search'
+							key='search'
+							allowClear
+							suffix={searching ? <Spin size='small' /> : null}
+							onChange={(e) => {
+								const value = e.target.value;
+								clearTimeout(window.profileDebounceTimer);
+								const debounceTimer = setTimeout(() => {
+									setSearch(value);
+								}, 512);
+								window.profileDebounceTimer = debounceTimer;
+							}}
+							style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
+						/>
+					</Dropdown>
+				</Flex>
 			]
 		});
 	}, [setHeader, setSelectedKeys, isMobile, search, searchResults, searching]);
