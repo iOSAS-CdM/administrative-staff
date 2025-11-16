@@ -531,7 +531,7 @@ const Profile = () => {
 								<>
 									<Flex vertical gap={4}>
 										<Text strong style={{ color: 'red' }}>Restriction Reason:</Text>
-										<Text type="secondary" style={{ fontStyle: 'italic' }}>
+										<Text type='secondary' style={{ fontStyle: 'italic' }}>
 											{thisStudent.reason}
 										</Text>
 									</Flex>
