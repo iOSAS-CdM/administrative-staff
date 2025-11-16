@@ -308,7 +308,7 @@ const Profile = () => {
 	const Modal = App.useApp().modal;
 
 	const isMobile = useMobile();
-	const { getFromCache, pushToCache } = useCache();
+	const { getFromCache, pushToCache, updateCacheItem } = useCache();
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -416,7 +416,7 @@ const Profile = () => {
 		// Group records by date
 		const eventsByDate = {};
 
-		thisRecords.forEach(record => {
+		for (const record of thisRecords) {
 			const recordDate = new Date(record.date);
 			const dateKey = `${recordDate.getFullYear()}-${recordDate.getMonth()}-${recordDate.getDate()}`;
 
@@ -432,7 +432,7 @@ const Profile = () => {
 				type: 'disciplinary',
 				content: record
 			});
-		});
+		};
 
 		// Convert to array format expected by Calendar
 		const eventsArray = Object.values(eventsByDate);
@@ -576,7 +576,7 @@ const Profile = () => {
 												return;
 											};
 
-											const confirm = await Modal.confirm({
+											await Modal.confirm({
 												title: 'Are you sure you want to verify this student?',
 												content: 'This action cannot be undone.',
 												centered: true,
@@ -609,7 +609,9 @@ const Profile = () => {
 														});
 														return;
 													};
-													pushToCache('students', data, true);
+
+													updateCacheItem('students', 'id', data.id, data);
+
 													setThisStudent(data);
 													Modal.success({
 														title: 'Success',
@@ -638,7 +640,7 @@ const Profile = () => {
 												});
 											} else {
 												UnrestrictStudent(Modal, thisStudent, setThisStudent);
-											}
+											};
 										}}
 									>
 										Unrestrict
@@ -658,7 +660,7 @@ const Profile = () => {
 													});
 												} else {
 													RestrictStudent(Modal, thisStudent, setThisStudent);
-												}
+												};
 											}}
 										>
 											Restrict
