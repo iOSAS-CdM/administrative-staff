@@ -203,59 +203,157 @@ const Verified = () => {
 		return () => controller.abort();
 	}, [search]);
 
+	const app = App.useApp();
+	const Modal = app.modal;
+	const { message } = app;
+
+	const handleUnverifyAll = async () => {
+		let confirmationInput = '';
+
+		const performUnverify = async () => {
+			const hideLoading = message.loading('Unverifying all students...', 0);
+			try {
+				const request = await authFetch(`${API_Route}/users/students/unverify-all`, {
+					method: 'POST'
+				});
+
+				hideLoading();
+
+				if (!request?.ok) {
+					const errorData = await request.json().catch(() => ({}));
+					Modal.error({
+						title: 'Error',
+						content: errorData.message || 'An error occurred while trying to unverify students. Please try again later.',
+						centered: true
+					});
+					return;
+				};
+
+				const data = await request.json();
+
+				Modal.success({
+					title: 'Success',
+					content: `Successfully unverified ${data.successCount} student(s). ${data.errorCount > 0 ? `Failed to unverify ${data.errorCount} student(s).` : ''}`,
+					centered: true,
+					onOk: () => {
+						// Refresh the page to show updated data
+						window.location.reload();
+					}
+				});
+			} catch (error) {
+				hideLoading();
+				console.error('Error unverifying all students:', error);
+				Modal.error({
+					title: 'Error',
+					content: 'An unexpected error occurred. Please try again later.',
+					centered: true
+				});
+			};
+		};
+
+		Modal.confirm({
+			title: 'Unverify All Students',
+			content: (
+				<Flex vertical gap={16}>
+					<Text>
+						Are you sure you want to unverify <Text strong>ALL verified students</Text>?
+						This action will move all students back to unverified status.
+					</Text>
+					<Text>
+						Type <Text strong code>Yes</Text> to confirm:
+					</Text>
+					<Input
+						placeholder="Type 'Yes' to confirm"
+						onChange={(e) => {
+							confirmationInput = e.target.value;
+						}}
+						onPressEnter={(e) => {
+							if (confirmationInput === 'Yes') {
+								e.preventDefault();
+								Modal.destroyAll();
+								performUnverify();
+							}
+						}}
+					/>
+					<Text type='danger' strong>
+						⚠️ This action cannot be undone!
+					</Text>
+				</Flex>
+			),
+			centered: true,
+			okText: 'Unverify All',
+			okButtonProps: { danger: true },
+			cancelText: 'Cancel',
+			onOk: async () => {
+				if (confirmationInput !== 'Yes') {
+					message.error('Please type "Yes" to confirm');
+					return Promise.reject(new Error('Confirmation text does not match'));
+				}
+				await performUnverify();
+			}
+		});
+	};
+
 	React.useLayoutEffect(() => {
 		setHeader({
 			title: 'Verified Profiles',
 			actions: [
-				<Flex style={{ flexGrow: isMobile ? 1 : '' }} key='search'>
-					<Dropdown
-						showArrow={false}
-						open={search.length > 0}
-						position='bottomRight'
-						placement='bottomRight'
-						menu={{
-							items: searchResults.length > 0 ? searchResults.map((student) => ({
-								key: student.id,
-								label: (
-									<div
-										style={{ width: '100%' }}
-									>
-										<Flex align='center' gap={8}>
-											<Avatar src={student.profilePicture} size='small' />
-											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
-											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
-										</Flex>
-									</div>
-								)
-							})) : [{
-								key: 'no-results',
-								label: <Text>No results found</Text>,
-								disabled: true
-							}],
-							placement: 'bottomRight',
-							style: { width: isMobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
-							onClick: (e) => {
-								setSearch('');
-								navigate(`/dashboard/students/profile/${e.key}`);
-							}
+				<Button
+					key='unverify-all'
+					danger
+					type='default'
+					onClick={handleUnverifyAll}
+				>
+					Unverify All Students
+				</Button>,
+				<Dropdown
+					showArrow={false}
+					open={search.length > 0}
+					position='bottomRight'
+					placement='bottomRight'
+					menu={{
+						items: searchResults.length > 0 ? searchResults.map((student) => ({
+							key: student.id,
+							label: (
+								<div
+									style={{ width: '100%' }}
+								>
+									<Flex align='center' gap={8}>
+										<Avatar src={student.profilePicture} size='small' />
+										<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
+										<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
+									</Flex>
+								</div>
+							)
+						})) : [{
+							key: 'no-results',
+							label: <Text>No results found</Text>,
+							disabled: true
+						}],
+						placement: 'bottomRight',
+						style: { width: isMobile ? '100%' : 256, maxHeight: 512, overflowY: 'auto' },
+						onClick: (e) => {
+							setSearch('');
+							navigate(`/dashboard/students/profile/${e.key}`);
+						}
+					}}
+				>
+					<Input.Search
+						placeholder='Search'
+						key='search'
+						allowClear
+						suffix={searching ? <Spin size='small' /> : null}
+						onChange={(e) => {
+							const value = e.target.value;
+							clearTimeout(window.profileDebounceTimer);
+							const debounceTimer = setTimeout(() => {
+								setSearch(value);
+							}, 512);
+							window.profileDebounceTimer = debounceTimer;
 						}}
-					>
-						<Input.Search
-							placeholder='Search'
-							allowClear
-							suffix={searching ? <Spin size='small' /> : null}
-							onChange={(e) => {
-								const value = e.target.value;
-								clearTimeout(window.profileDebounceTimer);
-								const debounceTimer = setTimeout(() => {
-									setSearch(value);
-								}, 512);
-								window.profileDebounceTimer = debounceTimer;
-							}}
-							style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
-						/>
-					</Dropdown>
-				</Flex>
+						style={{ width: '100%', minWidth: isMobile ? '100%' : 256 }} // 2^8
+					/>
+				</Dropdown>
 			]
 		});
 	}, [setHeader, setSelectedKeys, isMobile, search, searchResults, searching]);

@@ -131,7 +131,7 @@ const AnnouncementCard = ({ announcement }) => {
 									'student-affairs': 'Student Affairs Officer',
 									'student': 'Student'
 								}[announcement.author?.role] || announcement.author?.role
-							}{announcement.organization && ` - ${announcement.organization.shortName}`}</Text>
+								}{announcement.organization ? ` - ${announcement.organization.shortName}` : ' - OSAS'}</Text>
 						</Flex>
 					)}
 				</Flex>
