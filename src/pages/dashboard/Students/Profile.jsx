@@ -21,19 +21,20 @@ import {
 
 import {
 	CheckOutlined,
-	FileOutlined,
 	EditOutlined,
 	LockOutlined,
 	LeftOutlined,
 	MailOutlined,
 	PhoneOutlined,
 	WarningOutlined,
+	BellOutlined,
 	ExclamationCircleOutlined
 } from '@ant-design/icons';
 
 import EditStudent from '../../../modals/EditStudent';
 import RestrictStudent from '../../../modals/RestrictStudent';
 import UnrestrictStudent from '../../../modals/UnrestrictStudent';
+import SummonStudent from '../../../modals/SummonStudent';
 
 const { Title, Text } = Typography;
 
@@ -336,66 +337,68 @@ const Profile = () => {
 			last: ''
 		},
 		id: '',
-		email: ''
+		email: '',
+		profilePicture: '',
+		institute: '',
+		role: ''
 	});
 	/** @type {[import('../../../classes/Record').RecordProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Record').RecordProps[]>>]} */
 	const [thisRecords, setThisRecords] = React.useState();
 	/** @type {[import('../../../classes/Organization').Organization[], React.Dispatch<React.SetStateAction<import('../../../classes/Organization').Organization[]>>]} */
 	const [organizations, setOrganizations] = React.useState([]);
 	React.useLayoutEffect(() => {
+		if (!id) return;
+
 		const controller = new AbortController();
-		if (id) {
-			// Try to get student from cache first
-			const cachedStudent = getFromCache('students', 'id', id);
-			if (cachedStudent) {
-				setThisStudent(cachedStudent);
-			} else {
-				const fetchStudent = async () => {
-					const requests = await Promise.all([
-						authFetch(
-							`${API_Route}/users/student/${id}`,
-							{ signal: controller.signal }
-						),
-						authFetch(
-							`${API_Route}/users/student/${id}/records`,
-							{ signal: controller.signal }
-						),
-						authFetch(
-							`${API_Route}/users/student/${id}/organizations`,
-							{ signal: controller.signal }
-						)
-					]);
+		// Try to get student from cache first
+		const cachedStudent = getFromCache('students', 'id', id);
+		if (cachedStudent && cachedStudent.id)
+			setThisStudent(cachedStudent);
 
-					for (const request of requests) {
-						if (!request?.ok) {
-							Modal.error({
-								title: 'Error',
-								content:
-									'Failed to fetch student data. Please try again later.',
-								centered: true,
-								onOk: () => navigate(-1)
-							});
-							return;
-						};
-					};
+		const fetchStudent = async () => {
+			const requests = await Promise.all([
+				authFetch(
+					`${API_Route}/users/student/${id}`,
+					{ signal: controller.signal }
+				),
+				authFetch(
+					`${API_Route}/users/student/${id}/records`,
+					{ signal: controller.signal }
+				),
+				authFetch(
+					`${API_Route}/users/student/${id}/organizations`,
+					{ signal: controller.signal }
+				)
+			]);
 
-					/** @type {import('../../../types').Student} */
-					const studentData = await requests[0].json();
-					/** @type {import('../../../types').Record[]} */
-					const recordsData = await requests[1].json();
-					/** @type {import('../../../types').Organization[]} */
-					const organizationsData = await requests[2].json();
-
-					if (!studentData || !studentData.id) return;
-					pushToCache('students', studentData, true);
-					setThisStudent(studentData);
-					setThisRecords(recordsData.records);
-					setOrganizations(organizationsData.organizations);
-					console.log(recordsData.records)
+			for (const request of requests) {
+				if (!request?.ok) {
+					Modal.error({
+						title: 'Error',
+						content:
+							'Failed to fetch student data. Please try again later.',
+						centered: true,
+						onOk: () => navigate(-1)
+					});
+					return;
 				};
-				fetchStudent();
 			};
+
+			/** @type {import('../../../types').Student} */
+			const studentData = await requests[0].json();
+			/** @type {import('../../../types').Record[]} */
+			const recordsData = await requests[1].json();
+			/** @type {import('../../../types').Organization[]} */
+			const organizationsData = await requests[2].json();
+
+			if (!studentData || !studentData.id) return;
+			pushToCache('students', studentData, true);
+			setThisStudent(studentData);
+			setThisRecords(recordsData.records);
+			setOrganizations(organizationsData.organizations);
 		};
+
+		fetchStudent();
 		return () => controller.abort();
 	}, [id]);
 	React.useEffect(() => {
@@ -560,6 +563,23 @@ const Profile = () => {
 									}}
 								>
 									Edit
+								</Button>
+								<Button
+									icon={<BellOutlined />}
+									onClick={() => {
+										if (thisStudent.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content:
+													'This is a placeholder student profile. Please try again later.',
+												centered: true
+											});
+											return;
+										};
+										SummonStudent(Modal, thisStudent);
+									}}
+								>
+									Summon
 								</Button>
 								{thisStudent.role === 'unverified-student' &&
 									<Button
