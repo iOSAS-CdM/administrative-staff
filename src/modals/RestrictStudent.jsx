@@ -31,11 +31,11 @@ const RestrictStudent = async (Modal, student, setStudent) => {
 		icon: <BankOutlined />,
 		width: {
 			xs: '100%',
-			sm: '100%',
-			md: '100%',
+			sm: 512, // 2^9
+			md: 512, // 2^9
 			lg: 512, // 2^9
-			xl: 1024, // 2^10
-			xxl: 1024 // 2^10
+			xl: 512, // 2^9
+			xxl: 512 // 2^9
 		},
 		content: (
 			<Form
