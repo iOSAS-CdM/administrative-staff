@@ -582,42 +582,42 @@ const Profile = () => {
 												centered: true,
 												okText: 'Yes, Verify',
 												okType: 'primary',
-												cancelText: 'Cancel'
-											});
-											if (!confirm) return;
-
-											const request = await authFetch(
-												`${API_Route}/users/student/${thisStudent.id}/verify`,
-												{
-													method: 'POST'
-												}
-											);
-											if (!request?.ok) {
-												Modal.error({
-													title: 'Error',
-													content:
-														'Failed to verify student. Please try again later.',
-													centered: true
-												});
-												return;
-											};
-											const data = await request.json();
-											if (!data || !data.id) {
-												Modal.error({
-													title: 'Error',
-													content:
-														'Failed to verify student. Please try again later.',
-													centered: true
-												});
-												return;
-											};
-											pushToCache('students', data, true);
-											setThisStudent(data);
-											Modal.success({
-												title: 'Success',
-												content:
-													'Student has been verified successfully.',
-												centered: true
+												cancelText: 'Cancel',
+												onOk: () => new Promise(async (resolve) => {
+													const request = await authFetch(
+														`${API_Route}/users/student/${thisStudent.id}/verify`,
+														{
+															method: 'POST'
+														}
+													);
+													if (!request?.ok) {
+														Modal.error({
+															title: 'Error',
+															content:
+																'Failed to verify student. Please try again later.',
+															centered: true
+														});
+														return;
+													};
+													const data = await request.json();
+													if (!data || !data.id) {
+														Modal.error({
+															title: 'Error',
+															content:
+																'Failed to verify student. Please try again later.',
+															centered: true
+														});
+														return;
+													};
+													pushToCache('students', data, true);
+													setThisStudent(data);
+													Modal.success({
+														title: 'Success',
+														content:
+															'Student has been verified successfully.',
+														centered: true
+													});
+												})
 											});
 										}}
 									>
