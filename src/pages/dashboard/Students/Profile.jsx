@@ -470,7 +470,7 @@ const Profile = () => {
 					>
 						<Image
 							preview={false}
-							src={thisStudent.profilePicture}
+							src={thisStudent.profilePicture + `?random=${Math.random()}`}
 							fallback='/Placeholder Image.svg'
 							alt='Profile Picture'
 							shape='square'

@@ -148,7 +148,7 @@ const StaffProfile = () => {
 							<Avatar
 								size={isMobile ? 128 : 246}
 								icon={<UserOutlined />}
-								src={`${staff.profilePicture}?t=${Date.now()}`}
+								src={staff.profilePicture + `?random=${Math.random()}`}
 								shape='square'
 							/>
 

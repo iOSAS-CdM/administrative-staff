@@ -309,7 +309,7 @@ const OrganizationCard = ({ organization, loading }) => {
 					{thisOrganization.members.map((member, index) => (
 						<Avatar
 							key={index}
-							src={member.student.profilePicture}
+							src={member.student.profilePicture + `?random=${Math.random()}`}
 							style={{ cursor: 'pointer' }}
 							onClick={(e) => {
 								e.stopPropagation();

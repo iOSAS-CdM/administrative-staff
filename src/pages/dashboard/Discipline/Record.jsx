@@ -305,7 +305,7 @@ const Record = () => {
 										}}
 									>
 										<Flex align='flex-start' gap={8}>
-											<Avatar src={complainant.profilePicture} size='large' style={{ width: 32, height: 32 }} />
+											<Avatar src={complainant.profilePicture + `?random=${Math.random()}`} size='large' style={{ width: 32, height: 32 }} />
 											<Flex vertical>
 												<Text>{complainant.name.first} {complainant.name.middle} {complainant.name.last}</Text>
 												<Text type='secondary'>{complainant.id}</Text>
@@ -354,7 +354,7 @@ const Record = () => {
 											offset={[-8, 8]}
 										/>
 										<Flex align='flex-start' gap={8}>
-											<Avatar src={complainee.student.profilePicture} icon={<UserOutlined />} size='large' style={{ width: 32, height: 32 }} />
+											<Avatar src={complainee.student.profilePicture + `?random=${Math.random()}`} icon={<UserOutlined />} size='large' style={{ width: 32, height: 32 }} />
 											<Flex vertical>
 												<Text>{complainee.student.name.first} {complainee.student.name.middle} {complainee.student.name.last}</Text>
 												<Text type='secondary'>{complainee.student.id}</Text>

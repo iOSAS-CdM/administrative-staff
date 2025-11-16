@@ -77,7 +77,7 @@ const Unverified = () => {
 										style={{ width: '100%' }}
 									>
 										<Flex align='center' gap={8}>
-											<Avatar src={student.profilePicture} size='small' />
+											<Avatar src={student.profilePicture + `?random=${Math.random()}`} size='small' />
 											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
 											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
 										</Flex>
