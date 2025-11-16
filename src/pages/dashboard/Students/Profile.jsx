@@ -33,6 +33,7 @@ import {
 
 import EditStudent from '../../../modals/EditStudent';
 import RestrictStudent from '../../../modals/RestrictStudent';
+import UnrestrictStudent from '../../../modals/UnrestrictStudent';
 
 const { Title, Text } = Typography;
 
@@ -441,11 +442,23 @@ const Profile = () => {
 	return (
 		<Flex vertical gap={16}>
 			<Badge.Ribbon
-				text={thisStudent.role === 'unverified-student' && 'Unverified'}
-				color='orange'
+				text={
+					thisStudent.status === 'restricted'
+						? 'Restricted'
+						: thisStudent.role === 'unverified-student'
+							? 'Unverified'
+							: null
+				}
+				color={
+					thisStudent.status === 'restricted'
+						? 'red'
+						: thisStudent.role === 'unverified-student'
+							? 'orange'
+							: null
+				}
 				style={{
 					display:
-						thisStudent.role === 'unverified-student' ? '' : 'none'
+						thisStudent.status === 'restricted' || thisStudent.role === 'unverified-student' ? '' : 'none'
 				}}
 			>
 				<Card size='small' style={{ width: '100%' }}>
@@ -514,6 +527,17 @@ const Profile = () => {
 								)}
 							</Flex>
 							<Divider />
+							{thisStudent.status === 'restricted' && thisStudent.reason && (
+								<>
+									<Flex vertical gap={4}>
+										<Text strong style={{ color: 'red' }}>Restriction Reason:</Text>
+										<Text type="secondary" style={{ fontStyle: 'italic' }}>
+											{thisStudent.reason}
+										</Text>
+									</Flex>
+									<Divider />
+								</>
+							)}
 							<Flex justify='flex-start' align='stretch' gap={16}>
 								<Button
 									type={thisStudent.role === 'student' ? 'primary' : 'default'}
@@ -600,25 +624,46 @@ const Profile = () => {
 										Verify
 									</Button>
 								}
-								<Button
-									type={thisStudent.role === 'student' ? 'primary' : 'default'}
-									danger
-									icon={<LockOutlined />}
-									onClick={() => {
-										if (thisStudent.placeholder) {
-											Modal.error({
-												title: 'Error',
-												content:
-													'This is a placeholder student profile. Please try again later.',
-												centered: true
-											});
-										} else {
-											RestrictStudent(Modal, thisStudent);
-										}
-									}}
-								>
-									Restrict
-								</Button>
+								{thisStudent.status === 'restricted' ? (
+									<Button
+										type='primary'
+										icon={<LockOutlined />}
+										onClick={() => {
+											if (thisStudent.placeholder) {
+												Modal.error({
+													title: 'Error',
+													content:
+														'This is a placeholder student profile. Please try again later.',
+													centered: true
+												});
+											} else {
+												UnrestrictStudent(Modal, thisStudent, setThisStudent);
+											}
+										}}
+									>
+										Unrestrict
+									</Button>
+								) : (
+										<Button
+											type={thisStudent.role === 'student' ? 'primary' : 'default'}
+											danger
+											icon={<LockOutlined />}
+											onClick={() => {
+												if (thisStudent.placeholder) {
+													Modal.error({
+														title: 'Error',
+														content:
+															'This is a placeholder student profile. Please try again later.',
+														centered: true
+													});
+												} else {
+													RestrictStudent(Modal, thisStudent, setThisStudent);
+												}
+											}}
+										>
+											Restrict
+										</Button>
+								)}
 							</Flex>
 						</Flex>
 					</Flex>
