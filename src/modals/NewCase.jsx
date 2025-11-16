@@ -617,7 +617,9 @@ const NewCase = async (Modal, message) => {
 							},
 							body: JSON.stringify({
 								...caseData,
-								date: values.date.toDate()
+								// Convert to ISO string to preserve the selected date/time
+								// Backend will parse this correctly as UTC
+								date: values.date.toISOString()
 							})
 						});
 

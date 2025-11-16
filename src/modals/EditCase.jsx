@@ -484,7 +484,9 @@ const EditCase = async (Modal, record, setThisRecord) => {
 							},
 							body: JSON.stringify({
 								...values,
-								date: values.date.toDate()
+								// Convert to ISO string to preserve the selected date/time
+								// Backend will parse this correctly as UTC
+								date: values.date.toISOString()
 							})
 						});
 						if (!request?.ok) {

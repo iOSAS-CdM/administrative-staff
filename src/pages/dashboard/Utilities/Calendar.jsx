@@ -73,7 +73,6 @@ const CalendarPage = () => {
 					setAnnouncements(cache.events.filter(e => e.type === 'event'));
 					setRecords(cache.records);
 					setLoading(false);
-					return;
 				};
 
 				const response = await authFetch(`${API_Route}/events/staff`, {
@@ -132,7 +131,7 @@ const CalendarPage = () => {
 		fetchData();
 
 		return () => controller.abort();
-	}, [message]);
+	}, []);
 
 	// Filter events by search
 	React.useEffect(() => {
@@ -154,14 +153,14 @@ const CalendarPage = () => {
 			title: 'Calendar',
 			actions: [
 				<Input.Search
-					key="search"
+					key='search'
 					placeholder='Search events'
 					onChange={e => setSearch(e.target.value)}
 					style={{ width: 200 }}
 					allowClear
 				/>,
 				<Dropdown
-					key="create"
+					key='create'
 					arrow
 					menu={{
 						items: [
@@ -249,7 +248,7 @@ const CalendarPage = () => {
 				))}
 				{events.length > 3 && (
 					<li>
-						<Text type="secondary" style={{ fontSize: '11px' }}>
+						<Text type='secondary' style={{ fontSize: '11px' }}>
 							+{events.length - 3} more
 						</Text>
 					</li>
@@ -384,8 +383,8 @@ const CalendarPage = () => {
 							<Empty
 								description={
 									search
-										? "No events match your search"
-										: "No events scheduled for this date"
+										? 'No events match your search'
+										: 'No events scheduled for this date'
 								}
 								image={Empty.PRESENTED_IMAGE_SIMPLE}
 							/>
@@ -394,33 +393,31 @@ const CalendarPage = () => {
 								{filteredEvents.map((event) => (
 									<Card
 										key={event.id}
-										size="small"
+										size='small'
 										hoverable
 										style={{ cursor: 'pointer' }}
 										onClick={() => {
-											if (event.type === 'record') {
+											if (event.type === 'record')
 												navigate(`/dashboard/discipline/record/${event.id}`);
-											} else {
-												// Navigate to announcement detail if route exists
-												message.info('Announcement details view not yet implemented');
-											}
+											else
+												navigate(`/dashboard/utilities/announcements/${event.id}`);
 										}}
 									>
 										<Flex vertical gap={8}>
-											<Flex justify="space-between" align="center">
+											<Flex justify='space-between' align='center'>
 												<Text strong ellipsis style={{ flex: 1 }}>
 													{event.title}
 												</Text>
 												<Badge
 													status={event.type === 'announcement' ? 'success' : 'error'}
 													text={
-														<Text type="secondary" style={{ fontSize: '12px' }}>
+														<Text type='secondary' style={{ fontSize: '12px' }}>
 															{event.type === 'announcement' ? 'Event' : 'Record'}
 														</Text>
 													}
 												/>
 											</Flex>
-											<Text type="secondary" ellipsis={{ rows: 2 }}>
+											<Text type='secondary' ellipsis={{ rows: 2 }}>
 												{event.description}
 											</Text>
 										</Flex>
