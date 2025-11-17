@@ -71,7 +71,7 @@ const RecordDisplay = ({ record, onRecordClick }) => {
 							{
 								minor: null,
 								major: <WarningOutlined style={{ color: 'orange' }} title='Major violation' />,
-								severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violation' />
+								grave: <ExclamationCircleOutlined style={{ color: 'red' }} title='Grave violation' />
 							}[record.tags.severity.toLowerCase()] || ''
 						} {record.title}
 					</Title>

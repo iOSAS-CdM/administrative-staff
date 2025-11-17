@@ -182,7 +182,7 @@ const Record = () => {
 									{
 										minor: 'blue',
 										major: 'orange',
-										severe: 'red'
+										grave: 'red'
 									}[thisRecord?.tags.severity.toLowerCase()] || 'default'
 								}>
 									{thisRecord?.tags.severity.charAt(0).toUpperCase() + thisRecord?.tags.severity.slice(1)}

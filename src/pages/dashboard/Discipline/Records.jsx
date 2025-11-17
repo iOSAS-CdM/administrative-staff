@@ -52,7 +52,7 @@ const Filters = ({ filter, setFilter }) => (
 			<Text strong>Severity</Text>
 			<Checkbox.Group
 				onChange={(value) => {
-					if (value.includes('minor') && value.includes('major') && value.includes('severe')) value = [];
+					if (value.includes('minor') && value.includes('major') && value.includes('grave')) value = [];
 					setFilter(prev => ({
 						...prev,
 						severity: value
@@ -63,7 +63,7 @@ const Filters = ({ filter, setFilter }) => (
 				<Flex vertical>
 					<Checkbox value='minor'>Minor</Checkbox>
 					<Checkbox value='major'>Major</Checkbox>
-					<Checkbox value='severe'>Severe</Checkbox>
+					<Checkbox value='grave'>Grave</Checkbox>
 				</Flex>
 			</Checkbox.Group>
 		</Flex>
@@ -298,7 +298,7 @@ const RecordCard = ({ record, loading }) => {
 							{
 								minor: null,
 								major: <WarningOutlined style={{ color: 'orange' }} title='Major violation' />,
-								severe: <ExclamationCircleOutlined style={{ color: 'red' }} title='Severe violation' />
+								grave: <ExclamationCircleOutlined style={{ color: 'red' }} title='Grave violation' />
 							}[thisRecord.tags.severity.toLowerCase()] || ''
 						} {thisRecord.title}
 					</Title>

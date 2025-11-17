@@ -41,9 +41,12 @@ import authFetch from '../utils/authFetch';
  * CaseForm component for creating new disciplinary cases
  * Handles form input, student search, file uploads, and form validation
  * @component
+ * @param {object} props
+ * @param {any} props.message - Message API for displaying notifications
+ * @param {object} [props.initialData] - Initial data for pre-filling the form
  * @returns {JSX.Element} The rendered form component
  */
-const CaseForm = ({ message }) => {
+const CaseForm = ({ message, initialData }) => {
 	/**
 	 * Cache context hook for managing student data
 	 */
@@ -136,7 +139,7 @@ const CaseForm = ({ message }) => {
 
 	/**
 	 * Current severity level of the case
-	 * @type {[('minor'|'major'|'severe'), React.Dispatch<React.SetStateAction<('minor'|'major'|'severe')>>]}
+	 * @type {[('minor'|'major'|'grave'), React.Dispatch<React.SetStateAction<('minor'|'major'|'grave')>>]}
 	 */
 	const [severity, setSeverity] = React.useState('minor');
 
@@ -164,6 +167,22 @@ const CaseForm = ({ message }) => {
 
 	const [scanning, setScanning] = React.useState(false);
 
+	// Set initial data when provided
+	React.useEffect(() => {
+		if (initialData) {
+			form.setFieldsValue({
+				violation: initialData.violation || '',
+				complainants: initialData.complainants || [],
+				complainees: initialData.complainees || [],
+				description: initialData.description || '',
+				title: initialData.title || '',
+				date: initialData.date ? dayjs(initialData.date) : dayjs(new Date()),
+				severity: initialData.severity || '',
+				files: initialData.files || []
+			});
+		}
+	}, [initialData, form]);
+
 	return (
 		<Form
 			layout='vertical'
@@ -171,15 +190,16 @@ const CaseForm = ({ message }) => {
 			form={form}
 			onFinish={(values) => { }}
 			initialValues={{
-				violation: '',
-				date: dayjs(new Date()),
+				violation: initialData?.violation || '',
+				date: initialData?.date ? dayjs(initialData.date) : dayjs(new Date()),
 				tags: {
-					severity: '', // 'minor', 'major', 'severe'
+					severity: initialData?.severity || '', // 'minor', 'major', 'grave'
 				},
-				complainants: [],
-				complainees: [],
-				description: '',
-				files: [] // Array of upload file objects
+				complainants: initialData?.complainants || [],
+				complainees: initialData?.complainees || [],
+				description: initialData?.description || '',
+				title: initialData?.title || '',
+				files: initialData?.files || [] // Array of upload file objects
 			}}
 			style={{ width: '100%' }}
 			labelCol={{ span: 24 }}
@@ -249,7 +269,7 @@ const CaseForm = ({ message }) => {
 							status={{
 								minor: 'default',
 								major: 'warning',
-								severe: 'error'
+								grave: 'error'
 							}[severity]}
 						>
 							<Select
@@ -257,7 +277,7 @@ const CaseForm = ({ message }) => {
 								options={[
 									{ label: 'Minor', value: 'minor' },
 									{ label: 'Major', value: 'major' },
-									{ label: 'Severe', value: 'severe' }
+									{ label: 'Grave', value: 'grave' }
 								]}
 								style={{ width: '100%' }}
 								filterOption={(input, option) =>
@@ -335,7 +355,7 @@ const CaseForm = ({ message }) => {
 										title: "string",
 										violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
 										date: "dateThour",
-										severity: "'minor' | 'major' | 'severe'",
+										severity: "'minor' | 'major' | 'grave'",
 										description: "string"
 									}));
 									const scanResponse = await authFetch(`${API_Route}/ocr/process`, {
@@ -548,20 +568,21 @@ const CaseForm = ({ message }) => {
  * @function
  * @param {import('antd').ModalStaticFunctions} Modal - Ant Design Modal API instance
  * @param {import('antd').MessageInstance} message - Ant Design Message API instance
+ * @param {object} [initialData] - Initial data for pre-filling the form
  * @returns {Promise<void>} Promise that resolves when modal is closed
  * @example
  * // Usage in a component
  * import { Modal } from 'antd';
- * await NewCase(Modal);
+ * await NewCase(Modal, message, { violation: 'bullying', complainants: ['123'] });
  */
-const NewCase = async (Modal, message) => {
+const NewCase = async (Modal, message, initialData = null) => {
 	await Modal.info({
-		title: 'Open a new Case',
+		title: initialData ? 'Create Record from Case' : 'Open a new Case',
 		centered: true,
 		closable: { 'aria-label': 'Close' },
 		content: (
 			<CacheProvider>
-				<CaseForm message={message} />
+				<CaseForm message={message} initialData={initialData} />
 			</CacheProvider>
 		),
 		icon: <BankOutlined />,

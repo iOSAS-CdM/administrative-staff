@@ -237,7 +237,7 @@ const CaseForm = ({ record }) => {
 					validateStatus={{
 						minor: 'success',
 						major: 'warning',
-						severe: 'error'
+						grave: 'error'
 					}[severity]}
 				>
 					<Select
@@ -245,7 +245,7 @@ const CaseForm = ({ record }) => {
 						options={[
 							{ label: 'Minor', value: 'minor' },
 							{ label: 'Major', value: 'major' },
-							{ label: 'Severe', value: 'severe' }
+							{ label: 'Grave', value: 'grave' }
 						]}
 						style={{ width: '100%' }}
 						filterOption={(input, option) =>
