@@ -639,6 +639,8 @@ const Profile = () => {
 															'Student has been verified successfully.',
 														centered: true
 													});
+
+													resolve();
 												})
 											});
 										}}
