@@ -9,7 +9,8 @@ import {
 	Button,
 	Typography,
 	Image,
-	Flex
+	Flex,
+	Tag
 } from 'antd';
 
 import {
@@ -90,17 +91,22 @@ const AnnouncementCard = ({ announcement }) => {
 						src={announcement.cover}
 						alt={announcement.title}
 						preview={false}
-						style={{ objectFit: 'cover', height: 200, width: '100%' }}
+						style={{ objectFit: 'cover', height: 200, width: '100%', filter: announcement.approved === false ? 'grayscale(100%)' : 'none' }}
 					/>
 					<span>
-						<Text type='secondary' style={{ position: 'absolute', top: 16, right: 16 }}>
-							{new Date(announcement.created_at).toLocaleDateString()}
-						</Text>
+						<Flex gap={8} justify='space-between' style={{ position: 'absolute', top: 16, left: 16, right: 16 }}>
+							{announcement.approved === false && (
+								<Tag color='orange'>Pending Approval</Tag>
+							)}
+							<Text type='secondary'>
+								{new Date(announcement.created_at).toLocaleDateString()}
+							</Text>
+						</Flex>
 					</span>
 				</>
 			}
 		>
-			<Flex vertical gap={8}>
+			<Flex vertical gap={8} style={{ filter: announcement.approved === false ? 'grayscale(100%)' : 'none' }}>
 				<Title level={4} ellipsis={{ rows: 2 }}>{announcement.title}</Title>
 
 				<Flex gap={8} align='center'>

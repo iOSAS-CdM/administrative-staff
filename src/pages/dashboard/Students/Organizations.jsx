@@ -129,6 +129,7 @@ const Organizations = () => {
 											action={'/upload.do'}
 											beforeUpload={() => false}
 											accept='image/*'
+											multiple={false}
 										>
 											Upload Logo
 										</Upload.Dragger>
@@ -148,6 +149,7 @@ const Organizations = () => {
 											action={'/upload.do'}
 											beforeUpload={() => false}
 											accept='image/*'
+											multiple={false}
 										>
 											Upload Cover Image
 										</Upload.Dragger>
