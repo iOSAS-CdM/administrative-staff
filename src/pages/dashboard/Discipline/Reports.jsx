@@ -300,23 +300,17 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 				return;
 			}
 
-			// Fetch attachments from storage
+			// Prepare attachments data from existing case attachments
 			let attachmentFiles = [];
 			if (hasAttachments) {
-				const { data: storageData, error: storageError } = await supabase
-					.storage
-					.from('cases')
-					.list(`${caseItem.id}/`);
-
-				if (!storageError && storageData) {
-					attachmentFiles = storageData.map((file) => ({
-						uid: file.id,
-						name: file.name,
-						status: 'done',
-						url: supabase.storage.from('cases').getPublicUrl(`${caseItem.id}/${file.name}`).data.publicUrl,
-						publicUrl: supabase.storage.from('cases').getPublicUrl(`${caseItem.id}/${file.name}`).data.publicUrl
-					}));
-				}
+				attachmentFiles = caseItem.attachments.map((file, index) => ({
+					uid: file.id || `attachment-${index}`,
+					name: file.name,
+					status: 'done',
+					url: file.publicUrl || file.url,
+					size: file.metadata?.size || file.size,
+					type: file.metadata?.mimetype || file.type
+				}));
 			}
 
 			// Close the current modal
@@ -329,7 +323,7 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 				complainees: [],
 				description: caseItem.content || '',
 				title: violationLabels[caseItem.violation] || '',
-				files: attachmentFiles.length > 0 ? { fileList: attachmentFiles } : undefined
+				files: attachmentFiles.length > 0 ? attachmentFiles : undefined
 			};
 
 			// Open NewCase modal with pre-filled data

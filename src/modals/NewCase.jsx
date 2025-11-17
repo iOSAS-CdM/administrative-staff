@@ -20,7 +20,6 @@ import {
 	UploadOutlined,
 	ScanOutlined,
 	ClearOutlined,
-	MinusCircleOutlined,
 	MinusOutlined
 } from '@ant-design/icons';
 
@@ -178,7 +177,7 @@ const CaseForm = ({ message, initialData }) => {
 				title: initialData.title || '',
 				date: initialData.date ? dayjs(initialData.date) : dayjs(new Date()),
 				severity: initialData.severity || '',
-				files: initialData.files || []
+				files: initialData.files || undefined
 			});
 		}
 	}, [initialData, form]);
@@ -199,7 +198,7 @@ const CaseForm = ({ message, initialData }) => {
 				complainees: initialData?.complainees || [],
 				description: initialData?.description || '',
 				title: initialData?.title || '',
-				files: initialData?.files || [] // Array of upload file objects
+				files: initialData?.files || undefined
 			}}
 			style={{ width: '100%' }}
 			labelCol={{ span: 24 }}
@@ -306,7 +305,7 @@ const CaseForm = ({ message, initialData }) => {
 						<Form.Item
 							name='files'
 							label='Case Images'
-							valuePropName='fileList.fileList'
+							valuePropName='fileList'
 							getValueFromEvent={normFile}
 							style={{
 								width: 256
@@ -619,17 +618,36 @@ const NewCase = async (Modal, message, initialData = null) => {
 						// Process the form values here
 						console.log('Form Values:', values);
 
-						// Prepare data for submission (exclude files from main payload)
-						/**
-						 * @type {{
-						 * 	files: {
-						 * 		file: import('antd/es/upload/interface').UploadFile<any>;
-						 * 		fileList: import('antd/es/upload/interface').UploadFile<any>[];
-						 * 	};
-						 * 	caseData: import('../classes/Record').RecordProps
-						 * }}
-						 */
+						// Prepare data for submission
 						const { files, ...caseData } = values;
+
+						// Convert files to base64 format for the API
+						let filesArray = [];
+						if (files && Array.isArray(files) && files.length > 0) {
+							for (const file of files) {
+								// Only process new files that have originFileObj
+								if (file.originFileObj) {
+									try {
+										const base64 = await new Promise((resolve, reject) => {
+											const reader = new FileReader();
+											reader.onload = () => resolve(reader.result.split(',')[1]); // Remove data:image/...;base64, prefix
+											reader.onerror = reject;
+											reader.readAsDataURL(file.originFileObj);
+										});
+
+										filesArray.push({
+											name: file.name,
+											base64: base64,
+											contentType: file.type || file.originFileObj.type
+										});
+									} catch (error) {
+										console.error('Error converting file to base64:', error);
+									};
+								};
+								// Skip existing files (those with url but no originFileObj) 
+								// as they're already uploaded to storage
+							};
+						};
 
 						const request = await authFetch(`${API_Route}/records`, {
 							method: 'POST',
@@ -640,7 +658,9 @@ const NewCase = async (Modal, message, initialData = null) => {
 								...caseData,
 								// Convert to ISO string to preserve the selected date/time
 								// Backend will parse this correctly as UTC
-								date: values.date.toISOString()
+								date: values.date.toISOString(),
+								// Include files in the request body
+								files: filesArray.length > 0 ? filesArray : undefined
 							})
 						});
 
@@ -653,25 +673,6 @@ const NewCase = async (Modal, message, initialData = null) => {
 						if (!data) {
 							reject(new Error('No data returned from server'));
 							return;
-						};
-
-						// Upload files if any
-						if (files.fileList && files.fileList.length > 0) {
-							const formData = new FormData();
-							for (const file of files.fileList)
-								if (file.originFileObj)
-									formData.append('files', file.originFileObj);
-
-							const uploadResponse = await authFetch(`${API_Route}/repositories/record/${data.id}/files`, {
-								method: 'POST',
-								body: formData
-							});
-
-							if (!uploadResponse.ok) {
-								const errorData = await uploadResponse.json();
-								reject(new Error(errorData.message || 'Case created but failed to upload files.'));
-								return;
-							};
 						};
 
 						// Reset the form after successful submission
