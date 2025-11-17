@@ -70,7 +70,7 @@ const Organization = () => {
 		if (!id) return;
 		const organization = (cache.organizations || []).find(r => r.id === id);
 		if (organization)
-			return setThisOrganization(organization);
+			setThisOrganization(organization);
 
 		const controller = new AbortController();
 		const loadOrganization = async () => {
