@@ -107,11 +107,13 @@ const AnnouncementCard = ({ announcement }) => {
 					{announcement.author === 'superapi-bypass' ? (
 						<Avatar
 							size={32}
+							shape='square'
 							icon={<UserOutlined />}
 						/>
 					) : (
 						<Avatar
 							size={32}
+							shape='square'
 							src={announcement.author?.profilePicture || null}
 						/>
 					)}

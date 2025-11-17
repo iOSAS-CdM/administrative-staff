@@ -736,7 +736,8 @@ const Profile = () => {
 												>
 													<Avatar
 														src={organization.logo}
-														size='large'
+														size={64}
+														shape='square'
 													/>
 													<Flex vertical>
 														<Text strong>
