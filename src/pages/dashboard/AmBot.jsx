@@ -141,7 +141,7 @@ const AmBot = () => {
 					newMessages[botMessageIndex] = { sender: 'bot', content: botResponse };
 					return newMessages;
 				});
-			}
+			};
 		} catch (error) {
 			console.error('Error sending message:', error);
 			// Update bot message with error
