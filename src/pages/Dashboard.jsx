@@ -28,7 +28,8 @@ import {
 	SunOutlined,
 	SolutionOutlined,
 	ReloadOutlined,
-	UserOutlined
+	UserOutlined,
+	FileTextOutlined
 } from '@ant-design/icons';
 
 import { DisplayThemeContext, API_Route } from '../main';
@@ -52,6 +53,7 @@ import Announcements from './dashboard/Utilities/Announcement';
 import NewAnnouncement from './dashboard/Utilities/announcements/New';
 import ViewAnnouncement from './dashboard/Utilities/announcements/View';
 import Repository from './dashboard/Utilities/Repository';
+import Requests from './dashboard/Utilities/Requests';
 import AmBot from './dashboard/AmBot';
 import StaffProfile from './dashboard/StaffProfile';
 
@@ -168,10 +170,9 @@ const Dashboard = () => {
 		{ path: '/utilities/announcements/new', element: <NewAnnouncement /> },
 
 		{ path: '/utilities/repository', element: <Repository /> },
+		{ path: '/utilities/requests', element: <Requests /> },
 		{ path: '/ambot', element: <AmBot /> }
-	]);
-
-	const [minimized, setMinimized] = React.useState(false);
+	]);	const [minimized, setMinimized] = React.useState(false);
 
 	/**
 	 * @type {import('antd').MenuProps['items']}
@@ -266,6 +267,12 @@ const Dashboard = () => {
 			label: 'Home',
 			icon: <HomeOutlined />,
 			onClick: () => navigate('/dashboard/home', { replace: true })
+		},
+		{
+			key: 'requests',
+			label: 'Requests',
+			icon: <FileTextOutlined />,
+			onClick: () => navigate('/dashboard/utilities/requests', { replace: true })
 		},
 		{
 			key: 'students',

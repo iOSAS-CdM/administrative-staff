@@ -70,7 +70,8 @@ export const CacheProvider = ({ children }) => {
 		organizations: [],
 		announcements: [],
 		events: [],
-		peers: []
+		peers: [],
+		requests: []
 	});
 	React.useEffect(() => {
 		window.cache = cache;
