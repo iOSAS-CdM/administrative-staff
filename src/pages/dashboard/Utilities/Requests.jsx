@@ -36,7 +36,6 @@ import { useCache } from '../../../contexts/CacheContext';
 import { usePageProps } from '../../../contexts/PagePropsContext';
 import { useRefresh } from '../../../contexts/RefreshContext';
 
-import Request from '../../../classes/Request';
 import authFetch from '../../../utils/authFetch';
 
 /**
