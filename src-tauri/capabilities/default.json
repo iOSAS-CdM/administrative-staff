@@ -16,6 +16,8 @@
 		"core:window:allow-set-focus",
 		"updater:default",
 		"process:default",
-		"upload:default"
+		"upload:default",
+		"notification:allow-is-permission-granted",
+		"notification:default"
 	]
 }

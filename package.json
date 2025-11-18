@@ -1,7 +1,7 @@
 {
   "name": "administrative-staff",
   "private": true,
-  "version": "1.1.153",
+  "version": "1.1.154",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,6 +23,7 @@
     "@fabianlars/tauri-plugin-oauth": "^2.0.0",
     "@supabase/supabase-js": "^2.56.0",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-notification": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-process": "^2",
     "@tauri-apps/plugin-shell": "^2.3.1",
