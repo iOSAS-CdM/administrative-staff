@@ -56,131 +56,56 @@ const Authentication = () => {
 	]);
 
 	const signInWithGoogle = React.useCallback(async () => {
-		setSigningIn(true);
 		let port;
-		let unlisten;
-		let timeoutId;
 
-		try {
-			// Set up OAuth listener with proper error handling
-			unlisten = await listen('oauth://url', async (data) => {
-				try {
-					if (!data.payload) {
-						console.warn('OAuth callback received without payload');
-						return;
-					};
+		const unlisten = await listen('oauth://url', (data) => {
+			if (!data.payload) return;
 
-					const url = new URL(data.payload);
-					const code = new URLSearchParams(url.search).get('code');
-					const error = new URLSearchParams(url.search).get('error');
-					const errorDescription = new URLSearchParams(url.search).get('error_description');
+			const url = new URL(data.payload);
+			const code = new URLSearchParams(url.search).get('code');
 
-					// Clear timeout if callback is received
-					if (timeoutId) clearTimeout(timeoutId);
-
-					// Handle OAuth errors from provider
+			if (code) {
+				supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
 					if (error) {
-						console.error('OAuth error:', error, errorDescription);
-						alert(`Authentication failed: ${errorDescription || error}`);
-						setSigningIn(false);
+						alert(error.message);
+						console.error(error);
 						return;
 					};
+					console.log(data);
+					location.reload();
 
-					if (code) {
-						const { data: sessionData, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
-
-						if (sessionError) {
-							console.error('Session exchange error:', sessionError);
-							alert(`Failed to sign in: ${sessionError.message}`);
-							setSigningIn(false);
-							return;
-						};
-
-						console.log('Successfully signed in:', sessionData);
-
-						// Clean up before reload
-						if (unlisten) await unlisten();
-						if (port) {
-							await cancel(port).catch((e) =>
-								console.error(`Error cancelling OAuth listener for port ${port}:`, e)
-							);
-						};
-
-						location.reload();
-					};
-				} catch (err) {
-					console.error('Error in OAuth callback handler:', err);
-					alert(`Authentication error: ${err.message}`);
-					setSigningIn(false);
-				};
-			});
-
-			// Start OAuth server with timeout protection
-			try {
-				port = await start({
-					ports: [8000, 8001, 8002, 8003, 8004],
-					response: `<script>window.location.href = 'https://iosas.online/auth-complete';</script>`,
+					unlisten();
+					cancel(port)
+						.catch((e) => console.error(`Error cancelling OAuth listener for port ${port}:`, e));
 				});
-				console.log(`OAuth listener started on port ${port}`);
-			} catch (startError) {
-				console.error('Error starting OAuth listener:', startError);
-				alert('Failed to start authentication server. Please try again.');
-				throw startError;
 			};
+		});
 
-			if (!port)
-				throw new Error('Failed to allocate port for OAuth');
+		await start({
+			ports: [8000, 8001, 8002, 8003, 8004],
+			response: `<script>window.location.href = 'https://iosas.online/auth-complete';</script>`,
+		})
+			.then(async (p) => {
+				console.log(`OAuth listener started on port ${p}`);
+				port = p;
+			})
+			.catch((e) => console.error('Error starting OAuth listener:', e));
 
-			// Set timeout for OAuth flow (2 minutes)
-			timeoutId = setTimeout(async () => {
-				console.warn('OAuth flow timed out');
-				alert('Authentication timed out. Please try again.');
-				if (unlisten) await unlisten();
-				if (port) await cancel(port).catch(console.error);
-				setSigningIn(false);
-			}, 120000);
+		if (!port) return;
 
-			// Initiate OAuth flow
-			const { data, error } = await supabase.auth.signInWithOAuth({
-				provider: 'google',
-				options: {
-					redirectTo: `http://localhost:${port}`,
-					skipBrowserRedirect: true
-				}
-			});
+		const { data, error } = await supabase.auth.signInWithOAuth({
+			provider: 'google',
+			options: {
+				redirectTo: `http://localhost:${port}`,
+				skipBrowserRedirect: true
+			}
+		});
+		console.log(data, error);
 
-			if (error) {
-				console.error('Error initiating OAuth:', error);
-				alert(`Failed to start Google sign-in: ${error.message}`);
-				throw error;
-			};
-
-			if (data?.url) {
-				console.log('Opening OAuth URL');
-				await open(data.url);
-			} else {
-				throw new Error('No OAuth URL returned from Supabase');
-			};
-
-		} catch (error) {
-			console.error('Sign in with Google failed:', error);
-
-			// Clean up on error
-			if (timeoutId) clearTimeout(timeoutId);
-			if (unlisten) {
-				await unlisten().catch((e) => console.error('Error removing listener:', e));
-			};
-			if (port) {
-				await cancel(port).catch((e) => console.error('Error cancelling port:', e));
-			};
-
-			setSigningIn(false);
-
-			// Show user-friendly error if not already shown
-			if (!error.message?.includes('already shown')) {
-				alert('An unexpected error occurred during sign-in. Please try again.');
-			};
-		};
+		if (data.url)
+			open(data.url);
+		else if (error)
+			console.error('Error signing in with Google:', error.message);
 	}, []);
 
 	return (
