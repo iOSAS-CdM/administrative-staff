@@ -119,7 +119,7 @@ const Authentication = () => {
 				alert('Error signing in with Google: ' + error.message);
 				console.error('Error signing in with Google:', error.message);
 				setSigningIn(false);
-			}
+			};
 		} catch (err) {
 			alert('Unexpected error during Google sign-in.');
 			console.error('Unexpected error during Google sign-in:', err);
@@ -272,7 +272,16 @@ const Authentication = () => {
 								Sign In with Google
 							</Button>
 						</Flex>
-						<Text style={{ display: 'block', textAlign: 'center' }}>Copyright © Colegio de Montalban 2025.</Text>
+
+
+						<Flex vertical justify='center' align='center' gap={8}>
+							<Text>
+								<Button type='link' onClick={() => { open('https://iosas.online/terms-of-service') }}>Terms of Service</Button>
+								{' | '}
+								<Button type='link' onClick={() => { open('https://iosas.online/privacy-policy') }}>Privacy Policy</Button>
+							</Text>
+							<Text style={{ display: 'block', textAlign: 'center' }}>Copyright © Colegio de Montalban 2025.</Text>
+						</Flex>
 					</Flex>
 				</Card>
 			</Flex>
