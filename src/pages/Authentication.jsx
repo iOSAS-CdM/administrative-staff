@@ -276,9 +276,9 @@ const Authentication = () => {
 
 						<Flex vertical justify='center' align='center' gap={8}>
 							<Text>
-								<Button type='link' onClick={() => { open('https://iosas.online/terms-of-service') }}>Terms of Service</Button>
+								<Button type='link' onClick={() => open('https://iosas.online/terms-of-service')}>Terms of Service</Button>
 								{' | '}
-								<Button type='link' onClick={() => { open('https://iosas.online/privacy-policy') }}>Privacy Policy</Button>
+								<Button type='link' onClick={() => open('https://iosas.online/privacy-policy')}>Privacy Policy</Button>
 							</Text>
 							<Text style={{ display: 'block', textAlign: 'center' }}>Copyright © Colegio de Montalban 2025.</Text>
 						</Flex>
