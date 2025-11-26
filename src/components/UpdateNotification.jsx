@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal, Progress, message, Space, Typography, Flex } from 'antd';
+import { Button, Modal, Progress, Space, Typography, Flex } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
@@ -13,6 +13,7 @@ const UpdateNotification = () => {
 	const [isUpdating, setIsUpdating] = React.useState(false);
 	const [downloadProgress, setDownloadProgress] = React.useState(0);
 	const [checkingForUpdate, setCheckingForUpdate] = React.useState(false);
+	const [statusMessage, setStatusMessage] = React.useState('');
 
 	// Check for updates on component mount
 	React.useEffect(() => {
@@ -48,7 +49,6 @@ const UpdateNotification = () => {
 			// Only show user-facing error in development or if explicitly enabled
 				if (import.meta.env.DEV) {
 					console.warn('Signature verification disabled in development mode');
-					message.warn('Update check failed: Signature verification issue (development mode)');
 				} else {
 					// In production, log but don't show intrusive error for signature issues
 					console.warn('Skipping update due to signature verification failure');
@@ -78,10 +78,11 @@ const UpdateNotification = () => {
 		try {
 			setIsUpdating(true);
 			setDownloadProgress(0);
+			setStatusMessage('Starting download...');
 
 			const update = await check();
 			if (!update) {
-				message.error('No update available');
+				setStatusMessage('No update available');
 				return;
 			};
 
@@ -90,21 +91,22 @@ const UpdateNotification = () => {
 				switch (event.event) {
 					case 'Started':
 						setDownloadProgress(0);
-						message.info('Starting download...');
+						setStatusMessage('Starting download...');
 						break;
 					case 'Progress':
 						const progress = Math.round((event.data.chunkLength / event.data.contentLength) * 100);
 						setDownloadProgress(progress);
+						setStatusMessage(`Downloading... ${progress}%`);
 						break;
 					case 'Finished':
 						setDownloadProgress(100);
-						message.success('Update downloaded successfully!');
+						setStatusMessage('Update downloaded successfully!');
 						break;
 				};
 			});
 
 			// Installation completed, restart the app
-			message.success('Update installed! Restarting application...');
+			setStatusMessage('Update installed! Restarting application...');
 			setTimeout(async () => {
 				await relaunch();
 			}, 1000);
@@ -118,17 +120,17 @@ const UpdateNotification = () => {
 				error.message.includes('Signature') ||
 				error.message.includes('the `signature` field was not set')
 			)) {
-				message.error('Update failed: Signature verification error. Please contact support.');
+				setStatusMessage('Update failed: Signature verification error. Please contact support.');
 				console.error('Signature verification failed during update process');
 			} else if (error.message && (
 				error.message.includes('network') ||
 				error.message.includes('download') ||
 				error.message.includes('timeout')
 			)) {
-				message.error('Update failed: Network or download error. Please try again later.');
+				setStatusMessage('Update failed: Network or download error. Please try again later.');
 				console.error('Network error during update:', error.message);
 			} else {
-				message.error('Failed to update the application. Please try again or contact support.');
+				setStatusMessage('Failed to update the application. Please try again or contact support.');
 				console.error('Update installation failed:', error.message);
 			};
 		} finally {
@@ -139,6 +141,7 @@ const UpdateNotification = () => {
 	const handleCancel = () => {
 		setIsModalVisible(false);
 		setUpdateAvailable(false);
+		setStatusMessage('');
 	};
 
 	return (
@@ -173,12 +176,17 @@ const UpdateNotification = () => {
 
 					{isUpdating && (
 						<Flex vertical align='start' gap='16' style={{ width: '100%' }}>
-							<Text>Downloading update...</Text>
 							<Progress
 								percent={downloadProgress}
 								status={downloadProgress === 100 ? 'success' : 'active'}
 							/>
 						</Flex>
+					)}
+
+					{statusMessage && (
+						<Text type={statusMessage.toLowerCase().includes('failed') ? 'danger' : 'secondary'}>
+							{statusMessage}
+						</Text>
 					)}
 
 					<Text type='secondary'>
