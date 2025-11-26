@@ -14,7 +14,8 @@ import {
 	Badge,
 	App,
 	Steps,
-	Image
+	Image,
+	Dropdown
 } from 'antd';
 
 import {
@@ -27,7 +28,8 @@ import {
 	DownloadOutlined,
 	DeleteOutlined,
 	UploadOutlined,
-	UserOutlined
+	UserOutlined,
+	ExportOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -113,11 +115,71 @@ const Record = () => {
 	const [thisComplainees, setThisComplainees] = React.useState([]);
 	React.useEffect(() => {
 		if (!thisRecord) return;
+		setStep(thisRecord.tags.progress || 0);
 		setThisComplainants(thisRecord.complainants);
 		setThisComplainees(thisRecord.complainees);
 		pushToCache('students', thisRecord.complainants, false);
 		pushToCache('students', thisRecord.complainees.map(c => c.student), false);
 	}, [thisRecord, refresh]);
+
+	const [exportLoading, setExportLoading] = React.useState(false);
+
+	const handleExport = async (format) => {
+		if (thisRecord?.placeholder) {
+			Modal.error({
+				title: 'Error',
+				content: 'This is a placeholder disciplinary record. Please try again later.',
+				centered: true
+			});
+			return;
+		};
+
+		setExportLoading(true);
+		try {
+			const response = await authFetch(`${API_Route}/records/${id}/export/${format}`);
+			if (response.ok) {
+				const data = await response.json();
+				notification.success({
+					message: 'Export Successful',
+					description: `Record exported as ${format.toUpperCase()} and saved to repository.`,
+					duration: 5
+				});
+				// Refresh the page to show the new file in the repository
+				setRefresh({ timestamp: Date.now() });
+			} else {
+				const error = await response.json();
+				Modal.error({
+					title: 'Export Failed',
+					content: error.message || 'Failed to export record',
+					centered: true
+				});
+			};
+		} catch (error) {
+			console.error('Export error:', error);
+			Modal.error({
+				title: 'Export Failed',
+				content: 'An error occurred while exporting the record',
+				centered: true
+			});
+		} finally {
+			setExportLoading(false);
+		};
+	};
+
+	const exportMenuItems = [
+		{
+			key: 'pdf',
+			label: 'Export to PDF',
+			icon: <FileOutlined />,
+			onClick: () => handleExport('pdf')
+		},
+		{
+			key: 'json',
+			label: 'Export to JSON',
+			icon: <FileOutlined />,
+			onClick: () => handleExport('json')
+		}
+	];
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -132,7 +194,7 @@ const Record = () => {
 				</Button>
 			]
 		});
-	}, [setHeader]);
+	}, [setHeader, exportLoading, thisRecord]);
 	React.useEffect(() => {
 		setSelectedKeys(['records']);
 	}, [setSelectedKeys]);
@@ -198,8 +260,19 @@ const Record = () => {
 								</Tag>
 							</Flex>
 							<Card><Text>{thisRecord?.description}</Text></Card>
-							{step !== 5 && (
 								<Flex gap={16}>
+								<Dropdown
+									menu={{ items: exportMenuItems }}
+									trigger={['click']}
+									disabled={exportLoading}
+								>
+									<Button
+										icon={<ExportOutlined />}
+										loading={exportLoading}
+									>
+										Export
+									</Button>
+								</Dropdown>
 									{thisRecord?.tags.status === 'ongoing' && (
 										<Button
 											type='primary'
@@ -228,6 +301,7 @@ const Record = () => {
 											Edit Record
 										</Button>
 									)}
+								{step !== 5 && (
 									<Button
 										type='primary'
 										disabled={thisRecord?.tags.status === 'dismissed' || thisRecord?.tags.status === 'resolved'}
@@ -271,8 +345,8 @@ const Record = () => {
 									>
 										{thisRecord?.tags.status === 'dismissed' ? 'Record Dismissed' : 'Dismiss Record'}
 									</Button>
-								</Flex>
-							)}
+								)}
+							</Flex>
 						</Flex>
 					</Card>
 					<Flex vertical={isMobile} gap={16} style={{ width: '100%', height: '100%' }}>

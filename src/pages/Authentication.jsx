@@ -243,7 +243,7 @@ const Authentication = () => {
 							<Image
 								src='/CdM-OSAS Banner.png'
 								alt='Logo Colegio de Montalban'
-								width='75%'
+								width={512 * 0.75}
 								preview={false}
 							/>
 							<Divider />
