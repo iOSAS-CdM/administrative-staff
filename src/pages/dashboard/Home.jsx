@@ -215,7 +215,11 @@ const Home = () => {
 								<Title level={1} style={{ color: 'var(--primary)' }}>
 									{staff?.name?.first} {staff?.name?.middle} {staff?.name?.last}
 								</Title>
-								<Text>{staff?.role}, Office of the Student Affairs and Services</Text>
+								<Text>{{
+									'head': 'Head',
+									'guidance': 'Guidance Officer',
+									'prefect': 'Prefect of Discipline Officer'
+								}[staff?.role]}, Office of the Student Affairs and Services</Text>
 							</>
 						</Flex>
 					</Card>
