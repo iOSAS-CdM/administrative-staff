@@ -243,7 +243,7 @@ const Dashboard = () => {
 					<Avatar
 						src={cache?.staff?.profilePicture + `?random=${Math.random()}`}
 						alt={cache?.staff?.name}
-						fallback={<UserOutlined />}
+						icon={<UserOutlined />}
 						shape='square'
 						size='small'
 						style={{ width: 32, height: 32 }}
@@ -441,7 +441,7 @@ const Dashboard = () => {
 									<Avatar
 										src={cache?.staff?.profilePicture + `?random=${Math.random()}`}
 										alt={cache?.staff?.name}
-										fallback={<UserOutlined />}
+										icon={<UserOutlined />}
 										shape='square'
 										size='small'
 										style={{ width: 32, height: 32, cursor: 'pointer' }}

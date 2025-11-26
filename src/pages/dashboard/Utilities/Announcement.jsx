@@ -120,6 +120,7 @@ const AnnouncementCard = ({ announcement }) => {
 						<Avatar
 							size={32}
 							shape='square'
+								icon={<UserOutlined />}
 							src={announcement.author?.profilePicture || null}
 						/>
 					)}

@@ -280,9 +280,9 @@ const ViewAnnouncement = () => {
 
 				<Flex gap={8} align='center'>
 					{announcement.author === 'superapi-bypass' ? (
-						<Avatar size={32} icon={<UserOutlined />} />
+						<Avatar size={32} shape='square' icon={<UserOutlined />} />
 					) : (
-						<Avatar size={32} src={announcement.author?.profilePicture || null} />
+							<Avatar size={32} shape='square' icon={<UserOutlined />} src={announcement.author?.profilePicture || null} />
 					)}
 					{announcement.author === 'superapi-bypass' ? (
 						<Text>System Administrator</Text>
@@ -327,6 +327,7 @@ const ViewAnnouncement = () => {
 													<Flex gap={8} align='center'>
 														<Avatar
 															size={32}
+															shape='square'
 															src={like.author?.profilePicture || null}
 															icon={<UserOutlined />}
 														/>
@@ -406,9 +407,9 @@ const ViewAnnouncement = () => {
 										</Button>
 									)}
 									{comment.author === 'superapi-bypass' ? (
-										<Avatar size={32} icon={<UserOutlined />} />
+										<Avatar size={32} shape='square' icon={<UserOutlined />} />
 									) : (
-										<Avatar size={32} src={comment.author?.profilePicture || null} />
+											<Avatar size={32} shape='square' icon={<UserOutlined />} src={comment.author?.profilePicture || null} />
 									)}
 									<Flex vertical style={{ width: '100%' }}>
 										<Flex gap={8}>

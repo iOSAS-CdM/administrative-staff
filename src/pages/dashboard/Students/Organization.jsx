@@ -28,6 +28,7 @@ import {
 	LeftOutlined,
 	InboxOutlined,
 	DeleteOutlined,
+	UserOutlined,
 	MinusOutlined,
 	UploadOutlined,
 	DownloadOutlined,
@@ -335,6 +336,7 @@ const Organization = () => {
 													src={thisOrganization?.logo}
 													size='large'
 													shape='square'
+													icon={<UserOutlined />}
 													style={{
 														width: 128, // 2^7
 														height: 128, // 2^7
@@ -438,6 +440,7 @@ const Organization = () => {
 														src={thisOrganization?.logo}
 														size='large'
 														shape='square'
+														icon={<UserOutlined />}
 														style={{
 													width: 128, // 2^7
 													height: 128, // 2^7
@@ -542,6 +545,7 @@ const Organization = () => {
 												src={member.student.profilePicture || '/Placeholder Image.svg'}
 												size='large'
 												shape='square'
+												icon={<UserOutlined />}
 												style={{
 													border: 'var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary)'
 												}}

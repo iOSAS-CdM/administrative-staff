@@ -28,7 +28,8 @@ import {
 	PhoneOutlined,
 	WarningOutlined,
 	BellOutlined,
-	ExclamationCircleOutlined
+	ExclamationCircleOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 import EditStudent from '../../../modals/EditStudent';
@@ -740,6 +741,7 @@ const Profile = () => {
 														src={organization.logo}
 														size={64}
 														shape='square'
+														icon={<UserOutlined />}
 													/>
 													<Flex vertical>
 														<Text strong>

@@ -159,6 +159,7 @@ const ReportCard = ({ caseItem, loading }) => {
 						<Flex align='center' gap={8}>
 							<Avatar
 								size={32}
+								shape='square'
 								icon={<UserOutlined />}
 								src={thisCase && thisCase.author.profilePicture ? thisCase.author.profilePicture : null}
 								onClick={(e) => {
@@ -419,6 +420,7 @@ const ReportDetailModal = ({ open, onClose, caseItem, notification }) => {
 					<Flex align='center' gap={12}>
 						<Avatar
 							size={32}
+							shape='square'
 							icon={<UserOutlined />}
 							src={caseItem.author.profilePicture || null}
 							style={{ cursor: 'pointer' }}

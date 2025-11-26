@@ -224,7 +224,7 @@ const AmBot = () => {
 						</motion.div>
 						{message.sender === 'user' && (
 							cache.staff?.profilePicture ?
-								<Avatar src={cache.staff.profilePicture + `?random=${Math.random()}`} shape='square' style={{ backgroundColor: 'var(--primary)' }} />
+								<Avatar src={cache.staff.profilePicture + `?random=${Math.random()}`} icon={<UserOutlined />} shape='square' style={{ backgroundColor: 'var(--primary)' }} />
 								: <Avatar icon={<UserOutlined />} shape='square' style={{ backgroundColor: 'var(--primary)' }} />
 						)}
 					</Flex>

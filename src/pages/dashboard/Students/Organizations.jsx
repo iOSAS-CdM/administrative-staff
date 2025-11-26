@@ -17,7 +17,8 @@ import {
 } from 'antd';
 
 import {
-	TeamOutlined
+	TeamOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -291,6 +292,7 @@ const OrganizationCard = ({ organization, loading }) => {
 					<Avatar
 						src={thisOrganization.logo}
 						size='large'
+						shape='square'
 						style={{
 							position: 'absolute',
 							width: 64,
@@ -304,6 +306,7 @@ const OrganizationCard = ({ organization, loading }) => {
 					<Text style={{ textAlign: 'center' }}>{thisOrganization.fullName}</Text>
 				</Flex>
 				<Avatar.Group
+					shape='square'
 					max={{
 						count: 4
 					}}
@@ -311,6 +314,8 @@ const OrganizationCard = ({ organization, loading }) => {
 					{thisOrganization.members.map((member, index) => (
 						<Avatar
 							key={index}
+							shape='square'
+							icon={<UserOutlined />}
 							src={member.student.profilePicture + `?random=${Math.random()}`}
 							style={{ cursor: 'pointer' }}
 							onClick={(e) => {

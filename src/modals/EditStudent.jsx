@@ -17,7 +17,8 @@ import {
 	UploadOutlined,
 	EditOutlined,
 	SaveOutlined,
-	ClearOutlined
+	ClearOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 const { Text } = Typography;
@@ -95,6 +96,7 @@ const StudentForm = ({ student }) => {
 								<Avatar
 									src={ProfilePicture}
 									shape='square'
+									icon={<UserOutlined />}
 									style={{
 										width: 128,
 										height: 128,

@@ -11,6 +11,8 @@ import {
 	Tag
 } from 'antd';
 
+import { UserOutlined } from '@ant-design/icons';
+
 import { API_Route } from '../../../main';
 import { useMobile } from '../../../contexts/MobileContext';
 import { useCache } from '../../../contexts/CacheContext';
@@ -77,7 +79,7 @@ const Unverified = () => {
 										style={{ width: '100%' }}
 									>
 										<Flex align='center' gap={8}>
-											<Avatar src={student.profilePicture + `?random=${Math.random()}`} size='small' />
+											<Avatar src={student.profilePicture + `?random=${Math.random()}`} icon={<UserOutlined />} shape='square' size='small' />
 											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
 											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
 										</Flex>

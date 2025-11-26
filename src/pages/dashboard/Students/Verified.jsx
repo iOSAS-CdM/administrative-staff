@@ -22,7 +22,8 @@ import {
 	EditOutlined,
 	LockOutlined,
 	EllipsisOutlined,
-	CheckOutlined
+	CheckOutlined,
+	UserOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -319,7 +320,7 @@ const Verified = () => {
 										style={{ width: '100%' }}
 									>
 										<Flex align='center' gap={8}>
-											<Avatar src={student.profilePicture + `?random=${Math.random()}`} size='small' />
+											<Avatar src={student.profilePicture + `?random=${Math.random()}`} icon={<UserOutlined />} shape='square' size='small' />
 											<Text style={{ flex: 1 }}>{student.name.first} {student.name.last} ({student.id})</Text>
 											<Tag color={student.institute === 'ics' ? 'orange' : student.institute === 'ite' ? 'blue' : student.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{student.institute?.toUpperCase()}</Text></Tag>
 										</Flex>
@@ -412,17 +413,63 @@ const StudentCard = ({ student, loading }) => {
 					navigate(`/dashboard/students/profile/${thisStudent.id}`);
 			}}
 		>
-			<Flex justify='flex-start' align='center' gap={16} style={{ width: '100%' }}>
+			<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative', width: '100%' }}>
+				<div
+					style={{
+						position: 'absolute',
+						height: 128,
+						width: '100%',
+						top: 0,
+						left: 0,
+						background: 'url(/Cover.png)',
+						backgroundSize: 'cover',
+						backgroundPosition: 'center',
+						filter: thisStudent.role === 'unverified-student' ? 'grayscale(100%)' : 'none',
+						overflow: 'hidden'
+					}}
+				>
+					{(() => {
+						const size = 128 * 1.25;
+						return (
+							<img
+								src={{
+									'ics': '/institutes/ics.png',
+									'ite': '/institutes/ite.jpg',
+									'ibe': '/institutes/ibe.jpg'
+								}[thisStudent.institute]}
+								alt={`${thisStudent.institute?.toUpperCase()} Cover`}
+								style={{
+									position: 'absolute',
+									height: size,
+									width: size,
+									top: (size - 128) / -2,
+									left: (size - 128) / -2,
+									borderRadius: size,
+									objectFit: 'cover',
+									opacity: 0.5
+								}}
+							/>
+						);
+					})()}
+				</div>
 				<Avatar
 					src={thisStudent.profilePicture + `?random=${Math.random()}`}
 					size='large'
-					style={{ width: 64, height: 64, filter: thisStudent.role === 'unverified-student' ? 'grayscale(100%)' : 'none' }}
+					shape='square'
+					icon={<UserOutlined style={{ color: 'var(--ant-color-text)' }} />}
+					style={{
+						width: 128 - 32,
+						height: 128 - 32,
+						margin: 16,
+						backgroundColor: 'var(--ant-color-bg-container)',
+						filter: thisStudent.role === 'unverified-student' ? 'grayscale(100%)' : 'none'
+					}}
 				/>
 				<Flex vertical justify='flex-start' align='flex-start' gap={8} style={{ flex: 1 }}>
 					<Title level={4}>{thisStudent.name.first} {thisStudent.name.last}</Title>
 					<Flex align='center' gap={8} wrap>
 						<Tag><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.id}</Text></Tag>
-						<Tag color={thisStudent.institute === 'ics' ? 'orange' : thisStudent.institute === 'ite' ? 'blue' : thisStudent.institute === 'ibe' ? 'yellow' : 'gray'}><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.institute?.toUpperCase()}</Text></Tag>
+						<Tag><Text style={{ unicodeBidi: 'bidi-override', whiteSpace: 'nowrap' }}>{thisStudent.email}</Text></Tag>
 					</Flex>
 				</Flex>
 				<Dropdown
@@ -494,6 +541,11 @@ const StudentCard = ({ student, loading }) => {
 					<Button
 						type='default'
 						icon={<EllipsisOutlined />}
+						style={{
+							position: 'absolute',
+							top: 8,
+							right: 8
+						}}
 						onClick={(e) => e.stopPropagation()}
 					/>
 				</Dropdown>
