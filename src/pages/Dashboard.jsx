@@ -540,13 +540,6 @@ const Dashboard = () => {
 						<Title level={4}>{Header.title}</Title>
 						{!isMobile ? (
 							<Flex justify='flex-end' gap={16} wrap={true} flex={1} align='center'>
-								<Button
-									type='default'
-									icon={<ReloadOutlined />}
-									onClick={() => {
-										setRefresh({ timestamp: Date.now() });
-									}}
-								/>
 								{Header.actions && Header.actions.map((action, index) =>
 									React.cloneElement(action, { key: index })
 								)}
