@@ -279,6 +279,7 @@ const Record = () => {
 							<Card><Text>{thisRecord?.description}</Text></Card>
 								<Flex gap={16}>
 								<Dropdown
+									placement='bottom'
 									menu={{ items: exportMenuItems }}
 									trigger={['click']}
 									disabled={exportLoading}
@@ -290,7 +291,7 @@ const Record = () => {
 										Export
 									</Button>
 								</Dropdown>
-									{thisRecord?.tags.status === 'ongoing' && (
+									{step !== 5 && (
 										<Button
 											type='primary'
 											icon={<EditOutlined />}

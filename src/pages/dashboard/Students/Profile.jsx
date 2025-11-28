@@ -14,7 +14,8 @@ import {
 	App,
 	Empty,
 	Row,
-	Col
+	Col,
+	Dropdown
 } from 'antd';
 
 import {
@@ -27,8 +28,12 @@ import {
 	WarningOutlined,
 	BellOutlined,
 	ExclamationCircleOutlined,
-	UserOutlined
+	UserOutlined,
+	ExportOutlined
 } from '@ant-design/icons';
+
+import { download } from '@tauri-apps/plugin-upload';
+import { join, downloadDir } from '@tauri-apps/api/path';
 
 import EditStudent from '../../../modals/EditStudent';
 import RestrictStudent from '../../../modals/RestrictStudent';
@@ -100,10 +105,77 @@ const Profile = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const location = useLocation();
 	const navigate = useNavigate();
-	const Modal = App.useApp().modal;
+	const app = App.useApp();
+	const Modal = app.modal;
+	const notification = app.notification;
 
 	const isMobile = useMobile();
 	const { getFromCache, pushToCache, updateCacheItem } = useCache();
+
+	const [exportLoading, setExportLoading] = React.useState(false);
+
+	const handleExportSummary = async (format = 'pdf') => {
+		setExportLoading(true);
+		try {
+			const response = await authFetch(`${API_Route}/users/student/${id}/export/${format}`);
+			if (response.ok) {
+				const data = await response.json();
+
+				// Download from the URL
+				const downloadDirPath = await downloadDir();
+				const tempPath = await join(downloadDirPath, data.filename);
+
+				notification.info({
+					message: 'Download started',
+					description: `Downloading ${data.filename}...`,
+					duration: 2
+				});
+
+				const downloadTask = download(data.url, tempPath, {
+					onProgress: (progress) => {
+						console.log(`Progress: ${Math.round(progress * 100)}%`);
+					}
+				});
+
+				await downloadTask;
+
+				notification.success({
+					message: 'Export Successful',
+					description: `${data.filename} has been downloaded to your Downloads folder.`,
+					duration: 5
+				});
+			} else {
+				const error = await response.json();
+				Modal.error({
+					title: 'Export Failed',
+					content: error.message || 'Failed to export student summary',
+					centered: true
+				});
+			};
+		} catch (error) {
+			console.error('Export error:', error);
+			Modal.error({
+				title: 'Export Failed',
+				content: 'An error occurred while exporting the student summary',
+				centered: true
+			});
+		} finally {
+			setExportLoading(false);
+		};
+	};
+
+	const exportMenuItems = [
+		{
+			key: 'pdf',
+			label: 'Export as PDF',
+			onClick: () => handleExportSummary('pdf')
+		},
+		{
+			key: 'json',
+			label: 'Export as JSON',
+			onClick: () => handleExportSummary('json')
+		}
+	];
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -118,7 +190,7 @@ const Profile = () => {
 				</Button>
 			]
 		});
-	}, [setHeader]);
+	}, [setHeader, exportLoading]);
 
 	const { id } = useParams();
 
@@ -301,6 +373,23 @@ const Profile = () => {
 							)}
 							<Flex justify='flex-start' align='stretch' gap={16}>
 								<Button
+									icon={<BellOutlined />}
+									onClick={() => {
+										if (thisStudent.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content:
+													'This is a placeholder student profile. Please try again later.',
+												centered: true
+											});
+											return;
+										};
+										SummonStudent(Modal, thisStudent);
+									}}
+								>
+									Summon
+								</Button>
+								<Button
 									type={thisStudent.role === 'student' ? 'primary' : 'default'}
 									icon={<EditOutlined />}
 									onClick={() => {
@@ -321,23 +410,6 @@ const Profile = () => {
 									}}
 								>
 									Edit
-								</Button>
-								<Button
-									icon={<BellOutlined />}
-									onClick={() => {
-										if (thisStudent.placeholder) {
-											Modal.error({
-												title: 'Error',
-												content:
-													'This is a placeholder student profile. Please try again later.',
-												centered: true
-											});
-											return;
-										};
-										SummonStudent(Modal, thisStudent);
-									}}
-								>
-									Summon
 								</Button>
 								{thisStudent.role === 'unverified-student' &&
 									<Button
@@ -528,20 +600,37 @@ const Profile = () => {
 					</Flex>
 				</div>
 				<Flex style={{ width: '100%', flex: 1 }}>
-					<PanelCard title='Disciplinary Records' style={{ width: '100%' }}>
+					<PanelCard
+						title='Disciplinary Records'
+						style={{ width: '100%' }}
+						footer={(
+							<Flex justify='flex-end'>
+								<Dropdown
+									placement='bottom'
+									menu={{ items: exportMenuItems }}
+									trigger={['click']}
+									disabled={exportLoading}
+								>
+									<Button
+										icon={<ExportOutlined />}
+										loading={exportLoading}
+									>
+										Export
+									</Button>
+								</Dropdown>
+							</Flex>
+						)}
+					>
 						{thisRecords && thisRecords.length > 0 ? (
-							<Row gutter={[16, 16]}>
-								{thisRecords.map((record) => (
-									<Col key={record.id} xs={24} sm={24} md={12} lg={12} xl={12}>
-										<RecordDisplay
-											record={record}
-											onRecordClick={() => {
-												navigate(`/dashboard/discipline/record/${record.id}`);
-											}}
-										/>
-									</Col>
-								))}
-							</Row>
+							thisRecords.map((record) => (
+								<RecordDisplay
+									key={record.id}
+									record={record}
+									onRecordClick={() => {
+										navigate(`/dashboard/discipline/record/${record.id}`);
+									}}
+								/>
+							))
 						) : (
 							<Empty description='No disciplinary records found' />
 						)}
