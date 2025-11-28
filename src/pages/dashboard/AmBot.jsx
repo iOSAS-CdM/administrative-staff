@@ -202,7 +202,7 @@ const AmBot = () => {
 													} else {
 														// External link - open new tab
 														window.open(url.href, '_blank', 'noopener,noreferrer');
-													}
+													};
 												} catch (err) {
 													// Fallback: open in new tab
 													window.open(href, '_blank', 'noopener,noreferrer');
@@ -232,7 +232,13 @@ const AmBot = () => {
 						)}
 					</Flex>
 				))}
+			</Flex>
 
+			<Form
+				ref={SendForm}
+				style={{ width: '100%' }}
+				onFinish={handleSendMessage}
+			>
 				{messages.length === 1 && !isLoading && (
 					<Flex gap={8} style={{ width: '100%', overflowX: 'auto', paddingBottom: 8 }}>
 						{suggestedQuestions.map((question, index) => (
@@ -254,13 +260,7 @@ const AmBot = () => {
 						))}
 					</Flex>
 				)}
-			</Flex>
 
-			<Form
-				ref={SendForm}
-				style={{ width: '100%' }}
-				onFinish={handleSendMessage}
-			>
 				<Card style={{ width: '100%' }}>
 					<Flex align='flex-start' gap={16} style={{ width: '100%' }}>
 						<Form.Item
