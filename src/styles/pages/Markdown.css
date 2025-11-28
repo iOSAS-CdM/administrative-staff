@@ -405,3 +405,7 @@ body[data-color-mode*="light"] {
 	box-sizing: border-box;
 	padding: 0;
 }
+
+.wmde-markdown li > p {
+	display: inline;
+}
