@@ -14,7 +14,8 @@ import {
 	Dropdown,
 	Modal,
 	Space,
-	Divider
+	Divider,
+	Tooltip
 } from 'antd';
 
 import ContentPage from '../../../components/ContentPage';
@@ -23,7 +24,8 @@ import {
 	FileTextOutlined,
 	UserOutlined,
 	CheckOutlined,
-	CloseOutlined
+	CloseOutlined,
+	WarningOutlined
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -285,7 +287,7 @@ const RequestDetailModal = ({ open, onClose, request, responseMessage, setRespon
 		>
 			<Flex vertical gap={16}>
 				{/* Student Info */}
-				<Flex gap={12} align='center'>
+				<Flex gap={12} align='flex-start'>
 					<Avatar
 						size={48}
 						shape='square'
@@ -309,6 +311,16 @@ const RequestDetailModal = ({ open, onClose, request, responseMessage, setRespon
 						<Text type='secondary'>
 							{request.student?.email}
 						</Text>
+						{request.student?.hasOngoingCase && (
+							<Tag color="warning" icon={<WarningOutlined />} style={{ marginTop: 4, width: 'fit-content' }}>
+								Has Ongoing Cases
+							</Tag>
+						)}
+						{request.student?.hasOngoingRecord && (
+							<Tag color="error" icon={<WarningOutlined />} style={{ marginTop: 4, width: 'fit-content' }}>
+								Has Ongoing Records
+							</Tag>
+						)}
 					</Flex>
 				</Flex>
 
@@ -433,7 +445,7 @@ const RequestCard = ({ request, loading, onView }) => {
 			<Flex vertical gap={12}>
 				{/* Header with Student Info and Status */}
 				<Flex justify='space-between' align='start'>
-					<Flex gap={12} align='center' style={{ flex: 1 }}>
+					<Flex gap={12} align='flex-start' style={{ flex: 1 }}>
 						<Avatar
 							size={40}
 							shape='square'
@@ -441,9 +453,21 @@ const RequestCard = ({ request, loading, onView }) => {
 							icon={<UserOutlined />}
 						/>
 						<Flex vertical style={{ flex: 1 }}>
-							<Text strong style={{ fontSize: 16 }}>
-								{request.student?.name?.first} {request.student?.name?.last}
-							</Text>
+							<Flex align='center' gap={8}>
+								<Text strong style={{ fontSize: 16 }}>
+									{request.student?.name?.first} {request.student?.name?.last}
+								</Text>
+								{request.student?.hasOngoingCase && (
+									<Tooltip title='This student has ongoing cases'>
+										<WarningOutlined style={{ color: '#faad14' }} />
+									</Tooltip>
+								)}
+								{request.student?.hasOngoingRecord && (
+									<Tooltip title='This student has ongoing records'>
+										<WarningOutlined style={{ color: '#ff4d4f' }} />
+									</Tooltip>
+								)}
+							</Flex>
 							<Text type='secondary' style={{ fontSize: 14 }}>
 								{request.student?.email}
 							</Text>

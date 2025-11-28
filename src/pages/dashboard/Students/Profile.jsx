@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router';
-import moment from 'moment';
 
 import {
 	Card,
@@ -11,12 +10,12 @@ import {
 	Avatar,
 	Image,
 	Typography,
-	Calendar as AntCalendar,
 	Tag,
 	App,
+	Empty,
 	Row,
 	Col,
-	Empty
+	Dropdown
 } from 'antd';
 
 import {
@@ -29,8 +28,12 @@ import {
 	WarningOutlined,
 	BellOutlined,
 	ExclamationCircleOutlined,
-	UserOutlined
+	UserOutlined,
+	ExportOutlined
 } from '@ant-design/icons';
+
+import { download } from '@tauri-apps/plugin-upload';
+import { join, downloadDir } from '@tauri-apps/api/path';
 
 import EditStudent from '../../../modals/EditStudent';
 import RestrictStudent from '../../../modals/RestrictStudent';
@@ -95,211 +98,6 @@ const RecordDisplay = ({ record, onRecordClick }) => {
 	);
 };
 
-const Calendar = ({ events }) => {
-	const [value, setValue] = React.useState(moment());
-	const isMobile = useMobile();
-
-	const navigate = useNavigate();
-
-	const app = App.useApp();
-	const Modal = app.modal;
-
-	return (
-		<AntCalendar
-			fullscreen={false}
-			onPanelChange={(date) => setValue(date)}
-			onSelect={(date, info) => {
-				if (info.source === 'date') {
-					const eventsForDate =
-						events.find(
-							(event) =>
-								event.date.getDate() === date.date() &&
-								event.date.getMonth() === date.month() &&
-								event.date.getFullYear() === date.year()
-						)?.events || [];
-					const modal = Modal.info({
-						title: `Events for ${date.format('MMMM D, YYYY')}`,
-						centered: true,
-						closable: { 'aria-label': 'Close' },
-						content: (
-							<>
-								{eventsForDate.length !== 0 ? (
-									<Row gutter={[16, 16]}>
-										{eventsForDate.map((event, index) =>
-											event.type === 'disciplinary' ? (
-												<Col
-													key={event.id}
-													span={!isMobile ? 12 : 12}
-												>
-													<RecordDisplay
-														record={event.content}
-														onRecordClick={() => {
-															modal.destroy();
-															navigate(`/dashboard/discipline/record/${event.content.id}`);
-														}}
-													/>
-												</Col>
-											) : null
-										)}
-									</Row>
-								) : (
-									<Empty description='No events found' />
-								)}
-							</>
-						),
-						width: {
-							xs: '100%',
-							sm: '100%',
-							md: '100%',
-							lg: 512, // 2^9
-							xl: 1024, // 2^10
-							xxl: 1024 // 2^10
-						}
-					});
-				} else {
-					const eventsForMonth = events
-						.filter(
-							(event) =>
-								event.date.getMonth() === date.month() &&
-								event.date.getFullYear() === date.year()
-						)
-						.flatMap((day) => day.events)
-						.sort((a, b) => a.content.date - b.content.date);
-					const modal = Modal.info({
-						title: `Events for ${date.format('MMMM YYYY')}`,
-						centered: true,
-						closable: { 'aria-label': 'Close' },
-						content: (
-							<>
-								{eventsForMonth.length !== 0 ? (
-									<Row gutter={[16, 16]}>
-										{eventsForMonth.map((event, index) =>
-											event.type === 'disciplinary' ? (
-												<Col
-													key={event.id}
-													span={!isMobile ? 12 : 12}
-												>
-													<RecordDisplay
-														record={event.content}
-														onRecordClick={() => {
-															modal.destroy();
-															navigate(`/dashboard/discipline/record/${event.content.id}`);
-														}}
-													/>
-												</Col>
-											) : null
-										)}
-									</Row>
-								) : (
-									<Empty description='No events found' />
-								)}
-							</>
-						),
-						width: {
-							xs: '100%',
-							sm: '100%',
-							md: '100%',
-							lg: 512, // 2^9
-							xl: 1024, // 2^10
-							xxl: 1024 // 2^10
-						}
-					});
-				}
-			}}
-			fullCellRender={(date, info) => {
-				if (info.type === 'date') {
-					const eventsForDate =
-						events.find(
-							(event) =>
-								event.date.getDate() === date.date() &&
-								event.date.getMonth() === date.month() &&
-								event.date.getFullYear() === date.year()
-						)?.events || [];
-					return (
-						<Badge
-							color={
-								date.month() === value.month() &&
-								date.year() === value.year()
-									? ['yellow', 'orange', 'red'][
-											eventsForDate.length - 1
-									  ] || 'red'
-									: 'grey'
-							}
-							size='small'
-							count={eventsForDate.length}
-							style={{
-								opacity:
-									date.month() === value.month() &&
-									date.year() === value.year()
-										? 1
-										: 0.5
-							}}
-						>
-							<Button
-								type={
-									date.date() === value.date() &&
-									date.month() === value.month() &&
-									date.year() === value.year()
-										? 'primary'
-										: 'text'
-								}
-								style={{
-									opacity:
-										date.month() === value.month() &&
-										date.year() === value.year()
-											? 1
-											: 0.5
-								}}
-								size='small'
-							>
-								{`${date.date()}`.padStart(2, '0')}
-							</Button>
-						</Badge>
-					);
-				} else {
-					const months = [
-						'Jan',
-						'Feb',
-						'Mar',
-						'Apr',
-						'May',
-						'Jun',
-						'Jul',
-						'Aug',
-						'Sep',
-						'Oct',
-						'Nov',
-						'Dec'
-					];
-					let eventCount = 0;
-					const eventsForMonth = events.filter(
-						(event) =>
-							event.date.getMonth() === date.month() &&
-							event.date.getFullYear() === date.year()
-					);
-					for (const day of eventsForMonth)
-						eventCount += day.events.length;
-					return (
-						<Badge count={eventCount}>
-							<Button
-								type={
-									date.month() === value.month() &&
-									date.year() === value.year()
-										? 'primary'
-										: 'text'
-								}
-							>
-								{months[date.month()]}
-							</Button>
-						</Badge>
-					);
-				}
-			}}
-			style={{ minWidth: 256 }}
-		/>
-	);
-};
-
 /**
  * @type {React.FC}
  */
@@ -307,10 +105,77 @@ const Profile = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const location = useLocation();
 	const navigate = useNavigate();
-	const Modal = App.useApp().modal;
+	const app = App.useApp();
+	const Modal = app.modal;
+	const notification = app.notification;
 
 	const isMobile = useMobile();
 	const { getFromCache, pushToCache, updateCacheItem } = useCache();
+
+	const [exportLoading, setExportLoading] = React.useState(false);
+
+	const handleExportSummary = async (format = 'pdf') => {
+		setExportLoading(true);
+		try {
+			const response = await authFetch(`${API_Route}/users/student/${id}/export/${format}`);
+			if (response.ok) {
+				const data = await response.json();
+
+				// Download from the URL
+				const downloadDirPath = await downloadDir();
+				const tempPath = await join(downloadDirPath, data.filename);
+
+				notification.info({
+					message: 'Download started',
+					description: `Downloading ${data.filename}...`,
+					duration: 2
+				});
+
+				const downloadTask = download(data.url, tempPath, {
+					onProgress: (progress) => {
+						console.log(`Progress: ${Math.round(progress * 100)}%`);
+					}
+				});
+
+				await downloadTask;
+
+				notification.success({
+					message: 'Export Successful',
+					description: `${data.filename} has been downloaded to your Downloads folder.`,
+					duration: 5
+				});
+			} else {
+				const error = await response.json();
+				Modal.error({
+					title: 'Export Failed',
+					content: error.message || 'Failed to export student summary',
+					centered: true
+				});
+			};
+		} catch (error) {
+			console.error('Export error:', error);
+			Modal.error({
+				title: 'Export Failed',
+				content: 'An error occurred while exporting the student summary',
+				centered: true
+			});
+		} finally {
+			setExportLoading(false);
+		};
+	};
+
+	const exportMenuItems = [
+		{
+			key: 'pdf',
+			label: 'Export as PDF',
+			onClick: () => handleExportSummary('pdf')
+		},
+		{
+			key: 'json',
+			label: 'Export as JSON',
+			onClick: () => handleExportSummary('json')
+		}
+	];
 
 	React.useLayoutEffect(() => {
 		setHeader({
@@ -325,7 +190,7 @@ const Profile = () => {
 				</Button>
 			]
 		});
-	}, [setHeader]);
+	}, [setHeader, exportLoading]);
 
 	const { id } = useParams();
 
@@ -406,42 +271,6 @@ const Profile = () => {
 		if (thisStudent.role === 'student') setSelectedKeys(['verified']);
 		else setSelectedKeys(['unverified']);
 	}, [thisStudent]);
-
-	/** @type {[import('../../../classes/Event').EventProps[], React.Dispatch<React.SetStateAction<import('../../../classes/Event').EventProps[]>>]} */
-	const [events, setEvents] = React.useState([]);
-
-	// Transform records into calendar events
-	React.useEffect(() => {
-		if (!thisRecords || thisRecords.length === 0) {
-			setEvents([]);
-			return;
-		};
-
-		// Group records by date
-		const eventsByDate = {};
-
-		for (const record of thisRecords) {
-			const recordDate = new Date(record.date);
-			const dateKey = `${recordDate.getFullYear()}-${recordDate.getMonth()}-${recordDate.getDate()}`;
-
-			if (!eventsByDate[dateKey]) {
-				eventsByDate[dateKey] = {
-					date: recordDate,
-					events: []
-				};
-			};
-
-			eventsByDate[dateKey].events.push({
-				id: record.id,
-				type: 'disciplinary',
-				content: record
-			});
-		};
-
-		// Convert to array format expected by Calendar
-		const eventsArray = Object.values(eventsByDate);
-		setEvents(eventsArray);
-	}, [thisRecords]);
 
 	return (
 		<Flex vertical gap={16}>
@@ -544,6 +373,23 @@ const Profile = () => {
 							)}
 							<Flex justify='flex-start' align='stretch' gap={16}>
 								<Button
+									icon={<BellOutlined />}
+									onClick={() => {
+										if (thisStudent.placeholder) {
+											Modal.error({
+												title: 'Error',
+												content:
+													'This is a placeholder student profile. Please try again later.',
+												centered: true
+											});
+											return;
+										};
+										SummonStudent(Modal, thisStudent);
+									}}
+								>
+									Summon
+								</Button>
+								<Button
 									type={thisStudent.role === 'student' ? 'primary' : 'default'}
 									icon={<EditOutlined />}
 									onClick={() => {
@@ -564,23 +410,6 @@ const Profile = () => {
 									}}
 								>
 									Edit
-								</Button>
-								<Button
-									icon={<BellOutlined />}
-									onClick={() => {
-										if (thisStudent.placeholder) {
-											Modal.error({
-												title: 'Error',
-												content:
-													'This is a placeholder student profile. Please try again later.',
-												centered: true
-											});
-											return;
-										};
-										SummonStudent(Modal, thisStudent);
-									}}
-								>
-									Summon
 								</Button>
 								{thisStudent.role === 'unverified-student' &&
 									<Button
@@ -771,8 +600,40 @@ const Profile = () => {
 					</Flex>
 				</div>
 				<Flex style={{ width: '100%', flex: 1 }}>
-					<PanelCard title='Calendar' style={{ width: '100%' }}>
-						<Calendar events={events} />
+					<PanelCard
+						title='Disciplinary Records'
+						style={{ width: '100%' }}
+						footer={(
+							<Flex justify='flex-end'>
+								<Dropdown
+									placement='bottom'
+									menu={{ items: exportMenuItems }}
+									trigger={['click']}
+									disabled={exportLoading}
+								>
+									<Button
+										icon={<ExportOutlined />}
+										loading={exportLoading}
+									>
+										Export
+									</Button>
+								</Dropdown>
+							</Flex>
+						)}
+					>
+						{thisRecords && thisRecords.length > 0 ? (
+							thisRecords.map((record) => (
+								<RecordDisplay
+									key={record.id}
+									record={record}
+									onRecordClick={() => {
+										navigate(`/dashboard/discipline/record/${record.id}`);
+									}}
+								/>
+							))
+						) : (
+							<Empty description='No disciplinary records found' />
+						)}
 					</PanelCard>
 				</Flex>
 			</Flex>

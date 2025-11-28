@@ -14,7 +14,6 @@ import {
 	Badge,
 	App,
 	Steps,
-	Image,
 	Dropdown
 } from 'antd';
 
@@ -23,7 +22,6 @@ import {
 	InboxOutlined,
 	LeftOutlined,
 	RightOutlined,
-	FileAddOutlined,
 	FileOutlined,
 	DownloadOutlined,
 	DeleteOutlined,
@@ -139,13 +137,30 @@ const Record = () => {
 			const response = await authFetch(`${API_Route}/records/${id}/export/${format}`);
 			if (response.ok) {
 				const data = await response.json();
+
+				// Download from the URL
+				const downloadDirPath = await downloadDir();
+				const tempPath = await join(downloadDirPath, data.filename);
+
+				notification.info({
+					message: 'Download started',
+					description: `Downloading ${data.filename}...`,
+					duration: 2
+				});
+
+				const downloadTask = download(data.url, tempPath, {
+					onProgress: (progress) => {
+						console.log(`Progress: ${Math.round(progress * 100)}%`);
+					}
+				});
+
+				await downloadTask;
+
 				notification.success({
 					message: 'Export Successful',
-					description: `Record exported as ${format.toUpperCase()} and saved to repository.`,
+					description: `${data.filename} has been downloaded to your Downloads folder.`,
 					duration: 5
 				});
-				// Refresh the page to show the new file in the repository
-				setRefresh({ timestamp: Date.now() });
 			} else {
 				const error = await response.json();
 				Modal.error({
@@ -262,6 +277,7 @@ const Record = () => {
 							<Card><Text>{thisRecord?.description}</Text></Card>
 								<Flex gap={16}>
 								<Dropdown
+									placement='bottom'
 									menu={{ items: exportMenuItems }}
 									trigger={['click']}
 									disabled={exportLoading}
@@ -273,7 +289,7 @@ const Record = () => {
 										Export
 									</Button>
 								</Dropdown>
-									{thisRecord?.tags.status === 'ongoing' && (
+									{step !== 5 && (
 										<Button
 											type='primary'
 											icon={<EditOutlined />}
@@ -290,11 +306,23 @@ const Record = () => {
 												const data = await EditCase(Modal, thisRecord);
 												if (data) {
 													console.log(data);
-													pushToCache('records', data, true);
-													setRefresh({ timestamp: Date.now() });
-													notification.success({
-														message: 'Record updated successfully.'
-													});
+
+													// Fetch the full record to ensure populated fields
+													const response = await authFetch(`${API_Route}/records/${id}`);
+													if (response.ok) {
+														const fullData = await response.json();
+														pushToCache('records', fullData, true);
+														setRefresh({ timestamp: Date.now() });
+														notification.success({
+															message: 'Record updated successfully.'
+														});
+													} else {
+														pushToCache('records', data, true);
+														setRefresh({ timestamp: Date.now() });
+														notification.success({
+															message: 'Record updated successfully.'
+														});
+													};
 												};
 											}}
 										>

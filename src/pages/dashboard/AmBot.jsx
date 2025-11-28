@@ -33,7 +33,10 @@ const AmBot = () => {
 	const [sessionId] = React.useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
 
 	const clearConversation = React.useCallback(() => {
-		setMessages([]);
+		setMessages([{
+			sender: 'bot',
+			content: 'Hello! How may I help you today?'
+		}]);
 	}, []);
 
 	React.useLayoutEffect(() => {
