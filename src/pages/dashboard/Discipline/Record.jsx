@@ -14,7 +14,6 @@ import {
 	Badge,
 	App,
 	Steps,
-	Image,
 	Dropdown
 } from 'antd';
 
@@ -23,7 +22,6 @@ import {
 	InboxOutlined,
 	LeftOutlined,
 	RightOutlined,
-	FileAddOutlined,
 	FileOutlined,
 	DownloadOutlined,
 	DeleteOutlined,
@@ -308,11 +306,23 @@ const Record = () => {
 												const data = await EditCase(Modal, thisRecord);
 												if (data) {
 													console.log(data);
-													pushToCache('records', data, true);
-													setRefresh({ timestamp: Date.now() });
-													notification.success({
-														message: 'Record updated successfully.'
-													});
+
+													// Fetch the full record to ensure populated fields
+													const response = await authFetch(`${API_Route}/records/${id}`);
+													if (response.ok) {
+														const fullData = await response.json();
+														pushToCache('records', fullData, true);
+														setRefresh({ timestamp: Date.now() });
+														notification.success({
+															message: 'Record updated successfully.'
+														});
+													} else {
+														pushToCache('records', data, true);
+														setRefresh({ timestamp: Date.now() });
+														notification.success({
+															message: 'Record updated successfully.'
+														});
+													};
 												};
 											}}
 										>
