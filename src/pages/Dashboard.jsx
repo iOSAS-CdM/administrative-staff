@@ -345,7 +345,29 @@ const Dashboard = () => {
 			label: 'AmBot',
 			icon: <RobotOutlined />,
 			onClick: () => navigate('/dashboard/ambot', { replace: true })
-		}
+		},
+		{
+			key: 'archives',
+			label: 'Archives',
+			icon: <FileTextOutlined />, // You can choose a more appropriate icon
+			children: [
+				{
+					key: 'requests',
+					label: 'Archived Requests',
+					onClick: () => navigate('/dashboard/archives/requests', { replace: true })
+				},
+				{
+					key: 'cases',
+					label: 'Archived Cases',
+					onClick: () => navigate('/dashboard/archives/cases', { replace: true })
+				},
+				{
+					key: 'reports',
+					label: 'Archived Reports',
+					onClick: () => navigate('/dashboard/archives/reports', { replace: true })
+				}
+			]
+		   }
 	], [cache?.staff, minimized, refresh]);
 
 	return (
