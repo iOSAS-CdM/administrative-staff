@@ -254,6 +254,9 @@ const Record = () => {
 								})}
 							</Text></Title>
 							<Flex gap={8} style={{ position: isMobile ? 'relative' : 'absolute', top: 0, right: 0 }}>
+								{thisRecord?.archived && (
+									<Tag icon={<InboxOutlined />} color='default'>Archived</Tag>
+								)}
 								<Tag>{thisRecord?.violation}</Tag>
 								<Tag color={
 									{
@@ -289,11 +292,12 @@ const Record = () => {
 										Export
 									</Button>
 								</Dropdown>
-									{step !== 5 && (
+								{step !== 5 && (
 										<Button
 											type='primary'
 											icon={<EditOutlined />}
 											block={isMobile}
+										disabled={thisRecord?.archived}
 											onClick={async () => {
 												if (thisRecord?.placeholder) {
 													Modal.error({
@@ -332,7 +336,7 @@ const Record = () => {
 								{step !== 5 && (
 									<Button
 										type='primary'
-										disabled={thisRecord?.tags.status === 'dismissed' || thisRecord?.tags.status === 'resolved'}
+										disabled={thisRecord?.archived || thisRecord?.tags.status === 'dismissed' || thisRecord?.tags.status === 'resolved'}
 										danger
 										icon={<InboxOutlined />}
 										block={isMobile}
@@ -472,7 +476,7 @@ const Record = () => {
 							<PanelCard
 								title='Progress'
 								style={{ position: 'sticky', top: 0 }}
-								footer={
+								footer={(
 									<Flex justify='space-between' align='center' gap={16}>
 										{(() => {
 											const [loading, setLoading] = React.useState(false);
@@ -480,7 +484,7 @@ const Record = () => {
 												<Button
 													type='default'
 													icon={<LeftOutlined />}
-													disabled={step === 0 || thisRecord?.tags.status === 'dismissed'}
+													disabled={thisRecord?.archived || step === 0 || thisRecord?.tags.status === 'dismissed'}
 													loading={loading}
 													block
 													onClick={async () => {
@@ -514,7 +518,7 @@ const Record = () => {
 													type='primary'
 													icon={<RightOutlined />}
 													iconPosition='end'
-													disabled={step === 5 || thisRecord?.tags.status === 'dismissed'}
+													disabled={thisRecord?.archived || step === 5 || thisRecord?.tags.status === 'dismissed'}
 													loading={loading}
 													block
 													onClick={async () => {
@@ -542,7 +546,7 @@ const Record = () => {
 											);
 										})()}
 									</Flex>
-								}
+								)}
 							>
 								<Steps
 									current={step}

@@ -25,7 +25,8 @@ import {
 	BankOutlined,
 	ExclamationCircleOutlined,
 	WarningOutlined,
-	UserOutlined
+	UserOutlined,
+	InboxOutlined
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -264,6 +265,7 @@ const RecordCard = ({ record, loading }) => {
 			loading={loading}
 
 			status={thisRecord?.tags?.status === 'dismissed' && 'dismissed'}
+			style={thisRecord?.archived ? { opacity: 0.7, filter: 'grayscale(0.3)' } : {}}
 
 			actions={!loading && [
 				{
@@ -306,6 +308,9 @@ const RecordCard = ({ record, loading }) => {
 						{thisRecord.description}
 					</Paragraph>
 					<Flex wrap gap={8}>
+						{thisRecord.archived && (
+							<Tag icon={<InboxOutlined />} color="default">Archived</Tag>
+						)}
 						<Tag>
 							{thisRecord.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
 						</Tag>

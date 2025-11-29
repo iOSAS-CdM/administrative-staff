@@ -29,7 +29,8 @@ import {
 	BellOutlined,
 	ExclamationCircleOutlined,
 	UserOutlined,
-	ExportOutlined
+	ExportOutlined,
+	InboxOutlined
 } from '@ant-design/icons';
 
 import { download } from '@tauri-apps/plugin-upload';
@@ -57,6 +58,7 @@ const RecordDisplay = ({ record, onRecordClick }) => {
 		<Badge.Ribbon
 			text={record.tags.status.charAt(0).toUpperCase() + record.tags.status.slice(1)}
 			color={
+				record.archived ? 'grey' :
 				{
 					ongoing: 'blue',
 					resolved: 'var(--primary)',
@@ -68,6 +70,7 @@ const RecordDisplay = ({ record, onRecordClick }) => {
 			<ItemCard
 				status={record.tags.status === 'dismissed' && 'dismissed'}
 				onClick={onRecordClick}
+				style={record.archived ? { opacity: 0.7, filter: 'grayscale(0.3)' } : {}}
 			>
 				<Flex vertical justify='flex-start' align='flex-start' gap={16} style={{ position: 'relative' }}>
 					<Title level={4}>
@@ -81,6 +84,9 @@ const RecordDisplay = ({ record, onRecordClick }) => {
 					</Title>
 					<Text type='secondary'>{record.description}</Text>
 					<Flex wrap gap={8}>
+						{record.archived && (
+							<Tag icon={<InboxOutlined />} color='default'>Archived</Tag>
+						)}
 						<Tag>
 							{record.violation?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
 						</Tag>
