@@ -559,3 +559,5 @@ const FileAttachment = ({ file }) => {
 		</Card>
 	);
 };
+
+export { ReportCard };

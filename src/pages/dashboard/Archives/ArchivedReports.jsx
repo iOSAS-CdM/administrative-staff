@@ -13,6 +13,7 @@ import {
 	Card
 } from 'antd';
 import ContentPage from '../../../components/ContentPage';
+import { ReportCard } from '../Discipline/Reports.jsx';
 import {
 	UserOutlined,
 	BankOutlined
@@ -81,32 +82,8 @@ const ArchivedReports = () => {
 			emptyText='No archived reports found'
 			cacheKey={`archived-reports-${archive}-${status}`}
 			transformData={data => data?.cases || []}
-			renderItem={c => (
-				<ItemCard
-					hoverable
-					loading={c.placeholder}
-					style={c.archived ? { opacity: 0.7, filter: 'grayscale(0.3)' } : {}}
-					onClick={() => navigate(`/dashboard/students/profile/${c.author?.id}`)}
-				>
-					<Flex vertical gap={12}>
-						<Flex justify='space-between' align='start'>
-							<Flex gap={12} align='flex-start' style={{ flex: 1 }}>
-								<Avatar size={40} shape='square' src={c.author?.profilePicture || null} icon={<UserOutlined />} />
-								<Flex vertical style={{ flex: 1 }}>
-									<Text strong style={{ fontSize: 16 }}>{c.author?.name?.first} {c.author?.name?.last}</Text>
-									<Text type='secondary' style={{ fontSize: 14 }}>{c.author?.email}</Text>
-								</Flex>
-							</Flex>
-							<Tag color='default'>Archived</Tag>
-						</Flex>
-						<Flex vertical gap={4}>
-							<Text type='secondary' style={{ fontSize: 12 }}>Case</Text>
-							<Title level={5} style={{ margin: 0 }}><BankOutlined style={{ marginRight: 8 }} />{c.title}</Title>
-						</Flex>
-						<Text type='secondary' style={{ fontSize: 12 }}>Status: {c.status}</Text>
-						<Text type='secondary' style={{ fontSize: 12 }}>Created {new Date(c.created_at).toLocaleDateString()} at {new Date(c.created_at).toLocaleTimeString()}</Text>
-					</Flex>
-				</ItemCard>
+			renderItem={caseItem => (
+				<ReportCard caseItem={caseItem} loading={caseItem.placeholder} />
 			)}
 		/>
 	);

@@ -541,3 +541,4 @@ const getStatusColor = (status) => {
 };
 
 export default Requests;
+export { RequestCard };
