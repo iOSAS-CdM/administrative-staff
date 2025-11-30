@@ -9,7 +9,8 @@ import {
 	Tag,
 	Spin,
 	Dropdown,
-	Divider
+	Divider,
+	Card
 } from 'antd';
 import ContentPage from '../../../components/ContentPage';
 import {
@@ -28,7 +29,7 @@ import authFetch from '../../../utils/authFetch';
 /**
  * @type {React.FC}
  */
-const ArchivedCases = () => {
+const ArchivedReports = () => {
 	const { setHeader, setSelectedKeys } = usePageProps();
 	const navigate = useNavigate();
 	const isMobile = useMobile();
@@ -38,9 +39,10 @@ const ArchivedCases = () => {
 
 	const [archive, setArchive] = React.useState('');
 	const [archives, setArchives] = React.useState([]);
+	const [status, setStatus] = React.useState('open');
 
 	React.useEffect(() => {
-		setSelectedKeys(['cases']);
+		setSelectedKeys(['archive-reports']);
 		const fetchArchives = async () => {
 			const res = await authFetch(`${API_Route}/archives`);
 			if (res?.ok) {
@@ -53,23 +55,30 @@ const ArchivedCases = () => {
 
 	React.useLayoutEffect(() => {
 		setHeader({
-			title: 'Archived Cases',
+			title: 'Archived Reports',
+			subtitle: 'View and manage archived student reports',
 			actions: [
 				<Segmented
 					key='archive-select'
 					options={archives.map(a => ({ label: a, value: a }))}
 					value={archive}
 					onChange={setArchive}
+				/>,
+				<Segmented
+					key='status-filter'
+					options={['open', 'dismissed', 'proceeded'].map(s => ({ label: s.charAt(0).toUpperCase() + s.slice(1), value: s }))}
+					value={status}
+					onChange={setStatus}
 				/>
 			]
 		});
-	}, [setHeader, archives, archive]);
+	}, [setHeader, archives, archive, status]);
 
 	return (
 		<ContentPage
-			fetchUrl={archive ? `${API_Route}/archives/${archive}/cases` : ''}
-			emptyText='No archived cases found'
-			cacheKey={`archived-cases-${archive}`}
+			fetchUrl={archive ? `${API_Route}/archives/${archive}/cases?status=${status}` : ''}
+			emptyText='No archived reports found'
+			cacheKey={`archived-reports-${archive}-${status}`}
 			transformData={data => data?.cases || []}
 			renderItem={c => (
 				<ItemCard
@@ -102,4 +111,4 @@ const ArchivedCases = () => {
 	);
 };
 
-export default ArchivedCases;
+export default ArchivedReports;

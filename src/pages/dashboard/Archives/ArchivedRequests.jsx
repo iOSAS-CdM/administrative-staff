@@ -48,7 +48,7 @@ const ArchivedRequests = () => {
 	const [archives, setArchives] = React.useState([]);
 
 	React.useEffect(() => {
-		setSelectedKeys(['requests']);
+		setSelectedKeys(['archive-requests']);
 		// Fetch available archives
 		const fetchArchives = async () => {
 			const res = await authFetch(`${API_Route}/archives`);

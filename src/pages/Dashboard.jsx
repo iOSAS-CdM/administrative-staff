@@ -56,6 +56,9 @@ import Repository from './dashboard/Utilities/Repository';
 import Requests from './dashboard/Utilities/Requests';
 import AmBot from './dashboard/AmBot';
 import StaffProfile from './dashboard/StaffProfile';
+import ArchivedRequests from './dashboard/Archives/ArchivedRequests.jsx';
+import ArchivedRecords from './dashboard/Archives/ArchivedRecords.jsx';
+import ArchivedReports from './dashboard/Archives/ArchivedReports.jsx';
 
 const { Text, Title } = Typography;
 
@@ -171,7 +174,11 @@ const Dashboard = () => {
 
 		{ path: '/utilities/repository', element: <Repository /> },
 		{ path: '/utilities/requests', element: <Requests /> },
-		{ path: '/ambot', element: <AmBot /> }
+		{ path: '/ambot', element: <AmBot /> },
+
+		{ path: '/archives/requests', element: <ArchivedRequests /> },
+		{ path: '/archives/records', element: <ArchivedRecords /> },
+		{ path: '/archives/reports', element: <ArchivedReports /> },
 	]);	const [minimized, setMinimized] = React.useState(false);
 
 	/**
@@ -352,17 +359,17 @@ const Dashboard = () => {
 			icon: <FileTextOutlined />, // You can choose a more appropriate icon
 			children: [
 				{
-					key: 'requests',
+					key: 'archive-requests',
 					label: 'Archived Requests',
 					onClick: () => navigate('/dashboard/archives/requests', { replace: true })
 				},
 				{
-					key: 'cases',
-					label: 'Archived Cases',
-					onClick: () => navigate('/dashboard/archives/cases', { replace: true })
+					key: 'archive-records',
+					label: 'Archived Records',
+					onClick: () => navigate('/dashboard/archives/records', { replace: true })
 				},
 				{
-					key: 'reports',
+					key: 'archive-reports',
 					label: 'Archived Reports',
 					onClick: () => navigate('/dashboard/archives/reports', { replace: true })
 				}

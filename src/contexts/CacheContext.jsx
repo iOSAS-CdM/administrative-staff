@@ -52,7 +52,7 @@ const useCache = () => {
  * }>}
  */
 export const CacheProvider = ({ children }) => {
-	// Use a single state object to hold all your cached data
+	// Use a single state object to hold all your cached data, allow dynamic keys
 	const [cache, setCache] = React.useState({
 		staff: {
 			name: {
@@ -62,16 +62,7 @@ export const CacheProvider = ({ children }) => {
 			},
 			role: null,
 			profilePicture: null
-		},
-		students: [],
-		'unverified-students': [],
-		records: [],
-		publicRepository: [],
-		organizations: [],
-		announcements: [],
-		events: [],
-		peers: [],
-		requests: []
+		}
 	});
 	React.useEffect(() => {
 		window.cache = cache;
@@ -88,8 +79,8 @@ export const CacheProvider = ({ children }) => {
 	/** @type {PushToCache} */
 	const pushToCache = (key, data, single) =>
 		setCache(prevCache => {
-			const existingItems = prevCache[key];
-			const newItems = single ? [data] : data;
+			const existingItems = prevCache[key] || [];
+			const newItems = single ? [data] : Array.isArray(data) ? data : [data];
 
 			// Avoid duplicates by checking for matching 'id' property
 			const merged = [
@@ -109,6 +100,7 @@ export const CacheProvider = ({ children }) => {
 
 	/** @type {GetFromCache} */
 	const getFromCache = (key, favorKey, favorValue) => {
+		if (!cache[key]) return null;
 		const item = cache[key].find(item => item[favorKey] === favorValue);
 		return item || null;
 	};
@@ -117,14 +109,14 @@ export const CacheProvider = ({ children }) => {
 	const removeFromCache = (key, favorKey, favorValue) =>
 		setCache(prevCache => ({
 			...prevCache,
-			[key]: prevCache[key].filter(item => item[favorKey] !== favorValue)
+			[key]: (prevCache[key] || []).filter(item => item[favorKey] !== favorValue)
 		}));
 
 	/** @type {UpdateCacheItem} */
 	const updateCacheItem = (key, favorKey, favorValue, data) =>
 		setCache(prevCache => ({
 			...prevCache,
-			[key]: prevCache[key].map(item =>
+			[key]: (prevCache[key] || []).map(item =>
 				item[favorKey] === favorValue ? { ...item, ...data } : item
 			)
 		}));
