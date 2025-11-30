@@ -70,10 +70,10 @@ const CalendarPage = () => {
 
 				// Check cache first
 				if (cache.events && cache.events.length > 0 && cache.records && cache.records.length > 0) {
-					setAnnouncements(cache.events.filter(e => e.type === 'event'));
+					setAnnouncements(cache.events);
 					setRecords(cache.records);
 					setLoading(false);
-				};
+				}
 
 				const response = await authFetch(`${API_Route}/events/staff`, {
 					signal: controller.signal
@@ -201,13 +201,18 @@ const CalendarPage = () => {
 
 		// Add announcements with event dates
 		for (const announcement of announcements) {
-			const event_date = announcement.event_date;
-			if (event_date) {
-				const event_dateStr = dayjs(event_date).format('YYYY-MM-DD');
+			// If announcement has an event_date, treat as event
+			if (announcement.event_date) {
+				const event_dateStr = dayjs(announcement.event_date).format('YYYY-MM-DD');
 				if (event_dateStr === dateStr)
 					events.push({ ...announcement, type: 'announcement' });
-			};
-		};
+			} else {
+				// Otherwise, use created_at date for non-event announcements
+				const createdDateStr = dayjs(announcement.date || announcement.created_at).format('YYYY-MM-DD');
+				if (createdDateStr === dateStr)
+					events.push({ ...announcement, type: 'announcement', isGeneral: true });
+			}
+		}
 
 		// Add records
 		for (const record of records) {
@@ -230,7 +235,7 @@ const CalendarPage = () => {
 				{events.slice(0, 3).map((event, index) => (
 					<li key={index}>
 						<Badge
-							status={event.type === 'announcement' ? 'success' : 'error'}
+							status={event.type === 'announcement' ? (event.isGeneral ? 'processing' : 'success') : 'error'}
 							text={
 								<Text
 									ellipsis
@@ -310,11 +315,16 @@ const CalendarPage = () => {
 			];
 
 			let eventCount = 0;
-			// Count all events in this month
+			// Count all announcements (event and general) in this month
 			announcements.forEach(announcement => {
 				if (announcement.event_date) {
 					const event_date = dayjs(announcement.event_date);
 					if (event_date.month() === date.month() && event_date.year() === date.year()) {
+						eventCount++;
+					}
+				} else {
+					const createdDate = dayjs(announcement.date || announcement.created_at);
+					if (createdDate.month() === date.month() && createdDate.year() === date.year()) {
 						eventCount++;
 					}
 				}
@@ -409,10 +419,12 @@ const CalendarPage = () => {
 													{event.title}
 												</Text>
 												<Badge
-													status={event.type === 'announcement' ? 'success' : 'error'}
+													status={event.type === 'announcement' ? (event.isGeneral ? 'processing' : 'success') : 'error'}
 													text={
 														<Text type='secondary' style={{ fontSize: '12px' }}>
-															{event.type === 'announcement' ? 'Event' : 'Record'}
+															{event.type === 'announcement'
+																? (event.isGeneral ? 'Announcement' : 'Event')
+																: 'Record'}
 														</Text>
 													}
 												/>
