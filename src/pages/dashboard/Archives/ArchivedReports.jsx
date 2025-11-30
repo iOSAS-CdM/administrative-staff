@@ -48,7 +48,8 @@ const ArchivedReports = () => {
 			if (res?.ok) {
 				const data = await res.json();
 				setArchives(data);
-			}
+				setArchive(data[0] || '');
+			};
 		};
 		fetchArchives();
 	}, [setSelectedKeys]);
