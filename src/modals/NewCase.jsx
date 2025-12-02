@@ -347,9 +347,25 @@ const CaseForm = ({ message, initialData }) => {
 									 */
 									const files = NewCaseForm.current.getFieldValue('files') || [];
 									const form = new FormData();
-									for (const file of files)
-										if (file.originFileObj)
+
+									// Handle both newly uploaded files and pre-existing files from reports
+									for (const file of files) {
+										if (file.originFileObj) {
+									// Newly uploaded file
 											form.append('files', file.originFileObj);
+										} else if (file.url) {
+											// Pre-existing file from report - fetch and append
+											try {
+												const response = await fetch(file.url);
+												const blob = await response.blob();
+												const fileBlob = new File([blob], file.name, { type: file.type || 'image/jpeg' });
+												form.append('files', fileBlob);
+											} catch (error) {
+												console.error('Error fetching file from URL:', error);
+											}
+										}
+									}
+
 									form.append('form', JSON.stringify({
 										title: "string",
 										violation: "'bullying' | 'cheating' | 'disruptive_behavior' | 'fraud' | 'gambling' | 'harassment' | 'improper_uniform' | 'littering' | 'plagiarism' | 'prohibited_items' | 'vandalism' | 'other'",
