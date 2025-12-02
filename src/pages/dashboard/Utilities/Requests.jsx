@@ -126,7 +126,7 @@ const Requests = () => {
 
 			// Update cache
 			if (cache.requests) {
-				const updatedRequests = cache.requests.map(req =>
+				const updatedRequests = cache.requests?.map(req =>
 					req.id === selectedRequest.id ? { ...req, status: newStatus, response: responseMessage } : req
 				);
 				updateCache('requests', updatedRequests);

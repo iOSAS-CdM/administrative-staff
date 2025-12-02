@@ -456,8 +456,8 @@ const CaseForm = ({ message, initialData }) => {
 													option.label.toLowerCase().includes(input.toLowerCase())
 												}
 												options={cache.students
-													.filter(student => !complainees?.includes(student.id))
-													.map(student => ({
+													?.filter(student => !complainees?.includes(student.id))
+													?.map(student => ({
 														label: `${student.name.first} ${student.name.last} (${student.id})`,
 														value: student.id
 													}))}
@@ -536,8 +536,8 @@ const CaseForm = ({ message, initialData }) => {
 													option.label.toLowerCase().includes(input.toLowerCase())
 												}
 												options={cache.students
-													.filter(student => !complainants?.includes(student.id))
-													.map(student => ({
+													?.filter(student => !complainants?.includes(student.id))
+													?.map(student => ({
 														label: `${student.name.first} ${student.name.last} (${student.id})`,
 														value: student.id
 													}))}

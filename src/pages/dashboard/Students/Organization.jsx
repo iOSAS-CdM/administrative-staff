@@ -871,10 +871,10 @@ const EditOrganizationFormContent = ({ form, organization }) => {
 											option.label.toLowerCase().includes(input.toLowerCase())
 										}
 										options={cache.students
-											.filter(student =>
+											?.filter(student =>
 												!members?.includes(student.id) || student.id === form.getFieldValue(['members', name, 'id'])
 											)
-											.map(student => ({
+											?.map(student => ({
 												label: `${student.name.first} ${student.name.last} (${student.id})`,
 												value: student.id
 											}))}
