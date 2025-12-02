@@ -12,7 +12,8 @@ import {
 	Menu,
 	Popover,
 	Spin,
-	App
+	App,
+	Badge
 } from 'antd';
 
 import {
@@ -126,6 +127,31 @@ const Dashboard = () => {
 		title: 'Dashboard',
 		actions: []
 	});
+
+	// Fetch statistics alerts
+	const [alerts, setAlerts] = React.useState({ requests: 0, records: 0, reports: 0 });
+	React.useEffect(() => {
+		if (!cache?.staff?.id) return;
+		const controller = new AbortController();
+		const fetchAlerts = async () => {
+			try {
+				const response = await authFetch(`${API_Route}/statistics/alerts`, { signal: controller.signal });
+				if (response?.ok) {
+					const data = await response.json();
+					setAlerts(data);
+				}
+			} catch (error) {
+				console.error('Failed to fetch alerts:', error);
+			}
+		};
+		fetchAlerts();
+		// Refresh alerts every 30 seconds
+		const interval = setInterval(fetchAlerts, 30000);
+		return () => {
+			controller.abort();
+			clearInterval(interval);
+		};
+	}, [cache?.staff, refresh]);
 
 	const pageProps = {
 		setHeader,
@@ -279,7 +305,11 @@ const Dashboard = () => {
 		},
 		{
 			key: 'requests',
-			label: 'Requests',
+			label: (
+				<Badge count={alerts.requests} offset={[10, 0]}>
+					<span style={{ paddingRight: alerts.requests > 0 ? 16 : 0 }}>Requests</span>
+				</Badge>
+			),
 			icon: <FileTextOutlined />,
 			onClick: () => navigate('/dashboard/utilities/requests', { replace: true })
 		},
@@ -317,12 +347,20 @@ const Dashboard = () => {
 			children: [
 				{
 					key: 'records',
-					label: 'Records',
+					label: (
+						<Badge count={alerts.records} offset={[10, 0]}>
+							<span style={{ paddingRight: alerts.records > 0 ? 16 : 0 }}>Records</span>
+						</Badge>
+					),
 					onClick: () => navigate('/dashboard/discipline/records', { replace: true })
 				},
 				cache?.staff && ['head', 'prefect'].includes(cache?.staff?.role) ? {
 					key: 'reports',
-					label: 'Reports',
+					label: (
+						<Badge count={alerts.reports} offset={[10, 0]}>
+							<span style={{ paddingRight: alerts.reports > 0 ? 16 : 0 }}>Reports</span>
+						</Badge>
+					),
 					onClick: () => navigate('/dashboard/discipline/reports', { replace: true })
 				} : null
 			]
@@ -382,7 +420,7 @@ const Dashboard = () => {
 				}
 			]
 		   }
-	], [cache?.staff, minimized, refresh]);
+	], [cache?.staff, minimized, refresh, alerts]);
 
 	return (
 		<Flex
