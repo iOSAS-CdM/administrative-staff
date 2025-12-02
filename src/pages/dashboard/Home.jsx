@@ -149,7 +149,8 @@ const Home = () => {
 
 	const [studentsRatio, setStudentsRatio] = React.useState([
 		{ type: 'Verified', value: 1 },
-		{ type: 'Unverified', value: 1 }
+		{ type: 'Unverified', value: 1 },
+		{ type: 'Unregistered', value: 0 }
 	]);
 	const [monthlyCasesTrend, setMonthlyCasesTrend] = React.useState([]);
 
@@ -169,7 +170,8 @@ const Home = () => {
 					const statsData = await statsRes.json();
 					setStudentsRatio([
 						{ type: 'Verified', value: statsData.students.verified },
-						{ type: 'Unverified', value: statsData.students.unverified }
+						{ type: 'Unverified', value: statsData.students.unverified },
+						{ type: 'Unregistered', value: statsData.students.unregistered || 0 }
 					]);
 				};
 
