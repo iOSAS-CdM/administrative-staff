@@ -42,6 +42,7 @@ import Home from './dashboard/Home';
 import Verified from './dashboard/Students/Verified';
 import Profile from './dashboard/Students/Profile';
 import Unverified from './dashboard/Students/Unverified';
+import UnregisteredStudents from './dashboard/Students/UnregisteredStudents';
 import DisciplinaryRecords from './dashboard/Discipline/Records';
 import DisciplinaryRecord from './dashboard/Discipline/Record';
 import Reports from './dashboard/Discipline/Reports';
@@ -142,6 +143,7 @@ const Dashboard = () => {
 
 		{ path: '/students/verified/*', element: <Verified /> },
 		{ path: '/students/unverified/*', element: <Unverified /> },
+		{ path: '/students/unregistered', element: <UnregisteredStudents /> },
 		{ path: '/students/profile/:id', element: <Profile /> },
 
 		{
@@ -295,6 +297,11 @@ const Dashboard = () => {
 					key: 'unverified',
 					label: 'Unverified Students',
 					onClick: () => navigate('/dashboard/students/unverified', { replace: true })
+				},
+				{
+					key: 'unregistered-students',
+					label: 'Unregistered Students',
+					onClick: () => navigate('/dashboard/students/unregistered', { replace: true })
 				},
 				['head', 'student-affairs'].includes(cache?.staff?.role) ? {
 					key: 'organizations',
