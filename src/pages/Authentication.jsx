@@ -56,75 +56,56 @@ const Authentication = () => {
 	]);
 
 	const signInWithGoogle = React.useCallback(async () => {
-		setSigningIn(true);
 		let port;
-		let unlisten;
-		try {
-			unlisten = await listen('oauth://url', (data) => {
-				if (!data.payload) return;
-				const url = new URL(data.payload);
-				const code = new URLSearchParams(url.search).get('code');
-				if (code) {
-					supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-						if (error) {
-							alert(error.message);
-							console.error(error);
-							setSigningIn(false);
-							return;
-						}
-						console.log(data);
-						location.reload();
-						if (unlisten) unlisten();
-						cancel(port)
-							.catch((e) => console.error(`Error cancelling OAuth listener for port ${port}:`, e));
-					}).catch((err) => {
-						alert('Failed to exchange code for session.');
-						console.error(err);
-						setSigningIn(false);
-					});
-				}
-			});
 
-			await start({
-				ports: [8000, 8001, 8002, 8003, 8004],
-				response: `<script>window.location.href = 'https://iosas.online/auth-complete';</script>`,
-			})
-				.then(async (p) => {
-					console.log(`OAuth listener started on port ${p}`);
-					port = p;
-				})
-				.catch((e) => {
-					alert('Error starting OAuth listener.');
-					console.error('Error starting OAuth listener:', e);
-					setSigningIn(false);
+		const unlisten = await listen('oauth://url', (data) => {
+			if (!data.payload) return;
+
+			const url = new URL(data.payload);
+			const code = new URLSearchParams(url.search).get('code');
+
+			if (code) {
+				supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+					if (error) {
+						alert(error.message);
+						console.error(error);
+						return;
+					};
+					console.log(data);
+					location.reload();
+
+					unlisten();
+					cancel(port)
+						.catch((e) => console.error(`Error cancelling OAuth listener for port ${port}:`, e));
 				});
-
-			if (!port) {
-				setSigningIn(false);
-				return;
-			}
-
-			const { data, error } = await supabase.auth.signInWithOAuth({
-				provider: 'google',
-				options: {
-					redirectTo: `http://localhost:${port}`,
-					skipBrowserRedirect: true
-				}
-			});
-			console.log(data, error);
-
-			if (data && data.url) {
-				open(data.url);
-			} else if (error) {
-				alert('Error signing in with Google: ' + error.message);
-				console.error('Error signing in with Google:', error.message);
-				setSigningIn(false);
 			};
-		} catch (err) {
-			alert('Unexpected error during Google sign-in.');
-			console.error('Unexpected error during Google sign-in:', err);
-			setSigningIn(false);
-		}
+		});
+
+		await start({
+			ports: [8000, 8001, 8002, 8003, 8004],
+			response: `<script>window.location.href = 'https://iosas.online/auth-complete';</script>`,
+		})
+			.then(async (p) => {
+				console.log(`OAuth listener started on port ${p}`);
+				port = p;
+			})
+			.catch((e) => console.error('Error starting OAuth listener:', e));
+
+		if (!port) return;
+
+		const { data, error } = await supabase.auth.signInWithOAuth({
+			provider: 'google',
+			options: {
+				redirectTo: `http://localhost:${port}`,
+				skipBrowserRedirect: true
+			}
+		});
+		console.log(data, error);
+
+		if (data.url)
+			open(data.url);
+		else if (error)
+			console.error('Error signing in with Google:', error.message);
 	}, []);
 
 	return (
